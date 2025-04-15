@@ -3843,49 +3843,11 @@
     "time": "4/4",
     "lyrics": "शारोन का गुलाबहै वो मेरा मसीहावो मुझे जल देताजिससे मैं तृप्त हो जाता\n\nतू है मेरा प्रियऔर मैं तुझसे ही प्रेम करूँगातू मेरा सब कुछ है\n\nऔर मैं तेरे लिये जीयुँग\n\nMukti dilaye yeshu naam\nD G\nMukti dilaye yeshu naam\nC D\nShanti dilaye yeshu naam\n\nVERSE 1\nD C\nYeshu daya ka behta sagar (X2)\nD G\nYeshu hai data mahan,\nC D\nYeshu hai data mahan\n\nVERSE 2\nD C\nCharni mai tu ne janam liya yeshu (X2)\nD G\nSuli pe kiya vishraam,\nC D\nSuli pe kiya vishraam\n\nVERSE 3\nD C\nKrus pe apna khoon bahaya (X2)\nD G\nSara chukaya daam,\nC D\nSara chukaya daam,\n\nVERSE 4\nD C\nHum sab ke paapo ko mitane (X2)\nD G\nYeshu hua balidaan,\nC D\nYeshu hua balidaan\n\nVERSE 5\nD C\nHum per bhi yeshu kirpa kerna (X2)\nD G\nHum hai papi nadan,\nC D\nHum hai papi nadan"
   }
-]</script>
-
-
-
-<script id="embeddedSongs" type="application/json">
-[
-  {
-    "id": 1,
-    "title": "Aadi Vandan Christa Tula",
-    "category": "praise",
-    "key": "E",
-    "tempo": "78 BPM",
-    "time": "4/4",
-    "taal": "Rupak",
-    "genre": "Easter",
-    "lyrics": "Aadi vandan lyrics..."
-  },
-  {
-    "id": 2,
-    "title": "Tu Hi Tu",
-    "category": "worship",
-    "key": "D",
-    "tempo": "80 BPM",
-    "time": "4/4",
-    "taal": "",
-    "genre": "Contemporary",
-    "lyrics": "Tu hi tu lyrics..."
-  }
 ]
 </script>
 
-</body>
 <script>
 let songs = (() => {
-    try {
-        const stored = JSON.parse(localStorage.getItem('songs'));
-        if (Array.isArray(stored) && stored.length > 0) {
-            return stored;
-        }
-    } catch (e) {
-        console.warn("Error reading localStorage songs:", e);
-    }
-
     const embedded = document.getElementById('embeddedSongs');
     if (embedded) {
         try {
@@ -3897,17 +3859,12 @@ let songs = (() => {
             console.warn("Error parsing embeddedSongs:", e);
         }
     }
-
     return [];
 })();
 
-if (!localStorage.getItem('songs') && songs.length > 0) {
-    localStorage.setItem('songs', JSON.stringify(songs));
-}
-
-window.addEventListener("load", () => {
-    init();
+	window.addEventListener("load", () => {
+		init();
 });
 </script>
-
+</body>
 </html>

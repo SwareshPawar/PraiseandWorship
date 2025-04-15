@@ -1265,9 +1265,6 @@
     </div>
 
     <script>
-	
-	        // Initialize
-        
 
         document.getElementById('downloadHtmlWithSongsBtn').addEventListener('click', () => {
             try {
@@ -1355,29 +1352,17 @@
             dropdown.style.display = 'block';
         }
         // Initialize songs
-        let songs = (() => {
-			try {
-				const localSongs = JSON.parse(localStorage.getItem('songs'));
-				if (Array.isArray(localSongs) && localSongs.length > 0) {
-					return localSongs;
-				}
-			} catch (e) {
-				console.warn("localStorage failed:", e);
-			}
-
-			const embedded = document.getElementById('embeddedSongs');
-			if (embedded) {
-				try {
-					const parsed = JSON.parse(embedded.textContent);
-					if (Array.isArray(parsed)) return parsed;
-				} catch (e) {
-					console.warn("Failed to parse embeddedSongs:", e);
-				}
-			}
-
-			return [];
-		})();
-
+        let songs = JSON.parse(localStorage.getItem('songs')) || (() => {
+            const embedded = document.getElementById('embeddedSongs');
+            if (embedded) {
+                try {
+                    return JSON.parse(embedded.textContent) || [];
+                } catch (err) {
+                    console.warn('Could not parse embedded songs:', err);
+                }
+            }
+            return [];
+        })();
 
         let praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || [];
         let worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || [];
@@ -1443,7 +1428,12 @@
             localStorage.setItem('worshipSetlist', JSON.stringify(worshipSetlist));
         }
 
-
+        // Initialize
+        function init() {
+            renderSongs('praise', '', '');
+            addEventListeners();
+            addPanelToggles();
+        }
 
         function handleMergeUpload(event) {
             const file = event.target.files[0];
@@ -2268,12 +2258,6 @@
             };
             reader.readAsText(file);
         }
-		
-		function init() {
-            renderSongs('praise', '', '');
-            addEventListeners();
-            addPanelToggles();
-        }
 
         // Global functions
         window.addToSetlist = addToSetlist;
@@ -2283,14 +2267,6 @@
 
         // Start app
         window.onload = init;
-		
-		document.addEventListener("DOMContentLoaded", () => {
-			init();
-		});
-		
-		window.addEventListener("load", () => {
-			init();
-		});
     </script>
 
     <style>
@@ -3862,9 +3838,71 @@
     "time": "4/4",
     "lyrics": "शारोन का गुलाबहै वो मेरा मसीहावो मुझे जल देताजिससे मैं तृप्त हो जाता\n\nतू है मेरा प्रियऔर मैं तुझसे ही प्रेम करूँगातू मेरा सब कुछ है\n\nऔर मैं तेरे लिये जीयुँग\n\nMukti dilaye yeshu naam\nD G\nMukti dilaye yeshu naam\nC D\nShanti dilaye yeshu naam\n\nVERSE 1\nD C\nYeshu daya ka behta sagar (X2)\nD G\nYeshu hai data mahan,\nC D\nYeshu hai data mahan\n\nVERSE 2\nD C\nCharni mai tu ne janam liya yeshu (X2)\nD G\nSuli pe kiya vishraam,\nC D\nSuli pe kiya vishraam\n\nVERSE 3\nD C\nKrus pe apna khoon bahaya (X2)\nD G\nSara chukaya daam,\nC D\nSara chukaya daam,\n\nVERSE 4\nD C\nHum sab ke paapo ko mitane (X2)\nD G\nYeshu hua balidaan,\nC D\nYeshu hua balidaan\n\nVERSE 5\nD C\nHum per bhi yeshu kirpa kerna (X2)\nD G\nHum hai papi nadan,\nC D\nHum hai papi nadan"
   }
-  
-
 ]</script>
 
 
-</body></html>
+
+<script id="embeddedSongs" type="application/json">
+[
+  {
+    "id": 1,
+    "title": "Aadi Vandan Christa Tula",
+    "category": "praise",
+    "key": "E",
+    "tempo": "78 BPM",
+    "time": "4/4",
+    "taal": "Rupak",
+    "genre": "Easter",
+    "lyrics": "Aadi vandan lyrics..."
+  },
+  {
+    "id": 2,
+    "title": "Tu Hi Tu",
+    "category": "worship",
+    "key": "D",
+    "tempo": "80 BPM",
+    "time": "4/4",
+    "taal": "",
+    "genre": "Contemporary",
+    "lyrics": "Tu hi tu lyrics..."
+  }
+]
+</script>
+
+</body>
+<script>
+let songs = (() => {
+    try {
+        const stored = JSON.parse(localStorage.getItem('songs'));
+        if (Array.isArray(stored) && stored.length > 0) {
+            return stored;
+        }
+    } catch (e) {
+        console.warn("Error reading localStorage songs:", e);
+    }
+
+    const embedded = document.getElementById('embeddedSongs');
+    if (embedded) {
+        try {
+            const embeddedSongs = JSON.parse(embedded.textContent);
+            if (Array.isArray(embeddedSongs)) {
+                return embeddedSongs;
+            }
+        } catch (e) {
+            console.warn("Error parsing embeddedSongs:", e);
+        }
+    }
+
+    return [];
+})();
+
+if (!localStorage.getItem('songs') && songs.length > 0) {
+    localStorage.setItem('songs', JSON.stringify(songs));
+}
+
+window.addEventListener("load", () => {
+    init();
+});
+</script>
+
+</html>

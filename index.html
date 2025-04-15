@@ -1267,11 +1267,7 @@
     <script>
 	
 	        // Initialize
-        function init() {
-            renderSongs('praise', '', '');
-            addEventListeners();
-            addPanelToggles();
-        }
+        
 
         document.getElementById('downloadHtmlWithSongsBtn').addEventListener('click', () => {
             try {
@@ -2272,6 +2268,12 @@
             };
             reader.readAsText(file);
         }
+		
+		function init() {
+            renderSongs('praise', '', '');
+            addEventListeners();
+            addPanelToggles();
+        }
 
         // Global functions
         window.addToSetlist = addToSetlist;
@@ -2283,6 +2285,10 @@
         window.onload = init;
 		
 		document.addEventListener("DOMContentLoaded", () => {
+			init();
+		});
+		
+		window.addEventListener("load", () => {
 			init();
 		});
     </script>
@@ -3857,9 +3863,7 @@
     "lyrics": "शारोन का गुलाबहै वो मेरा मसीहावो मुझे जल देताजिससे मैं तृप्त हो जाता\n\nतू है मेरा प्रियऔर मैं तुझसे ही प्रेम करूँगातू मेरा सब कुछ है\n\nऔर मैं तेरे लिये जीयुँग\n\nMukti dilaye yeshu naam\nD G\nMukti dilaye yeshu naam\nC D\nShanti dilaye yeshu naam\n\nVERSE 1\nD C\nYeshu daya ka behta sagar (X2)\nD G\nYeshu hai data mahan,\nC D\nYeshu hai data mahan\n\nVERSE 2\nD C\nCharni mai tu ne janam liya yeshu (X2)\nD G\nSuli pe kiya vishraam,\nC D\nSuli pe kiya vishraam\n\nVERSE 3\nD C\nKrus pe apna khoon bahaya (X2)\nD G\nSara chukaya daam,\nC D\nSara chukaya daam,\n\nVERSE 4\nD C\nHum sab ke paapo ko mitane (X2)\nD G\nYeshu hua balidaan,\nC D\nYeshu hua balidaan\n\nVERSE 5\nD C\nHum per bhi yeshu kirpa kerna (X2)\nD G\nHum hai papi nadan,\nC D\nHum hai papi nadan"
   }
   
-  window.addEventListener("load", () => {
-    init();
-});
+
 ]</script>
 
 

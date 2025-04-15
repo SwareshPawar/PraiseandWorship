@@ -1352,17 +1352,30 @@
             dropdown.style.display = 'block';
         }
         // Initialize songs
-        let songs = JSON.parse(localStorage.getItem('songs')) || (() => {
-            const embedded = document.getElementById('embeddedSongs');
-            if (embedded) {
-                try {
-                    return JSON.parse(embedded.textContent) || [];
-                } catch (err) {
-                    console.warn('Could not parse embedded songs:', err);
-                }
-            }
-            return [];
-        })();
+        let songs = (() => {
+			try {
+				const localSongs = JSON.parse(localStorage.getItem('songs'));
+				if (localSongs && Array.isArray(localSongs) && localSongs.length > 0) {
+					return localSongs;
+				}
+			} catch (e) {
+				console.warn('Error reading songs from localStorage:', e);
+			}
+
+			const embedded = document.getElementById('embeddedSongs');
+			if (embedded) {
+				try {
+					const embeddedSongs = JSON.parse(embedded.textContent);
+					if (Array.isArray(embeddedSongs)) {
+						return embeddedSongs;
+					}
+				} catch (err) {
+					console.warn('Could not parse embedded songs:', err);
+				}
+			}
+
+			return []; // fallback
+		})();
 
         let praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || [];
         let worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || [];
@@ -2705,6 +2718,17 @@
 
     </script>
 
+<script>
+  fetch('songs.json')
+    .then(response => response.json())
+    .then(data => {
+      window.songs = data;
+      console.log('Songs loaded:', songs);
+      // Call your rendering function here
+      renderSongs(songs);
+    })
+    .catch(error => console.error('Error loading songs:', error));
+</script>
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {

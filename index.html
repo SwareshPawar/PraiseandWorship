@@ -3853,18 +3853,98 @@ let songs = (() => {
         try {
             const embeddedSongs = JSON.parse(embedded.textContent);
             if (Array.isArray(embeddedSongs)) {
+                console.log('Songs loaded successfully:', embeddedSongs); // Debug log
                 return embeddedSongs;
+            } else {
+                console.warn('embeddedSongs is not an array:', embeddedSongs);
             }
         } catch (e) {
-            console.warn("Error parsing embeddedSongs:", e);
+            console.error('Error parsing embeddedSongs:', e);
         }
+    } else {
+        console.warn('No embeddedSongs script found');
     }
     return [];
 })();
 
-	window.addEventListener("load", () => {
-		init();
+function init() {
+    console.log('Initializing with songs:', songs); // Debug log
+
+    // Target containers for Praise and Worship tabs
+    const praiseContent = document.getElementById('praiseContent');
+    const worshipContent = document.getElementById('worshipContent');
+
+    if (!praiseContent || !worshipContent) {
+        console.error('Praise or Worship content containers not found');
+        return;
+    }
+
+    // Clear existing content
+    praiseContent.innerHTML = '';
+    worshipContent.innerHTML = '';
+
+    if (songs.length === 0) {
+        praiseContent.innerHTML = '<p>No songs available</p>';
+        worshipContent.innerHTML = '<p>No songs available</p>';
+        console.warn('No songs to display');
+        return;
+    }
+
+    // Render songs into respective tabs
+    songs.forEach(song => {
+        const songElement = document.createElement('div');
+        songElement.className = 'song-item';
+        songElement.dataset.songId = song.id;
+        songElement.innerHTML = `
+            <div class="song-title">${song.title}</div>
+            <div class="song-meta">${song.key} | ${song.tempo} | ${song.time}${song.taal ? ' | ' + song.taal : ''}${song.genre ? ' | ' + song.genre : ''}</div>
+            <div class="song-actions">
+                <button class="btn btn-primary add-to-setlist">Add to Setlist</button>
+                <button class="btn btn-edit edit-song">Edit</button>
+            </div>
+        `;
+
+        // Append to appropriate tab based on category
+        if (song.category.toLowerCase() === 'praise') {
+            praiseContent.appendChild(songElement);
+        } else if (song.category.toLowerCase() === 'worship') {
+            worshipContent.appendChild(songElement);
+        }
+    });
+
+    // Ensure songs section is populated even if hidden
+    const songsSection = document.querySelector('.songs-section');
+    if (songsSection.classList.contains('hidden')) {
+        console.log('Songs section is hidden, but songs are rendered');
+        // Optionally force visibility for rendering, then re-hide if needed
+        // songsSection.classList.remove('hidden');
+        // setTimeout(() => songsSection.classList.add('hidden'), 0);
+    }
+
+    // Update tab visibility based on active tab
+    const activeTab = document.querySelector('.setlist-tab.active');
+    if (activeTab) {
+        const tabId = activeTab.id === 'praiseTab' ? 'praiseContent' : 'worshipContent';
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.toggle('active', content.id === tabId);
+        });
+    }
+}
+
+window.addEventListener('load', () => {
+    init();
+
+    // Ensure toggle buttons work correctly in mobile view
+    const toggleSongsBtn = document.getElementById('toggle-songs');
+    if (toggleSongsBtn) {
+        toggleSongsBtn.addEventListener('click', () => {
+            const songsSection = document.querySelector('.songs-section');
+            songsSection.classList.toggle('hidden');
+            console.log('Toggled songs section:', songsSection.classList.contains('hidden') ? 'Hidden' : 'Visible');
+        });
+    }
 });
 </script>
+
 </body>
 </html>

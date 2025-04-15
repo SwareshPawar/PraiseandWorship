@@ -1355,27 +1355,26 @@
         let songs = (() => {
 			try {
 				const localSongs = JSON.parse(localStorage.getItem('songs'));
-				if (localSongs && Array.isArray(localSongs) && localSongs.length > 0) {
+				if (Array.isArray(localSongs) && localSongs.length > 0) {
 					return localSongs;
 				}
 			} catch (e) {
-				console.warn('Error reading songs from localStorage:', e);
+				console.warn("localStorage failed:", e);
 			}
 
 			const embedded = document.getElementById('embeddedSongs');
 			if (embedded) {
 				try {
-					const embeddedSongs = JSON.parse(embedded.textContent);
-					if (Array.isArray(embeddedSongs)) {
-						return embeddedSongs;
-					}
-				} catch (err) {
-					console.warn('Could not parse embedded songs:', err);
+					const parsed = JSON.parse(embedded.textContent);
+					if (Array.isArray(parsed)) return parsed;
+				} catch (e) {
+					console.warn("Failed to parse embeddedSongs:", e);
 				}
 			}
 
-			return []; // fallback
+			return [];
 		})();
+
 
         let praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || [];
         let worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || [];
@@ -2280,6 +2279,10 @@
 
         // Start app
         window.onload = init;
+		
+		document.addEventListener("DOMContentLoaded", () => {
+			init();
+		});
     </script>
 
     <style>

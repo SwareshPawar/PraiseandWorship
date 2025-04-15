@@ -1493,6 +1493,11 @@
                 e.stopPropagation();
                 songsSection.classList.toggle('hidden');
                 updatePositions();
+				    // Rerender songs on toggle open (if now visible)
+				if (!songsSection.classList.contains('hidden')) {
+					const category = praiseTab.classList.contains('active') ? 'praise' : 'worship';
+					renderSongs(category, keyFilter.value, genreFilter.value);
+				}
             });
 
             toggleAllPanelsBtn.addEventListener('click', (e) => {

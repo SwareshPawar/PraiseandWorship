@@ -1267,36 +1267,31 @@
     <script>
 
         document.getElementById('downloadHtmlWithSongsBtn').addEventListener('click', () => {
-            try {
-                // Clone the current document
-                const clone = document.documentElement.cloneNode(true);
+			try {
+				const clone = document.documentElement.cloneNode(true);
+				const embedded = clone.querySelector('#embeddedSongs') || 
+					document.createElement('script');
+				
+				embedded.id = 'embeddedSongs';
+				embedded.type = 'application/json';
+				embedded.textContent = JSON.stringify(songs, null, 2);
+				
+				if (!clone.querySelector('#embeddedSongs')) {
+					clone.querySelector('body').appendChild(embedded);
+				}
 
-                // Update the embeddedSongs <script> tag
-                const embedded = clone.querySelector('#embeddedSongs');
-                if (embedded) {
-                    embedded.textContent = JSON.stringify(songs, null, 2);
-                } else {
-                    // If not present, create and append it
-                    const script = document.createElement('script');
-                    script.id = 'embeddedSongs';
-                    script.type = 'application/json';
-                    script.textContent = JSON.stringify(songs, null, 2);
-                    clone.querySelector('body').appendChild(script);
-                }
-
-                // Create and download the new HTML
-                const fullHtml = '<!DOCTYPE html>\n' + clone.outerHTML;
-                const blob = new Blob([fullHtml], { type: 'text/html' });
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'PraiseWorship_Songs_Updated.html';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-            } catch (err) {
-                alert('Failed to generate updated HTML: ' + err.message);
-            }
-        });
+				const fullHtml = '<!DOCTYPE html>\n' + clone.outerHTML;
+				const blob = new Blob([fullHtml], { type: 'text/html' });
+				const a = document.createElement('a');
+				a.href = URL.createObjectURL(blob);
+				a.download = 'PraiseWorship_Songs_Updated.html';
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+			} catch (err) {
+				alert('Failed to generate updated HTML: ' + err.message);
+			}
+		});
 
 
         // Search history functionality
@@ -1364,8 +1359,8 @@
             return [];
         })();
 
-        let praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || [];
-        let worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || [];
+        <!-- let praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || []; -->
+        <!-- let worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || []; -->
 
         // DOM Elements
         const praiseTab = document.getElementById('praiseTab');
@@ -1423,10 +1418,10 @@
             }
         }
 
-        function saveSetlists() {
-            localStorage.setItem('praiseSetlist', JSON.stringify(praiseSetlist));
-            localStorage.setItem('worshipSetlist', JSON.stringify(worshipSetlist));
-        }
+        <!-- function saveSetlists() { -->
+            <!-- localStorage.setItem('praiseSetlist', JSON.stringify(praiseSetlist)); -->
+            <!-- localStorage.setItem('worshipSetlist', JSON.stringify(worshipSetlist)); -->
+        <!-- } -->
 
         // Initialize
         function init() {
@@ -3847,25 +3842,28 @@
 </script>
 
 <script>
+// Replace the current initialization code with this:
 let songs = (() => {
     const embedded = document.getElementById('embeddedSongs');
     if (embedded) {
         try {
-            const embeddedSongs = JSON.parse(embedded.textContent);
-            if (Array.isArray(embeddedSongs)) {
-                console.log('Songs loaded successfully:', embeddedSongs); // Debug log
-                return embeddedSongs;
-            } else {
-                console.warn('embeddedSongs is not an array:', embeddedSongs);
-            }
-        } catch (e) {
-            console.error('Error parsing embeddedSongs:', e);
+            return JSON.parse(embedded.textContent) || [];
+        } catch (err) {
+            console.error('Could not parse embedded songs:', err);
+            return [];
         }
-    } else {
-        console.warn('No embeddedSongs script found');
     }
     return [];
 })();
+
+// Remove localStorage saving/loading completely
+function saveSongs() {
+    // No longer save to localStorage
+    const embedded = document.getElementById('embeddedSongs');
+    if (embedded) {
+        embedded.textContent = JSON.stringify(songs, null, 2);
+    }
+}
 
 function init() {
     console.log('Initializing with songs:', songs); // Debug log

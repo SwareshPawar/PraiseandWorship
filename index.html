@@ -1079,16 +1079,17 @@
         async function loadSongsFromFile() {
             try {
                 const response = await fetch('songs.json');
-                if (!response.ok) throw new Error('Failed to load songs.json');
-                const data = await response.json();
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                // Validate the loaded data
-                if (data.songs && Array.isArray(data.songs)) {
-                    return data;
-                }
-                throw new Error('Invalid songs.json format');
+                const text = await response.text();
+
+                // Temporary: Log first 200 chars around the error position
+                const errorPos = 105932;
+                console.log('Text around error:', text.substring(errorPos - 100, errorPos + 100));
+
+                return JSON.parse(text);
             } catch (err) {
-                console.log('Could not load songs from file:', err.message);
+                console.error('Full error loading JSON:', err);
                 return null;
             }
         }

@@ -97,10 +97,12 @@
       "id": 41,
       "title": "Aaye hein hum, tere charno mei",
       "category": "worship",
-      "key": "F Major",
+      "key": "G",
       "tempo": "70 BPM",
       "time": "4/4",
-      "lyrics": "[F]Aaye Hein Ham[Am],[Dm] tere charno meiLekar[C] ham stuti: [F][F]Aaye Hein[Dm] Ham [C]tere charno mei[F]Lekar ham [C]stuti: [F][F]Helleluyah[Am],[Dm] halleluyah[C]Helleluyah, halleluyah[F]\n\n[F]Papo ko tu [Am],[Dm]dho de hamareMarzi [C]teri Karen sada[F][F]Papo ko[Dm] tu [C]dho de hamare[F]Marzi teri Karen[C] sada[F][F]Helleluyah[Am],[Dm] halleluyah[C]Helleluyah, halleluyah[F]\n\n[F]Ham bachhe hein[Am],[Dm]Param pita keBadhna hei[C] hame Vachnan’o mei[F][F]Ham bachhe[Dm] hein [C]Param pita ke[F]Badhna hei hame[C] Vachnan’o mei[F][F]Helleluyah[Am],[Dm] halleluyah[C]Helleluyah, halleluyah[F]\n\n[F]Pyare Prabhu ji[Am],[Dm]ashish de hameAtma se[C] tu bharde hame[F][F]Pyare Prabhu[Dm] ji ashish de hame[F]Atma se tu[C] bharde hame[F][F]Helleluyah[Am],[Dm]halleluyah[C]Helleluyah, halleluyah[F]"
+      "taal": "Keherwa",
+      "genre": "Thanksgiving",
+      "lyrics": "    G                 C\nAye Hai Hum, Tere Charno Mai\n      D       C\nLeker Hum Stuthi\n \n \n[Chorus]\n     G           C\nHalleluiah, Halleluiah\n     D           C\nHalleluiah, Halleluiah\n \n \n[Verse 1]\n        G            C\nPyare Masiha, Ashish De Hume\n      D              C\nAatma Se Tu, Bhar De Hume\n \n \n[Verse 2]\n      G               C\nHum Bache Hai, Parampita Ke\n       D                 C\nBadhna Hai Hume, Wachano Mai\n \n \n[Verse 3]\n      G                     C\nMilti Hai Hume, Tujh Se Changaiya\n      D                  C\nDetha Thu Hume, Paapo Se Mukthi"
     },
     {
       "id": 54,
@@ -1092,6 +1094,61 @@
       "taal": "Keherwa",
       "genre": "Thanksgiving",
       "lyrics": "शारोन का गुलाबहै \nवो मेरा मसीहा\nवो मुझे जल देता\nजिससे मैं तृप्त हो जाता\n\nतू है मेरा प्रिय\nऔर मैं तुझसे ही प्रेम करूँगा\nतू मेरा सब कुछ है\n\nऔर मैं तेरे लिये जीयुँग\n"
+    },
+    {
+      "id": 114,
+      "title": "मेरा येशु है कमाल का ",
+      "category": "praise",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Easter",
+      "lyrics": "G                 C                \nमेरा येशु है कमाल का x 4\nEm               D     G   C\nउसके जैसा कोई नहीं x 4\n\nG                     C      (first time C, Second time D)           \nबिन पानी वो प्यास बुझाता,\nG                  C                \nबिन रोटी वो भूख मिटाता\nC                Am             D                \nवो ही जीवन जल है यारों, वो ही जीवन रोटी\n\nबिना सहारे पानी में चलता,\nतुफानो को भी शांत कराता\nआंधी उसकी बात माने, तूफ़ान शांत हो जाए\n\nमेरे लिए ही मारा गया, मेरे लिए ही सूली उठाया\n\nतीसरे दिन फिर ज़िंदा उठकर मौत को उसने हराया "
+    },
+    {
+      "id": 115,
+      "title": "प्रभु का आनंद है मेरी ताकत",
+      "category": "worship",
+      "key": "E",
+      "tempo": "95",
+      "time": "3/4",
+      "taal": "Dadra",
+      "genre": "Thanksgiving",
+      "lyrics": "E                       A       \nप्रभु का आनंद है मेरी ताकत\n    B                   A    E       \nसंसार मे येशु है मेरी ताकत\n\nE                  A       \nवो मेरा आनंद हर एक दिन मे\n\nB                 A E             \n\nवो मेरा सहारा है  - २\n\n१. जब मैंने सोचा की असंभव है\nतब प्रभु येशु ने मुझ से कहा\nअसंभव को संभव कर ने वाला येशु\nमै तेरे साथ हूँ  - २\n\n२. जब मैंने सोचा मे अकेला हूँ\nतब प्रभु येशु ने मुझ से कहा\nसंसार के अंत तक साथ रहने वाला\nमै तेरे साथ हूँ  - २\n\n३. जब मैंने सोचा की मै निर्बल हूँ\nतब प्रभु येशु ने मुझ से कहा\nशांति देने वाला सामर्थ देने वाला\nमै तेरे साथ हूँ - २"
+    },
+    {
+      "id": 116,
+      "title": "मेरे जीवन का मकसद तू है",
+      "category": "praise",
+      "key": "C",
+      "tempo": "95",
+      "time": "3/4",
+      "taal": "Dadra",
+      "genre": "Forgiveness",
+      "lyrics": "G                                  C\nमेरे जीवन का मकसद तू है,\n       D                     G\nमेरे जीने का कारण तू है\nG Bm        C        Am  D            C     G\nमैं जीयूँ या मरूँ, वो तेरे लिये है, तू मेरा प्रभु\n\nG         Bm     C          Am    D     G\nपिछला सब भूलकर, मैं आगे दौड़ा चलूँ\nG         Bm       C     Am        D    G\nजो मेरे लिये धन था, उसको मैं त्याग दूँ\nG        C              Am        D    C   G\nकि मैं पाऊँ उससे पुरस्कार, दौड़ा मैं जाऊँ\n\nमुझ पर है कृपा, बेकार ना जाने दूँ\nजिसने मुझे चुना, उसकी और मैं बढ़ूँ देखूँ तेरी उस सलीब को, खिंचा मैं जाऊँ"
+    },
+    {
+      "id": 117,
+      "title": "तुने मुझे आगे पीछे ",
+      "category": "praise",
+      "key": "C#",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Dadra",
+      "genre": "Christmas",
+      "lyrics": "C#m               B\nतुने मुझे आगे पीछे घेर रखा है\nA                 B          C#m\nअपना हाथ मुझ पर रखे रहता है \nC#m  B     A       B      C#m\nतेरी आत्मा से भाग कर मै कहा जाऊं \n\n\nआकाश पे चढू तो तू वहां है,\nअधोलोक में जाऊं तो तू वहां है \n\nतूफ़ान में जाऊं तो तू वहां है,\nलहरों पे चलूँ तो तू वहां है \n\nपूरब में जाऊं तो तू वहां है,\n\nपश्चिम में जाऊं तो तू वहां है "
+    },
+    {
+      "id": 118,
+      "title": "बिनती सुन ले",
+      "category": "worship",
+      "key": "D",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Christmas",
+      "lyrics": "[D] बिनती सुन ले\n[C] यीशु प्यारे\n[D] बिनती सुन ले\n[C] यीशु प्यारे\n[G] मोरे संग रहो\n[D] महाराज\nअब तुम [C] राखो मेरी\n[D] लाज\nप्रभु तुम [C] राखो मेरी [D] लाज\n[D] बिनती करूँ तुम\n[Bm] से कर जोरी\n[G] अब तुम बिनती [A] सुन लो मोरी [D]\n[Bm] मोहे आशा [G] लग रही तोरी\n[Bm] मोहे आशा [G] लग रही तोरी\n[Em] दर्श दिखा दो\n[A] आज\n[C] अब तुम राखो मेरी\n[D] लाज\n[C] बिनती सुनो मेरी\n[D] महाराज\nबिनती सुन ले…\n[D] आपका मैं\n[Bm] शैदा कहलाऊँ\n[G] आस लगी तोरे [A] दर्शन पाऊँ [D]\n[Bm] युग युग आपका [G] मैं गुण गाऊँ\n[Bm] युग युग आपका [G] मैं गुण गाऊँ\n[Em] मेरे गरीब\n[A] नवाज़\n[C] अब तुम राखो मेरी\n[D] लाज\n[C] बिनती सुनो मेरी\n[D] महाराज\nबिनती सुन ले…\n[D] तुम ही हमारे\n[Bm] तारणहारे\n[G] मन के प्यारे [A] दिल के [D] दुलारे\n[Bm] तुम ही हमारे\n[G] नैनों के तारे\n[Bm] मन के प्यारे\n[G] दिल के दुलारे\n[Em] हमारे तुम\n[A] सरताज\n[C] अब तुम राखो मेरी\n[D] लाज\n[C] बिनती सुनो मेरी\n[D] महाराज\nबिनती सुन ले…"
     }
   ],
   "praiseSetlist": [],

@@ -6,6 +6,132 @@
     <title>Praise & Worship Songs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+
+        .sidebar-folder {
+            margin-top: 20px;
+        }
+
+        .folder-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 4px;
+            background: var(--secondary-color);
+            transition: background 0.3s ease;
+        }
+
+            .folder-toggle:hover {
+                background: #0e4b6e;
+            }
+
+        .folder-caret {
+            transition: transform 0.3s ease;
+        }
+
+        .folder-content {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            margin-top: 10px;
+            padding-left: 10px;
+        }
+
+            .folder-content.show {
+                display: flex;
+            }
+
+        .folder-toggle.active .folder-caret {
+            transform: rotate(180deg);
+        }
+
+
+        .search-history-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .search-history-item {
+            padding: 8px 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+
+            .search-history-item:hover {
+                background-color: #f5f5f5;
+            }
+
+        .search-history-header {
+            padding: 8px 10px;
+            font-weight: bold;
+            border-bottom: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+
+        /* Add new styles for search results */
+        .search-results {
+            display: none;
+            margin-top: 15px;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 10px;
+        }
+
+            .search-results.active {
+                display: block;
+            }
+
+        .search-results-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .search-result-item {
+            padding: 8px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+        }
+
+            .search-result-item:hover {
+                background-color: #f9f9f9;
+            }
+
+        .search-result-title {
+            font-weight: 600;
+        }
+
+        .search-result-meta {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .search-result-snippet {
+            font-size: 0.85rem;
+            color: #555;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .highlight {
+            background-color: yellow;
+            font-weight: bold;
+        }
         :root {
             --primary-color: #4a6fa5;
             --secondary-color: #166088;
@@ -475,19 +601,35 @@
                 <li><a href="#" id="showDelete">Delete Songs</a></li>
             </ul>
             <div class="sidebar-footer">
-                <button class="sidebar-btn" id="openAddSongModal">
-                    <i class="fa fa-plus"></i> Add New Song
-                </button>
-                <button class="sidebar-btn" id="downloadSongsBtn">
-                    <i class="fas fa-download"></i> Download Songs
-                </button>
-                <button class="sidebar-btn" id="uploadSongsBtn">
-                    <i class="fas fa-upload"></i> Upload Songs
-                </button>
-                <button class="sidebar-btn btn-delete" id="deleteAllSongsBtn">
-                    <i class="fas fa-trash-alt"></i> Delete All Songs
-                </button>
+                <div class="sidebar-folder">
+                    <div class="folder-toggle" id="toggleSongTools">
+                        <i class="fas fa-folder-open"></i> Song Tools
+                        <i class="fas fa-caret-down folder-caret"></i>
+                    </div>
+                    <div class="folder-content" id="songToolsContent">
+                        <button class="sidebar-btn" id="openAddSongModal">
+                            <i class="fa fa-plus"></i> Add New Song
+                        </button>
+                        <button class="sidebar-btn" id="downloadSongsBtn">
+                            <i class="fas fa-download"></i> Download Songs
+                        </button>
+                        <button class="sidebar-btn" id="uploadSongsBtn">
+                            <i class="fas fa-upload"></i> Upload Reset Songs
+                        </button>
+                        <button class="sidebar-btn" id="mergeSongsBtn">
+                            <i class="fas fa-compress-arrows-alt"></i> Upload Merge Songs
+                        </button>
+                        <button class="sidebar-btn btn-delete" id="deleteAllSongsBtn">
+                            <i class="fas fa-trash-alt"></i> Delete All Songs
+                        </button>
+                    </div>
+                </div>
+
             </div>
+            <button class="sidebar-btn" id="downloadHtmlWithSongsBtn">
+                <i class="fas fa-file-export"></i> Download HTML with Songs
+            </button>
+
         </div>
 
         <div class="songs-section hidden">
@@ -497,7 +639,12 @@
                     <div class="setlist-tab active" id="worshipTab">Worship</div>
                 </div>
                 <div class="filters-row">
-                    <input type="text" id="searchInput" class="compact-input" placeholder="Search songs...">
+                    <div style="position: relative; width: 100%;">
+                        <input type="text" id="searchInput" class="compact-input" placeholder="Search songs..."
+                               style="padding-right: 30px;" autocomplete="off">
+                        <span id="clearSearch" class="clear-search-btn" style="display: none;">×</span>
+                        <div id="searchHistoryDropdown" class="search-history-dropdown"></div>
+                    </div>
                     <select id="keyFilter" class="compact-select">
                         <option value="">All Keys</option>
                         <option value="C">C Major</option>
@@ -535,6 +682,12 @@
                         <option value="Holy Spirit">Holy Spirit</option>
                     </select>
                 </div>
+
+                <div class="search-results" id="searchResults">
+                    <div class="search-results-header">Search Results</div>
+                    <div id="searchResultsContent"></div>
+                </div>
+
             </div>
             <div class="tab-content active" id="praiseContent"></div>
             <div class="tab-content" id="worshipContent"></div>
@@ -743,53 +896,104 @@
     </div>
 
     <script>
-        // Initialize songs
-        let songs = JSON.parse(localStorage.getItem('songs')) || [
-            {
-                id: 1,
-                title: "आनंद भरला",
-                category: "praise",
-                key: "G",
-                tempo: "80 BPM",
-                time: "4/4",
-                taal: "Keherwa",
-                genre: "Holy Spirit",
-                lyrics: `आनंद भरला, आनंद पूर्ण भरला\nयेशूने मला वाचवले, माझे पाप धुतले,\nआनंद पूर्ण भरला\n\nमार्ग चुकून मी फिरलो, अंधकारात मी चाललो\nतरी येशूने सोडले नाही, स्वतः येउन वाचवले\nइतका चांगला येशु माझा स्वतः झाला.\n\n(Chorus)\nपापात असणारे, अंधकारात चालणारे,\nमी स्वर्गात नवे गीत गातो.\nआता पर्यंत सांभाळ केला चांगला येशु`
-            },
-            {
-                id: 2,
-                title: "Jai denewale Prabhu Yeshu ko",
-                category: "praise",
-                key: "D",
-                tempo: "75 BPM",
-                time: "4/4",
-                taal: "Dadra",
-                genre: "Contemporary",
-                lyrics: `[D]Jai denewale Prabhu Yeshu ko koti koti [G]dhanyawad\n[A]Jeevan denewale Prabhu Yeshu ko\n[A7]jeevan bhar dhanyawad[D]\n[D]halleluiyah halleluiyah gayenge[G]\n[A]aatma se bhar kar naachenge[D]\n\nYeshu zinda hai\nwo aane wala hai\nWo sachha prabhu hai\nkaruna se bhara hua\nmeri raksha karne wala\nkabhi na sota hai\nNyaya ke hatho se\nhamko chalayega\nPrabhu mera bal hai\nkisi se na darunga\nChamtkar karne wala\naashish dene wala\nvachan ko bhejkar\nmahima badhat`
-            },
-            {
-                id: 3,
-                title: "गाऊनी स्तुती प्रभू ख्रिस्ताची",
-                category: "praise",
-                key: "C",
-                tempo: "85 BPM",
-                time: "4/4",
-                taal: "TeenTaal",
-                genre: "Thanksgiving",
-                lyrics: `गाऊनी स्तुती प्रभू ख्रिस्ताची आनंदे नाचुनी गाऊया...(४)\nहालेलुया... हालेलुया...हालेलुया... हालेलुया...(२)\nयेशूची प्रीती किती महान माझ्या पापांसाठी केले बलिदान...(४)\nहालेलुया... हालेलुया...हालेलुया... हालेलुया...(२)\nयेशूचे रक्त किती महान पापांच्या खाचेतून सोडविते...(४)\nहालेलुया... हालेलुया...हालेलुया... हालेलुया...(२)\nयेशूची शक्ती किती महान सैतानी वारेतून सोडविते...(४)\nहालेलुया... हालेलुया...हालेलुया... हालेलुया...(२)`
-            },
-            {
-                id: 4,
-                title: "TU HI TU",
-                category: "praise",
-                key: "A",
-                tempo: "70 BPM",
-                time: "4/4",
-                taal: "Rupak",
-                genre: "Forgiveness",
-                lyrics: `Verse 1\nHar sawaal ka jawab tu\nHar dard ka ilaaj tu\nHar ummeed ka aasha tu\nAndhero mein ujala tu\n\nChorus\nTu hi tu, tu hi tu\nYeshu tu hi tu\nTu hi tu, tu hi tu\nMera sab kuch tu hi tu\n\nVerse 2\nHar samay har gadi\nSaath na chode woh kabhi\nBaat choti ho ya badi\nDhega Yeshu tujhe aazadi\n\nBridge:\nKuch nahi chahiye sirf Yeshu kaafi hai\nKuch nahi chahiye mujhe Yeshu kaafi hai`
+
+        document.getElementById('downloadHtmlWithSongsBtn').addEventListener('click', () => {
+            try {
+                // Clone the current document
+                const clone = document.documentElement.cloneNode(true);
+
+                // Update the embeddedSongs <script> tag
+                const embedded = clone.querySelector('#embeddedSongs');
+                if (embedded) {
+                    embedded.textContent = JSON.stringify(songs, null, 2);
+                } else {
+                    // If not present, create and append it
+                    const script = document.createElement('script');
+                    script.id = 'embeddedSongs';
+                    script.type = 'application/json';
+                    script.textContent = JSON.stringify(songs, null, 2);
+                    clone.querySelector('body').appendChild(script);
+                }
+
+                // Create and download the new HTML
+                const fullHtml = '<!DOCTYPE html>\n' + clone.outerHTML;
+                const blob = new Blob([fullHtml], { type: 'text/html' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'PraiseWorship_Songs_Updated.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            } catch (err) {
+                alert('Failed to generate updated HTML: ' + err.message);
             }
-        ];
+        });
+
+
+        // Search history functionality
+        let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+
+        function saveSearchQuery(query) {
+            if (!query.trim()) return;
+
+            // Remove if already exists
+            searchHistory = searchHistory.filter(item => item.toLowerCase() !== query.toLowerCase());
+
+            // Add to beginning
+            searchHistory.unshift(query);
+
+            // Keep only last 10 searches
+            if (searchHistory.length > 10) {
+                searchHistory = searchHistory.slice(0, 10);
+            }
+
+            localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+        }
+
+        function showSearchHistory() {
+            const dropdown = document.getElementById('searchHistoryDropdown');
+            dropdown.innerHTML = '';
+
+            if (searchHistory.length === 0) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            const header = document.createElement('div');
+            header.className = 'search-history-header';
+            header.textContent = 'Recent Searches';
+            dropdown.appendChild(header);
+
+            searchHistory.forEach(query => {
+                const item = document.createElement('div');
+                item.className = 'search-history-item';
+                item.textContent = query;
+
+                item.addEventListener('click', () => {
+                    document.getElementById('searchInput').value = query;
+                    dropdown.style.display = 'none';
+                    // Trigger search
+                    const event = new Event('input', { bubbles: true });
+                    document.getElementById('searchInput').dispatchEvent(event);
+                });
+
+                dropdown.appendChild(item);
+            });
+
+            dropdown.style.display = 'block';
+        }
+        // Initialize songs
+        let songs = JSON.parse(localStorage.getItem('songs')) || (() => {
+            const embedded = document.getElementById('embeddedSongs');
+            if (embedded) {
+                try {
+                    return JSON.parse(embedded.textContent) || [];
+                } catch (err) {
+                    console.warn('Could not parse embedded songs:', err);
+                }
+            }
+            return [];
+        })();
 
         let praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || [];
         let worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || [];
@@ -830,6 +1034,7 @@
         const toggleSidebarBtn = document.getElementById('toggle-sidebar');
         const toggleSongsBtn = document.getElementById('toggle-songs');
         const toggleAllPanelsBtn = document.getElementById('toggle-all-panels');
+        const mergeBtn = document.getElementById('mergeSongsBtn');
 
         // Auto-scroll and chord variables
         let autoScrollInterval = null;
@@ -840,8 +1045,29 @@
         const INLINE_CHORD_REGEX = /\[([A-G](?:#|b)?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?)\]/gi;
 
         // Save to localStorage
-        function saveSongs() {
+        async function saveSongs(toFile = false) {
+            if (toFile) {
+                try {
+                    const data = {
+                        songs: songs,
+                        praiseSetlist: praiseSetlist,
+                        worshipSetlist: worshipSetlist
+                    };
+
+                    // This would require a server-side endpoint to handle file saving
+                    // For client-side only, we'll keep using localStorage
+                    console.warn('File saving requires server-side support');
+                } catch (err) {
+                    console.error('Error saving to file:', err);
+                }
+            }
+
+            // Always save to localStorage
             localStorage.setItem('songs', JSON.stringify(songs));
+            const embedded = document.getElementById('embeddedSongs');
+            if (embedded) {
+                embedded.textContent = JSON.stringify(songs, null, 2);
+            }
         }
 
         function saveSetlists() {
@@ -849,12 +1075,92 @@
             localStorage.setItem('worshipSetlist', JSON.stringify(worshipSetlist));
         }
 
+        // Modify the initialization function to load from JSON file
+        async function loadSongsFromFile() {
+            try {
+                const response = await fetch('songs.json');
+                if (!response.ok) throw new Error('Failed to load songs.json');
+                const data = await response.json();
+
+                // Validate the loaded data
+                if (data.songs && Array.isArray(data.songs)) {
+                    return data;
+                }
+                throw new Error('Invalid songs.json format');
+            } catch (err) {
+                console.log('Could not load songs from file:', err.message);
+                return null;
+            }
+        }
+
         // Initialize
-        function init() {
+        async function init() {
+            // Try loading from file first
+            const fileData = await loadSongsFromFile();
+
+            if (fileData) {
+                songs = fileData.songs || [];
+                praiseSetlist = fileData.praiseSetlist || [];
+                worshipSetlist = fileData.worshipSetlist || [];
+            } else {
+                // Fallback to localStorage/embedded
+                songs = JSON.parse(localStorage.getItem('songs')) || (() => {
+                    const embedded = document.getElementById('embeddedSongs');
+                    if (embedded) {
+                        try {
+                            return JSON.parse(embedded.textContent) || [];
+                        } catch (err) {
+                            console.warn('Could not parse embedded songs:', err);
+                        }
+                    }
+                    return [];
+                })();
+
+                praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || [];
+                worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || [];
+            }
+
             renderSongs('praise', '', '');
             addEventListeners();
             addPanelToggles();
         }
+
+        function handleMergeUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.songs && Array.isArray(data.songs)) {
+                        const existingIds = new Set(songs.map(s => s.id));
+                        const newSongs = data.songs.filter(song => !existingIds.has(song.id));
+                        const nextId = Math.max(0, ...songs.map(s => s.id)) + 1;
+
+                        // Assign new IDs to avoid duplicates
+                        newSongs.forEach((song, index) => {
+                            song.id = nextId + index;
+                        });
+
+                        songs = [...songs, ...newSongs];
+                        saveSongs();
+
+                        alert(`${newSongs.length} new songs merged successfully.`);
+                        if (praiseTab.classList.contains('active')) {
+                            renderSongs('praise', keyFilter.value, genreFilter.value);
+                        } else {
+                            renderSongs('worship', keyFilter.value, genreFilter.value);
+                        }
+                    } else {
+                        throw new Error('Invalid file format');
+                    }
+                } catch (err) {
+                    alert('Could not merge file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
 
         // Panel Toggle Functionality
         function addPanelToggles() {
@@ -930,6 +1236,14 @@
         }
 
         // Event Listeners
+
+        document.getElementById('toggleSongTools').addEventListener('click', () => {
+            const folder = document.getElementById('songToolsContent');
+            const toggle = document.getElementById('toggleSongTools');
+            folder.classList.toggle('show');
+            toggle.classList.toggle('active');
+        });
+
         function addEventListeners() {
             praiseTab.addEventListener('click', () => {
                 setlistSection.style.display = 'none';
@@ -1133,6 +1447,17 @@
                 confirmDeleteAllModal.style.display = 'flex';
             });
 
+            mergeBtn.addEventListener('click', () => {
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = '.json';
+                fileInput.style.display = 'none';
+                fileInput.addEventListener('change', handleMergeUpload);
+                document.body.appendChild(fileInput);
+                fileInput.click();
+                document.body.removeChild(fileInput);
+            });
+
             cancelDeleteAll.addEventListener('click', () => {
                 confirmDeleteAllModal.style.display = 'none';
             });
@@ -1156,7 +1481,11 @@
 
             searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim().toLowerCase();
+                const searchResults = document.getElementById('searchResults');
+                const searchResultsContent = document.getElementById('searchResultsContent');
+
                 if (query.length === 0) {
+                    searchResults.classList.remove('active');
                     if (praiseTab.classList.contains('active')) {
                         renderSongs('praise', keyFilter.value, genreFilter.value);
                     } else {
@@ -1164,6 +1493,7 @@
                     }
                     return;
                 }
+
                 const filtered = songs.filter(song => {
                     return (
                         song.title.toLowerCase().includes(query) ||
@@ -1172,11 +1502,60 @@
                         (song.genre && song.genre.toLowerCase().includes(query))
                     );
                 });
-                if (praiseTab.classList.contains('active')) {
-                    renderSongs(filtered.filter(s => s.category === 'praise'), praiseContent);
-                } else {
-                    renderSongs(filtered.filter(s => s.category === 'worship'), worshipContent);
+
+                if (filtered.length === 0) {
+                    searchResultsContent.innerHTML = '<p>No results found</p>';
+                    searchResults.classList.add('active');
+                    return;
                 }
+
+                // Clear previous results
+                searchResultsContent.innerHTML = '';
+
+                // Display search results
+                filtered.forEach(song => {
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item';
+                    resultItem.dataset.songId = song.id;
+
+                    // Highlight matching text in title
+                    const highlightedTitle = highlightText(song.title, query);
+
+                    // Find and highlight matching lyrics snippet
+                    let lyricsSnippet = '';
+                    if (song.lyrics && song.lyrics.toLowerCase().includes(query)) {
+                        const lyricsLower = song.lyrics.toLowerCase();
+                        const queryPos = lyricsLower.indexOf(query);
+                        const startPos = Math.max(0, queryPos - 20);
+                        const endPos = Math.min(song.lyrics.length, queryPos + query.length + 40);
+                        lyricsSnippet = song.lyrics.substring(startPos, endPos);
+                        if (startPos > 0) lyricsSnippet = '...' + lyricsSnippet;
+                        if (endPos < song.lyrics.length) lyricsSnippet = lyricsSnippet + '...';
+                        lyricsSnippet = highlightText(lyricsSnippet, query);
+                    }
+
+                    resultItem.innerHTML = `
+                <div class="search-result-title">${highlightedTitle}</div>
+                <div class="search-result-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre || ''}</div>
+                ${lyricsSnippet ? `<div class="search-result-snippet">${lyricsSnippet}</div>` : ''}
+            `;
+
+                    resultItem.addEventListener('click', () => {
+                        const foundSong = songs.find(s => s.id === song.id);
+                        if (foundSong) {
+                            showPreview(foundSong);
+                            if (window.innerWidth <= 768) {
+                                document.querySelector('.songs-section').classList.add('hidden');
+                                document.querySelector('.sidebar').classList.add('hidden');
+                                document.querySelector('.preview-section').classList.add('full-width');
+                            }
+                        }
+                    });
+
+                    searchResultsContent.appendChild(resultItem);
+                });
+
+                searchResults.classList.add('active');
             });
 
             downloadBtn.addEventListener('click', downloadSongs);
@@ -1199,6 +1578,14 @@
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
             }
+        }
+
+        // Helper function to highlight matching text
+        function highlightText(text, query) {
+            if (!query) return text;
+
+            const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+            return text.replace(regex, match => `<span class="highlight">${match}</span>`);
         }
 
         // Render songs
@@ -1228,13 +1615,13 @@
                 div.className = 'song-item';
                 div.dataset.songId = song.id;
                 div.innerHTML = `
-                        <div class="song-title">${song.title}</div>
-                        <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.taal || ''} | ${song.genre || ''}</div>
-                        <div class="song-actions">
-                            <button class="btn btn-primary add-to-setlist">Add to Setlist</button>
-                            <button class="btn btn-edit edit-song">Edit</button>
-                        </div>
-                    `;
+                            <div class="song-title">${song.title}</div>
+                            <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.taal || ''} | ${song.genre || ''}</div>
+                            <div class="song-actions">
+                                <button class="btn btn-primary add-to-setlist">Add to Setlist</button>
+                                <button class="btn btn-edit edit-song">Edit</button>
+                            </div>
+                        `;
                 div.querySelector('.add-to-setlist').addEventListener('click', (e) => {
                     e.stopPropagation();
                     addToSetlist(song.id);
@@ -1268,12 +1655,12 @@
                     const div = document.createElement('div');
                     div.className = 'song-item';
                     div.innerHTML = `
-                            <div class="song-title">${song.title}</div>
-                            <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre} | ${song.category}</div>
-                            <div class="song-actions">
-                                <button class="btn btn-delete delete-song">Delete</button>
-                            </div>
-                        `;
+                                <div class="song-title">${song.title}</div>
+                                <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre} | ${song.category}</div>
+                                <div class="song-actions">
+                                    <button class="btn btn-delete delete-song">Delete</button>
+                                </div>
+                            `;
                     div.querySelector('.delete-song').addEventListener('click', () => {
                         openDeleteSongModal(song.id);
                     });
@@ -1302,21 +1689,21 @@
             songPreviewEl.dataset.originalKey = song.key;
             const displayLyrics = cleanUpLyrics(song.lyrics);
             songPreviewEl.innerHTML = `
-                    <h2>${song.title}</h2>
-                    <div class="song-meta">
-                        <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
-                        <p><strong>Tempo:</strong> ${song.tempo}</p>
-                        <p><strong>Time Signature:</strong> ${song.time}</p>
-                        ${song.taal ? `<p><strong>Taal:</strong> ${song.taal}</p>` : ''}
-                        ${song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
-                    </div>
-                    <div class="transpose-controls">
-                        <button class="btn btn-primary" id="transpose-down">-</button>
-                        <span>Transpose: <span id="transpose-level">0</span></span>
-                        <button class="btn btn-primary" id="transpose-up">+</button>
-                    </div>
-                    <div class="song-lyrics">${formatLyricsWithChords(displayLyrics, 0)}</div>
-                `;
+                        <h2>${song.title}</h2>
+                        <div class="song-meta">
+                            <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
+                            <p><strong>Tempo:</strong> ${song.tempo}</p>
+                            <p><strong>Time Signature:</strong> ${song.time}</p>
+                            ${song.taal ? `<p><strong>Taal:</strong> ${song.taal}</p>` : ''}
+                            ${song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
+                        </div>
+                        <div class="transpose-controls">
+                            <button class="btn btn-primary" id="transpose-down">-</button>
+                            <span>Transpose: <span id="transpose-level">0</span></span>
+                            <button class="btn btn-primary" id="transpose-up">+</button>
+                        </div>
+                        <div class="song-lyrics">${formatLyricsWithChords(displayLyrics, 0)}</div>
+                    `;
             document.getElementById('transpose-up').addEventListener('click', () => {
                 const currentLevel = parseInt(document.getElementById('transpose-level').textContent);
                 updatePreviewWithTransposition(currentLevel + 1);
@@ -1496,11 +1883,11 @@
                 li.style.background = '#f5f7fa';
                 li.style.borderRadius = '5px';
                 li.innerHTML = `
-                        <span>${song.title} (${song.key} | ${song.genre})</span>
-                        <div class="song-actions">
-                            <button class="btn btn-primary" onclick="removeFromSetlist(${song.id}, '${song.category}')">Remove</button>
-                        </div>
-                    `;
+                            <span>${song.title} (${song.key} | ${song.genre})</span>
+                            <div class="song-actions">
+                                <button class="btn btn-primary" onclick="removeFromSetlist(${song.id}, '${song.category}')">Remove</button>
+                            </div>
+                        `;
                 li.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('btn')) {
                         showPreview(song);
@@ -1572,563 +1959,582 @@
         window.onload = init;
     </script>
 
-<style>
-    .panel-toggle.draggable {
-        position: fixed;
-        cursor: grab;
-        user-select: none;
-        touch-action: none;
-        opacity: 0.2;
-        transition: opacity 0.4s ease, transform 0.3s ease;
-        z-index: 2000;
-    }
+    <style>
+        .panel-toggle.draggable {
+            position: fixed;
+            cursor: grab;
+            user-select: none;
+            touch-action: none;
+            opacity: 0.2;
+            transition: opacity 0.4s ease, transform 0.3s ease;
+            z-index: 2000;
+        }
 
-    .panel-toggle.draggable:hover,
-    .panel-toggle.draggable.showing {
-        opacity: 1;
-    }
-
-    .panel-toggle::after {
-        content: '';
-        position: absolute;
-        top: -6px;
-        right: -6px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background-color: var(--accent-color);
-        animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-        0% { transform: scale(1); opacity: 0.8; }
-        50% { transform: scale(1.5); opacity: 0.4; }
-        100% { transform: scale(1); opacity: 0.8; }
-    }
-</style>
-<script>
-    function makeToggleDraggable(id) {
-        const el = document.getElementById(id);
-        let isDragging = false, offsetX = 0, offsetY = 0;
-
-        const savePosition = () => {
-            const pos = { top: el.style.top, left: el.style.left };
-            localStorage.setItem(id + '-pos', JSON.stringify(pos));
-        };
-
-        const restorePosition = () => {
-            const saved = localStorage.getItem(id + '-pos');
-            if (saved) {
-                const pos = JSON.parse(saved);
-                el.style.top = pos.top;
-                el.style.left = pos.left;
+            .panel-toggle.draggable:hover,
+            .panel-toggle.draggable.showing {
+                opacity: 1;
             }
-        };
 
-        const onMove = (clientX, clientY) => {
-            el.style.left = clientX - offsetX + 'px';
-            el.style.top = clientY - offsetY + 'px';
-        };
+        .panel-toggle::after {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            animation: pulse 2s infinite;
+        }
 
-        const onEnd = () => {
-            isDragging = false;
-            document.body.style.userSelect = '';
-            const windowWidth = window.innerWidth;
-            const elRect = el.getBoundingClientRect();
-            if (elRect.left < windowWidth / 2) {
-                el.style.left = '10px';
-            } else {
-                el.style.left = (windowWidth - el.offsetWidth - 10) + 'px';
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
             }
-            savePosition();
-        };
 
-        el.addEventListener('mousedown', function (e) {
-            isDragging = true;
-            offsetX = e.clientX - el.offsetLeft;
-            offsetY = e.clientY - el.offsetTop;
-            document.body.style.userSelect = 'none';
-        });
+            50% {
+                transform: scale(1.5);
+                opacity: 0.4;
+            }
 
-        document.addEventListener('mousemove', function (e) {
-            if (isDragging) onMove(e.clientX, e.clientY);
-        });
+            100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+        }
+    </style>
+    <script>
+        function makeToggleDraggable(id) {
+            const el = document.getElementById(id);
+            let isDragging = false, offsetX = 0, offsetY = 0;
 
-        document.addEventListener('mouseup', onEnd);
+            const savePosition = () => {
+                const pos = { top: el.style.top, left: el.style.left };
+                localStorage.setItem(id + '-pos', JSON.stringify(pos));
+            };
 
-        el.addEventListener('touchstart', function (e) {
-            isDragging = true;
-            const touch = e.touches[0];
-            offsetX = touch.clientX - el.offsetLeft;
-            offsetY = touch.clientY - el.offsetTop;
-        }, { passive: false });
+            const restorePosition = () => {
+                const saved = localStorage.getItem(id + '-pos');
+                if (saved) {
+                    const pos = JSON.parse(saved);
+                    el.style.top = pos.top;
+                    el.style.left = pos.left;
+                }
+            };
 
-        el.addEventListener('touchmove', function (e) {
-            if (isDragging) {
+            const onMove = (clientX, clientY) => {
+                el.style.left = clientX - offsetX + 'px';
+                el.style.top = clientY - offsetY + 'px';
+            };
+
+            const onEnd = () => {
+                isDragging = false;
+                document.body.style.userSelect = '';
+                const windowWidth = window.innerWidth;
+                const elRect = el.getBoundingClientRect();
+                if (elRect.left < windowWidth / 2) {
+                    el.style.left = '10px';
+                } else {
+                    el.style.left = (windowWidth - el.offsetWidth - 10) + 'px';
+                }
+                savePosition();
+            };
+
+            el.addEventListener('mousedown', function (e) {
+                isDragging = true;
+                offsetX = e.clientX - el.offsetLeft;
+                offsetY = e.clientY - el.offsetTop;
+                document.body.style.userSelect = 'none';
+            });
+
+            document.addEventListener('mousemove', function (e) {
+                if (isDragging) onMove(e.clientX, e.clientY);
+            });
+
+            document.addEventListener('mouseup', onEnd);
+
+            el.addEventListener('touchstart', function (e) {
+                isDragging = true;
                 const touch = e.touches[0];
-                onMove(touch.clientX, touch.clientY);
-            }
-        }, { passive: false });
+                offsetX = touch.clientX - el.offsetLeft;
+                offsetY = touch.clientY - el.offsetTop;
+            }, { passive: false });
 
-        el.addEventListener('touchend', onEnd);
-        restorePosition();
+            el.addEventListener('touchmove', function (e) {
+                if (isDragging) {
+                    const touch = e.touches[0];
+                    onMove(touch.clientX, touch.clientY);
+                }
+            }, { passive: false });
 
-        let timeout;
-        const showTemporarily = () => {
-            el.classList.add('showing');
-            clearTimeout(timeout);
-            timeout = setTimeout(() => {
-                el.classList.remove('showing');
-            }, 3000);
-        };
+            el.addEventListener('touchend', onEnd);
+            restorePosition();
 
-        el.addEventListener('mouseenter', () => el.classList.add('showing'));
-        el.addEventListener('mouseleave', () => el.classList.remove('showing'));
-        el.addEventListener('touchstart', showTemporarily, { passive: true });
-    }
+            let timeout;
+            const showTemporarily = () => {
+                el.classList.add('showing');
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    el.classList.remove('showing');
+                }, 3000);
+            };
 
-    window.addEventListener('DOMContentLoaded', () => {
-        makeToggleDraggable('toggle-sidebar');
-        makeToggleDraggable('toggle-songs');
-        makeToggleDraggable('toggle-all-panels');
-    });
-</script>
+            el.addEventListener('mouseenter', () => el.classList.add('showing'));
+            el.addEventListener('mouseleave', () => el.classList.remove('showing'));
+            el.addEventListener('touchstart', showTemporarily, { passive: true });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            makeToggleDraggable('toggle-sidebar');
+            makeToggleDraggable('toggle-songs');
+            makeToggleDraggable('toggle-all-panels');
+        });
+    </script>
 
 
-<style>
-    #settingsBtn {
-        position: absolute;
-        bottom: 15px;
-        left: 15px;
-        padding: 6px 12px;
-        background: var(--accent-color);
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        z-index: 1001;
-    }
+    <style>
+        #settingsBtn {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            padding: 6px 12px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1001;
+        }
 
-    .draggable-menu-item {
-        cursor: grab;
-        user-select: none;
-    }
-</style>
+        .draggable-menu-item {
+            cursor: grab;
+            user-select: none;
+        }
+    </style>
 
-<div class="modal" id="settingsModal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="document.getElementById('settingsModal').style.display='none'">×</span>
-        <h3>Settings</h3>
-        <form id="settingsForm">
-            <label for="sidebarHeaderInput">Sidebar Header:</label>
-            <input type="text" id="sidebarHeaderInput" required>
-            <label for="setlistTextInput">Setlist Menu Text:</label>
-            <input type="text" id="setlistTextInput" required>
-            <button type="submit" class="btn btn-primary">Save Settings</button>
-        </form>
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="document.getElementById('settingsModal').style.display='none'">×</span>
+            <h3>Settings</h3>
+            <form id="settingsForm">
+                <label for="sidebarHeaderInput">Sidebar Header:</label>
+                <input type="text" id="sidebarHeaderInput" required>
+                <label for="setlistTextInput">Setlist Menu Text:</label>
+                <input type="text" id="setlistTextInput" required>
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const headerEl = document.querySelector(".sidebar-header h2");
-        const setlistEl = document.getElementById("showSetlist");
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const headerEl = document.querySelector(".sidebar-header h2");
+            const setlistEl = document.getElementById("showSetlist");
 
-        // Create and add settings button
-        const settingsBtn = document.createElement("button");
-        settingsBtn.id = "settingsBtn";
-        settingsBtn.textContent = "⚙️ Settings";
-        document.querySelector(".app-container").appendChild(settingsBtn);
+            // Create and add settings button
+            const settingsBtn = document.createElement("button");
+            settingsBtn.id = "settingsBtn";
+            settingsBtn.textContent = "⚙️ Settings";
+            document.querySelector(".app-container").appendChild(settingsBtn);
 
-        // Restore saved settings
-        const savedHeader = localStorage.getItem("sidebarHeader");
-        if (savedHeader) headerEl.textContent = savedHeader;
+            // Restore saved settings
+            const savedHeader = localStorage.getItem("sidebarHeader");
+            if (savedHeader) headerEl.textContent = savedHeader;
 
-        const savedSetlistLabel = localStorage.getItem("setlistText");
-        if (savedSetlistLabel) setlistEl.textContent = savedSetlistLabel;
+            const savedSetlistLabel = localStorage.getItem("setlistText");
+            if (savedSetlistLabel) setlistEl.textContent = savedSetlistLabel;
 
-        // Settings modal open
-        settingsBtn.addEventListener("click", () => {
-            document.getElementById("sidebarHeaderInput").value = headerEl.textContent;
-            document.getElementById("setlistTextInput").value = setlistEl.textContent;
-            document.getElementById("settingsModal").style.display = "flex";
-        });
-
-        // Save settings to DOM + localStorage
-        document.getElementById("settingsForm").addEventListener("submit", function (e) {
-            e.preventDefault();
-            const newHeader = document.getElementById("sidebarHeaderInput").value;
-            const newSetlist = document.getElementById("setlistTextInput").value;
-
-            headerEl.textContent = newHeader;
-            setlistEl.textContent = newSetlist;
-
-            localStorage.setItem("sidebarHeader", newHeader);
-            localStorage.setItem("setlistText", newSetlist);
-
-            document.getElementById("settingsModal").style.display = "none";
-        });
-
-        // Make sidebar menu items draggable + reorderable
-        const menu = document.querySelector(".sidebar-menu");
-        const items = Array.from(menu.children);
-
-        const saveMenuOrder = () => {
-            const ids = Array.from(menu.children).map(li => li.id || li.textContent.trim());
-            localStorage.setItem("menuOrder", JSON.stringify(ids));
-        };
-
-        const restoreMenuOrder = () => {
-            const order = JSON.parse(localStorage.getItem("menuOrder") || "[]");
-            const map = {};
-            Array.from(menu.children).forEach(li => {
-                const id = li.id || li.textContent.trim();
-                map[id] = li;
-            });
-            order.forEach(id => {
-                if (map[id]) menu.appendChild(map[id]);
-            });
-        };
-
-        items.forEach(li => {
-            li.classList.add("draggable-menu-item");
-            li.setAttribute("draggable", "true");
-
-            li.addEventListener("dragstart", (e) => {
-                e.dataTransfer.setData("text/plain", li.id || li.textContent.trim());
-                li.style.opacity = "0.5";
+            // Settings modal open
+            settingsBtn.addEventListener("click", () => {
+                document.getElementById("sidebarHeaderInput").value = headerEl.textContent;
+                document.getElementById("setlistTextInput").value = setlistEl.textContent;
+                document.getElementById("settingsModal").style.display = "flex";
             });
 
-            li.addEventListener("dragend", () => {
-                li.style.opacity = "1";
-                saveMenuOrder();
-            });
-
-            li.addEventListener("dragover", (e) => e.preventDefault());
-
-            li.addEventListener("drop", (e) => {
+            // Save settings to DOM + localStorage
+            document.getElementById("settingsForm").addEventListener("submit", function (e) {
                 e.preventDefault();
-                const draggedId = e.dataTransfer.getData("text/plain");
-                const draggedEl = document.getElementById(draggedId) || Array.from(menu.children).find(el => el.textContent.trim() === draggedId);
-                if (draggedEl && draggedEl !== li) {
-                    menu.insertBefore(draggedEl, li.nextSibling);
-                }
-            });
-        });
+                const newHeader = document.getElementById("sidebarHeaderInput").value;
+                const newSetlist = document.getElementById("setlistTextInput").value;
 
-        restoreMenuOrder();
-    });
-</script>
+                headerEl.textContent = newHeader;
+                setlistEl.textContent = newSetlist;
 
+                localStorage.setItem("sidebarHeader", newHeader);
+                localStorage.setItem("setlistText", newSetlist);
 
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const menu = document.querySelector(".sidebar-menu");
-
-        const saveSidebarOrder = () => {
-            const ids = Array.from(menu.children).map(li => li.id || li.textContent.trim());
-            localStorage.setItem("sidebarMenuOrder", JSON.stringify(ids));
-        };
-
-        const restoreSidebarOrder = () => {
-            const order = JSON.parse(localStorage.getItem("sidebarMenuOrder") || "[]");
-            const itemMap = {};
-            Array.from(menu.children).forEach(li => {
-                const key = li.id || li.textContent.trim();
-                itemMap[key] = li;
-            });
-            order.forEach(key => {
-                if (itemMap[key]) {
-                    menu.appendChild(itemMap[key]);
-                }
-            });
-        };
-
-        Array.from(menu.children).forEach(li => {
-            li.classList.add("draggable-menu-item");
-            li.setAttribute("draggable", "true");
-
-            li.addEventListener("dragstart", (e) => {
-                e.dataTransfer.setData("text/plain", li.id || li.textContent.trim());
-                li.style.opacity = "0.5";
+                document.getElementById("settingsModal").style.display = "none";
             });
 
-            li.addEventListener("dragend", () => {
-                li.style.opacity = "1";
-                saveSidebarOrder();
-            });
+            // Make sidebar menu items draggable + reorderable
+            const menu = document.querySelector(".sidebar-menu");
+            const items = Array.from(menu.children);
 
-            li.addEventListener("dragover", (e) => e.preventDefault());
+            const saveMenuOrder = () => {
+                const ids = Array.from(menu.children).map(li => li.id || li.textContent.trim());
+                localStorage.setItem("menuOrder", JSON.stringify(ids));
+            };
 
-            li.addEventListener("drop", (e) => {
-                e.preventDefault();
-                const draggedKey = e.dataTransfer.getData("text/plain");
-                const draggedEl = document.getElementById(draggedKey) || Array.from(menu.children).find(el => el.textContent.trim() === draggedKey);
-                if (draggedEl && draggedEl !== li) {
-                    menu.insertBefore(draggedEl, li.nextSibling);
-                }
-            });
-        });
-
-        restoreSidebarOrder();
-    });
-</script>
-
-
-<style>
-    .setlist-sortable li {
-        cursor: grab;
-        transition: background 0.3s;
-    }
-
-    .setlist-sortable li:hover {
-        background-color: #e0f0ff;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .setlist-index {
-        font-weight: bold;
-        margin-right: 10px;
-        color: var(--primary-color);
-    }
-</style>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        function makeSetlistDraggable(category) {
-            const container = category === 'praise' ? document.getElementById('praiseSetlistSongs') : document.getElementById('worshipSetlistSongs');
-            const setlist = category === 'praise' ? praiseSetlist : worshipSetlist;
-
-            container.innerHTML = '';
-            if (setlist.length === 0) {
-                container.innerHTML = `<p>Your ${category} setlist is empty.</p>`;
-                return;
-            }
-
-            const ul = document.createElement('ul');
-            ul.className = 'setlist-sortable';
-            ul.style.listStyle = 'none';
-            ul.style.padding = '0';
-
-            setlist.forEach((song, index) => {
-                const li = document.createElement('li');
-                li.style.display = 'flex';
-                li.style.justifyContent = 'space-between';
-                li.style.alignItems = 'center';
-                li.style.padding = '10px';
-                li.style.marginBottom = '8px';
-                li.style.background = '#f5f7fa';
-                li.style.borderRadius = '5px';
-                li.setAttribute('draggable', 'true');
-                li.dataset.songId = song.id;
-
-                li.innerHTML = `
-                    <span><span class="setlist-index">${index + 1}.</span>${song.title} (${song.key} | ${song.genre})</span>
-                    <div class="song-actions">
-                        <button class="btn btn-primary" onclick="removeFromSetlist(${song.id}, '${category}')">Remove</button>
-                    </div>
-                `;
-
-                li.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('btn')) {
-                        showPreview(song);
-                    }
+            const restoreMenuOrder = () => {
+                const order = JSON.parse(localStorage.getItem("menuOrder") || "[]");
+                const map = {};
+                Array.from(menu.children).forEach(li => {
+                    const id = li.id || li.textContent.trim();
+                    map[id] = li;
                 });
+                order.forEach(id => {
+                    if (map[id]) menu.appendChild(map[id]);
+                });
+            };
 
-                li.addEventListener("dragstart", e => {
-                    li.classList.add("dragging");
-                    e.dataTransfer.effectAllowed = "move";
+            items.forEach(li => {
+                li.classList.add("draggable-menu-item");
+                li.setAttribute("draggable", "true");
+
+                li.addEventListener("dragstart", (e) => {
+                    e.dataTransfer.setData("text/plain", li.id || li.textContent.trim());
+                    li.style.opacity = "0.5";
                 });
 
                 li.addEventListener("dragend", () => {
-                    li.classList.remove("dragging");
-                    updateSetlistOrder();
+                    li.style.opacity = "1";
+                    saveMenuOrder();
                 });
 
-                li.addEventListener("dragover", e => {
+                li.addEventListener("dragover", (e) => e.preventDefault());
+
+                li.addEventListener("drop", (e) => {
                     e.preventDefault();
-                    const dragging = container.querySelector(".dragging");
-                    const afterElement = getDragAfterElement(container, e.clientY);
-                    if (afterElement == null) {
-                        container.appendChild(dragging);
-                    } else {
-                        container.insertBefore(dragging, afterElement);
+                    const draggedId = e.dataTransfer.getData("text/plain");
+                    const draggedEl = document.getElementById(draggedId) || Array.from(menu.children).find(el => el.textContent.trim() === draggedId);
+                    if (draggedEl && draggedEl !== li) {
+                        menu.insertBefore(draggedEl, li.nextSibling);
                     }
                 });
-
-                ul.appendChild(li);
             });
 
-            container.appendChild(ul);
+            restoreMenuOrder();
+        });
+    </script>
 
-            function getDragAfterElement(container, y) {
-                const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
 
-                return draggableElements.reduce((closest, child) => {
-                    const box = child.getBoundingClientRect();
-                    const offset = y - box.top - box.height / 2;
-                    if (offset < 0 && offset > closest.offset) {
-                        return { offset: offset, element: child };
-                    } else {
-                        return closest;
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const menu = document.querySelector(".sidebar-menu");
+
+            const saveSidebarOrder = () => {
+                const ids = Array.from(menu.children).map(li => li.id || li.textContent.trim());
+                localStorage.setItem("sidebarMenuOrder", JSON.stringify(ids));
+            };
+
+            const restoreSidebarOrder = () => {
+                const order = JSON.parse(localStorage.getItem("sidebarMenuOrder") || "[]");
+                const itemMap = {};
+                Array.from(menu.children).forEach(li => {
+                    const key = li.id || li.textContent.trim();
+                    itemMap[key] = li;
+                });
+                order.forEach(key => {
+                    if (itemMap[key]) {
+                        menu.appendChild(itemMap[key]);
                     }
-                }, { offset: Number.NEGATIVE_INFINITY }).element;
-            }
+                });
+            };
 
-            function updateSetlistOrder() {
-                const reordered = Array.from(container.querySelectorAll("li")).map(li => {
-                    const id = parseInt(li.dataset.songId);
-                    return setlist.find(song => song.id === id);
+            Array.from(menu.children).forEach(li => {
+                li.classList.add("draggable-menu-item");
+                li.setAttribute("draggable", "true");
+
+                li.addEventListener("dragstart", (e) => {
+                    e.dataTransfer.setData("text/plain", li.id || li.textContent.trim());
+                    li.style.opacity = "0.5";
                 });
 
+                li.addEventListener("dragend", () => {
+                    li.style.opacity = "1";
+                    saveSidebarOrder();
+                });
+
+                li.addEventListener("dragover", (e) => e.preventDefault());
+
+                li.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    const draggedKey = e.dataTransfer.getData("text/plain");
+                    const draggedEl = document.getElementById(draggedKey) || Array.from(menu.children).find(el => el.textContent.trim() === draggedKey);
+                    if (draggedEl && draggedEl !== li) {
+                        menu.insertBefore(draggedEl, li.nextSibling);
+                    }
+                });
+            });
+
+            restoreSidebarOrder();
+        });
+    </script>
+
+
+    <style>
+        .setlist-sortable li {
+            cursor: grab;
+            transition: background 0.3s;
+        }
+
+            .setlist-sortable li:hover {
+                background-color: #e0f0ff;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            }
+
+        .setlist-index {
+            font-weight: bold;
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            function makeSetlistDraggable(category) {
+                const container = category === 'praise' ? document.getElementById('praiseSetlistSongs') : document.getElementById('worshipSetlistSongs');
+                const setlist = category === 'praise' ? praiseSetlist : worshipSetlist;
+
+                container.innerHTML = '';
+                if (setlist.length === 0) {
+                    container.innerHTML = `<p>Your ${category} setlist is empty.</p>`;
+                    return;
+                }
+
+                const ul = document.createElement('ul');
+                ul.className = 'setlist-sortable';
+                ul.style.listStyle = 'none';
+                ul.style.padding = '0';
+
+                setlist.forEach((song, index) => {
+                    const li = document.createElement('li');
+                    li.style.display = 'flex';
+                    li.style.justifyContent = 'space-between';
+                    li.style.alignItems = 'center';
+                    li.style.padding = '10px';
+                    li.style.marginBottom = '8px';
+                    li.style.background = '#f5f7fa';
+                    li.style.borderRadius = '5px';
+                    li.setAttribute('draggable', 'true');
+                    li.dataset.songId = song.id;
+
+                    li.innerHTML = `
+                        <span><span class="setlist-index">${index + 1}.</span>${song.title} (${song.key} | ${song.genre})</span>
+                        <div class="song-actions">
+                            <button class="btn btn-primary" onclick="removeFromSetlist(${song.id}, '${category}')">Remove</button>
+                        </div>
+                    `;
+
+                    li.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('btn')) {
+                            showPreview(song);
+                        }
+                    });
+
+                    li.addEventListener("dragstart", e => {
+                        li.classList.add("dragging");
+                        e.dataTransfer.effectAllowed = "move";
+                    });
+
+                    li.addEventListener("dragend", () => {
+                        li.classList.remove("dragging");
+                        updateSetlistOrder();
+                    });
+
+                    li.addEventListener("dragover", e => {
+                        e.preventDefault();
+                        const dragging = container.querySelector(".dragging");
+                        const afterElement = getDragAfterElement(container, e.clientY);
+                        if (afterElement == null) {
+                            container.appendChild(dragging);
+                        } else {
+                            container.insertBefore(dragging, afterElement);
+                        }
+                    });
+
+                    ul.appendChild(li);
+                });
+
+                container.appendChild(ul);
+
+                function getDragAfterElement(container, y) {
+                    const draggableElements = [...container.querySelectorAll("li:not(.dragging)")];
+
+                    return draggableElements.reduce((closest, child) => {
+                        const box = child.getBoundingClientRect();
+                        const offset = y - box.top - box.height / 2;
+                        if (offset < 0 && offset > closest.offset) {
+                            return { offset: offset, element: child };
+                        } else {
+                            return closest;
+                        }
+                    }, { offset: Number.NEGATIVE_INFINITY }).element;
+                }
+
+                function updateSetlistOrder() {
+                    const reordered = Array.from(container.querySelectorAll("li")).map(li => {
+                        const id = parseInt(li.dataset.songId);
+                        return setlist.find(song => song.id === id);
+                    });
+
+                    if (category === 'praise') {
+                        praiseSetlist = reordered;
+                    } else {
+                        worshipSetlist = reordered;
+                    }
+
+                    saveSetlists();
+                    makeSetlistDraggable(category);
+                }
+            }
+
+            window.renderSetlist = makeSetlistDraggable;
+        });
+
+
+    </script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            window.renderSetlist = function (category) {
+                const container = category === 'praise' ? document.getElementById('praiseSetlistSongs') : document.getElementById('worshipSetlistSongs');
+                const setlist = category === 'praise' ? praiseSetlist : worshipSetlist;
+
+                container.innerHTML = '';
+                if (setlist.length === 0) {
+                    container.innerHTML = `<p>Your ${category} setlist is empty.</p>`;
+                    return;
+                }
+
+                const ul = document.createElement('ul');
+                ul.className = 'setlist-sortable';
+                ul.style.listStyle = 'none';
+                ul.style.padding = '0';
+
+                setlist.forEach((song, index) => {
+                    const li = document.createElement('li');
+                    li.style.display = 'flex';
+                    li.style.justifyContent = 'space-between';
+                    li.style.alignItems = 'center';
+                    li.style.padding = '10px';
+                    li.style.marginBottom = '8px';
+                    li.style.background = '#f5f7fa';
+                    li.style.borderRadius = '5px';
+                    li.setAttribute('draggable', 'true');
+                    li.dataset.songId = song.id;
+
+                    li.innerHTML = `
+                        <span><span class="setlist-index">${index + 1}.</span> ${song.title} (${song.key} | ${song.genre})</span>
+                        <div class="song-actions">
+                            <button class="btn btn-primary" onclick="removeFromSetlist(${song.id}, '${category}')">Remove</button>
+                        </div>
+                    `;
+
+                    li.addEventListener('click', (e) => {
+                        if (!e.target.classList.contains('btn')) {
+                            showPreview(song);
+                        }
+                    });
+
+                    ul.appendChild(li);
+                });
+
+                container.appendChild(ul);
+
+                enableDrag(container, category);
+            };
+
+            function enableDrag(container, category) {
+                let draggedItem = null;
+
+                container.querySelectorAll("li").forEach(item => {
+                    item.addEventListener("dragstart", e => {
+                        draggedItem = item;
+                        setTimeout(() => item.style.display = "none", 0);
+                    });
+
+                    item.addEventListener("dragend", () => {
+                        item.style.display = "flex";
+                        draggedItem = null;
+                        updateSetlistOrder(container, category);
+                    });
+
+                    item.addEventListener("dragover", e => {
+                        e.preventDefault();
+                        const bounding = item.getBoundingClientRect();
+                        const offset = e.clientY - bounding.top + (bounding.height / 2);
+                        if (offset > bounding.height / 2) {
+                            item.parentNode.insertBefore(draggedItem, item.nextSibling);
+                        } else {
+                            item.parentNode.insertBefore(draggedItem, item);
+                        }
+                    });
+                });
+            }
+
+            function updateSetlistOrder(container, category) {
+                const ids = Array.from(container.querySelectorAll("li")).map(li => parseInt(li.dataset.songId));
+                const fullList = category === 'praise' ? praiseSetlist : worshipSetlist;
+                const newList = ids.map(id => fullList.find(song => song.id === id));
+
                 if (category === 'praise') {
-                    praiseSetlist = reordered;
+                    praiseSetlist = newList;
                 } else {
-                    worshipSetlist = reordered;
+                    worshipSetlist = newList;
                 }
 
                 saveSetlists();
-                makeSetlistDraggable(category);
+                renderSetlist(category);
             }
+        });
+    </script>
+
+
+    <style>
+        .lyrics-bg-praise {
+            background-color: #e8f4fd; /* light blue */
         }
 
-        window.renderSetlist = makeSetlistDraggable;
-    });
-</script>
-
-
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        window.renderSetlist = function(category) {
-            const container = category === 'praise' ? document.getElementById('praiseSetlistSongs') : document.getElementById('worshipSetlistSongs');
-            const setlist = category === 'praise' ? praiseSetlist : worshipSetlist;
-
-            container.innerHTML = '';
-            if (setlist.length === 0) {
-                container.innerHTML = `<p>Your ${category} setlist is empty.</p>`;
-                return;
-            }
-
-            const ul = document.createElement('ul');
-            ul.className = 'setlist-sortable';
-            ul.style.listStyle = 'none';
-            ul.style.padding = '0';
-
-            setlist.forEach((song, index) => {
-                const li = document.createElement('li');
-                li.style.display = 'flex';
-                li.style.justifyContent = 'space-between';
-                li.style.alignItems = 'center';
-                li.style.padding = '10px';
-                li.style.marginBottom = '8px';
-                li.style.background = '#f5f7fa';
-                li.style.borderRadius = '5px';
-                li.setAttribute('draggable', 'true');
-                li.dataset.songId = song.id;
-
-                li.innerHTML = `
-                    <span><span class="setlist-index">${index + 1}.</span> ${song.title} (${song.key} | ${song.genre})</span>
-                    <div class="song-actions">
-                        <button class="btn btn-primary" onclick="removeFromSetlist(${song.id}, '${category}')">Remove</button>
-                    </div>
-                `;
-
-                li.addEventListener('click', (e) => {
-                    if (!e.target.classList.contains('btn')) {
-                        showPreview(song);
-                    }
-                });
-
-                ul.appendChild(li);
-            });
-
-            container.appendChild(ul);
-
-            enableDrag(container, category);
-        };
-
-        function enableDrag(container, category) {
-            let draggedItem = null;
-
-            container.querySelectorAll("li").forEach(item => {
-                item.addEventListener("dragstart", e => {
-                    draggedItem = item;
-                    setTimeout(() => item.style.display = "none", 0);
-                });
-
-                item.addEventListener("dragend", () => {
-                    item.style.display = "flex";
-                    draggedItem = null;
-                    updateSetlistOrder(container, category);
-                });
-
-                item.addEventListener("dragover", e => {
-                    e.preventDefault();
-                    const bounding = item.getBoundingClientRect();
-                    const offset = e.clientY - bounding.top + (bounding.height / 2);
-                    if (offset > bounding.height / 2) {
-                        item.parentNode.insertBefore(draggedItem, item.nextSibling);
-                    } else {
-                        item.parentNode.insertBefore(draggedItem, item);
-                    }
-                });
-            });
+        .lyrics-bg-worship {
+            background-color: #fdf3e8; /* light peach */
         }
-
-        function updateSetlistOrder(container, category) {
-            const ids = Array.from(container.querySelectorAll("li")).map(li => parseInt(li.dataset.songId));
-            const fullList = category === 'praise' ? praiseSetlist : worshipSetlist;
-            const newList = ids.map(id => fullList.find(song => song.id === id));
-
-            if (category === 'praise') {
-                praiseSetlist = newList;
-            } else {
-                worshipSetlist = newList;
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            function applyLyricsBackground(isPraise) {
+                const lyricsContainer = document.querySelector(".song-lyrics");
+                if (!lyricsContainer) return;
+                lyricsContainer.classList.remove("lyrics-bg-praise", "lyrics-bg-worship");
+                lyricsContainer.classList.add(isPraise ? "lyrics-bg-praise" : "lyrics-bg-worship");
             }
 
-            saveSetlists();
-            renderSetlist(category);
-        }
-    });
-</script>
+            // Apply initial state based on tab
+            applyLyricsBackground(document.getElementById('praiseTab').classList.contains('active'));
 
+            // Hook into tab switch
+            const praiseTab = document.getElementById('praiseTab');
+            const worshipTab = document.getElementById('worshipTab');
 
-<style>
-    .lyrics-bg-praise {
-        background-color: #e8f4fd; /* light blue */
-    }
+            praiseTab.addEventListener("click", () => applyLyricsBackground(true));
+            worshipTab.addEventListener("click", () => applyLyricsBackground(false));
 
-    .lyrics-bg-worship {
-        background-color: #fdf3e8; /* light peach */
-    }
-</style>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        function applyLyricsBackground(isPraise) {
-            const lyricsContainer = document.querySelector(".song-lyrics");
-            if (!lyricsContainer) return;
-            lyricsContainer.classList.remove("lyrics-bg-praise", "lyrics-bg-worship");
-            lyricsContainer.classList.add(isPraise ? "lyrics-bg-praise" : "lyrics-bg-worship");
-        }
+            // Also apply during preview rendering
+            const originalShowPreview = window.showPreview;
+            window.showPreview = function (song) {
+                originalShowPreview(song);
+                const isPraise = song.category === 'praise';
+                applyLyricsBackground(isPraise);
+            };
+        });
+        // Update the window.onload to use the async init
+        window.onload = init;
+    </script>
 
-        // Apply initial state based on tab
-        applyLyricsBackground(document.getElementById('praiseTab').classList.contains('active'));
-
-        // Hook into tab switch
-        const praiseTab = document.getElementById('praiseTab');
-        const worshipTab = document.getElementById('worshipTab');
-
-        praiseTab.addEventListener("click", () => applyLyricsBackground(true));
-        worshipTab.addEventListener("click", () => applyLyricsBackground(false));
-
-        // Also apply during preview rendering
-        const originalShowPreview = window.showPreview;
-        window.showPreview = function(song) {
-            originalShowPreview(song);
-            const isPraise = song.category === 'praise';
-            applyLyricsBackground(isPraise);
-        };
-    });
-</script>
-
+    <script id="embeddedSongs" type="application/json">
+            []
+    </script>
 </body>
+
 </html>

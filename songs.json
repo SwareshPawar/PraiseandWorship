@@ -22,20 +22,24 @@
     {
       "id": 6,
       "title": "Aadi Vandan Christa Tula",
-      "category": "praise",
-      "key": "E Major",
+      "category": "worship",
+      "key": "D",
       "tempo": "78 BPM",
       "time": "4/4",
-      "lyrics": "Adi vandan deva tula\nAdi vandan christa tula\nTu ahe jaga vegala\n\n1.\nNaam yeshuche god manala,\nMukhi ghevu sada stavanal --(2)\nKiti alavu mi deva tula\nKiti alavu mi deva tula\nTu ahe jaga vegala\n\n2.\nNam yesuche sangu jagala\nkhrist yesu hachi taranara --(2)\nPapi janana taravayala --(2)\nTu ahe jaga vegala\n\nAabhari maanto yeshulaa\naabhaari maanto yeshulaa\naabhaari maanto yeshulaaaabhaari aabhaari 2\nkhaayaalaa piyaalaa yeshu ne dile 2raayaalaa jaagaa yeshu ne dile 2o aamhi aabhaari re aabhaari maanto yeshulaa\naabhaari aabhaari 2\ngunachi maaphi yeshu ne dile 2navaa jivan yeshu ne dile 2o aamhi aabhaari re aabhaari maanto yeshulaaaabhaari aabhaari 2"
+      "taal": "Keherwa",
+      "genre": "Forgiveness",
+      "lyrics": "आधी वंदन देवा तुला\nतू आहे जगा वेगळा\n\nनाम येशूचे गोड मनाला\nमुखी घेऊ सदा स्तवनाला\nकिती आळवू मी देवा तुला\nकिती आळवू मी ख्रिस्ता तुला\nतू आहे जगा वेगळा\n\nनाम येशूचे सांगू जगाला\nख्रिस्त येशू हाची तारणारा\nपापी जनांना तारावयाला\nतू आहे जगा वेगळा"
     },
     {
       "id": 9,
       "title": "Aaj Dhanya dhanya me Jahalo",
       "category": "praise",
-      "key": "F Major",
+      "key": "D",
       "tempo": "82 BPM",
-      "time": "4/4",
-      "lyrics": "Aaj Dhanya dhanya me jahalo, yeshu raja mala bhetala,\nHallelujah hallelujah, Yeshu raja mala bhetala\n\nBharakrant Kashti me\nSankatacha tya samayi\n syndicatedBhatakalo me andhari"
+      "time": "3/4",
+      "taal": "Dadra",
+      "genre": "Thanksgiving",
+      "lyrics": "D\nDhanya dhanya Yeshu naam\n               Em    A\nStuti ke yogya Yeshu naam\nF#m               G\nHar ek zubaan yeh gayegi\nA             G   D\nYeshu pavitra hai\n\n              A\nYeshu pavitra hai\nEm            Bm  A\nYeshu pavitra hai\nD             Em\nYeshu pavitra hai\n     A             G   D\nmera Yeshu pavitra hai\n            A\nHallelujah Amen\nEm          Bm  A\nHallelujah Amen\nD           Em\nHallelujah Amen\nA           G   D\nHallelujah Amen\n\nMere paapon ko dho diya\nParmeshwar ka nirdosh memna\nHar ek zubaan yeh gayegi \nYeshu pavitra hai\n\nYeshu pavitra hai...\nHallelujah Amen...\n\nSwarg doot aur saari srishti\nPukaarte ek hi naam ko\nHar ek zubaan yeh gayegi \nYeshu pavitra hai\n\nYeshu pavitra hai...\nHallelujah Amen..."
     },
     {
       "id": 53,
@@ -999,68 +1003,19 @@
       "tempo": "68 BPM",
       "time": "4/4",
       "lyrics": "शारोन का गुलाबहै वो मेरा मसीहावो मुझे जल देताजिससे मैं तृप्त हो जाता\n\nतू है मेरा प्रियऔर मैं तुझसे ही प्रेम करूँगातू मेरा सब कुछ है\n\nऔर मैं तेरे लिये जीयुँग\n\nMukti dilaye yeshu naam\nD G\nMukti dilaye yeshu naam\nC D\nShanti dilaye yeshu naam\n\nVERSE 1\nD C\nYeshu daya ka behta sagar (X2)\nD G\nYeshu hai data mahan,\nC D\nYeshu hai data mahan\n\nVERSE 2\nD C\nCharni mai tu ne janam liya yeshu (X2)\nD G\nSuli pe kiya vishraam,\nC D\nSuli pe kiya vishraam\n\nVERSE 3\nD C\nKrus pe apna khoon bahaya (X2)\nD G\nSara chukaya daam,\nC D\nSara chukaya daam,\n\nVERSE 4\nD C\nHum sab ke paapo ko mitane (X2)\nD G\nYeshu hua balidaan,\nC D\nYeshu hua balidaan\n\nVERSE 5\nD C\nHum per bhi yeshu kirpa kerna (X2)\nD G\nHum hai papi nadan,\nC D\nHum hai papi nadan"
-    }
-  ],
-  "praiseSetlist": [
-    {
-      "id": 6,
-      "title": "Aadi Vandan Christa Tula",
-      "category": "praise",
-      "key": "E Major",
-      "tempo": "78 BPM",
-      "time": "4/4",
-      "lyrics": "Adi vandan deva tula\nAdi vandan christa tula\nTu ahe jaga vegala\n\n1.\nNaam yeshuche god manala,\nMukhi ghevu sada stavanal --(2)\nKiti alavu mi deva tula\nKiti alavu mi deva tula\nTu ahe jaga vegala\n\n2.\nNam yesuche sangu jagala\nkhrist yesu hachi taranara --(2)\nPapi janana taravayala --(2)\nTu ahe jaga vegala\n\nAabhari maanto yeshulaa\naabhaari maanto yeshulaa\naabhaari maanto yeshulaaaabhaari aabhaari 2\nkhaayaalaa piyaalaa yeshu ne dile 2raayaalaa jaagaa yeshu ne dile 2o aamhi aabhaari re aabhaari maanto yeshulaa\naabhaari aabhaari 2\ngunachi maaphi yeshu ne dile 2navaa jivan yeshu ne dile 2o aamhi aabhaari re aabhaari maanto yeshulaaaabhaari aabhaari 2"
     },
     {
-      "id": 9,
-      "title": "Aaj Dhanya dhanya me Jahalo",
+      "id": 108,
+      "title": "Aabhari Aabhari ",
       "category": "praise",
-      "key": "F Major",
-      "tempo": "82 BPM",
-      "time": "4/4",
-      "lyrics": "Aaj Dhanya dhanya me jahalo, yeshu raja mala bhetala,\nHallelujah hallelujah, Yeshu raja mala bhetala\n\nBharakrant Kashti me\nSankatacha tya samayi\n syndicatedBhatakalo me andhari"
-    },
-    {
-      "id": 53,
-      "title": "Aaj Ka Din",
-      "category": "praise",
-      "key": "D Major",
-      "tempo": "80",
-      "time": "4/4",
-      "genre": "Traditional",
-      "lyrics": "D\nAaj ka din\nYahowa ne banaya hai\nG                A\nHum usme anandit ho\n        D\nAnandit ho\n\nD\nPrabhu ko mahima mile\nG               A\nChahe ho mera apman\nD\nWo badhe mei ghatu\nG           A\nRahe isi ka dhyan\n\nAaj ka din...\n\nStuti prashnsa kare\nKyon na kuchh hota rahe\nUsko hum bhate rahe\nChahe jaha bhi rahe\n\nAaj ka din...\n\nAata hoon tere paas\nMujhko hai tujhse aas\nMujhko kabool kar le\nPapo se shudhh kar de\n\nAaj ka din..."
-    }
-  ],
-  "worshipSetlist": [
-    {
-      "id": 52,
-      "title": "Aadi aur ant",
-      "category": "worship",
-      "key": "A Major",
-      "tempo": "80",
+      "key": "G",
+      "tempo": "95",
       "time": "3/4",
-      "genre": "Contemporary",
-      "lyrics": "A                  D\nAadi aur ant tu hi hai\nE                    A\nAlfa aur omega tu hi hai\n                      D\nDooton ki stuti tu hi hai\nE                         A\nBuddhi aur sab gyan tu hi hai\n\nA        D\nYeshu tu mahaan hai\nE        A\nYeshu tu aacha hai\nA        Bm\nYeshu tu zinda hai\nE        A\nYeshu tu dhanya hai\n\n                      D\nDooton ki stuti tu hi hai\nE                         A\nBuddhi aur sab gyan tu hi hai\n                     D\nRajaon ka raja tu hi hai\nE                        A\nPrabhuon ka prabhu tu hi hai\n\nYeshu tu mahaan hai...\n\nJeevan mera paapon se bhara\nJag andhera aur ashudh saara\nMere paapon se bachane ko\nMere liya jeevan diya hai\n\nYeshu tu mahaan hai...\n\nDooton ki stuti tu...\n\nYeshu tu mahaan hai...\n\nSaare gunahagaaro ke liye\nApna khoon bhaya yeshu ne\nKhai kodo ki mar bhi\nDi saleeb par usne apni jaan\n\nYeshu tu mahaan hai...\n\nDooton ki stuti tu...\n\nYeshu tu mahaan hai...\n\nWaida kiya hai tune\nWaida tu karta hai poora\nWaide ke liye aate hain\nBarkathon ki baarish ab undel\n\nYeshu tu mahaan hai...\n\nDooton ki stuti tu...\n\nYeshu tu mahaan hai...\n\nNyay karne aane wala hai\nNyay ke saath rajya karne ko\nDharmiyon ko lekar nyay se\nSimhasan par rajya karega\n\nYeshu tu mahaan hai...\n\nDooton ki stuti tu...\n\nYeshu tu mahaan hai..."
-    },
-    {
-      "id": 42,
-      "title": "Aadi aur ant tu hi hei",
-      "category": "worship",
-      "key": "G Major",
-      "tempo": "68 BPM",
-      "time": "4/4",
-      "lyrics": "[G]Aadi aur Aant tu hi hai[C][D]Alfa aur Omega tu hi[G]haiDuto’n ki stuti tu hi hai[C][D]Buddhi aur sab gyan tu hi [G]hai\n\n[G]Yeshu tu [C]mahaan hai[D],Yeshu [G]tu aacha hai[G]Yeshu tu [C]zinda hai,[D]Yeshu [G]tu dhanya haiDuto’n ki stuti tu hi hai[C][D]Buddi aur sab gyan tu hi [G]hai\n\nRajao’n ka Raja tu hi hai[C][D]Prabhuo’n ka Prabhu tu hi [G]hai\n\n[G]Jeevan mera paapo’n se bhara[C]\n[D]Jag andhera aur Ashudh saara[G]\nMere paapo se bachane ko[C]\n[D]Mere liya jeevan diya hai[G]\n\n[G]Saare Gunahagaaro ke liye[C]\n[D]Apna khoon bhaya Yeshu ne[G]\nKhai Kodo ki mar bhi [C]\n[D]Di Saleeb par usne apni jaan[G]\n\nAur pyar aur samarth\n[Dm]Aur pyar [Bb]aur samarth [C]chahta hoon mere khuda[Dm]\naradhana teri[Gm]mei dilse karunga[Dm]aradhana teri [Gm]mei man se karunga[Dm]aradhana teri [Gm]mei samarth se karunga[Dm]sada[Bb] sarvada[C]sada sarvada[Dm]"
-    },
-    {
-      "id": 41,
-      "title": "Aaye hein hum, tere charno mei",
-      "category": "worship",
-      "key": "F Major",
-      "tempo": "70 BPM",
-      "time": "4/4",
-      "lyrics": "[F]Aaye Hein Ham[Am],[Dm] tere charno meiLekar[C] ham stuti: [F][F]Aaye Hein[Dm] Ham [C]tere charno mei[F]Lekar ham [C]stuti: [F][F]Helleluyah[Am],[Dm] halleluyah[C]Helleluyah, halleluyah[F]\n\n[F]Papo ko tu [Am],[Dm]dho de hamareMarzi [C]teri Karen sada[F][F]Papo ko[Dm] tu [C]dho de hamare[F]Marzi teri Karen[C] sada[F][F]Helleluyah[Am],[Dm] halleluyah[C]Helleluyah, halleluyah[F]\n\n[F]Ham bachhe hein[Am],[Dm]Param pita keBadhna hei[C] hame Vachnan’o mei[F][F]Ham bachhe[Dm] hein [C]Param pita ke[F]Badhna hei hame[C] Vachnan’o mei[F][F]Helleluyah[Am],[Dm] halleluyah[C]Helleluyah, halleluyah[F]\n\n[F]Pyare Prabhu ji[Am],[Dm]ashish de hameAtma se[C] tu bharde hame[F][F]Pyare Prabhu[Dm] ji ashish de hame[F]Atma se tu[C] bharde hame[F][F]Helleluyah[Am],[Dm]halleluyah[C]Helleluyah, halleluyah[F]"
+      "taal": "Dadra",
+      "genre": "Thanksgiving",
+      "lyrics": "G       C\nAabhari Aabhari (4x)\nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\nG                   D\nAmahi Aabhari manasa Yeshula (2x)\nG               D  C       D     G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\n \n \n[Verse 1]\nG              C        D\nKhayala Piyala Yeshu Ne Dile (2)\nG           C        D\nRayala Jaga Yeshu Ne Dile (2)\nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\nG                   D\nAmahi Aabhari manasa Yeshula (2x)\nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\n \n \n[Verse 2]\nG            C        D\nGunachi Mafi Yeshu Ne Dile (2)\nG           C        D\nNava Jeevan Yeshu Ne Dile (2)\n \n \nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\nG                   D\nAmahi Aabhari manasa Yeshula (2x)\nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)"
     }
   ],
-    "praiseSetlist": [],
-    "worshipSetlist": []
+  "praiseSetlist": [],
+  "worshipSetlist": []
 }

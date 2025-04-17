@@ -1263,6 +1263,7 @@
 
         // Initialize the application
         function init() {
+            loadSongsFromFile()
             // Load settings
             loadSettings();
 
@@ -1907,6 +1908,24 @@
             }
 
             return newBaseNote + quality;
+        }
+
+        async function loadSongsFromFile() {
+            try {
+                const response = await fetch('songs.json');
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const text = await response.text();
+
+                // Temporary: Log first 200 chars around the error position
+                const errorPos = 105932;
+                console.log('Text around error:', text.substring(errorPos - 100, errorPos + 100));
+
+                return JSON.parse(text);
+            } catch (err) {
+                console.error('Full error loading JSON:', err);
+                return null;
+            }
         }
 
         function updatePreviewWithTransposition(level) {

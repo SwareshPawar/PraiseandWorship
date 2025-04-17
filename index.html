@@ -14,7 +14,7 @@
             --text-color: #333;
             --light-bg: #f5f7fa;
             --delete-color: #e63946;
-            --sidebar-width: 40%;
+            --sidebar-width: 250px;
             --songs-panel-width: 300px;
             --preview-margin-left: 40px;
             /* Dark mode variables */
@@ -751,12 +751,12 @@
             }
 
             .sidebar {
-                width: 40%;
+                width: 80%;
                 z-index: 1200;
             }
 
             .songs-section {
-                width: 40%;
+                width: 80%;
                 z-index: 1100;
             }
 
@@ -1203,24 +1203,6 @@
             };
         }
 
-            async function loadSongsFromFile() {
-        try {
-            const response = await fetch('songs.json');
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-            const text = await response.text();
-
-            // Temporary: Log first 200 chars around the error position
-            const errorPos = 105932;
-            console.log('Text around error:', text.substring(errorPos - 100, errorPos + 100));
-
-            return JSON.parse(text);
-        } catch (err) {
-            console.error('Full error loading JSON:', err);
-            return null;
-        }
-    }
-
         function updateSongCount() {
             document.getElementById('totalSongs').textContent = songs.length;
             document.getElementById('praiseCount').textContent = songs.filter(s => s.category === 'praise').length;
@@ -1281,14 +1263,10 @@
 
         // Initialize the application
         function init() {
-            
-       const loadedSongs = await loadSongsFromFile();
             // Load settings
             loadSettings();
 
-            // Set up event listeners
-            addEventListeners();
-            addPanelToggles();
+
 
             // Render initial content
             renderSongs('praise', '', '');
@@ -1310,6 +1288,10 @@
 
             // [Rest of your existing init code]
             updateSongCount();
+
+            // Set up event listeners
+            addEventListeners();
+            addPanelToggles();
 
         }
 
@@ -1924,24 +1906,6 @@
             }
 
             return newBaseNote + quality;
-        }
-
-        async function loadSongsFromFile() {
-            try {
-                const response = await fetch('songs.json');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-                const text = await response.text();
-
-                // Temporary: Log first 200 chars around the error position
-                const errorPos = 105932;
-                console.log('Text around error:', text.substring(errorPos - 100, errorPos + 100));
-
-                return JSON.parse(text);
-            } catch (err) {
-                console.error('Full error loading JSON:', err);
-                return null;
-            }
         }
 
         function updatePreviewWithTransposition(level) {

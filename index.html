@@ -14,7 +14,7 @@
             --text-color: #333;
             --light-bg: #f5f7fa;
             --delete-color: #e63946;
-            --sidebar-width: 250px;
+            --sidebar-width: 300px;
             --songs-panel-width: 300px;
             --preview-margin-left: 40px;
             /* Dark mode variables */
@@ -141,13 +141,8 @@
             padding-top: 15px;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
-        .panel-toggle.draggable:hover {
-            opacity: 1;
-            transform: scale(1.1);
-        }
-
         .panel-toggle.draggable:hover,
-         panel-toggle.draggable.showing {
+        .panel-toggle.draggable.showing {
             transform: scale(1.3);
         }
 
@@ -712,57 +707,40 @@
             user-select: none;
         }
 
-        #toggle-sidebar {
-            left: 20px;
-            top: 20px;
-        }
-
-        #toggle-songs {
-            left: 70px;
-            top: 20px;
-        }
-
-        #toggle-all-panels {
-            left: 120px;
-            top: 20px;
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
-            .panel-toggle.draggable {
-                width: 36px;
-                height: 36px;
-                font-size: 0.9em;
-            }
-
             #toggle-sidebar {
+                top: 100px;
                 left: 10px;
-                top: 10px;
             }
 
             #toggle-songs {
-                left: 56px;
-                top: 10px;
+                top: 140px;
+                left: 10px;
             }
 
             #toggle-all-panels {
-                left: 102px;
-                top: 10px;
+                top: 180px;
+                left: 10px;
+            }
+
+            .sidebar.hidden ~ #toggle-songs {
+                left: 15px;
             }
 
             .sidebar {
-                width: 80%;
-                z-index: 1200;
+                width: 40%;
+                max-width: none;
             }
 
             .songs-section {
-                width: 80%;
-                z-index: 1100;
+                width: 40%;
+                max-width: none;
+                left: 0;
             }
 
             .preview-section {
                 margin-left: 0;
-                z-index: 800;
             }
         }
 
@@ -1147,18 +1125,35 @@
         // Initialize songs and setlists
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         let socket = null;
-        const serverUrl = 'wss://yourserver.com/ws'; // Change to your WebSocket server URL
-        let songs = JSON.parse(localStorage.getItem('songs')) || (() => {
-            const embedded = document.getElementById('embeddedSongs');
-            if (embedded) {
+        const serverUrl = 'https://github.com/SwaresphPawar/PraiseandWorship/blob/1fd37ef604c5e2ab7374fcb1be28eb8e76fd86d7/songs.json'; // Change to your WebSocket server URL
+        let songs = [];
+
+        async function loadSongsFromFile() {
+        try {
+            // Try multiple possible paths for GitHub Pages compatibility
+            const pathsToTry = [
+                './songs.json',
+                '/songs.json',
+                'songs.json',
+                `${window.location.pathname.split('/')[1]}/songs.json`
+            ];
+
+            for (const path of pathsToTry) {
                 try {
-                    return JSON.parse(embedded.textContent) || [];
-                } catch (err) {
-                    console.warn('Could not parse embedded songs:', err);
+                    const response = await fetch(`./songs.json?${new Date().getTime()}`);
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                } catch (e) {
+                    console.log(`Failed to load from ${path}`, e);
                 }
             }
-            return [];
-        })();
+            throw new Error('All paths failed');
+        } catch (err) {
+            console.error('Error loading songs:', err);
+            return null;
+        }
+    }
 
         function connectWebSocket() {
             if (!window.WebSocket) {
@@ -1262,11 +1257,19 @@
         let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
 
         // Initialize the application
-        function init() {
+        async function init() {
+
+            // Try to load songs from JSON file first
+            const loadedSongs = await loadSongsFromFile();
+            console.log("Loaded songs:", loadedSongs);  // Debugging line
+            songs = loadedSongs || JSON.parse(localStorage.getItem('songs')) || [];
+
             // Load settings
             loadSettings();
 
-
+            // Set up event listeners
+            addEventListeners();
+            addPanelToggles();
 
             // Render initial content
             renderSongs('praise', '', '');
@@ -1280,19 +1283,12 @@
                 document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
             }
 
-            // Initialize panels
-            updatePanelVisibility();
 
             // Connect to WebSocket
             connectWebSocket();
 
             // [Rest of your existing init code]
             updateSongCount();
-
-            // Set up event listeners
-            addEventListeners();
-            addPanelToggles();
-
         }
 
         // Settings functions
@@ -2530,7 +2526,14 @@
         window.renderSetlist = renderSetlist;
 
         // Start the application
-        window.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('DOMContentLoaded', () => {
+            init().catch(err => {
+                console.error('Initialization failed:', err);
+                // Fallback initialization if needed
+                songs = JSON.parse(localStorage.getItem('songs')) || [];
+                renderSongs('praise', '', '');
+            });
+        });
     </script>
 </body>
 </html>

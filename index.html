@@ -729,12 +729,12 @@
             }
 
             .sidebar {
-                width: 40%;
+                width: 50%;
                 max-width: none;
             }
 
             .songs-section {
-                width: 40%;
+                width: 50%;
                 max-width: none;
                 left: 0;
             }
@@ -1107,9 +1107,9 @@
                 <label for="setlistTextInput">Setlist Menu Text:</label>
                 <input type="text" id="setlistTextInput" required>
                 <label for="sidebarWidthInput">Sidebar Width (%):</label>
-                <input type="number" id="sidebarWidthInput" min="10" max="50" value="15">
+                <input type="number" id="sidebarWidthInput" min="10" max="100" value="30">
                 <label for="songsPanelWidthInput">Songs Panel Width (%):</label>
-                <input type="number" id="songsPanelWidthInput" min="10" max="50" value="20">
+                <input type="number" id="songsPanelWidthInput" min="10" max="100" value="30">
                 <label for="previewMarginInput">Preview Margin Left (px):</label>
                 <input type="number" id="previewMarginInput" min="0" max="100" value="40">
                 <button type="submit" class="btn btn-primary">Save Settings</button>
@@ -1140,63 +1140,44 @@
 
             for (const path of pathsToTry) {
                 try {
-                    const response = await fetch(`./songs.json?${new Date().getTime()}`);
+                    const response = await fetch(path);
                     if (response.ok) {
-                        return await response.json();
+                        const data = await response.json();
+                        if (Array.isArray(data)) {
+                            return data;
+                        } else if (Array.isArray(data.songs)) {
+                            return data.songs;
+                        }
                     }
                 } catch (e) {
                     console.log(`Failed to load from ${path}`, e);
                 }
             }
-            throw new Error('All paths failed');
+            
+            // Fallback to embedded songs if available
+            const embedded = document.getElementById('embeddedSongs');
+            if (embedded && embedded.textContent.trim() !== '[]') {
+                const embeddedData = JSON.parse(embedded.textContent);
+                return Array.isArray(embeddedData) ? embeddedData : [];
+            }
+            
+            return [];
         } catch (err) {
             console.error('Error loading songs:', err);
-            return null;
+            return [];
         }
     }
+    }
 
-        function connectWebSocket() {
-            if (!window.WebSocket) {
-                console.warn("WebSockets not supported in this browser");
-                return;
-            }
-
-            socket = new WebSocket(serverUrl);
-
-            socket.onopen = function () {
-                console.log("Connected to WebSocket server");
-            };
-
-            socket.onmessage = function (event) {
-                const data = JSON.parse(event.data);
-                if (data.type === 'update') {
-                    songs = data.songs || songs;
-                    praiseSetlist = data.praiseSetlist || praiseSetlist;
-                    worshipSetlist = data.worshipSetlist || worshipSetlist;
-
-                    // Update UI
-                    updateSongCount();
-                    if (praiseTab.classList.contains('active')) {
-                        renderSongs('praise', keyFilter.value, genreFilter.value);
-                    } else {
-                        renderSongs('worship', keyFilter.value, genreFilter.value);
-                    }
-
-                    if (setlistSection.style.display === 'block') {
-                        renderSetlist(praiseSetlistTab.classList.contains('active') ? 'praise' : 'worship');
-                    }
-                }
-            };
-
-            socket.onclose = function () {
-                console.log("WebSocket connection closed, attempting to reconnect...");
-                setTimeout(connectWebSocket, 5000);
-            };
-
-            socket.onerror = function (error) {
-                console.error("WebSocket error:", error);
-            };
+    function connectWebSocket() {
+        if (!window.WebSocket) {
+            console.warn("WebSockets not supported in this browser");
+            return;
         }
+
+        // Remove WebSocket connection as it's not needed for GitHub Pages
+        console.log("WebSocket connection removed for GitHub Pages compatibility");
+    }
 
         function updateSongCount() {
             document.getElementById('totalSongs').textContent = songs.length;
@@ -1258,12 +1239,20 @@
 
         // Initialize the application
         async function init() {
-
-            // Try to load songs from JSON file first
-            const loadedSongs = await loadSongsFromFile();
-            console.log("Loaded songs:", loadedSongs);  // Debugging line
-            songs = loadedSongs || JSON.parse(localStorage.getItem('songs')) || [];
-
+            // Load songs from JSON file
+            songs = await loadSongsFromFile();
+            
+            // Load any songs from localStorage that might have been added
+            const localSongs = JSON.parse(localStorage.getItem('songs')) || [];
+            if (localSongs.length > 0) {
+                // Merge with existing songs, avoiding duplicates
+                const existingIds = new Set(songs.map(s => s.id));
+                localSongs.forEach(song => {
+                    if (!existingIds.has(song.id)) {
+                        songs.push(song);
+                    }
+                });
+            }
             // Load settings
             loadSettings();
 

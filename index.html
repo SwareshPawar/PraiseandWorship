@@ -14,7 +14,7 @@
             --text-color: #333;
             --light-bg: #f5f7fa;
             --delete-color: #e63946;
-            --sidebar-width: 250px;
+            --sidebar-width: 40%;
             --songs-panel-width: 300px;
             --preview-margin-left: 40px;
             /* Dark mode variables */
@@ -1263,29 +1263,6 @@
 
         // Initialize the application
         function init() {
-            const fileData = await loadSongsFromFile();
-
-                        if (fileData) {
-                songs = fileData.songs || [];
-                praiseSetlist = fileData.praiseSetlist || [];
-                worshipSetlist = fileData.worshipSetlist || [];
-            } else {
-                // Fallback to localStorage/embedded
-                songs = JSON.parse(localStorage.getItem('songs')) || (() => {
-                    const embedded = document.getElementById('embeddedSongs');
-                    if (embedded) {
-                        try {
-                            return JSON.parse(embedded.textContent) || [];
-                        } catch (err) {
-                            console.warn('Could not parse embedded songs:', err);
-                        }
-                    }
-                    return [];
-                })();
-    
-                praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || [];
-                worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || [];
-            }
             // Load settings
             loadSettings();
 
@@ -1313,29 +1290,10 @@
 
             // [Rest of your existing init code]
             updateSongCount();
-            loadSongsFromFile();
 
             // Setup event listeners
             addEventListeners();
             setupPanelToggles();
-        }
-
-                async function loadSongsFromFile() {
-            try {
-                const response = await fetch('songs.json');
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-
-                const text = await response.text();
-
-                // Temporary: Log first 200 chars around the error position
-                const errorPos = 105932;
-                console.log('Text around error:', text.substring(errorPos - 100, errorPos + 100));
-
-                return JSON.parse(text);
-            } catch (err) {
-                console.error('Full error loading JSON:', err);
-                return null;
-            }
         }
 
         // Settings functions

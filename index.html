@@ -5,8 +5,6 @@
     <title>Praise & Worship Songs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
-
-
         :root {
             --primary-color: #4a6fa5;
             --secondary-color: #166088;
@@ -393,14 +391,6 @@
             color: var(--primary-color);
             font-weight: bold;
         }
-
-/*        .lyrics-bg-praise {
-            background-color: #e8f4fd;
-        }
-
-        .lyrics-bg-worship {
-            background-color: #fdf3e8;
-        }*/
 
         /* Button Styles */
         .btn {
@@ -1125,59 +1115,57 @@
         // Initialize songs and setlists
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         let socket = null;
-        const serverUrl = 'https://github.com/SwaresphPawar/PraiseandWorship/blob/1fd37ef604c5e2ab7374fcb1be28eb8e76fd86d7/songs.json'; // Change to your WebSocket server URL
         let songs = [];
 
         async function loadSongsFromFile() {
-        try {
-            // Try multiple possible paths for GitHub Pages compatibility
-            const pathsToTry = [
-                './songs.json',
-                '/songs.json',
-                'songs.json',
-                `${window.location.pathname.split('/')[1]}/songs.json`
-            ];
+            try {
+                // Try multiple possible paths for GitHub Pages compatibility
+                const pathsToTry = [
+                    './songs.json',
+                    '/songs.json',
+                    'songs.json',
+                    `${window.location.pathname.split('/')[1]}/songs.json`
+                ];
 
-            for (const path of pathsToTry) {
-                try {
-                    const response = await fetch(path);
-                    if (response.ok) {
-                        const data = await response.json();
-                        if (Array.isArray(data)) {
-                            return data;
-                        } else if (Array.isArray(data.songs)) {
-                            return data.songs;
+                for (const path of pathsToTry) {
+                    try {
+                        const response = await fetch(path);
+                        if (response.ok) {
+                            const data = await response.json();
+                            if (Array.isArray(data)) {
+                                return data;
+                            } else if (Array.isArray(data.songs)) {
+                                return data.songs;
+                            }
                         }
+                    } catch (e) {
+                        console.log(`Failed to load from ${path}`, e);
                     }
-                } catch (e) {
-                    console.log(`Failed to load from ${path}`, e);
                 }
+                
+                // Fallback to embedded songs if available
+                const embedded = document.getElementById('embeddedSongs');
+                if (embedded && embedded.textContent.trim() !== '[]') {
+                    const embeddedData = JSON.parse(embedded.textContent);
+                    return Array.isArray(embeddedData) ? embeddedData : [];
+                }
+                
+                return [];
+            } catch (err) {
+                console.error('Error loading songs:', err);
+                return [];
             }
-            
-            // Fallback to embedded songs if available
-            const embedded = document.getElementById('embeddedSongs');
-            if (embedded && embedded.textContent.trim() !== '[]') {
-                const embeddedData = JSON.parse(embedded.textContent);
-                return Array.isArray(embeddedData) ? embeddedData : [];
-            }
-            
-            return [];
-        } catch (err) {
-            console.error('Error loading songs:', err);
-            return [];
-        }
-    }
-    }
-
-    function connectWebSocket() {
-        if (!window.WebSocket) {
-            console.warn("WebSockets not supported in this browser");
-            return;
         }
 
-        // Remove WebSocket connection as it's not needed for GitHub Pages
-        console.log("WebSocket connection removed for GitHub Pages compatibility");
-    }
+        function connectWebSocket() {
+            if (!window.WebSocket) {
+                console.warn("WebSockets not supported in this browser");
+                return;
+            }
+
+            // Remove WebSocket connection as it's not needed for GitHub Pages
+            console.log("WebSocket connection removed for GitHub Pages compatibility");
+        }
 
         function updateSongCount() {
             document.getElementById('totalSongs').textContent = songs.length;

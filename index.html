@@ -1264,19 +1264,21 @@
         // Initialize the application
         function init() {
             
-            const fileData = await loadSongsFromFile();
 
-            if (fileData) {
-                songs = fileData.songs || [];
-                praiseSetlist = fileData.praiseSetlist || [];
-                worshipSetlist = fileData.worshipSetlist || [];
-            }
             // Load settings
             loadSettings();
 
             // Set up event listeners
             addEventListeners();
             addPanelToggles();
+
+                        const fileData = await loadSongsFromFile();
+
+            if (fileData) {
+                songs = fileData.songs || [];
+                praiseSetlist = fileData.praiseSetlist || [];
+                worshipSetlist = fileData.worshipSetlist || [];
+            }
 
             // Render initial content
             renderSongs('praise', '', '');

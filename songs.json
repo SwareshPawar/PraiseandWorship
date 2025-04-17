@@ -1,47 +1,6 @@
 {
   "songs": [
     {
-      "id": 108,
-      "title": "Aabhari Aabhari ",
-      "category": "praise",
-      "key": "G",
-      "tempo": "95",
-      "time": "3/4",
-      "taal": "Dadra",
-      "genre": "Thanksgiving",
-      "lyrics": "G       C\nAabhari Aabhari (4x)\nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\nG                   D\nAmahi Aabhari manasa Yeshula (2x)\nG               D  C       D     G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\n \n \n[Verse 1]\nG              C        D\nKhayala Piyala Yeshu Ne Dile (2)\nG           C        D\nRayala Jaga Yeshu Ne Dile (2)\nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\nG                   D\nAmahi Aabhari manasa Yeshula (2x)\nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\n \n \n[Verse 2]\nG            C        D\nGunachi Mafi Yeshu Ne Dile (2)\nG           C        D\nNava Jeevan Yeshu Ne Dile (2)\n \n \nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)\nG                   D\nAmahi Aabhari manasa Yeshula (2x)\nG               D  C       D      G\nO Aamhi Aabhari re Aabhari manasa Yeshula (2x)"
-    },
-    {
-      "id": 52,
-      "title": "Aadi aur ant",
-      "category": "worship",
-      "key": "A Major",
-      "tempo": "80",
-      "time": "3/4",
-      "genre": "Contemporary",
-      "lyrics": "A                  D\nAadi aur ant tu hi hai\nE                    A\nAlfa aur omega tu hi hai\n                      D\nDooton ki stuti tu hi hai\nE                         A\nBuddhi aur sab gyan tu hi hai\n\nA        D\nYeshu tu mahaan hai\nE        A\nYeshu tu aacha hai\nA        Bm\nYeshu tu zinda hai\nE        A\nYeshu tu dhanya hai\n\n                      D\nDooton ki stuti tu hi hai\nE                         A\nBuddhi aur sab gyan tu hi hai\n                     D\nRajaon ka raja tu hi hai\nE                        A\nPrabhuon ka prabhu tu hi hai\n\nYeshu tu mahaan hai...\n\nJeevan mera paapon se bhara\nJag andhera aur ashudh saara\nMere paapon se bachane ko\nMere liya jeevan diya hai\n\nYeshu tu mahaan hai...\n\nDooton ki stuti tu...\n\nYeshu tu mahaan hai...\n\nSaare gunahagaaro ke liye\nApna khoon bhaya yeshu ne\nKhai kodo ki mar bhi\nDi saleeb par usne apni jaan\n\nYeshu tu mahaan hai...\n\nDooton ki stuti tu...\n\nYeshu tu mahaan hai...\n\nWaida kiya hai tune\nWaida tu karta hai poora\nWaide ke liye aate hain\nBarkathon ki baarish ab undel\n\nYeshu tu mahaan hai...\n\nDooton ki stuti tu...\n\nYeshu tu mahaan hai...\n\nNyay karne aane wala hai\nNyay ke saath rajya karne ko\nDharmiyon ko lekar nyay se\nSimhasan par rajya karega\n\nYeshu tu mahaan hai...\n\nDooton ki stuti tu...\n\nYeshu tu mahaan hai..."
-    },
-    {
-      "id": 42,
-      "title": "Aadi aur ant tu hi hei",
-      "category": "worship",
-      "key": "G Major",
-      "tempo": "68 BPM",
-      "time": "4/4",
-      "lyrics": "[G]Aadi aur Aant tu hi hai[C][D]Alfa aur Omega tu hi[G]haiDuto’n ki stuti tu hi hai[C][D]Buddhi aur sab gyan tu hi [G]hai\n\n[G]Yeshu tu [C]mahaan hai[D],Yeshu [G]tu aacha hai[G]Yeshu tu [C]zinda hai,[D]Yeshu [G]tu dhanya haiDuto’n ki stuti tu hi hai[C][D]Buddi aur sab gyan tu hi [G]hai\n\nRajao’n ka Raja tu hi hai[C][D]Prabhuo’n ka Prabhu tu hi [G]hai\n\n[G]Jeevan mera paapo’n se bhara[C]\n[D]Jag andhera aur Ashudh saara[G]\nMere paapo se bachane ko[C]\n[D]Mere liya jeevan diya hai[G]\n\n[G]Saare Gunahagaaro ke liye[C]\n[D]Apna khoon bhaya Yeshu ne[G]\nKhai Kodo ki mar bhi [C]\n[D]Di Saleeb par usne apni jaan[G]\n\nAur pyar aur samarth\n[Dm]Aur pyar [Bb]aur samarth [C]chahta hoon mere khuda[Dm]\naradhana teri[Gm]mei dilse karunga[Dm]aradhana teri [Gm]mei man se karunga[Dm]aradhana teri [Gm]mei samarth se karunga[Dm]sada[Bb] sarvada[C]sada sarvada[Dm]"
-    },
-    {
-      "id": 6,
-      "title": "आधी वंदन देवा तुला",
-      "category": "worship",
-      "key": "D",
-      "tempo": "78 BPM",
-      "time": "4/4",
-      "taal": "Keherwa",
-      "genre": "Forgiveness",
-      "lyrics": "आधी वंदन देवा तुला\nतू आहे जगा वेगळा\n\nनाम येशूचे गोड मनाला\nमुखी घेऊ सदा स्तवनाला\nकिती आळवू मी देवा तुला\nकिती आळवू मी ख्रिस्ता तुला\nतू आहे जगा वेगळा\n\nनाम येशूचे सांगू जगाला\nख्रिस्त येशू हाची तारणारा\nपापी जनांना तारावयाला\nतू आहे जगा वेगळा"
-    },
-    {
       "id": 9,
       "title": "Aaj Dhanya dhanya me Jahalo",
       "category": "praise",
@@ -1035,6 +994,17 @@
       "lyrics": "आत्मा मण्डलाता, पवित्रा आत्मा मण्डलाता- (2) पेन्तिकुस्त के दिन समान, आत्मा मण्डलाता (2)\n\n1. अन्धे देखते है (2) यीशु मसीह के नाम से, अन्धे देखते हैं\n\n2. बहरे सुनते है (2) यीशु मसीह के नाम से बहरे सुनते हैं\n\n3. लंगड़े चलते हैं (2) यीशु मसीह के नाम से, लगड़े चलते हैं\n\n4. कोढ़ी शुद्ध होते हैं (2) यीशु मसीह के नाम से कोढ़ी शुद्ध होते\n\n5. पापी क्षमा पाते हैं (2)यीशु मसीह के नाम से, पापी क्षमा पाते"
     },
     {
+      "id": 6,
+      "title": "आधी वंदन देवा तुला",
+      "category": "worship",
+      "key": "D",
+      "tempo": "78 BPM",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Forgiveness",
+      "lyrics": "आधी वंदन देवा तुला\nतू आहे जगा वेगळा\n\nनाम येशूचे गोड मनाला\nमुखी घेऊ सदा स्तवनाला\nकिती आळवू मी देवा तुला\nकिती आळवू मी ख्रिस्ता तुला\nतू आहे जगा वेगळा\n\nनाम येशूचे सांगू जगाला\nख्रिस्त येशू हाची तारणारा\nपापी जनांना तारावयाला\nतू आहे जगा वेगळा"
+    },
+    {
       "id": 1,
       "title": "आनंद भरला",
       "category": "praise",
@@ -1075,6 +1045,17 @@
       "lyrics": "जैसे माता संभालती है\nवैसे यीशु संभालेगा \nहालेलुयाह, हालेलुयाह\nहालेलुयाह, हालेलुयाह\n\nसीने से लगायेगा \nचिंता सब हटायेगा\n\nहाथ धर के ले जायेगा \nचट्टान पर चढ़ायेगा\n\nमेरे कारण वो घायल हुआ \nमेरे पापों को उठा लिया\n\nकभी भी ना छोड़ेगा \nकभी भी ना त्यागेगा"
     },
     {
+      "id": 117,
+      "title": "तुने मुझे आगे पीछे ",
+      "category": "praise",
+      "key": "C#",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Dadra",
+      "genre": "Christmas",
+      "lyrics": "C#m               B\nतुने मुझे आगे पीछे घेर रखा है\nA                 B          C#m\nअपना हाथ मुझ पर रखे रहता है \nC#m  B     A       B      C#m\nतेरी आत्मा से भाग कर मै कहा जाऊं \n\n\nआकाश पे चढू तो तू वहां है,\nअधोलोक में जाऊं तो तू वहां है \n\nतूफ़ान में जाऊं तो तू वहां है,\nलहरों पे चलूँ तो तू वहां है \n\nपूरब में जाऊं तो तू वहां है,\n\nपश्चिम में जाऊं तो तू वहां है "
+    },
+    {
       "id": 17,
       "title": "नीले आसमान के पार",
       "category": "praise",
@@ -1083,28 +1064,6 @@
       "time": "4/4",
       "genre": "Gospel",
       "lyrics": "नीले आसमान के पार जाएंगे, मेरा यीशु रहता वहाँ, (2)\n\n(हम मिलेेंगे बादलों पर) (2) देखेगा सारा जहाँ (2)\n\n1.उसका कोई भी वादा, न होगा अधूरा, \nहर एक वादा उसका होता है पूरा, उसका कोई भी वादा (2) \nउसके आने का वादा भी होगा पूरा, देखेगा सारा जहाँ (2)\n\n2. ये विश्वास है मेरा, जो होगा पूरा, सपना ये मेरा,\n न रहेगा अधूरा,ये विश्वास है मेरा, (2) उसके संग हम रहेंगे, \nअपने यीशु को देखेगा सारा जहां (2)"
-    },
-    {
-      "id": 40,
-      "title": "शारोन का गुलाब",
-      "category": "worship",
-      "key": "D",
-      "tempo": "68 BPM",
-      "time": "4/4",
-      "taal": "Keherwa",
-      "genre": "Thanksgiving",
-      "lyrics": "शारोन का गुलाबहै \nवो मेरा मसीहा\nवो मुझे जल देता\nजिससे मैं तृप्त हो जाता\n\nतू है मेरा प्रिय\nऔर मैं तुझसे ही प्रेम करूँगा\nतू मेरा सब कुछ है\n\nऔर मैं तेरे लिये जीयुँग\n"
-    },
-    {
-      "id": 114,
-      "title": "मेरा येशु है कमाल का ",
-      "category": "praise",
-      "key": "G",
-      "tempo": "80",
-      "time": "4/4",
-      "taal": "Keherwa",
-      "genre": "Easter",
-      "lyrics": "G                 C                \nमेरा येशु है कमाल का x 4\nEm               D     G   C\nउसके जैसा कोई नहीं x 4\n\nG                     C      (first time C, Second time D)           \nबिन पानी वो प्यास बुझाता,\nG                  C                \nबिन रोटी वो भूख मिटाता\nC                Am             D                \nवो ही जीवन जल है यारों, वो ही जीवन रोटी\n\nबिना सहारे पानी में चलता,\nतुफानो को भी शांत कराता\nआंधी उसकी बात माने, तूफ़ान शांत हो जाए\n\nमेरे लिए ही मारा गया, मेरे लिए ही सूली उठाया\n\nतीसरे दिन फिर ज़िंदा उठकर मौत को उसने हराया "
     },
     {
       "id": 115,
@@ -1118,6 +1077,28 @@
       "lyrics": "E                       A       \nप्रभु का आनंद है मेरी ताकत\n    B                   A    E       \nसंसार मे येशु है मेरी ताकत\n\nE                  A       \nवो मेरा आनंद हर एक दिन मे\n\nB                 A E             \n\nवो मेरा सहारा है  - २\n\n१. जब मैंने सोचा की असंभव है\nतब प्रभु येशु ने मुझ से कहा\nअसंभव को संभव कर ने वाला येशु\nमै तेरे साथ हूँ  - २\n\n२. जब मैंने सोचा मे अकेला हूँ\nतब प्रभु येशु ने मुझ से कहा\nसंसार के अंत तक साथ रहने वाला\nमै तेरे साथ हूँ  - २\n\n३. जब मैंने सोचा की मै निर्बल हूँ\nतब प्रभु येशु ने मुझ से कहा\nशांति देने वाला सामर्थ देने वाला\nमै तेरे साथ हूँ - २"
     },
     {
+      "id": 118,
+      "title": "बिनती सुन ले",
+      "category": "worship",
+      "key": "D",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Christmas",
+      "lyrics": "[D] बिनती सुन ले\n[C] यीशु प्यारे\n[D] बिनती सुन ले\n[C] यीशु प्यारे\n[G] मोरे संग रहो\n[D] महाराज\nअब तुम [C] राखो मेरी\n[D] लाज\nप्रभु तुम [C] राखो मेरी [D] लाज\n[D] बिनती करूँ तुम\n[Bm] से कर जोरी\n[G] अब तुम बिनती [A] सुन लो मोरी [D]\n[Bm] मोहे आशा [G] लग रही तोरी\n[Bm] मोहे आशा [G] लग रही तोरी\n[Em] दर्श दिखा दो\n[A] आज\n[C] अब तुम राखो मेरी\n[D] लाज\n[C] बिनती सुनो मेरी\n[D] महाराज\nबिनती सुन ले…\n[D] आपका मैं\n[Bm] शैदा कहलाऊँ\n[G] आस लगी तोरे [A] दर्शन पाऊँ [D]\n[Bm] युग युग आपका [G] मैं गुण गाऊँ\n[Bm] युग युग आपका [G] मैं गुण गाऊँ\n[Em] मेरे गरीब\n[A] नवाज़\n[C] अब तुम राखो मेरी\n[D] लाज\n[C] बिनती सुनो मेरी\n[D] महाराज\nबिनती सुन ले…\n[D] तुम ही हमारे\n[Bm] तारणहारे\n[G] मन के प्यारे [A] दिल के [D] दुलारे\n[Bm] तुम ही हमारे\n[G] नैनों के तारे\n[Bm] मन के प्यारे\n[G] दिल के दुलारे\n[Em] हमारे तुम\n[A] सरताज\n[C] अब तुम राखो मेरी\n[D] लाज\n[C] बिनती सुनो मेरी\n[D] महाराज\nबिनती सुन ले…"
+    },
+    {
+      "id": 114,
+      "title": "मेरा येशु है कमाल का ",
+      "category": "praise",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Easter",
+      "lyrics": "G                 C                \nमेरा येशु है कमाल का x 4\nEm               D     G   C\nउसके जैसा कोई नहीं x 4\n\nG                     C      (first time C, Second time D)           \nबिन पानी वो प्यास बुझाता,\nG                  C                \nबिन रोटी वो भूख मिटाता\nC                Am             D                \nवो ही जीवन जल है यारों, वो ही जीवन रोटी\n\nबिना सहारे पानी में चलता,\nतुफानो को भी शांत कराता\nआंधी उसकी बात माने, तूफ़ान शांत हो जाए\n\nमेरे लिए ही मारा गया, मेरे लिए ही सूली उठाया\n\nतीसरे दिन फिर ज़िंदा उठकर मौत को उसने हराया "
+    },
+    {
       "id": 116,
       "title": "मेरे जीवन का मकसद तू है",
       "category": "praise",
@@ -1129,26 +1110,301 @@
       "lyrics": "G                                  C\nमेरे जीवन का मकसद तू है,\n       D                     G\nमेरे जीने का कारण तू है\nG Bm        C        Am  D            C     G\nमैं जीयूँ या मरूँ, वो तेरे लिये है, तू मेरा प्रभु\n\nG         Bm     C          Am    D     G\nपिछला सब भूलकर, मैं आगे दौड़ा चलूँ\nG         Bm       C     Am        D    G\nजो मेरे लिये धन था, उसको मैं त्याग दूँ\nG        C              Am        D    C   G\nकि मैं पाऊँ उससे पुरस्कार, दौड़ा मैं जाऊँ\n\nमुझ पर है कृपा, बेकार ना जाने दूँ\nजिसने मुझे चुना, उसकी और मैं बढ़ूँ देखूँ तेरी उस सलीब को, खिंचा मैं जाऊँ"
     },
     {
-      "id": 117,
-      "title": "तुने मुझे आगे पीछे ",
-      "category": "praise",
-      "key": "C#",
-      "tempo": "80",
+      "id": 40,
+      "title": "शारोन का गुलाब",
+      "category": "worship",
+      "key": "D",
+      "tempo": "68 BPM",
       "time": "4/4",
-      "taal": "Dadra",
-      "genre": "Christmas",
-      "lyrics": "C#m               B\nतुने मुझे आगे पीछे घेर रखा है\nA                 B          C#m\nअपना हाथ मुझ पर रखे रहता है \nC#m  B     A       B      C#m\nतेरी आत्मा से भाग कर मै कहा जाऊं \n\n\nआकाश पे चढू तो तू वहां है,\nअधोलोक में जाऊं तो तू वहां है \n\nतूफ़ान में जाऊं तो तू वहां है,\nलहरों पे चलूँ तो तू वहां है \n\nपूरब में जाऊं तो तू वहां है,\n\nपश्चिम में जाऊं तो तू वहां है "
+      "taal": "Keherwa",
+      "genre": "Thanksgiving",
+      "lyrics": "शारोन का गुलाबहै \nवो मेरा मसीहा\nवो मुझे जल देता\nजिससे मैं तृप्त हो जाता\n\nतू है मेरा प्रिय\nऔर मैं तुझसे ही प्रेम करूँगा\nतू मेरा सब कुछ है\n\nऔर मैं तेरे लिये जीयुँग\n"
     },
     {
-      "id": 118,
-      "title": "बिनती सुन ले",
+      "id": 119,
+      "title": "Tera Lahu bada kimti",
+      "category": "worship",
+      "key": "Bm",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Forgiveness",
+      "lyrics": "Bm                      Em\nTera lahu bada kimti hai prabhu\nA                          D\nTera lahu bada kimti hai\nBm                       Em\nTera lahu bada kimti hai prabhu\nA                          D\nTera lahu bada kimti hai\n \n \n[Verse 1]\n \nBm                          F#m\nKyunki us lahu mein jo taaqat hai\nA                        G\nJisse hum paate hai chhutkara\nBm                          F#m\nKyunki us lahu mein jo taaqat hai\nA                          G\nJisse hum paate hai chhutkara\n \n \n[Chorus]\n \nBm                      Em\nTera lahu bada kimti hai prabhu\nA                          D\nTera lahu bada kimti hai\nBm                       Em\nTera lahu bada kimti hai prabhu\nA                          D\nTera lahu bada kimti hai\n \n[Verse 2]\n \nBm                    F#m\nTune wo lahu bahaaya hai\nA                          G\nSaari duniya ko bachaya hai\nBm                    F#m\nTune wo lahu bahaaya hai\nA                       G\nSaari duniya ko bachaya hai\n \n[Pre-Chorus]\n \nBm                         Em\nKabhi tune kisi se na kuch manga\nA                           D\nKabhi tune kisi se na kuch chaha\nBm                           Em\nKabhi tune kisi se na kuch manga\nA                           D\nKabhi tune kisi se na kuch chaha\n \n \n[Chorus]\n \nBm                    Em\nTera lahu bada kimti hai prabhu\nA                    D\nTera lahu bada kimti hai\nBm                   Em\nTera lahu bada kimti hai prabhu\nA                    D\nTera lahu bada kimti hai\n \n \n{Verse 3]\n \nBm                          F#m\nKyunki us lahu mein jo taaqat hai\nA                        G\nJisse hum paate hai chhutkara\nBm                          F#m\nKyunki us lahu mein jo taaqat hai\nA                          G\nJisse hum paate hai chhutkara\n \n \n[Outro]\n \nBm                      Em\nTera lahu bada kimti hai prabhu\nA                          D\nTera lahu bada kimti hai\nBm                       Em\nTera lahu bada kimti hai prabhu\nA                          D\nTera lahu bada kimti hai"
+    },
+    {
+      "id": 120,
+      "title": "ZINDA HOON",
+      "category": "praise",
+      "key": "C",
+      "tempo": "Latin -P2-GiDa",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Thanksgiving",
+      "lyrics": "\nC              Gm\nYeh hai meri kahani\nC           Gm\nKhamosh Zindagani\nF          C\nSanata keh raha hai\nF          C\nkiun Zulm seh Raha hai.......\nC          Gm\nAik dastan purani\nC            Gm\nTanhaye kiiii Zubani\nF            C\nhAr zakhm khil raha hai\nF              C\nkuch muj se keh raha hai\nC             Gm\nCHUBTE Kaante yadoon ke\nF          C\nDaman se chunta hoon,\nC             Gm\nGirti deewaroon k...\nF             C\nAanchal mein Zinda HOON.......\nC           Gm\nBas yeh meri Kahani,\nC         Gm\nBenishaan Nishani \nF           C\nAik dard Beh raha hai\nF             C\nKuch muj se keh raha hai\n \n[PLay As Above]\nChubte Kaante yadoon ke,\nDaman se chunta hoon,\nGirdi deewaroon k,\nAanchal mein Zinda HOON,\n \nThen comes the voice of John Abraham..\nGm             F\nAb na Koi paas hai\nGm             F\nPhr bhi Ehsaas hai\nD#                F\nDehaiiyon mein uljhi pari\nGm                F\nJeenay ki aik aas hai\nCm               Gm\nYadoon ka Jungle yeh dil\nF                   Gm\nKaantoon se jalthal yeh dil,\n \n[Play As Above]\nChubte Kaante yadoon ke,\nDaman se chunta hoon,\nGirdi deewaroon k,\nAanchal mein Zinda HOON,"
+    },
+    {
+      "id": 121,
+      "title": "Tore Siwa",
+      "category": "praise",
+      "key": "D",
+      "tempo": "FuNGoa",
+      "time": "3/4",
+      "taal": "Dadra",
+      "genre": "Thanksgiving",
+      "lyrics": "[Chorus]\nD             A\nTore Siwa Jaun  Kahaan\nEm                A             D\nPaun Tujhe    Jaun Jaha     an\n \n \n[Interlude]\nD G A D\n \n \n[Verse 1]\nD                         A\nPrabhu main tha ek    agyaani\nD                                 A\nAnugreh se hi teri mahima     jaani\nD                             A\nBhed hu main tu hai   gadariya\nEm            A         D\nAatma se mujhko     chara\n \n \n[Interlude]\nD Em G A\n \n \n[Verse 2]\nD                         A\nKaale samandar se main ghira tha\nD                     A\nAas na thi koi, doob raha tha\nD                     A\nAake Yeshu tune bachaya\nEm             A          D\nJeevan ka marg dikha  ya\n \n \n[Interlude]\nD Em G A\n \n \n[Verse 3]\nD                         A\nPrabhu main tha ek abhimaani\nD                         A\nKarta tha apni man maani\nD                     A\nPatthar sa dil pighalaya\nEm                A         D\nSachha prem karna sikhaya\n \n \n[Bridge]\nD                     Em\nMore Jeevan ke tum swami\nF#m                   G\nTumko Arpan pran aatma bhi\nD                    Em\nTore jaisa kaun  hai premi\nF#m   G\nmsa koi\n \n \n[Verse 4]\nD                                         A\nNa milega tu  Saare milkar jai jai gaayen\nD                 A\nTeri aage she   esh jhukayen\nD                         A\nSarva shaktimaan hai tu\nEm            A         D\nNa Koi Tujhsa Prabhu"
+    },
+    {
+      "id": 122,
+      "title": "Asha meri",
       "category": "worship",
       "key": "D",
       "tempo": "80",
       "time": "4/4",
       "taal": "Keherwa",
+      "genre": "Good Friday",
+      "lyrics": "             D               A\nHum mein woh doori, thi kitni gehri\n       G     Bm       A\nKitna bada tha, woh fasla\n       D                    A\nMayoos hokar, swarg ki oor dekha\n        G        A     D\nNirasha mein tera naam liya\n     G                  D\nAndhkaar hataakar, teri mohabbat\n     Bm          A\nSe mera dil thu ne Bhardhiya\n         D             A\nPoora hua sab, likha gaya anth,\n      G            A        D\nYeshu Masih, tu hai Aasha Meri\n \n \n \n[Verse 2]\n \n             D            A\nKisne tha socha, ki aisi daya\n       G     Bm       A\nMilegi humko bharpoori se\n           D.               A\nYougonga ka raja Mahima ko chhodkar\n     G        A       D\nApnaya mere sharm aur gunaah\n    G                  D\nkroos se maine payi hai maafi\n     Bm          A\nMain ho gaya uss raja ka\n         D             A\nSundar masiha, ab mein hun tera\n      G            A        D\nYeshu Masih, tu hai Aasha Meri\n \n \n[Chorus]\n \n     G    D            A         Bm\nHallelu...jah, prabhu teri stuti ho\n     G     D            A         Bm\nHallelu....jah, tune haraya mruthyu ko\n     G            D         A         Bm\nTune todi har zanjeer Tere naam mein rihai\n     G          A       D\nYeshu Masih, tu hai Aasha Meri\n \n \n[Verse 3]\n \n         D           A\nAayi woh subah, wada poora hua\n      G         Bm            A\nBejaan shareer ne, fir saansein lin\n         D             A\nKhamoshi mein se, tune pukara,\n    G       A   D\nKabr teri jeet kahan\n \n \n         D           A\nAayi woh subah, wada poora hua\n      G         Bm            A\nBejaan shareer ne, fir saansein lin\n         D             A\nKhamoshi mein se, tune pukara,\n    G       A       D\nKabr teri jeet hain kahan\nA      G      A     D\nYeshua, teri jai ho sada\n \n \n[Chorus]\n \n     G    D            A         Bm\nHallelu...jah, prabhu teri stuti ho\n     G     D            A         Bm\nHallelu....jah, tune haraya mruthyu ko\n     G            D         A         Bm\nTune todi har zanjeer Tere naam mein rihai\n     G          A       D\nYeshu Masih, tu hai Aasha Meri\n \n[Chorus]\n \n     G    D            A         Bm\nHallelu...jah, prabhu teri stuti ho\n     G     D            A         Bm\nHallelu....jah, tune haraya mruthyu ko\n     G            D         A         Bm\nTune todi har zanjeer Tere naam mein rihai\n     G          A       D\nYeshu Masih, tu hai Aasha Meri\n \n \n[Outro]\n \n    G          A       D\nYeshu Masih, tu hai Aasha Meri\n     G          A       D\nYeshu Masih, tu hai Aasha Meri"
+    },
+    {
+      "id": 123,
+      "title": "Elshadai Aaradhana",
+      "category": "worship",
+      "key": "D",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Thanksgiving",
+      "lyrics": "D                  Em\n  Tere jaisa kaun hain\nA                Bm\n  Jo mera bhala kare\nG          Em       A\n  Mera bharosa sirf tuzpar\n   D\nprabhu\n D         Em\n    Mere jeevan ka swami\nA              D\n  Adhaar bana tu prabhujee\nD             Em\n  Tu nahi toh mera jeevan\nA                 D\n  Vyarth ho..... jayega\n \n \n[Chorus]\n      D        G        A      F#m\nElshadai aaradhana, Elohim aaaradhana\n    Bm      Em       A         D\nAdonai aaradhana, Yeshua aaradhana\n      D        G        A      F#m\nElshadai aaradhana, Elohim aaaradhana\n    Bm      Em       A         D\nAdonai aaradhana, Yeshua aaradhana\n \n \n[Verse]\nD          Em\n  Bechaini mein mujhe paakar\nA            D\n  Aansu mere poche tune\n \nD            Em\n  Aakhoan ki putli jaise\nA                 D\n   Jeevan bhar sambhala mujhe\n \n \n[Chorus]\n      D        G        A      F#m\nElshadai aaradhana, Elohim aaaradhana\n    Bm      Em       A         D\nAdonai aaradhana, Yeshua aaradhana\n      D        G        A      F#m\nElshadai aaradhana, Elohim aaaradhana\n    Bm      Em       A         D\nAdonai aaradhana, Yeshua aaradhana\n \n \n[Verse]\nD           Em\n  Mrityu ke raaste par\nA              Bm\n   Tute dil ko liye khadaa tha\nD              Em\n  Changa karne waala bankar\nA            D\n  Mujhe naya jeevan diya\n \n \n[Chorus]\n     D        G         A      F#m\n(Elshadai aaradhana, Elohim aaaradhana\n    Bm      Em       A         D\nAdonai aaradhana, Yeshua aaradhana\n      D        G        A      F#m\nElshadai aaradhana, Elohim aaaradhana\n    Bm      Em       A         D\nAdonai aaradhana, Yeshua aaradhana)×3"
+    },
+    {
+      "id": 124,
+      "title": "Yeshu Masih Bharosa Mera",
+      "category": "worship",
+      "key": "A",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "A         Bm\nYeshu Masih Bharosa Mera\nD            E     A\nTu Hi Sahara Hai Mera\nF#m         Bm\nMushkil Samay Mein Tu Hi Dilasa\nD             E A\nSaath Rahega Tu Sada\n \n[Verse]\n \nBm           F#m\nKaruna Bhalayi Teri\nD           E\nSada Ragegi Mujhpar\nD              A\nTeri Vishwas Yogyata\nD               E\nDekhunga Mein Umra Bhar\n \n \n[Verse 2]\nA                Bm\nMain Haath Uthakar Gaunga\n   E   E7               A\nYeshu Tera Naam Rahe Uncha\nA                     Bm\nMain Haath Uthakar Gaunga\n   E   E7               A\nYeshu Tera Naam Rahe Uncha\n \nA         Bm\nMaut Se Hai Bachaya Tu Ne\nD                  A\nJeevan Naya Hai De Diya\nA         Bm\nNaam Le Kar Pukara Mujhe\nD                     A\nMahima Se Mujhko Bhar Diya\n \nBm            F#m\nKaruna Bhalayi Teri\nD             E\nSada Ragegi Mujhpar\nD                A\nTeri Vishwas Yogyata\nD                 E\nDekhunga Mein Umra Bhar\n \n \nA                      Bm\nMain Haath Uthakar Gaunga\n   E   E7              A\nYeshu Tera Naam Rahe Uncha\nA                      Bm\nMain Haath Uthakar Gaunga\n   E   E7               A\nYeshu Tera Naam Rahe Uncha\n \n[Verse 3 ]\n \nF#m                     E\nAadaar aur Mahima Ho Teri\nBm              A\nTu Hi Hamara Khuda\nF#m                E\nPuri Ho Teri Hi Marzi\nBm                 A\nAaye Tera Raj Ho Yahaan\nF#m                    E\nAadaar aur Mahima Ho Teri\nBm            A\nTu Hi Hamara Khuda\nF#m              E\nPuri Ho Teri Hi Marzi\nBm                 A\nAaye Tera Raj Ho Yahaan\n \n \nA                  Bm\nHum Haath Uthakar Gayenge\n   E   E7               A\nYeshu Tera Naam Rahe Uncha\nA                  Bm\nHaath Uthakar Gayenge\n   E   E7               A\nYeshu Tera Naam Rahe Uncha\n \nA                     Bm\nMain Haath Uthakar Gaunga\n   E   E7               A\nYeshu Tera Naam Rahe Uncha\nA                       Bm\nMain Haath Uthakar Gaunga\n   E   E7               A\nYeshu Tera Naam Rahe Uncha"
+    },
+    {
+      "id": 125,
+      "title": "Teri Daya",
+      "category": "worship",
+      "key": "D",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "D               G\nNarazgi me kare tu deri\nD                      G\n Pyaar se dhaanke meri galatiyaan\nD                  G\n Rakhe mujhko apne pankhon tale\nD                  G\nHar aandhi me, har toofan me\n \n \n[Pre-Chorus]\n   Bm          A         G      D\nJaisa bhi main tha mujhe apna liya\nBm        A      G        A\nTu hi hai mera Sahaayak Pita\n \n \n[Chorus]\n       D               Em\nTeri Daya kabhi kam na hogi\n       Bm              A        F#m\nTeri Daya kabhi kam na hogi\n       D               G\nTeri Daya kabhi kam na hogi\n       Bm    A               G\nTeri Daya, Daya kabhi kam na hogi\n \n \n[Interlude]\n|Bm / A D|G     / F#m  A|\n|Bm  / A D|Em  / / /|\n \n \n[Verse 2]\nD                 G\nRakhta na tu mere papon ka hisaab\nD                          G\n Anjaan tha tujhse tab bhi kiya tune pyaar\nD                  G\n Mera hriday tu ne hai khola\nD                        G\n Gunaahon me mujhe kabhi na taula\n \n \n[Pre-Chorus]\n   Bm          A         G      D\nJaisa bhi main tha mujhe apna liya\nBm        A      G        A\nTu hi hai mera Sahaayak Pita\n \n \n[Chorus]\n       D               Em\nTeri Daya kabhi kam na hogi\n       Bm              A        F#m\nTeri Daya kabhi kam na hogi\n       D               G\nTeri Daya kabhi kam na hogi\n       Bm    A               G      N.C.\nTeri Daya, Daya kabhi kam na hog----i\n \n \n[Outro]\n       D               Em\nTeri Daya kabhi kam na hogi\n       Bm              A        F#m\nTeri Daya kabhi kam na hogi\n       D               G\nTeri Daya kabhi kam na hogi\n       Bm    A               G\nTeri Daya, Daya kabhi kam na hogi"
+    },
+    {
+      "id": 126,
+      "title": "Abraham Ka Prabhu",
+      "category": "praise",
+      "key": "C",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "  C                   Em\nAbraham ka prabhu, Isaac ka prabhu\n   Dm              G\nYakub ka prabhu, Tu mera hai\n \n[Chorus]\n     C\nTu kabhi na chorega\n    Em\nTu kabhi na thukrayega\n        Dm            G\nTu mera hai tu mera hai\n \n[Verse]\n      C\nJiske hatho mein mera kal,\n      Em\nJiske hatho mein mera aaj\n    Dm                 G\nAur ane wala, kal mera hai\n \n[Chorus]\n     C\nTu kabhi na chorega\n    Em\nTu kabhi na thukrayega\n        Dm            G\nTu mera hai tu mera hai\n \n[Outro]\n   C                   Em\nAbraham ka prabhu, Isaac ka prabhu\n   Dm              G\nYakub ka prabhu, Tu mera hai"
+    },
+    {
+      "id": 127,
+      "title": "Amazing Love (I'm forgiven)",
+      "category": "worship",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Forgiveness",
+      "lyrics": "G      C      G                   D\nI’m forgiven, because you were forsaken\nG      C      G            D\nI’m accepted, you were condemned\nG    C                   G            D\nI’m alive and well, your spirit is within me\nC            D             G\nBecause you died and rose again\n \n \n[Chorus]\n \nG             C              G\nAmazing love, how can it be\n                               D     G\nthat you my king would die for me\n              C                 G\nAmazing love, I know it’s true\n                     D\nIt’s my joy to honor you\n         C   D           G\nIn all I do      I honor you\n \n \n[Verse]\n \nG      C      G                   D\nI’m forgiven, because you were forsaken\nG      C      G            D\nI’m accepted, you were condemned\nG    C                   G            D\nI’m alive and well, your spirit is within me\nC            D             G\nBecause you died and rose again\n \n \n[Chorus]\n \nG             C              G\nAmazing love, how can it be\n                               D     G\nthat you my king would die for me\n              C                 G\nAmazing love, I know it’s true\n                     D\nIt’s my joy to honor you\n         C   D           G\nIn all I do      I honor you\n \n \n[Bridge]\n \n       G   C     G\nJesus, you are my king\n       G   C     G\nJesus, you are my king\n       G   C     G\nJesus, you are my king\n       G   C     G\nJesus, you are my king\n \n \n[Chorus]\n \n               G             C              G\n(amazing love) Amazing love, how can it be\n                               D     G\nthat you my king would die for me\n                             C                 G\n(amazing love) Amazing love, I know it’s true\n                     D\nIt’s my joy to honor you\n         C   D           G\nIn all I do      I honor you\n         C   D           G\nIn all I do      I honor you"
+    },
+    {
+      "id": 128,
+      "title": "Above all powers",
+      "category": "worship",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Good Friday",
+      "lyrics": "G           C       D         G\nAbove all powers, Above all Kings\n            C          D            G\nAbove all nature, and all created things\n            Em         D               C  G/B\nAbove all wisdom, and all the ways of man \nAm              Am/G           D/F#    G\nYou were here before the world began\n \n[Verse 2]\n          C        D          G\nAbove all kingdoms, Above all thrones\n          C            D              G\nAbove all wonders this world has ever known\n          Em          D               C   G/B\nAbove all wealth and treasures of the earth\nAm                C                   B7 B\nThere's no way to measure what you're worth\n \n[Chorus]\nG     Am   D             G\nCrucified, laid behind a stone\nG            Am     D          G\nYou lived to die, rejected and alone\n        Em   D               C    G/B\nLike a rose, trampled on the ground\n             Am        G/B        C  D\nYou took the fall, and thought of me \n       G\nAbove all\n \n[Verse 3]\nG           C       D         G\nAbove all powers, Above all Kings\n            C          D            G\nAbove all nature, and all created things\n            Em         D               C  G/B\nAbove all wisdom, and all the ways of man \nAm              Am/G             D/F#     G\nYou were here before the world began\n \n[Verse 4]\n          C        D          G\nAbove all kingdoms, Above all thrones\n          C            D              G\nAbove all wonders this world has ever known\n          Em          D               C   G/B\nAbove all wealth and treasures of the earth\nAm                C                   B7 B\nThere's no way to measure what you're worth\n \n[Chorus]\nG     Am   D             G\nCrucified, laid behind a stone\nG            Am     D          G\nYou lived to die, rejected and alone\n        Em   D               C    G/B\nLike a rose, trampled on the ground\n             Am        G/B        C  D\nYou took the fall, and thought of me \n       G\nAbove all \n \nG     Am   D             G\nCrucified, laid behind a stone\nG            Am     D          G\nYou lived to die, rejected and alone\n        Em   D               C    G\nLike a rose, trampled on the ground\n             Am        G/B        C  D\nYou took the fall, and thought of me \n       G\nAbove all \n \n[Coda]\n        Em   D               C    G/B\nLike a rose, trampled on the ground\n             Am        G/B        C  D\nYou took the fall, and thought of me \n       G\nAbove all"
+    },
+    {
+      "id": 129,
+      "title": "Changa",
+      "category": "worship",
+      "key": "B",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Good Friday",
+      "lyrics": "B\nTere kode khaane se\nF#/B\nmili changaayi\nE/B\nKhoon ke vasile se\nF#/B\npaoon shifa\nG#m               F#\nSooli pe har ghaanv ne\nC#/F               C#\nbakshi meri zindagi\nB/Eb      E                     F#sus\nKoi     bimaari ab na choo sake\n \n[Chorus]\nB                          F#\nTu changa karta hai\nC#m                      B\nTu changa karta hai\nE                 B/EbC#m7   F#sus\nYeshu Tu changa karta hai\nB                     F#\nTu jeevan deta hai\nC#m              B\nTu  jeevan deta hai\nE               B/Eb     F#sus  B\nYeshu Tu jeevan deta      hai\n \nVerse 2  B\nMushkilon aur dard mein\nF#\nYeshu Naam pukaarun\nC#m\nSaara darr nikal jaaye\nF#             B\njab Tujhko nihaarun\nG#m   F# C#/F\nTere   vaydon   pe main\nC#\natal drid bana rahoon\nB/Eb      E\nG#m\nHalaath har, vachan se\nF#\nbadloon\n \n[Bridge]\nE              B/Eb\nSwarg se, dharti pe\nF#                 B\nbarse Teri changaayi x 2\nE                 B\nSwarg se, dharti pe\nF#                  G#m\nbarse Teri changaayi x 2\nE                 B\nSwarg se, dharti pe\nF#                   G#m\nbarse Teri changaayi\nE                 B\nSwarg se, dharti pe\nF#\nbarse\n"
+    },
+    {
+      "id": 130,
+      "title": "Tera Vachan",
+      "category": "worship",
+      "key": "E",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
       "genre": "Christmas",
-      "lyrics": "[D] बिनती सुन ले\n[C] यीशु प्यारे\n[D] बिनती सुन ले\n[C] यीशु प्यारे\n[G] मोरे संग रहो\n[D] महाराज\nअब तुम [C] राखो मेरी\n[D] लाज\nप्रभु तुम [C] राखो मेरी [D] लाज\n[D] बिनती करूँ तुम\n[Bm] से कर जोरी\n[G] अब तुम बिनती [A] सुन लो मोरी [D]\n[Bm] मोहे आशा [G] लग रही तोरी\n[Bm] मोहे आशा [G] लग रही तोरी\n[Em] दर्श दिखा दो\n[A] आज\n[C] अब तुम राखो मेरी\n[D] लाज\n[C] बिनती सुनो मेरी\n[D] महाराज\nबिनती सुन ले…\n[D] आपका मैं\n[Bm] शैदा कहलाऊँ\n[G] आस लगी तोरे [A] दर्शन पाऊँ [D]\n[Bm] युग युग आपका [G] मैं गुण गाऊँ\n[Bm] युग युग आपका [G] मैं गुण गाऊँ\n[Em] मेरे गरीब\n[A] नवाज़\n[C] अब तुम राखो मेरी\n[D] लाज\n[C] बिनती सुनो मेरी\n[D] महाराज\nबिनती सुन ले…\n[D] तुम ही हमारे\n[Bm] तारणहारे\n[G] मन के प्यारे [A] दिल के [D] दुलारे\n[Bm] तुम ही हमारे\n[G] नैनों के तारे\n[Bm] मन के प्यारे\n[G] दिल के दुलारे\n[Em] हमारे तुम\n[A] सरताज\n[C] अब तुम राखो मेरी\n[D] लाज\n[C] बिनती सुनो मेरी\n[D] महाराज\nबिनती सुन ले…"
+      "lyrics": "      E     G#m   A\nTera vachan, meri  roti\n          E     G#m   A\nJab mai padhun, de vo shakti\n\n     B                         A\nMeri mushkilome sath, tu hi khada\n     B                         A\nMera khalipan jo tha, tu ne bhara\n\nC#m           A\nPyar hai tera gehra\n         E            B        A\nMujhko yakeen tu hath na chhodega\n\nChahat teri be panah hai\nBeheta lagu jo gavah hai\n\nJindagi hai tu punarsthaan\nNa koi tha na hai tere samaan\n\nPyar hai tera gehra\nMujhko yakeen tu hath na chodega\n\nF#m               B\n  Mere sare papon ka\nF#m               B\n  Bojh tune seh liya\nF#m                 B\n  Chahe jo bhi ho mera\nF#m                 B\n  Teri marzi meri raza\n\nPyar hai tera gehra\nMujhko yakeen tu hath na chodega"
+    },
+    {
+      "id": 131,
+      "title": "Chinta na kar",
+      "category": "worship",
+      "key": "F",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "          F    Bb\nChinta Na Kar\n         F\nWoh Tere Sath hai\n          F    Bb\nChinta Na Kar\n         F\nWoh Tere Sath hai\n \n \n[Verse 1]\n         Dm      Bb\nAandhiya Tujhe\n          F\nDara Na Sakegi\n        Dm       Bb\nLehre Tujhe\n           F\nDooba Na Sakegi\n         Dm      Bb\nAandhiya Tujhe\n          F\nDara Na Sakegi\n        Dm       Bb\nLehre Tujhe\n           F\nDooba Na Sakegi\n \n \n[Pre-Chorus 1]\n           Gm         Bb\nKyuki Tera Parmeshwar\n          F\nTere Sath hai\n \n \n[Chorus]\n          F    Bb\nChinta Na Kar\n         F\nWoh Tere Sath hai\n          F    Bb\nChinta Na Kar\n         F\nWoh Tere Sath hai\n \n[Instrumental]\n|F / / /|      / / /|\n \n \n[Verse 2]\n          F\nJeevan Ki Raho Mein\n \nHaalat Yun Honge\n        F\nSujhega Na Kuch Bhi\n \nJab Dwaar Band Honge\n          F\nJeevan Ki Raho Mein\n                 F\nHaalat Yun Honge\n        F\nSujhega Na Kuch Bhi\n                      F\nJab Dwaar Band Honge\n \n \n[Pre-Chorus 2]\n        C             Bb\nFir Bhi Bharosa Tera\n           F\nYeshu Pe Rakhna\n          C               Bb\nMatlab Ki Is Duniya Mein\n            F\nYeshu Hai Apna\n \n \n[Chorus]\n          F    Bb\nChinta Na Kar\n         F\nWoh Tere Sath hai\n          F    Bb\nChinta Na Kar\n         F\nWoh Tere Sath hai\n \n \n[Instrumental]\n|F / Gm /|F / / /|  / Bb /|F     / /|\nWoh  oh Ho oh oh  Woh  oh Ho oh oh\n \n|F / Bb /|F / / /|  / Bb /|F / / /|\n \n \n[Verse 3]\n      F\nKoi Nahi Hai\n \nKisika Yaha Par\n       F\nBas Ek Yeshu Hai\n \nSacha Yaha Par\n      F\nKoi Nahi Hai\n       F\nKisika Yaha Par\n       F\nBas Ek Yeshu Hai\n      F\nSacha Yaha Par\n \n \n[Pre-Chorus 3]\n        C          Bb\nTeri Ungli Ko Pakadke\n          F\nTujhko Chalayega\n         C           Bb\nGirne na Dega Tujhko\n           F\nBaaho Mein Uthaega\n \n \n[Chorus]\n          F\nChinta Na Kar\n \nWoh Tere Sath hai\n          F\nChinta Na Kar\n \nWoh Tere Sath hai\n \n \n[Verse 1]\n         Dm      Bb\nAandhiya Tujhe\n          F\nDara Na Sakegi\n        Dm       Bb\nLehre Tujhe\n           F\nDooba Na Sakegi\n         Dm      Bb\nAandhiya Tujhe\n          F\nDara Na Sakegi\n        Dm       Bb\nLehre Tujhe\n           F\nDooba Na Sakegi\n \n \n[Pre-Chorus 1]\n           Gm         Bb\nKyuki Tera Parmeshwar\n          F\nTere Sath hai\n \n \n[Chorus]\n          F    Bb\nChinta Na Kar\n         F\nWoh Tere Sath hai\n          F    Bb\nChinta Na Kar\n         F\nWoh Tere Sath hai\n \n \n"
+    },
+    {
+      "id": 132,
+      "title": "Trading My Sorrows",
+      "category": "praise",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Thanksgiving",
+      "lyrics": "[Verse]\nG    C         Em      D\n I'm  Trading my sor-rows \nG    C         Em   D/F#\n I'm  trading my shame\nG    C             Em   D                   G     C   Em  D\n I'm  laying them down for the joy of the lord\nG    C         Em      D\n I'm  trading my sick-ness\nG    C         Em    D/F#\n I'm  Trading my pain\nG    C             Em   D                  G      C   Em  D\n I'm  laying them down for the joy of the lord\n \n[Chorus]\n G     C          Em    D\nYes Lord Yes Lord Yes Yes Lord\n G     C          Em    D/F#\nYes Lord Yes Lord Yes Yes   Lord\n G     C          Em    D         G     C   Em    D\nYes Lord Yes Lord Yes Yes Lord A-men\n \n[Bridge]\n       G          C                 Em        D\nI am pressed but not crushed perse-cuted not abandoned\nG        C                Em      D\n Struck down but not de-stroyed\n        G            C                  Em           D\nI am blessed beyond the curse for his promise will endure \n           G     C            Em          D\nthat his joy's gonna be my strength \n                      Dsus      D\nthough the sorrow may last for the night \n     F                       C\nHis joy comes with the morn-ing "
+    },
+    {
+      "id": 133,
+      "title": "Every Move I Make ",
+      "category": "praise",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Thanksgiving",
+      "lyrics": " G         C\nEvery move I make\n           D\nI make in You\n          C\nYou make me move, Jesus\n  G          C\nEvery breath I take\n              D       C\nI breathe in You\n \n  G         C\nEvery step I take \n           D\nI take in You\n          C\nYou are my way, Jesus\n  G         C\nEvery breath I take\n              D       C\nI breathe in You    (2x)\n \nBridge/Intro:\n \n   G     C\nNa Na Na Na Na\n   D     C\nNa Na Na Na Na   (2x)\n \n \nChorus:\n  G        C\nWaves of mercy\n  D        C\nWaves of grace\n   G       C\nEverywhere I look\n   D        C\nI see Your face\n  G        C   D        C\nYour love has captured me\n G      C         D\nOh my God, this love\n      C\nHow can it be?  "
+    },
+    {
+      "id": 134,
+      "title": "Welcome Holy Sprit",
+      "category": "worship",
+      "key": "C",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "               C\nWelcome, Holy Spirit\n                  Dm\nWe are in Your presence\n                   F    G\nFill us with Your power\n                 C\nLive inside of me\n \n \n                   F      Dm\nYou’re the Living Water\n                     C\nThe Never-drying Fountain\n                F        Dm\nComforter and Counselor\n                  G\nTake complete control\n \n \n            C\nWelcome, Holy Spirit\n                  Dm\nWe are in Your presence\n                     F  G\nFill us with Your power\n                C\nLive inside of me\n \n \n[Tag]\n \n                 Dm\nFill us with Your power\n  G              C\nLive   inside of me\n                     Dm  G\nFill us with Your power\n                                   C\nLive      inside       of          me\n"
+    },
+    {
+      "id": 135,
+      "title": "Give Thanks With A Grateful Heart",
+      "category": "praise",
+      "key": "C",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Thanksgiving",
+      "lyrics": "C                  G\nGive thanks with a grateful heart\n        Am           Em\nGive thanks unto the Holy One\n        F                C           Bb          G\nGive thanks because He's given Jesus Christ, His Son.\n \nC                  G\nGive thanks with a grateful heart\n        Am           Em\nGive thanks unto the Holy One\n        F                C           Bb          G\nGive thanks because He's given Jesus Christ, His Son. \n \n    Em          Am              Dm\nAnd now let the weak say, \"I am strong\"\n        G               C\nLet the poor say, \"I am rich\"\n           Am                Bb       G\nBecause of what the Lord has done for us\"\n \n    Em          Am              Dm\nAnd now let the weak say, \"I am strong\"\n        G               C\nLet the poor say, \"I am rich\"\n           Am                Bb       G\nBecause of what the Lord has done for us\"\n \n     C\nGive thanks...\nGive thanks..."
+    },
+    {
+      "id": 136,
+      "title": "God Will Make A Way",
+      "category": "praise",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Thanksgiving",
+      "lyrics": "G                D\nGod will make a way\n            C               G\nWhere there seems to be no way\n     C               G\nHe works in ways we cannot see\nC               D\nHe will make a way for me\nG              D\nHe will be my guide\n         C              G\nHold me closely to His side\n      C                     G\nWith love and strength for each new day\nC               D\nHe will make a way\nC        D      G\nHe will make a way\n \n    G               D\nOh God will make a way\n            C               G\nWhere there seems to be no way\n     C               G\nHe works in ways we cannot see\nC               D\nHe will make a way for me\nG              D\nHe will be my guide\n         C              G\nHold me closely to His side\n      C                     G\nWith love and strength for each new day\nC               D\nHe will make a way\nC        D      G    G/F\nHe will make a way\n \n \n      Eb            F\nBy a roadway in the wilderness\n       Bbsus4 Bb\nHe'll lead me\n     Eb           F             G\nAnd rivers in the desert will I see\nC                      D\nHeaven and earth will fade\n        Bm       B      Em\nBut His word will still remain\n    C          D               E\nAnd He will do something new today\n \n \n[Refrain]\n \n    A               E\nOh God will make a way\n             D              A\nWhere there seems to be no way\n     D               A\nHe works in ways we cannot see\nD               E\nHe will make a way for me\nA              E\nHe will be my guide\n         D              A\nHold me closely to His side\n      D                     A\nWith love and strength for each new day\nD               E\nHe will make a way\nD        E      A\nHe will make a way\n \n \n               D                     A\nWith love and strength for each new day\nD               E\nHe will make a way\nD        E      A\nHe will make a way"
+    },
+    {
+      "id": 137,
+      "title": "Aisa Mujhko Bana ",
+      "category": "worship",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "\n                        G\nMain tujhko pasand aaun\n                    C\nMain tere dil ko bhaaun\n           Em\nAisa mujhko banaa\n           D\nAisa Mujhko Bana\n \n                G\nAisa Mujhko Bana\n                G\nAisa Mujhko Bana\n \n[Interlude 1]\nG C Em D\n \n[Chorus 2]\n             G                                C\nMere andar teri aadaton ko bhar de\n             Em                                         D\nMere andar teri chahaton ko bhar de\n \n[Interlude 2]\nC D Em G\n \n[Verse]\nG                                       C\nMain na karun mere mann ki\nAm                  D               G\nDaudoon teri marzi ko\nG                                C\nLag jaye aisi latt teri\nAm                 D            G\nKuch aur na ab rijhaye\n \n[Chorus 3]\nG\nTeri har khwaish ko\n                C\nMan apni aadat bana lu\nEm\nAisa mujhko bana\n                        D\nAisa mujhko bana\n \n[Bridge]\nG\nAisa tu bhar de\nBm\nAisa tu bhar de\nC               G              D\nAisa tu bhar de mujhe\nG\nKhudsa bana de\nBm\nKhudsa bana de\nBb               C             G       D\nKhudsa bana de mujhe"
+    },
+    {
+      "id": 138,
+      "title": "Hide Me Now (Still)",
+      "category": "worship",
+      "key": "C",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": " \nC    G  Am      F   D       G\nHide me now, Under Your wings\n C G  Am     F         Dm     G\nCover me, within your mighty hands\n \n \n[Chorus]\n \nC               F        G        C\nWhen the oceans rise and thunders roar\n                  F    G        Am\nI will soar with You above the storm\n                F     G        C\nFather You are King over the flood\n            F         G       C\nI will be still, know You are God\n \n \n[Verse 2]\n \n      C   G   Am      F      D    G\nFind rest my soul, in Christ a - lone\n C    G   Am         F   Dm       G\nKnow His pow'r, in quietness and trust\n \n \n[Chorus]\n \nC               F        G        C\nWhen the oceans rise and thunders roar\n                  F    G        Am\nI will soar with You above the storm\n                F     G        C\nFather You are King over the flood\n            F         G       C\nI will be still, know You are God\n \nC               F        G        C\nWhen the oceans rise and thunders roar\n                  F    G        Am\nI will soar with You above the storm\n                F     G        C\nFather You are King over the flood\n            F         G       C\nI will be still, know You are God\n \n \n[Instrumental]\n \nF   Am    C   G\n \n \n[Verse 3]\n \n      C   G  Am       F      D    G\nFind rest my soul, in Christ a - lone\n C    G    Am       F    Dm       G\nKnow His pow'r, in quietness and trust\n \n \n[Chorus]\n \nC               F        G        C\nWhen the oceans rise and thunders roar\n                  F    G        Am\nI will soar with You above the storm\n                F     G        C\nFather You are King over the flood\n            F         G       C\nI will be still, know You are God\n \nC               F        G        C\nWhen the oceans rise and thunders roar\n                  F    G        Am\nI will soar with You above the storm\n                F     G        C\nFather You are King over the flood\n            F         G       C\nI will be still, know You are God\n \nC               F        G        C\nWhen the oceans rise and thunders roar\n                  F    G        Am\nI will soar with You above the storm\n                F     G        C\nFather You are King over the flood\nG           F                 C\nI will be still, know You are God"
+    },
+    {
+      "id": 139,
+      "title": "Utar Aa Aasmaani Khushi Se",
+      "category": "worship",
+      "key": "Am",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "Utar aa, utar aa, utar aa\nAe Rooh-e-Paak utar aa\n\n{Verse 1}\nAasmaani khushi se bhar de mujhko\nGeet naya dil mein la\n\n{Chorus}\nUtar aa, utar aa, utar aa\nAe Rooh-e-Paak utar aa\n\n{Verse 2}\nAmrit jal Prabhu mujhko pila de\nDil mere ki pyaas bujha de\nChashma ban ke ujhal aa…\n\n{Chorus}\nUtar aa, utar aa, utar aa\nAe Rooh-e-Paak utar aa\n\n{Verse 3}\nAasmaani roti mujhko khila de\nKamzor dil ko tagda bana de\nBharpoor kar de raza…\n\n{Chorus}\nUtar aa, utar aa, utar aa\nAe Rooh-e-Paak utar aa\n\n{Verse 4}\nPaak Rooh aa mere dil ke andar\nBan jaun main tera mandir\nApni raah dikha…\n\n{Chorus}\nUtar aa, utar aa, utar aa\nAe Rooh-e-Paak utar aa"
+    },
+    {
+      "id": 140,
+      "title": "Goodness Of God",
+      "category": "worship",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "             G\nI love you, Lord\n           C          G\nFor your mercy never fails me\nD      Em              C              D\nAll my days, I’ve been held in your hands\n                        Em      C\nFrom the moment that I wake up\n            G    D     Em\nUntil I lay my head\n        C            D          G\nI will sing of the goodness of God\n \n[Chorus]\nC                             G\n   All my life you have been faithful\nC                            G      D\n   All my life you have been so, so good\nC                               G D    Em\n   With every breath that I am able\n         C           D          G\nI will sing of the goodness of God\n \n[Verse 2]\n             G\nI love your voice\n          C                  G\nYou have led me through the fire\n    D       Em            C             D\nIn darkest night you are close like no other\n                    Em      C\nI’ve known you as a father\n                  G   D     Em\nI’ve known you as a friend\n         C            D          G\nI have lived in the goodness of God\n \n[Chorus]\nC                             G\n   All my life you have been faithful\nC                            G      D\n   All my life you have been so, so good\nC                               G D    Em\n   With every breath that I am able\n         C           D          G\nI will sing of the goodness of God\n \n[Bridge]\nG                     C\n   Your goodness is running after,\n      D            G\nIt’s running after me\nG                    C\n   Your goodness is running after,\n      D            G\nIt’s running after me\n        G                       C\nWith my life laid down, I’m surrendered now\n   D              Em\nI give you everything\nG                    C\n   Your goodness is running after,\n      D            G\nIt’s running after me\n \nG                    C\n   Your goodness is running after,\n      D            G\nIt’s running after me\nG                    C\n   Your goodness is running after,\n      D            G\nIt’s running after me\n        G                       C\nWith my life laid down, I’m surrendered now\n   D              Em\nI give you everything\nG                    C\n   Your goodness is running after,\n         D             G\nIt keeps running after me\n \n[Chorus]\nC                             G\n   All my life you have been faithful\nC                            G      D\n   All my life you have been so, so good\nC                               G D    Em\n   With every breath that I am able\n         C           D          G\nI will sing of the goodness of God\n "
+    },
+    {
+      "id": 141,
+      "title": "This is My Desire ",
+      "category": "worship",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "G            Em        Am   G   D\nThis is my desire, to ho---nor You\nEm                G                F  C\nLord with all my heart, I worship You\n \n[Verse 2]:\nG             Em        Am    G   D\nAll I have within me, I give You praise\nEm          G           F  C  D\nAll that I adore is in You\n \n[Chorus]:\nG                    D                   Am\nLord, I give You my heart, I give You my soul\n   C        D    G\nI live for You alone\nG              D                       Am\nEvery breath I take, every moment I'm awake\n       C         D      G\nLord, have Your way in me. . .\n \n \n[Verse 1]:\nG            Em        Am   G   D\nThis is my desire, to ho---nor You\nEm                G                F  C\nLord with all my heart, I worship You\n \n[Verse 2]:\nG             Em        Am    G   D\nAll I have within me, I give You praise\nEm          G           F  C  D\nAll that I adore is in You\n \n[Chorus]:\nG                    D                   Am\nLord, I give You my heart, I give You my soul\n   C        D    G\nI live for You alone\nG              D                       Am\nEvery breath I take, every moment I'm awake\n       C         D      G\nLord, have Your way in me. . .\n \nG                    D                   Am\nLord, I give You my heart, I give You my soul\n   C        D    G\nI live for You alone\nG              D                       Am\nEvery breath I take, every moment I'm awake\n       C         D      G          D      Am\nLord, have Your way in me. . .\n       C         D      G          D      Am\nLord, have Your way in me. . .\n       C         D      G          D      Am\nLord, have Your way in me. . .\n       C         D      G          D      Am\nLord, have Your way in me. . .\n       C         D      G\nLord, have Your way in me. . ."
+    },
+    {
+      "id": 142,
+      "title": "Breathe This Is Air I Breathe",
+      "category": "worship",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Holy Spirit",
+      "lyrics": "G               C\n This is the air I breathe\nG               C\n This is the air I breathe\nG     D     Em     D  C   Em  D\n Your holy presence living in me\n \n \n[Verse 2]\nG              C\n This is my daily bread\nG              C\n This is my daily bread\nG      D    Em  D    C Em  D\n Your very word  spoken to me\n \n \n[Chorus]\n    G D Em D                   C  Em  D\nAnd I,       I'm desperate for you\n    G D Em D                  C  Em  D\nAnd I,       I'm lost without you\n \n \n[Interlude]\nC Em D\nC Em D\n \n \n[Verse 1]\nG               C\n This is the air I breathe\nG               C\n This is the air I breathe\nG     D     Em     D  C   Em  D\n Your holy presence living in me\n \n \n[Verse 2]\nG              C\n This is my daily bread\nG              C\n This is my daily bread\nG      D    Em  D    C Em  D\n Your very word  spoken to me\n \n \n[Chorus]\n    G D Em D                   C  Em  D\nAnd I,       I'm desperate for you\n    G D Em D                  C  Em  D\nAnd I,       I'm lost without you\n \n \n[Interlude]\nC Em D\nC Em D\nC Em D\nC Em D\n \n \n[Chorus]\n    G D Em D                   C  Em  D\nAnd I,       I'm desperate for you\n    G D Em D                  C  Em  D\nAnd I,       I'm lost without you"
+    },
+    {
+      "id": 143,
+      "title": "Worthy Is The Lamb",
+      "category": "worship",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Good Friday",
+      "lyrics": "\nG                 C           G\nThank you for the cross Lord\n                  C     D   G\nThank you for the price You paid\n               D       Em\nBearing all my sin and shame\n   D        C\nIn love You came\n    Am7  G       D\nAnd gave amazing grace\n \n[Verse 2]\nG/B                C          G/B\nThank you for this love Lord\n                  C    D       G\nThank you for the nail pierced hands\n                  D/E       Em\nWashed me in Your cleansing flow\n    D     C\nNow all I know\n        Am7      G/B   Dsus D\nYour forgiveness and embrace\n \n[Chorus]\nG             D/F#\nWorthy is the Lamb\nAm7    G/B    C\nSeated on the throne\nD         D/C      G/B  C\nCrown You now with many crowns\n    Am7       G   D\nYou reign victorious\nG               D/F#\nHigh and lifted up\nAm7   G/B    C\nJesus Son of God\n    D          D/C    G/B  C     Dsus\nThe Darling of Heaven crucified\n              Am7  G/B  C\nWorthy is the Lamb\n              Am7  G/B  D\nWorthy is the Lamb\n \n[Bridge]\n              Am7  G/B  C\nWorthy is the Lamb\n              Am7  G/B  Dsus\nWorthy is the Lamb"
+    },
+    {
+      "id": 144,
+      "title": "God Forgave My Sin",
+      "category": "worship",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genre": "Forgiveness",
+      "lyrics": "G      C       Am      Dm    G\nGod forgave my sin in Jesus’ name.\n          Dm    G       C\nI’ve been born again in Jesus name.\n        F    C      Dm   G  C\nAnd in Jesus name I come to you\n     Em                 F    G  C\nTo share his love as he told me to.\n \n[Refrain]\n    G     C       Am      F         G\nHe said: Freely, freely you have received\n           G   C\nFreely, freely give.    Go in my name and\n   Dm        G                               C\nbecause you believe, others will know that I live.\n \n[Verse]\n       C     Am        Dm     G\nAll pow’r is giv’n in Jesus’ name,\n    Dm        G         C\nIn earth and heav’n in Jesus’ name.\n        F     C     F       C\nAnd in Jesus name I come to you\n    Em                   F    G  C\nTo share his pow’r as he told me to.\n \n\n     C       Am       Dm    G\nGod gives us life in Jesus’ name\n    Dm      G     C\nHe lives in us in Jesus’ name\n     F     C     F     C\nAnd in Jesus name I come to you\n   Em                   F    G   C\nTo share His life as he told me to."
     }
   ],
   "praiseSetlist": [],

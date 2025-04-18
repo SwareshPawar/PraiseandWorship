@@ -185,6 +185,7 @@
             z-index: 1000;
             transition: transform 0.3s ease;
             overflow-y: auto;
+            overflow-x: hidden; /* Disable horizontal scroll */
             display: flex;
             flex-direction: column;
         }
@@ -442,6 +443,9 @@
         .tabs {
             display: flex;
             margin-bottom: 10px;
+            overflow: visible; /* Allow tabs to extend */
+            flex-wrap: nowrap; /* Keep tabs in one line */
+            margin-bottom: 15px;
         }
 
         .tab {
@@ -451,6 +455,9 @@
             border-radius: 4px 4px 0 0;
             cursor: pointer;
             transition: background 0.2s;
+            white-space: nowrap; /* Prevent text wrapping */
+            min-width: 80px; /* Set minimum tab width */
+            text-align: center;
         }
 
             .tab.active {
@@ -521,6 +528,30 @@
         }
 
         /* Search Styles */
+
+        .scrollable-results {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        #searchResultsContent {
+            max-height: 60vh;       /* Limits height */
+            overflow-y: auto;       /* Enables scroll */
+            margin-top: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #searchResultsContent .search-result-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        #searchResultsContent .search-result-item:hover {
+            background-color: #f5f5f5;
+        }
         .search-history-dropdown {
             display: none;
             position: absolute;
@@ -675,7 +706,7 @@
             .edit-song-form textarea {
                 height: 150px;
                 resize: vertical;
-                font-family: Fantasy;
+                font-family: monospace;
             }
 
         /* Settings Styles */
@@ -699,6 +730,15 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+
+            .tabs {
+                    flex-wrap: wrap; /* Allow tabs to wrap on small screens */
+                }
+                .tab {
+                    flex: 1 0 auto; /* Flexible tab sizing */
+                    margin-bottom: 5px;
+                }
+
             #toggle-sidebar {
                 top: 100px;
                 left: 10px;
@@ -719,12 +759,12 @@
             }
 
             .sidebar {
-                width: 50%;
+                width: 40%;
                 max-width: none;
             }
 
             .songs-section {
-                width: 50%;
+                width: 40%;
                 max-width: none;
                 left: 0;
             }
@@ -866,18 +906,23 @@
                     </select>
                     <select id="genreFilter" class="compact-select">
                         <option value="">All Genres</option>
+                        <option value="Praise">Praise</option>
+                        <option value="Worship">Worship</option>
                         <option value="Christmas">Christmas</option>
                         <option value="Easter">Easter</option>
-                        <option value="Good Friday">Good Friday</option>
-                        <option value="Thanksgiving">Thanksgiving</option>
+                        <option value="Dance">Dance</option>
+                        <option value="Action">Action</option>
+                        <option value="Love">Love</option>
                         <option value="Forgiveness">Forgiveness</option>
                         <option value="Holy Spirit">Holy Spirit</option>
+                        <option value="Meditative">Meditative</option>
+                        <option value="Celebration">Celebration</option>
                     </select>
                 </div>
 
                 <div class="search-results" id="searchResults">
                     <div class="search-results-header">Search Results</div>
-                    <div id="searchResultsContent"></div>
+                    <div id="searchResultsContent" class="scrollable-results"></div>
                 </div>
             </div>
             <div class="tab-content active" id="praiseContent"></div>
@@ -968,12 +1013,18 @@
                 </select>
                 <label for="songGenre">Genre:</label>
                 <select id="songGenre" required>
+                    <option value="">-- Select Genre --</option>
+                    <option value="Praise">Praise</option>
+                    <option value="Worship">Worship</option>
                     <option value="Christmas">Christmas</option>
                     <option value="Easter">Easter</option>
-                    <option value="Good Friday">Good Friday</option>
-                    <option value="Thanksgiving">Thanksgiving</option>
+                    <option value="Dance">Dance</option>
+                    <option value="Action">Action</option>
+                    <option value="Love">Love</option>
                     <option value="Forgiveness">Forgiveness</option>
                     <option value="Holy Spirit">Holy Spirit</option>
+                    <option value="Meditative">Meditative</option>
+                    <option value="Celebration">Celebration</option>
                 </select>
                 <label for="songLyrics">Lyrics:</label>
                 <textarea id="songLyrics" required></textarea>
@@ -1043,13 +1094,19 @@
                     <option value="TeenTaal">TeenTaal</option>
                 </select>
                 <label for="editSongGenre">Genre:</label>
-                <select id="editSongGenre" required>
+                <select id="editSongGenre"  required>
+                    <option value="">All Genres</option>
+                    <option value="Praise">Praise</option>
+                    <option value="Worship">Worship</option>
                     <option value="Christmas">Christmas</option>
                     <option value="Easter">Easter</option>
-                    <option value="Good Friday">Good Friday</option>
-                    <option value="Thanksgiving">Thanksgiving</option>
+                    <option value="Dance">Dance</option>
+                    <option value="Action">Action</option>
+                    <option value="Love">Love</option>
                     <option value="Forgiveness">Forgiveness</option>
                     <option value="Holy Spirit">Holy Spirit</option>
+                    <option value="Meditative">Meditative</option>
+                    <option value="Celebration">Celebration</option>
                 </select>
                 <label for="editSongLyrics">Lyrics:</label>
                 <textarea id="editSongLyrics" required></textarea>
@@ -1592,6 +1649,7 @@
                     .filter(song => genreFilterValue === "" || song.genre === genreFilterValue)
                     .sort((a, b) => a.title.localeCompare(b.title));
                 container = category === 'praise' ? praiseContent : worshipContent;
+                
             } else {
                 songsToRender = categoryOrSongs;
                 container = filterOrContainer;

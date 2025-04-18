@@ -185,7 +185,6 @@
             z-index: 1000;
             transition: transform 0.3s ease;
             overflow-y: auto;
-            overflow-x: hidden; /* Disable horizontal scroll */
             display: flex;
             flex-direction: column;
         }
@@ -443,9 +442,6 @@
         .tabs {
             display: flex;
             margin-bottom: 10px;
-            overflow: visible; /* Allow tabs to extend */
-            flex-wrap: nowrap; /* Keep tabs in one line */
-            margin-bottom: 15px;
         }
 
         .tab {
@@ -455,9 +451,6 @@
             border-radius: 4px 4px 0 0;
             cursor: pointer;
             transition: background 0.2s;
-            white-space: nowrap; /* Prevent text wrapping */
-            min-width: 80px; /* Set minimum tab width */
-            text-align: center;
         }
 
             .tab.active {
@@ -706,7 +699,7 @@
             .edit-song-form textarea {
                 height: 150px;
                 resize: vertical;
-                font-family: monospace;
+                font-family: Fantasy;
             }
 
         /* Settings Styles */
@@ -730,15 +723,6 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
-
-            .tabs {
-                    flex-wrap: wrap; /* Allow tabs to wrap on small screens */
-                }
-                .tab {
-                    flex: 1 0 auto; /* Flexible tab sizing */
-                    margin-bottom: 5px;
-                }
-
             #toggle-sidebar {
                 top: 100px;
                 left: 10px;
@@ -1094,7 +1078,7 @@
                     <option value="TeenTaal">TeenTaal</option>
                 </select>
                 <label for="editSongGenre">Genre:</label>
-                <select id="editSongGenre"  required>
+                <select id="editSongGenre" required>
                     <option value="">All Genres</option>
                     <option value="Praise">Praise</option>
                     <option value="Worship">Worship</option>

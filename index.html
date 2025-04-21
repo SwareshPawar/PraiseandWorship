@@ -15,6 +15,8 @@
             --sidebar-width: 300px;
             --songs-panel-width: 300px;
             --preview-margin-left: 40px;
+            --favorite-color: #ff6b6b;
+            --notification-bg: rgba(0, 0, 0, 0.7);
             /* Dark mode variables */
             --dark-primary: #1a365d;
             --dark-secondary: #2c5282;
@@ -22,6 +24,7 @@
             --dark-text: #e2e8f0;
             --dark-bg: #1a202c;
             --dark-light-bg: #2d3748;
+            --dark-favorite: #ff8787;
             /* Theme variables */
             --sidebar-text-color: white;
             --sidebar-item-bg: transparent;
@@ -69,6 +72,7 @@
                 --lyrics-text-color: #e2e8f0;
                 --title-color: var(--accent-color);
                 --chord-color: var(--accent-color);
+                --favorite-color: var(--dark-favorite);
             }
 
         /* Add these styles to your existing CSS */
@@ -86,7 +90,6 @@
             transition: color 0.3s;
         }
 
-
         /* Dark mode variables */
         body.dark-mode .chord {
             color: #4fc3f7;
@@ -102,7 +105,6 @@
             color: var(--primary-color);
             transition: color 0.3s;
         }
-
 
         body.dark-mode {
             --chord-color: var(--accent-color);
@@ -123,15 +125,16 @@
             background: var(--accent-color);
             color: white;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
-            opacity: 0.8;
+            opacity: 0.9;
+            transform: scale(1);
         }
 
         .sidebar-footer {
@@ -139,9 +142,12 @@
             padding-top: 15px;
             border-top: 1px solid rgba(255,255,255,0.1);
         }
+        
         .panel-toggle.draggable:hover,
         .panel-toggle.draggable.showing {
-            transform: scale(1.3);
+            transform: scale(1.1);
+            opacity: 1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
         .panel-toggle::after {
@@ -220,7 +226,7 @@
                 border: none;
                 width: 100%;
                 cursor: pointer;
-                transition: background 0.2s;
+                transition: background 0.2s, transform 0.2s;
             }
 
                 .sidebar-menu a:hover,
@@ -228,6 +234,7 @@
                 .sidebar-btn:hover {
                     background: var(--sidebar-item-hover-bg);
                     color: var(--sidebar-text-hover);
+                    transform: translateX(5px);
                 }
 
         .sidebar-folder {
@@ -324,11 +331,14 @@
             cursor: pointer;
             border: 1px solid var(--song-item-border);
             transition: all 0.3s ease;
+            position: relative;
         }
 
             .song-item:hover {
                 background: var(--sidebar-item-hover-bg);
                 color: var(--sidebar-text-hover);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
             }
 
         .song-title {
@@ -399,8 +409,12 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.85rem;
-            transition: background 0.2s;
+            transition: background 0.2s, transform 0.2s;
         }
+
+            .btn:hover {
+                transform: translateY(-1px);
+            }
 
         .btn-primary {
             background: var(--accent-color);
@@ -436,6 +450,15 @@
 
             .btn-cancel:hover {
                 background: #5a6268;
+            }
+
+        .btn-favorite {
+            background: var(--favorite-color);
+            color: white;
+        }
+
+            .btn-favorite:hover {
+                background: #ff5252;
             }
 
         /* Tab Styles */
@@ -521,7 +544,6 @@
         }
 
         /* Search Styles */
-
         .scrollable-results {
             max-height: 60vh;
             overflow-y: auto;
@@ -545,6 +567,27 @@
         #searchResultsContent .search-result-item:hover {
             background-color: #f5f5f5;
         }
+        
+        .search-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        .clear-search-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #999;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+        
+        .clear-search-btn:hover {
+            color: #666;
+        }
+
         .search-history-dropdown {
             display: none;
             position: absolute;
@@ -640,6 +683,12 @@
             z-index: 1000;
             align-items: center;
             justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
@@ -651,6 +700,18 @@
             max-height: 80vh;
             overflow-y: auto;
             position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .close-modal {
@@ -693,13 +754,26 @@
                 padding: 8px;
                 border-radius: 4px;
                 border: 1px solid #ccc;
+                transition: border-color 0.3s, box-shadow 0.3s;
+            }
+
+            .add-song-form input:focus,
+            .add-song-form select:focus,
+            .add-song-form textarea:focus,
+            .edit-song-form input:focus,
+            .edit-song-form select:focus,
+            .edit-song-form textarea:focus {
+                border-color: var(--accent-color);
+                box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.3);
+                outline: none;
             }
 
             .add-song-form textarea,
             .edit-song-form textarea {
                 height: 150px;
                 resize: vertical;
-                font-family: Fantasy;
+                font-family: monospace;
+                overflow-y: auto;
             }
 
         /* Settings Styles */
@@ -714,12 +788,220 @@
             border-radius: 4px;
             cursor: pointer;
             z-index: 1001;
+            transition: all 0.3s ease;
         }
+
+            #settingsBtn:hover {
+                transform: scale(1.05);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
 
         .draggable-menu-item {
             cursor: grab;
             user-select: none;
         }
+
+        /* Auto-scroll controls */
+        .auto-scroll-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .auto-scroll-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+            .auto-scroll-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+
+            .auto-scroll-btn.active {
+                background: var(--secondary-color);
+            }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--notification-bg);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+            .notification.show {
+                opacity: 1;
+            }
+
+        /* Multi-select styles */
+        .multiselect-container {
+            position: relative;
+        }
+
+        .multiselect-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 4px 4px;
+            z-index: 1000;
+            display: none;
+        }
+
+            .multiselect-dropdown.show {
+                display: block;
+            }
+
+        .multiselect-option {
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+            .multiselect-option:hover {
+                background-color: #f5f5f5;
+            }
+
+            .multiselect-option.selected {
+                background-color: var(--accent-color);
+                color: white;
+            }
+
+        .multiselect-selected {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .multiselect-tag {
+            background: var(--accent-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+            .multiselect-tag .remove-tag {
+                cursor: pointer;
+                font-size: 0.9rem;
+            }
+
+        /* Keep screen on button */
+        .keep-screen-on {
+            position: fixed;
+            bottom: 70px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: none;
+            z-index: 1000;
+        }
+
+            .keep-screen-on:hover {
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }
+
+            .keep-screen-on.active {
+                background: var(--secondary-color);
+            }
+
+        /* Favorite button */
+        .favorite-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: color 0.2s;
+        }
+
+            .favorite-btn:hover {
+                color: var(--favorite-color);
+            }
+
+            .favorite-btn.favorited {
+                color: var(--favorite-color);
+            }
+
+        /* Suggested songs */
+        .suggested-songs {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 6px;
+        }
+
+            .suggested-songs h3 {
+                margin-bottom: 10px;
+                color: var(--primary-color);
+            }
+
+        /* Settings layout */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .settings-group {
+            margin-bottom: 15px;
+        }
+
+            .settings-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 500;
+            }
+
+            .settings-group input,
+            .settings-group select {
+                width: 100%;
+                padding: 8px;
+                border-radius: 4px;
+                border: 1px solid #ccc;
+            }
 
         /* Responsive Design */
         @media (max-width: 768px) {
@@ -729,12 +1011,12 @@
             }
 
             #toggle-songs {
-                top: 140px;
+                top: 150px;
                 left: 10px;
             }
 
             #toggle-all-panels {
-                top: 180px;
+                top: 200px;
                 left: 10px;
             }
 
@@ -743,18 +1025,36 @@
             }
 
             .sidebar {
-                width: 50%;
+                width: 80%;
                 max-width: none;
             }
 
             .songs-section {
-                width: 50%;
+                width: 80%;
                 max-width: none;
                 left: 0;
             }
 
             .preview-section {
                 margin-left: 0;
+            }
+            
+            .modal-content {
+                width: 90%;
+            }
+            
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .auto-scroll-controls {
+                bottom: 80px;
+                right: 10px;
+            }
+            
+            .keep-screen-on {
+                bottom: 130px;
+                right: 10px;
             }
         }
 
@@ -778,7 +1078,12 @@
             border-radius: 4px;
             margin-top: 15px;
             cursor: pointer;
+            transition: background 0.3s;
         }
+
+            .theme-toggle:hover {
+                background: var(--secondary-color);
+            }
 
             .theme-toggle span {
                 margin-left: 8px;
@@ -790,6 +1095,19 @@
         <button class="panel-toggle draggable" id="toggle-sidebar"><i class="fas fa-home"></i></button>
         <button class="panel-toggle draggable" id="toggle-songs"><i class="fas fa-list"></i></button>
         <button class="panel-toggle draggable" id="toggle-all-panels"><i class="fas fa-eye-slash"></i></button>
+
+        <!-- Auto-scroll controls -->
+        <div class="auto-scroll-controls">
+            <button class="auto-scroll-btn" id="autoScrollUp" title="Scroll Up"><i class="fas fa-arrow-up"></i></button>
+            <button class="auto-scroll-btn" id="autoScrollDown" title="Scroll Down"><i class="fas fa-arrow-down"></i></button>
+            <button class="auto-scroll-btn" id="toggleAutoScroll" title="Auto Scroll"><i class="fas fa-play"></i></button>
+        </div>
+
+        <!-- Keep screen on button -->
+        <button class="keep-screen-on" id="keepScreenOnBtn" title="Keep Screen On"><i class="fas fa-lightbulb"></i></button>
+
+        <!-- Notification -->
+        <div class="notification" id="notification"></div>
 
         <!-- Sidebar -->
         <div class="sidebar hidden">
@@ -842,9 +1160,6 @@
                     </div>
                 </div>
             </div>
-            <button class="sidebar-btn" id="downloadHtmlWithSongsBtn">
-                <i class="fas fa-file-export"></i> Download HTML with Songs
-            </button>
         </div>
 
         <!-- Songs Panel -->
@@ -852,10 +1167,10 @@
             <div class="sticky-header">
                 <div class="tabs">
                     <div class="setlist-tab active" id="praiseTab">Praise</div>
-                    <div class="setlist-tab active" id="worshipTab">Worship</div>
+                    <div class="setlist-tab" id="worshipTab">Worship</div>
                 </div>
                 <div class="filters-row">
-                    <div style="position: relative; width: 100%;">
+                    <div class="search-container">
                         <input type="text" id="searchInput" class="compact-input" placeholder="Search songs..."
                                style="padding-right: 30px;" autocomplete="off">
                         <span id="clearSearch" class="clear-search-btn" style="display: none;">×</span>
@@ -932,6 +1247,10 @@
         <div class="preview-section" id="songPreview">
             <h2>Select a song</h2>
             <div class="song-lyrics"></div>
+            <div class="suggested-songs" id="suggestedSongs" style="display: none;">
+                <h3>You Might Also Like</h3>
+                <div id="suggestedSongsContent"></div>
+            </div>
         </div>
     </div>
 
@@ -996,20 +1315,23 @@
                     <option value="TeenTaal">TeenTaal</option>
                 </select>
                 <label for="songGenre">Genre:</label>
-                <select id="songGenre" required>
-                    <option value="">-- Select Genre --</option>
-                    <option value="Praise">Praise</option>
-                    <option value="Worship">Worship</option>
-                    <option value="Christmas">Christmas</option>
-                    <option value="Easter">Easter</option>
-                    <option value="Dance">Dance</option>
-                    <option value="Action">Action</option>
-                    <option value="Love">Love</option>
-                    <option value="Forgiveness">Forgiveness</option>
-                    <option value="Holy Spirit">Holy Spirit</option>
-                    <option value="Meditative">Meditative</option>
-                    <option value="Celebration">Celebration</option>
-                </select>
+                <div class="multiselect-container">
+                    <input type="text" id="songGenre" class="compact-input" placeholder="Select genres..." readonly>
+                    <div class="multiselect-dropdown" id="genreDropdown">
+                        <div class="multiselect-option" data-value="Praise">Praise</div>
+                        <div class="multiselect-option" data-value="Worship">Worship</div>
+                        <div class="multiselect-option" data-value="Christmas">Christmas</div>
+                        <div class="multiselect-option" data-value="Easter">Easter</div>
+                        <div class="multiselect-option" data-value="Dance">Dance</div>
+                        <div class="multiselect-option" data-value="Action">Action</div>
+                        <div class="multiselect-option" data-value="Love">Love</div>
+                        <div class="multiselect-option" data-value="Forgiveness">Forgiveness</div>
+                        <div class="multiselect-option" data-value="Holy Spirit">Holy Spirit</div>
+                        <div class="multiselect-option" data-value="Meditative">Meditative</div>
+                        <div class="multiselect-option" data-value="Celebration">Celebration</div>
+                    </div>
+                    <div class="multiselect-selected" id="selectedGenres"></div>
+                </div>
                 <label for="songLyrics">Lyrics:</label>
                 <textarea id="songLyrics" required></textarea>
                 <button type="submit" class="btn btn-primary">Add Song</button>
@@ -1078,20 +1400,23 @@
                     <option value="TeenTaal">TeenTaal</option>
                 </select>
                 <label for="editSongGenre">Genre:</label>
-                <select id="editSongGenre" required>
-                    <option value="">All Genres</option>
-                    <option value="Praise">Praise</option>
-                    <option value="Worship">Worship</option>
-                    <option value="Christmas">Christmas</option>
-                    <option value="Easter">Easter</option>
-                    <option value="Dance">Dance</option>
-                    <option value="Action">Action</option>
-                    <option value="Love">Love</option>
-                    <option value="Forgiveness">Forgiveness</option>
-                    <option value="Holy Spirit">Holy Spirit</option>
-                    <option value="Meditative">Meditative</option>
-                    <option value="Celebration">Celebration</option>
-                </select>
+                <div class="multiselect-container">
+                    <input type="text" id="editSongGenre" class="compact-input" placeholder="Select genres..." readonly>
+                    <div class="multiselect-dropdown" id="editGenreDropdown">
+                        <div class="multiselect-option" data-value="Praise">Praise</div>
+                        <div class="multiselect-option" data-value="Worship">Worship</div>
+                        <div class="multiselect-option" data-value="Christmas">Christmas</div>
+                        <div class="multiselect-option" data-value="Easter">Easter</div>
+                        <div class="multiselect-option" data-value="Dance">Dance</div>
+                        <div class="multiselect-option" data-value="Action">Action</div>
+                        <div class="multiselect-option" data-value="Love">Love</div>
+                        <div class="multiselect-option" data-value="Forgiveness">Forgiveness</div>
+                        <div class="multiselect-option" data-value="Holy Spirit">Holy Spirit</div>
+                        <div class="multiselect-option" data-value="Meditative">Meditative</div>
+                        <div class="multiselect-option" data-value="Celebration">Celebration</div>
+                    </div>
+                    <div class="multiselect-selected" id="editSelectedGenres"></div>
+                </div>
                 <label for="editSongLyrics">Lyrics:</label>
                 <textarea id="editSongLyrics" required></textarea>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -1133,16 +1458,36 @@
             <span class="close-modal" onclick="document.getElementById('settingsModal').style.display='none'">×</span>
             <h3>Settings</h3>
             <form id="settingsForm">
-                <label for="sidebarHeaderInput">Sidebar Header:</label>
-                <input type="text" id="sidebarHeaderInput" required>
-                <label for="setlistTextInput">Setlist Menu Text:</label>
-                <input type="text" id="setlistTextInput" required>
-                <label for="sidebarWidthInput">Sidebar Width (%):</label>
-                <input type="number" id="sidebarWidthInput" min="10" max="100" value="30">
-                <label for="songsPanelWidthInput">Songs Panel Width (%):</label>
-                <input type="number" id="songsPanelWidthInput" min="10" max="100" value="30">
-                <label for="previewMarginInput">Preview Margin Left (px):</label>
-                <input type="number" id="previewMarginInput" min="0" max="100" value="40">
+                <div class="settings-grid">
+                    <div class="settings-group">
+                        <label for="sidebarHeaderInput">Sidebar Header:</label>
+                        <input type="text" id="sidebarHeaderInput" required>
+                    </div>
+                    <div class="settings-group">
+                        <label for="setlistTextInput">Setlist Menu Text:</label>
+                        <input type="text" id="setlistTextInput" required>
+                    </div>
+                    <div class="settings-group">
+                        <label for="sidebarWidthInput">Sidebar Width (%):</label>
+                        <input type="number" id="sidebarWidthInput" min="10" max="100" value="30">
+                    </div>
+                    <div class="settings-group">
+                        <label for="songsPanelWidthInput">Songs Panel Width (%):</label>
+                        <input type="number" id="songsPanelWidthInput" min="10" max="100" value="30">
+                    </div>
+                    <div class="settings-group">
+                        <label for="previewMarginInput">Preview Margin Left (px):</label>
+                        <input type="number" id="previewMarginInput" min="0" max="100" value="40">
+                    </div>
+                    <div class="settings-group">
+                        <label for="autoScrollSpeedInput">Auto Scroll Speed:</label>
+                        <select id="autoScrollSpeedInput">
+                            <option value="2000">Slow</option>
+                            <option value="1500" selected>Medium</option>
+                            <option value="1000">Fast</option>
+                        </select>
+                    </div>
+                </div>
                 <button type="submit" class="btn btn-primary">Save Settings</button>
             </form>
         </div>
@@ -1157,6 +1502,9 @@
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         let socket = null;
         let songs = [];
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        let keepScreenOn = false;
+        let autoScrollSpeed = localStorage.getItem('autoScrollSpeed') || 1500;
 
         async function loadSongsFromFile() {
             try {
@@ -1250,18 +1598,27 @@
         const cancelDeleteAll = document.getElementById('cancelDeleteAll');
         const confirmDeleteAll = document.getElementById('confirmDeleteAll');
         const searchInput = document.getElementById('searchInput');
+        const clearSearchBtn = document.getElementById('clearSearch');
         const toggleSidebarBtn = document.getElementById('toggle-sidebar');
         const toggleSongsBtn = document.getElementById('toggle-songs');
         const toggleAllPanelsBtn = document.getElementById('toggle-all-panels');
         const mergeBtn = document.getElementById('mergeSongsBtn');
+        const autoScrollUpBtn = document.getElementById('autoScrollUp');
+        const autoScrollDownBtn = document.getElementById('autoScrollDown');
+        const toggleAutoScrollBtn = document.getElementById('toggleAutoScroll');
+        const keepScreenOnBtn = document.getElementById('keepScreenOnBtn');
+        const notificationEl = document.getElementById('notification');
+        const suggestedSongsEl = document.getElementById('suggestedSongs');
+        const suggestedSongsContent = document.getElementById('suggestedSongsContent');
 
         // Auto-scroll and chord variables
         let autoScrollInterval = null;
         let isUserScrolling = false;
-        const CHORDS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
+        const CHORDS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         const CHORD_REGEX = /([A-G](?:#|b)?)(m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?/gi;
         const CHORD_LINE_REGEX = /^(\s*[A-G](?:#|b)?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?\s*)+$/i;
         const INLINE_CHORD_REGEX = /\[([A-G](?:#|b)?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?)\]/gi;
+        const SLASH_CHORD_REGEX = /([A-G](?:#|b)?)(?:\/([A-G](?:#|b)?))?/gi;
 
         // Search history
         let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
@@ -1282,6 +1639,7 @@
                     }
                 });
             }
+            
             // Load settings
             loadSettings();
 
@@ -1301,12 +1659,53 @@
                 document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
             }
 
-
             // Connect to WebSocket
             connectWebSocket();
 
-            // [Rest of your existing init code]
             updateSongCount();
+            
+            // Initialize screen wake lock if supported
+            initScreenWakeLock();
+        }
+
+        // Initialize screen wake lock
+        function initScreenWakeLock() {
+            if ('wakeLock' in navigator) {
+                keepScreenOnBtn.style.display = 'flex';
+            } else {
+                keepScreenOnBtn.style.display = 'none';
+            }
+        }
+
+        // Toggle screen wake lock
+        async function toggleScreenWakeLock() {
+            if (!('wakeLock' in navigator)) return;
+            
+            if (!keepScreenOn) {
+                try {
+                    const wakeLock = await navigator.wakeLock.request('screen');
+                    keepScreenOn = true;
+                    keepScreenOnBtn.classList.add('active');
+                    showNotification('Screen will stay on');
+                } catch (err) {
+                    console.error('Error enabling wake lock:', err);
+                    showNotification('Failed to keep screen on');
+                }
+            } else {
+                keepScreenOn = false;
+                keepScreenOnBtn.classList.remove('active');
+                showNotification('Screen may sleep');
+            }
+        }
+
+        // Show notification
+        function showNotification(message, duration = 3000) {
+            notificationEl.textContent = message;
+            notificationEl.classList.add('show');
+            
+            setTimeout(() => {
+                notificationEl.classList.remove('show');
+            }, duration);
         }
 
         // Settings functions
@@ -1320,6 +1719,7 @@
             const sidebarWidth = localStorage.getItem("sidebarWidth") || "15";
             const songsPanelWidth = localStorage.getItem("songsPanelWidth") || "20";
             const previewMargin = localStorage.getItem("previewMargin") || "40";
+            const savedAutoScrollSpeed = localStorage.getItem("autoScrollSpeed") || "1500";
 
             document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}%`);
             document.documentElement.style.setProperty('--songs-panel-width', `${songsPanelWidth}%`);
@@ -1328,6 +1728,9 @@
             document.getElementById('sidebarWidthInput').value = sidebarWidth;
             document.getElementById('songsPanelWidthInput').value = songsPanelWidth;
             document.getElementById('previewMarginInput').value = previewMargin;
+            document.getElementById('autoScrollSpeedInput').value = savedAutoScrollSpeed;
+            
+            autoScrollSpeed = parseInt(savedAutoScrollSpeed);
         }
 
         function saveSettings() {
@@ -1336,6 +1739,7 @@
             const sidebarWidth = document.getElementById("sidebarWidthInput").value;
             const songsPanelWidth = document.getElementById("songsPanelWidthInput").value;
             const previewMargin = document.getElementById("previewMarginInput").value;
+            const newAutoScrollSpeed = document.getElementById("autoScrollSpeedInput").value;
 
             document.querySelector(".sidebar-header h2").textContent = newHeader;
             showSetlistEl.textContent = newSetlist;
@@ -1349,6 +1753,9 @@
             localStorage.setItem("sidebarWidth", sidebarWidth);
             localStorage.setItem("songsPanelWidth", songsPanelWidth);
             localStorage.setItem("previewMargin", previewMargin);
+            localStorage.setItem("autoScrollSpeed", newAutoScrollSpeed);
+            
+            autoScrollSpeed = parseInt(newAutoScrollSpeed);
 
             updatePositions();
         }
@@ -1375,12 +1782,18 @@
             toggleSidebarBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 sidebar.classList.toggle('hidden');
+                if (window.innerWidth <= 768) {
+                    songsSection.classList.add('hidden');
+                }
                 updatePositions();
             });
 
             toggleSongsBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 songsSection.classList.toggle('hidden');
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('hidden');
+                }
                 updatePositions();
             });
 
@@ -1483,11 +1896,16 @@
             }
         }
 
+        function saveFavorites() {
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+        }
+
         function downloadSongs() {
             const data = {
                 songs: songs,
                 praiseSetlist: praiseSetlist,
-                worshipSetlist: worshipSetlist
+                worshipSetlist: worshipSetlist,
+                favorites: favorites
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -1511,23 +1929,25 @@
                         songs = data.songs;
                         praiseSetlist = data.praiseSetlist || [];
                         worshipSetlist = data.worshipSetlist || [];
+                        favorites = data.favorites || [];
                         saveSongs();
                         saveSetlists();
+                        saveFavorites();
                         if (praiseTab.classList.contains('active')) {
                             renderSongs('praise', keyFilter.value, genreFilter.value);
                         } else {
                             renderSongs('worship', keyFilter.value, genreFilter.value);
                         }
-                        alert('Songs loaded successfully!');
+                        showNotification('Songs loaded successfully!');
                     } else {
                         throw new Error('Invalid file format');
                     }
                 } catch (err) {
-                    alert('Could not load file: ' + err.message);
+                    showNotification('Could not load file: ' + err.message);
                 }
             };
             reader.onerror = function () {
-                alert('Error reading file');
+                showNotification('Error reading file');
             };
             reader.readAsText(file);
         }
@@ -1551,7 +1971,7 @@
                         songs = [...songs, ...newSongs];
                         saveSongs();
 
-                        alert(`${newSongs.length} new songs merged successfully.`);
+                        showNotification(`${newSongs.length} new songs merged successfully.`);
                         if (praiseTab.classList.contains('active')) {
                             renderSongs('praise', keyFilter.value, genreFilter.value);
                         } else {
@@ -1561,10 +1981,19 @@
                         throw new Error('Invalid file format');
                     }
                 } catch (err) {
-                    alert('Could not merge file: ' + err.message);
+                    showNotification('Could not merge file: ' + err.message);
                 }
             };
             reader.readAsText(file);
+        }
+
+        // Check for duplicate song
+        function isDuplicateSong(title, lyrics, currentId = null) {
+            return songs.some(song => {
+                if (currentId && song.id === currentId) return false;
+                return song.title.toLowerCase() === title.toLowerCase() && 
+                       song.lyrics.toLowerCase() === lyrics.toLowerCase();
+            });
         }
 
         // Search functions
@@ -1630,7 +2059,11 @@
                 songsToRender = songs
                     .filter(song => song.category === category)
                     .filter(song => keyFilterValue === "" || song.key === keyFilterValue)
-                    .filter(song => genreFilterValue === "" || song.genre === genreFilterValue)
+                    .filter(song => {
+                        if (!genreFilterValue) return true;
+                        if (!song.genres) return song.genre === genreFilterValue;
+                        return song.genres.includes(genreFilterValue);
+                    })
                     .sort((a, b) => a.title.localeCompare(b.title));
                 container = category === 'praise' ? praiseContent : worshipContent;
                 
@@ -1647,22 +2080,52 @@
                 const div = document.createElement('div');
                 div.className = 'song-item';
                 div.dataset.songId = song.id;
+                
+                // Check if song is in setlist
+                const isInSetlist = song.category === 'praise' 
+                    ? praiseSetlist.some(s => s.id === song.id)
+                    : worshipSetlist.some(s => s.id === song.id);
+                    
+                // Check if song is favorite
+                const isFavorite = favorites.includes(song.id);
+                
+                // Get genres to display
+                const displayGenres = song.genres ? song.genres.join(', ') : song.genre || '';
+                
                 div.innerHTML = `
+                    <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" data-song-id="${song.id}">
+                        <i class="fas fa-heart"></i>
+                    </button>
                     <div class="song-title">${song.title}</div>
-                    <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.taal || ''} | ${song.genre || ''}</div>
+                    <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.taal || ''} | ${displayGenres}</div>
                     <div class="song-actions">
-                        <button class="btn btn-primary add-to-setlist">Add to Setlist</button>
+                        <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'} toggle-setlist">
+                            ${isInSetlist ? 'Remove from Setlist' : 'Add to Setlist'}
+                        </button>
                         <button class="btn btn-edit edit-song">Edit</button>
                     </div>
                 `;
-                div.querySelector('.add-to-setlist').addEventListener('click', (e) => {
+                
+                // Favorite button event
+                div.querySelector('.favorite-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
-                    addToSetlist(song.id);
+                    toggleFavorite(song.id);
                 });
+                
+                div.querySelector('.toggle-setlist').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (isInSetlist) {
+                        removeFromSetlist(song.id, song.category);
+                    } else {
+                        addToSetlist(song.id);
+                    }
+                });
+                
                 div.querySelector('.edit-song').addEventListener('click', (e) => {
                     e.stopPropagation();
                     editSong(song.id);
                 });
+                
                 div.addEventListener('click', () => {
                     showPreview(song);
                     if (window.innerWidth <= 768) {
@@ -1693,8 +2156,12 @@
                             <button class="btn btn-delete delete-song">Delete</button>
                         </div>
                     `;
-                    div.querySelector('.delete-song').addEventListener('click', () => {
+                    div.querySelector('.delete-song').addEventListener('click', (e) => {
+                        e.stopPropagation();
                         openDeleteSongModal(song.id);
+                    });
+                    div.addEventListener('click', () => {
+                        showPreview(song);
                     });
                     deleteContent.appendChild(div);
                 });
@@ -1729,7 +2196,7 @@
                 li.innerHTML = `
                     <span><span class="setlist-index">${index + 1}.</span> ${song.title} (${song.key} | ${song.genre})</span>
                     <div class="song-actions">
-                        <button class="btn btn-primary" onclick="removeFromSetlist(${song.id}, '${song.category}')">Remove</button>
+                        <button class="btn btn-delete" onclick="removeFromSetlist(${song.id}, '${song.category}')">Remove</button>
                     </div>
                 `;
 
@@ -1789,6 +2256,55 @@
             renderSetlist(category);
         }
 
+        // Show suggested songs
+        function showSuggestedSongs(currentSong) {
+            if (!currentSong) {
+                suggestedSongsEl.style.display = 'none';
+                return;
+            }
+
+            // Find songs in the same category with similar genres or keys
+            const similarSongs = songs.filter(song => {
+                if (song.id === currentSong.id) return false;
+                if (song.category !== currentSong.category) return false;
+                
+                // Check for matching genres
+                const currentGenres = currentSong.genres || [currentSong.genre];
+                const songGenres = song.genres || [song.genre];
+                const genreMatch = currentGenres.some(genre => songGenres.includes(genre));
+                
+                // Check for similar keys (same root note)
+                const currentKeyRoot = currentSong.key.replace(/m$/, '');
+                const songKeyRoot = song.key.replace(/m$/, '');
+                const keyMatch = currentKeyRoot === songKeyRoot;
+                
+                return genreMatch || keyMatch;
+            }).slice(0, 5); // Limit to 5 suggestions
+
+            if (similarSongs.length === 0) {
+                suggestedSongsEl.style.display = 'none';
+                return;
+            }
+
+            suggestedSongsContent.innerHTML = '';
+            similarSongs.forEach(song => {
+                const div = document.createElement('div');
+                div.className = 'song-item';
+                div.style.margin = '5px 0';
+                div.style.padding = '8px';
+                div.innerHTML = `
+                    <div class="song-title">${song.title}</div>
+                    <div class="song-meta">${song.key} | ${song.genre}</div>
+                `;
+                div.addEventListener('click', () => {
+                    showPreview(song);
+                });
+                suggestedSongsContent.appendChild(div);
+            });
+
+            suggestedSongsEl.style.display = 'block';
+        }
+
         // Preview functions
         function showPreview(song) {
             songPreviewEl.dataset.songId = song.id;
@@ -1796,16 +2312,23 @@
             songPreviewEl.dataset.originalKey = song.key;
 
             // Use the raw lyrics without any cleaning that might affect spacing
-            const displayLyrics = song.lyrics; // Removed cleanUpLyrics call
+            const displayLyrics = song.lyrics;
+
+            // Check if song is favorite
+            const isFavorite = favorites.includes(song.id);
 
             songPreviewEl.innerHTML = `
                 <h2>${song.title}</h2>
+                <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" id="previewFavoriteBtn" data-song-id="${song.id}">
+                    <i class="fas fa-heart"></i>
+                </button>
                 <div class="song-meta">
                     <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
                     <p><strong>Tempo:</strong> ${song.tempo}</p>
                     <p><strong>Time Signature:</strong> ${song.time}</p>
                     ${song.taal ? `<p><strong>Taal:</strong> ${song.taal}</p>` : ''}
-                    ${song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
+                    ${song.genres ? `<p><strong>Genres:</strong> ${song.genres.join(', ')}</p>` : 
+                     song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
                 </div>
                 <div class="transpose-controls">
                     <button class="btn btn-primary" id="transpose-down">-</button>
@@ -1814,6 +2337,12 @@
                 </div>
                 <div class="song-lyrics">${formatLyricsWithChords(displayLyrics, 0)}</div>
             `;
+            
+            // Favorite button event
+            document.getElementById('previewFavoriteBtn').addEventListener('click', (e) => {
+                toggleFavorite(song.id);
+            });
+            
             document.getElementById('transpose-up').addEventListener('click', () => {
                 const currentLevel = parseInt(document.getElementById('transpose-level').textContent);
                 updatePreviewWithTransposition(currentLevel + 1);
@@ -1824,6 +2353,9 @@
             });
             setupAutoScroll();
             applyLyricsBackground(song.category === 'praise');
+            
+            // Show suggested songs
+            showSuggestedSongs(song);
         }
 
         function cleanUpLyrics(lyrics) {
@@ -1845,11 +2377,19 @@
                 if (isChordLine(line)) {
                     // For chord lines, preserve ALL whitespace exactly
                     let processedLine = line.replace(
-                        /([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?)/gi,
+                        /([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?(?:\/[A-G][#b]?)?)/gi,
                         (chord) => {
-                            return chord.trim() ?
-                                `<span class="chord" data-original="${chord.trim()}">${transposeChord(chord.trim(), transposeLevel)}</span>` :
-                                chord; // Return spaces unchanged
+                            if (!chord.trim()) return chord; // Return spaces unchanged
+                            
+                            // Handle slash chords
+                            if (chord.includes('/')) {
+                                const [baseChord, bassNote] = chord.split('/');
+                                const transposedBase = transposeChord(baseChord.trim(), transposeLevel);
+                                const transposedBass = bassNote ? transposeChord(bassNote.trim(), transposeLevel) : '';
+                                return transposedBase + (transposedBass ? '/' + transposedBass : '');
+                            }
+                            
+                            return `<span class="chord" data-original="${chord.trim()}">${transposeChord(chord.trim(), transposeLevel)}</span>`;
                         }
                     );
                     output.push(`<div class="chord-line">${processedLine}</div>`);
@@ -1857,8 +2397,15 @@
                 else if (hasInlineChords(line)) {
                     // For lines with inline chords
                     let processedLine = line.replace(
-                        /\[([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?)\]/gi,
+                        /\[([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?(?:\/[A-G][#b]?)?)\]/gi,
                         (match, chord) => {
+                            // Handle slash chords in inline notation
+                            if (chord.includes('/')) {
+                                const [baseChord, bassNote] = chord.split('/');
+                                const transposedBase = transposeChord(baseChord, transposeLevel);
+                                const transposedBass = bassNote ? transposeChord(bassNote, transposeLevel) : '';
+                                return `[<span class="chord" data-original="${chord}">${transposedBase}${transposedBass ? '/' + transposedBass : ''}</span>]`;
+                            }
                             return `[<span class="chord" data-original="${chord}">${transposeChord(chord, transposeLevel)}</span>]`;
                         }
                     );
@@ -1873,25 +2420,30 @@
             return output.join('');
         }
 
-        // Helper functions remain the same
+        // Helper functions for chord detection
         function isChordLine(line) {
-            return /^(\s*[A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?\s*)+$/i.test(line.trim());
+            return /^(\s*[A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?(?:\/[A-G][#b]?)?\s*)+$/i.test(line.trim());
         }
 
         function hasInlineChords(line) {
-            return /\[([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?)\]/i.test(line);
-        }
-
-        // Helper functions
-        function isChordLine(line) {
-            return /^(\s*[A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?\s*)+$/i.test(line.trim());
-        }
-
-        function hasInlineChords(line) {
-            return /\[([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?)\]/i.test(line);
+            return /\[([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?(?:\/[A-G][#b]?)?)\]/i.test(line);
         }
 
         function transposeChord(chord, steps) {
+            if (steps === 0 || !chord) return chord;
+
+            // Handle slash chords separately
+            if (chord.includes('/')) {
+                const [baseChord, bassNote] = chord.split('/');
+                const transposedBase = transposeSingleChord(baseChord, steps);
+                const transposedBass = bassNote ? transposeSingleChord(bassNote, steps) : '';
+                return transposedBase + (transposedBass ? '/' + transposedBass : '');
+            }
+
+            return transposeSingleChord(chord, steps);
+        }
+
+        function transposeSingleChord(chord, steps) {
             if (steps === 0 || !chord) return chord;
 
             const match = chord.match(/^([A-G][#b]?)(.*)$/i);
@@ -1900,9 +2452,11 @@
             const baseNote = match[1];
             const quality = match[2] || '';
 
+            // Normalize to sharps for easier transposition
             const normalizedNote = baseNote.replace('b', '#').toUpperCase();
             let currentIndex = CHORDS.indexOf(normalizedNote);
             if (currentIndex === -1) {
+                // Handle flats that don't have direct sharp equivalents
                 const flatToSharp = { 'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#' };
                 const sharpNote = flatToSharp[baseNote];
                 if (sharpNote) {
@@ -1914,10 +2468,13 @@
             const newIndex = (currentIndex + steps + CHORDS.length) % CHORDS.length;
             let newBaseNote = CHORDS[newIndex];
 
+            // Convert back to flat if that's what was originally used
             const preferFlat = ['F', 'Bb', 'Eb', 'Ab', 'Db'];
             if (preferFlat.includes(newBaseNote)) {
                 const sharpToFlat = { 'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb' };
                 newBaseNote = sharpToFlat[newBaseNote] || newBaseNote;
+            } else if (baseNote === baseNote.toLowerCase()) {
+                newBaseNote = newBaseNote.toLowerCase();
             }
 
             return newBaseNote + quality;
@@ -1944,19 +2501,43 @@
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
             }
+            
+            // Update button state
+            if (toggleAutoScrollBtn) {
+                toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
+                toggleAutoScrollBtn.classList.remove('active');
+            }
+        }
+
+        function startAutoScroll(direction = 'down') {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+            }
+            
+            const scrollStep = direction === 'down' ? 20 : -20;
+            toggleAutoScrollBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            toggleAutoScrollBtn.classList.add('active');
+            
             autoScrollInterval = setInterval(() => {
                 if (isUserScrolling) return;
                 const previewHeight = songPreviewEl.scrollHeight;
                 const viewportHeight = songPreviewEl.clientHeight;
                 const maxScroll = previewHeight - viewportHeight;
                 const currentScroll = songPreviewEl.scrollTop;
-                const scrollStep = 20;
-                if (currentScroll >= maxScroll - 10 || maxScroll <= 0) {
+                
+                if ((direction === 'down' && currentScroll >= maxScroll - 10) || 
+                    (direction === 'up' && currentScroll <= 10)) {
                     clearInterval(autoScrollInterval);
                     autoScrollInterval = null;
+                    toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
+                    toggleAutoScrollBtn.classList.remove('active');
                     return;
                 }
-                const targetScroll = Math.min(currentScroll + scrollStep, maxScroll);
+                
+                const targetScroll = direction === 'down' 
+                    ? Math.min(currentScroll + scrollStep, maxScroll)
+                    : Math.max(currentScroll + scrollStep, 0);
+                    
                 let startTime;
                 function animateScroll(timestamp) {
                     if (!startTime) startTime = timestamp;
@@ -1968,7 +2549,18 @@
                     }
                 }
                 requestAnimationFrame(animateScroll);
-            }, 2000);
+            }, autoScrollSpeed);
+        }
+
+        function toggleAutoScroll() {
+            if (autoScrollInterval) {
+                clearInterval(autoScrollInterval);
+                autoScrollInterval = null;
+                toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
+                toggleAutoScrollBtn.classList.remove('active');
+            } else {
+                startAutoScroll('down');
+            }
         }
 
         function handleUserScroll() {
@@ -1976,20 +2568,96 @@
             if (autoScrollInterval) {
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
+                toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
+                toggleAutoScrollBtn.classList.remove('active');
             }
+            
+            // Reset the user scrolling flag after a short delay
+            setTimeout(() => {
+                isUserScrolling = false;
+            }, 1000);
         }
 
         // Song manipulation functions
         function addToSetlist(id) {
             const song = songs.find(s => s.id === id);
+            if (!song) return;
+            
             const setlist = song.category === 'praise' ? praiseSetlist : worshipSetlist;
             if (!setlist.some(s => s.id === id)) {
                 setlist.push(song);
                 saveSetlists();
+                showNotification(`"${song.title}" added to ${song.category} setlist`);
+                
                 if (setlistSection.style.display === 'block' &&
                     (song.category === 'praise' && praiseSetlistTab.classList.contains('active') ||
                     song.category === 'worship' && worshipSetlistTab.classList.contains('active'))) {
                     renderSetlist(song.category);
+                }
+                
+                // Update the song item in the list
+                const songItem = document.querySelector(`.song-item[data-song-id="${id}"]`);
+                if (songItem) {
+                    const btn = songItem.querySelector('.toggle-setlist');
+                    if (btn) {
+                        btn.textContent = 'Remove from Setlist';
+                        btn.classList.remove('btn-primary');
+                        btn.classList.add('btn-delete');
+                    }
+                }
+            }
+        }
+
+        function removeFromSetlist(id, category) {
+            const song = songs.find(s => s.id === id);
+            if (!song) return;
+            
+            if (category === 'praise') {
+                praiseSetlist = praiseSetlist.filter(s => s.id !== id);
+            } else {
+                worshipSetlist = worshipSetlist.filter(s => s.id !== id);
+            }
+            saveSetlists();
+            showNotification(`"${song.title}" removed from ${category} setlist`);
+            renderSetlist(category);
+            
+            // Update the song item in the list
+            const songItem = document.querySelector(`.song-item[data-song-id="${id}"]`);
+            if (songItem) {
+                const btn = songItem.querySelector('.toggle-setlist');
+                if (btn) {
+                    btn.textContent = 'Add to Setlist';
+                    btn.classList.remove('btn-delete');
+                    btn.classList.add('btn-primary');
+                }
+            }
+        }
+
+        function toggleFavorite(id) {
+            const index = favorites.indexOf(id);
+            const song = songs.find(s => s.id === id);
+            
+            if (index === -1) {
+                favorites.push(id);
+                showNotification(`"${song.title}" added to favorites`);
+            } else {
+                favorites.splice(index, 1);
+                showNotification(`"${song.title}" removed from favorites`);
+            }
+            
+            saveFavorites();
+            
+            // Update favorite buttons
+            const favButtons = document.querySelectorAll(`.favorite-btn[data-song-id="${id}"]`);
+            favButtons.forEach(btn => {
+                btn.classList.toggle('favorited', index === -1);
+            });
+            
+            // If the song is currently being previewed, update its button
+            if (songPreviewEl.dataset.songId == id) {
+                const previewBtn = document.getElementById('previewFavoriteBtn');
+                if (previewBtn) {
+                    previewBtn.classList.toggle('favorited', index === -1);
                 }
             }
         }
@@ -2020,7 +2688,29 @@
             document.getElementById('editSongTempo').value = song.tempo;
             document.getElementById('editSongTime').value = song.time;
             document.getElementById('editSongTaal').value = song.taal;
-            document.getElementById('editSongGenre').value = song.genre;
+            
+            // Handle genres - support both old single genre and new multi-genre
+            const genres = song.genres || (song.genre ? [song.genre] : []);
+            const editSelectedGenres = document.getElementById('editSelectedGenres');
+            editSelectedGenres.innerHTML = '';
+            genres.forEach(genre => {
+                const tag = document.createElement('div');
+                tag.className = 'multiselect-tag';
+                tag.innerHTML = `
+                    ${genre}
+                    <span class="remove-tag">×</span>
+                `;
+                editSelectedGenres.appendChild(tag);
+                
+                // Mark the option as selected
+                const options = document.querySelectorAll('#editGenreDropdown .multiselect-option');
+                options.forEach(opt => {
+                    if (opt.dataset.value === genre) {
+                        opt.classList.add('selected');
+                    }
+                });
+            });
+            
             document.getElementById('editSongLyrics').value = song.lyrics;
             editSongModal.style.display = 'flex';
         }
@@ -2031,16 +2721,6 @@
             document.getElementById('deleteSongId').value = song.id;
             document.getElementById('deleteSongTitle').textContent = song.title;
             deleteSongModal.style.display = 'flex';
-        }
-
-        function removeFromSetlist(id, category) {
-            if (category === 'praise') {
-                praiseSetlist = praiseSetlist.filter(s => s.id !== id);
-            } else {
-                worshipSetlist = worshipSetlist.filter(s => s.id !== id);
-            }
-            saveSetlists();
-            renderSetlist(category);
         }
 
         // Event listeners setup
@@ -2069,10 +2749,9 @@
                 } else {
                     toggle.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
                 }
-
+                
+                redrawPreviewOnThemeChange();
             });
-
-
 
             worshipTab.addEventListener('click', () => {
                 setlistSection.style.display = 'none';
@@ -2164,6 +2843,10 @@
             // Song modals
             openAddSongModal.addEventListener('click', () => {
                 addSongModal.style.display = 'flex';
+                document.getElementById('selectedGenres').innerHTML = '';
+                document.querySelectorAll('#genreDropdown .multiselect-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
             });
 
             document.querySelectorAll('.close-modal').forEach(button => {
@@ -2172,22 +2855,99 @@
                 });
             });
 
+            // Multi-select genre functionality
+            document.getElementById('songGenre').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('genreDropdown').classList.toggle('show');
+            });
+            
+            document.getElementById('editSongGenre').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('editGenreDropdown').classList.toggle('show');
+            });
+            
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.multiselect-container')) {
+                    document.getElementById('genreDropdown').classList.remove('show');
+                    document.getElementById('editGenreDropdown').classList.remove('show');
+                }
+            });
+            
+            // Genre selection
+            document.querySelectorAll('#genreDropdown .multiselect-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    option.classList.toggle('selected');
+                    updateSelectedGenres('selectedGenres', 'genreDropdown');
+                });
+            });
+            
+            document.querySelectorAll('#editGenreDropdown .multiselect-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    option.classList.toggle('selected');
+                    updateSelectedGenres('editSelectedGenres', 'editGenreDropdown');
+                });
+            });
+            
+            function updateSelectedGenres(containerId, dropdownId) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                
+                const selectedOptions = document.querySelectorAll(`#${dropdownId} .multiselect-option.selected`);
+                selectedOptions.forEach(opt => {
+                    const tag = document.createElement('div');
+                    tag.className = 'multiselect-tag';
+                    tag.innerHTML = `
+                        ${opt.dataset.value}
+                        <span class="remove-tag">×</span>
+                    `;
+                    container.appendChild(tag);
+                    
+                    // Add remove functionality
+                    tag.querySelector('.remove-tag').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        opt.classList.remove('selected');
+                        tag.remove();
+                    });
+                });
+            }
+
             // Form submissions
             newSongForm.addEventListener('submit', (e) => {
                 e.preventDefault();
+                const title = document.getElementById('songTitle').value;
+                const lyrics = document.getElementById('songLyrics').value;
+                
+                // Check for duplicates
+                if (isDuplicateSong(title, lyrics)) {
+                    showNotification('A song with this title and lyrics already exists!');
+                    return;
+                }
+                
+                // Get selected genres
+                const selectedGenres = Array.from(document.querySelectorAll('#genreDropdown .multiselect-option.selected'))
+                    .map(opt => opt.dataset.value);
+                
+                if (selectedGenres.length === 0) {
+                    showNotification('Please select at least one genre');
+                    return;
+                }
+                
                 const newSong = {
                     id: Math.max(...songs.map(s => s.id), 0) + 1,
-                    title: document.getElementById('songTitle').value,
+                    title: title,
                     category: document.getElementById('songCategory').value,
                     key: document.getElementById('songKey').value,
                     tempo: document.getElementById('songTempo').value,
                     time: document.getElementById('songTime').value,
                     taal: document.getElementById('songTaal').value,
-                    genre: document.getElementById('songGenre').value,
-                    lyrics: document.getElementById('songLyrics').value
+                    genres: selectedGenres,
+                    lyrics: lyrics
                 };
+                
                 songs.push(newSong);
                 saveSongs();
+                
                 if (deleteSection.style.display === 'block') {
                     renderDeleteSongs();
                 } else if (praiseTab.classList.contains('active')) {
@@ -2195,23 +2955,44 @@
                 } else {
                     renderSongs('worship', keyFilter.value, genreFilter.value);
                 }
+                
+                showNotification('Song added successfully!');
                 addSongModal.style.display = 'none';
                 newSongForm.reset();
+                document.getElementById('selectedGenres').innerHTML = '';
             });
 
             editSongForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const id = parseInt(document.getElementById('editSongId').value);
+                const title = document.getElementById('editSongTitle').value;
+                const lyrics = document.getElementById('editSongLyrics').value;
+                
+                // Check for duplicates (excluding current song)
+                if (isDuplicateSong(title, lyrics, id)) {
+                    showNotification('A song with this title and lyrics already exists!');
+                    return;
+                }
+                
+                // Get selected genres
+                const selectedGenres = Array.from(document.querySelectorAll('#editGenreDropdown .multiselect-option.selected'))
+                    .map(opt => opt.dataset.value);
+                
+                if (selectedGenres.length === 0) {
+                    showNotification('Please select at least one genre');
+                    return;
+                }
+                
                 const updatedSong = {
                     id,
-                    title: document.getElementById('editSongTitle').value,
+                    title: title,
                     category: document.getElementById('editSongCategory').value,
                     key: document.getElementById('editSongKey').value,
                     tempo: document.getElementById('editSongTempo').value,
                     time: document.getElementById('editSongTime').value,
                     taal: document.getElementById('editSongTaal').value,
-                    genre: document.getElementById('editSongGenre').value,
-                    lyrics: document.getElementById('editSongLyrics').value
+                    genres: selectedGenres,
+                    lyrics: lyrics
                 };
 
                 songs = songs.map(song => song.id === id ? updatedSong : song);
@@ -2235,6 +3016,7 @@
                     showPreview(updatedSong);
                 }
 
+                showNotification('Song updated successfully!');
                 editSongModal.style.display = 'none';
                 editSongForm.reset();
             });
@@ -2246,12 +3028,21 @@
             deleteSongForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const id = parseInt(document.getElementById('deleteSongId').value);
+                const song = songs.find(s => s.id === id);
+                
                 songs = songs.filter(s => s.id !== id);
                 saveSongs();
 
                 praiseSetlist = praiseSetlist.filter(s => s.id !== id);
                 worshipSetlist = worshipSetlist.filter(s => s.id !== id);
                 saveSetlists();
+                
+                // Remove from favorites if needed
+                const favIndex = favorites.indexOf(id);
+                if (favIndex !== -1) {
+                    favorites.splice(favIndex, 1);
+                    saveFavorites();
+                }
 
                 if (songPreviewEl.dataset.songId == id) {
                     songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics"></div>';
@@ -2263,12 +3054,27 @@
                 }
 
                 renderDeleteSongs();
+                showNotification(`"${song.title}" deleted successfully`);
                 deleteSongModal.style.display = 'none';
             });
 
             // Preview scrolling
             songPreviewEl.addEventListener('wheel', handleUserScroll);
             songPreviewEl.addEventListener('touchmove', handleUserScroll);
+            
+            // Auto-scroll controls
+            autoScrollUpBtn.addEventListener('click', () => {
+                startAutoScroll('up');
+            });
+            
+            autoScrollDownBtn.addEventListener('click', () => {
+                startAutoScroll('down');
+            });
+            
+            toggleAutoScrollBtn.addEventListener('click', toggleAutoScroll);
+            
+            // Keep screen on button
+            keepScreenOnBtn.addEventListener('click', toggleScreenWakeLock);
 
             // Bulk operations
             deleteAllSongsBtn.addEventListener('click', () => {
@@ -2294,8 +3100,10 @@
                 songs = [];
                 praiseSetlist = [];
                 worshipSetlist = [];
+                favorites = [];
                 saveSongs();
                 saveSetlists();
+                saveFavorites();
                 if (praiseTab.classList.contains('active')) {
                     renderSongs('praise', keyFilter.value, genreFilter.value);
                 } else {
@@ -2303,13 +3111,14 @@
                 }
                 songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics"></div>';
                 songPreviewEl.dataset.songId = '';
+                showNotification('All songs have been deleted.');
                 confirmDeleteAllModal.style.display = 'none';
-                alert('All songs have been deleted.');
             });
 
             // Search functionality
             searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim().toLowerCase();
+                clearSearchBtn.style.display = query ? 'block' : 'none';
                 const searchResults = document.getElementById('searchResults');
                 const searchResultsContent = document.getElementById('searchResultsContent');
 
@@ -2328,7 +3137,8 @@
                         song.title.toLowerCase().includes(query) ||
                         (song.lyrics && song.lyrics.toLowerCase().includes(query)) ||
                         (song.taal && song.taal.toLowerCase().includes(query)) ||
-                        (song.genre && song.genre.toLowerCase().includes(query))
+                        (song.genre && song.genre.toLowerCase().includes(query)) ||
+                        (song.genres && song.genres.some(g => g.toLowerCase().includes(query)))
                     );
                 });
 
@@ -2382,6 +3192,31 @@
 
                 searchResults.classList.add('active');
             });
+            
+            // Clear search button
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                clearSearchBtn.style.display = 'none';
+                document.getElementById('searchResults').classList.remove('active');
+                if (praiseTab.classList.contains('active')) {
+                    renderSongs('praise', keyFilter.value, genreFilter.value);
+                } else {
+                    renderSongs('worship', keyFilter.value, genreFilter.value);
+                }
+            });
+            
+            // Search history dropdown
+            searchInput.addEventListener('focus', () => {
+                if (searchInput.value.trim() === '') {
+                    showSearchHistory();
+                }
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-container')) {
+                    document.getElementById('searchHistoryDropdown').style.display = 'none';
+                }
+            });
 
             // Download/upload
             downloadBtn.addEventListener('click', downloadSongs);
@@ -2419,8 +3254,10 @@
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showNotification('HTML file downloaded with all songs');
                 } catch (err) {
-                    alert('Failed to generate updated HTML: ' + err.message);
+                    showNotification('Failed to generate updated HTML: ' + err.message);
                 }
             });
 
@@ -2439,6 +3276,7 @@
             document.getElementById("settingsForm").addEventListener("submit", function (e) {
                 e.preventDefault();
                 saveSettings();
+                showNotification('Settings saved successfully');
                 document.getElementById("settingsModal").style.display = "none";
             });
 
@@ -2472,6 +3310,18 @@
                     const pos = JSON.parse(saved);
                     el.style.top = pos.top;
                     el.style.left = pos.left;
+                } else {
+                    // Default positions
+                    if (id === 'toggle-sidebar') {
+                        el.style.top = '100px';
+                        el.style.left = '10px';
+                    } else if (id === 'toggle-songs') {
+                        el.style.top = '150px';
+                        el.style.left = '10px';
+                    } else if (id === 'toggle-all-panels') {
+                        el.style.top = '200px';
+                        el.style.left = '10px';
+                    }
                 }
             };
 

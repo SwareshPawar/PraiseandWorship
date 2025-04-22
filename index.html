@@ -191,8 +191,6 @@
             z-index: 1000;
             transition: transform 0.3s ease;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
         }
 
             .sidebar.hidden {
@@ -375,7 +373,6 @@
 
         .song-lyrics {
             margin-top: 20px;
-            white-space: pre-wrap;
             line-height: 1.6;
             background: var(--lyrics-bg-color);
             color: var(--lyrics-text-color);
@@ -388,14 +385,9 @@
         .chord-line {
             font-weight: bold;
             color: var(--chord-color);
-            margin-bottom: -4px;
-            white-space: pre;
-            font-family: monospace;
+            margin-bottom: -1px;
         }
 
-        .lyric-line {
-            margin-bottom: 1em;
-        }
 
         .chord {
             color: var(--primary-color);
@@ -1025,12 +1017,12 @@
             }
 
             .sidebar {
-                width: 80%;
+                width: 45%;
                 max-width: none;
             }
 
             .songs-section {
-                width: 80%;
+                width: 45%;
                 max-width: none;
                 left: 0;
             }

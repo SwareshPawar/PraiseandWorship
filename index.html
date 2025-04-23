@@ -5,6 +5,66 @@
     <title>Praise & Worship Songs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+
+        /* Add these styles to your CSS */
+        .suggested-songs {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 250px;
+            max-height: 60vh;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            padding: 15px;
+            z-index: 999;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        body.dark-mode .suggested-songs {
+            background: rgba(45, 55, 72, 0.9);
+            color: var(--dark-text);
+        }
+
+        .suggested-songs h3 {
+            margin-top: 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .suggested-songs .song-item {
+            margin: 8px 0;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            .suggested-songs .song-item:hover {
+                background: rgba(0, 0, 0, 0.05);
+            }
+
+        body.dark-mode .suggested-songs .song-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .close-suggested {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        body.dark-mode .close-suggested {
+            color: #aaa;
+        }
         :root {
             --primary-color: #4a6fa5;
             --secondary-color: #166088;
@@ -1113,6 +1173,7 @@
                 <li><a href="#" class="active" id="showAll">All Songs</a></li>
                 <li><a href="#" id="showSetlist">Setlist</a></li>
                 <li><a href="#" id="showDelete">Delete Songs</a></li>
+                <li><a href="#" id="showFavorites">Favorites</a></li>
             </ul>
             <div class="sidebar-footer">
                 <div class="sidebar-footer">
@@ -1235,6 +1296,10 @@
             <div class="delete-section" id="deleteSection" style="display: none;">
                 <h3>Delete Songs</h3>
                 <div id="deleteContent"></div>
+            </div>
+            <div class="favorites-section" id="favoritesSection" style="display: none;">
+                <h3>Favorite Songs</h3>
+                <div id="favoritesContent"></div>
             </div>
         </div>
 
@@ -1661,6 +1726,73 @@
             
             // Initialize screen wake lock if supported
             initScreenWakeLock();
+        }
+
+        function renderFavorites() {
+            const favoritesContent = document.getElementById('favoritesContent');
+            favoritesContent.innerHTML = '';
+    
+            if (favorites.length === 0) {
+                favoritesContent.innerHTML = '<p>No favorite songs yet.</p>';
+                return;
+            }
+    
+            const favoriteSongs = songs.filter(song => favorites.includes(song.id));
+            renderSongs(favoriteSongs, favoritesContent);
+        }
+
+        // Update the showSuggestedSongs function
+        function showSuggestedSongs(currentSong) {
+            if (!currentSong) {
+                suggestedSongsEl.style.display = 'none';
+                return;
+            }
+
+            // Find songs in the same category with similar genres or keys
+            const similarSongs = songs.filter(song => {
+                if (song.id === currentSong.id) return false;
+                if (song.category !== currentSong.category) return false;
+        
+                // Check for matching genres
+                const currentGenres = currentSong.genres || [currentSong.genre];
+                const songGenres = song.genres || [song.genre];
+                const genreMatch = currentGenres.some(genre => songGenres.includes(genre));
+        
+                // Check for similar keys (same root note)
+                const currentKeyRoot = currentSong.key.replace(/m$/, '');
+                const songKeyRoot = song.key.replace(/m$/, '');
+                const keyMatch = currentKeyRoot === songKeyRoot;
+        
+                return genreMatch || keyMatch;
+            }).slice(0, 5); // Limit to 5 suggestions
+
+            suggestedSongsContent.innerHTML = `
+                <button class="close-suggested" id="closeSuggested">×</button>
+                <h3>Similar Songs</h3>
+                ${similarSongs.length === 0 ? '<p>No similar songs found</p>' : ''}
+            `;
+
+            similarSongs.forEach(song => {
+                const div = document.createElement('div');
+                div.className = 'song-item';
+                div.dataset.songId = song.id;
+                div.innerHTML = `
+                    <div class="song-title">${song.title}</div>
+                    <div class="song-meta">${song.key} | ${song.genre || song.genres?.join(', ')}</div>
+                `;
+                div.addEventListener('click', () => {
+                    showPreview(song);
+                });
+                suggestedSongsContent.appendChild(div);
+            });
+
+            suggestedSongsEl.style.display = 'block';
+    
+            // Add close button event
+            document.getElementById('closeSuggested').addEventListener('click', (e) => {
+                e.stopPropagation();
+                suggestedSongsEl.style.display = 'none';
+            });
         }
 
         // Initialize screen wake lock
@@ -2128,6 +2260,17 @@
                         document.querySelector('.sidebar').classList.add('hidden');
                         document.querySelector('.preview-section').classList.add('full-width');
                     }
+                });
+                document.getElementById('showFavorites').addEventListener('click', (e) => {
+                    e.preventDefault();
+                    praiseContent.classList.remove('active');
+                    worshipContent.classList.remove('active');
+                    setlistSection.style.display = 'none';
+                    deleteSection.style.display = 'none';
+                    favoritesSection.style.display = 'block';
+                    renderFavorites();
+                    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                    e.target.classList.add('active');
                 });
                 container.appendChild(div);
             });
@@ -2799,10 +2942,12 @@
                 worshipContent.classList.remove('active');
                 setlistSection.style.display = 'none';
                 deleteSection.style.display = 'none';
+                favoritesSection.style.display = 'none';
                 renderSongs('praise', keyFilter.value, genreFilter.value);
                 showAllEl.classList.add('active');
                 showSetlistEl.classList.remove('active');
                 showDeleteEl.classList.remove('active');
+                showFavorites.classList.remove('active');
                 applyLyricsBackground(true);
             });
 

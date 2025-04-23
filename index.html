@@ -6,6 +6,121 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
 
+        /* Suggested Songs Drawer */
+        .suggested-songs-drawer {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100%;
+            background: var(--light-bg);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            z-index: 950;
+            transition: right 0.3s ease;
+            overflow-y: auto;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .suggested-songs-drawer.open {
+            right: 0;
+        }
+
+        .suggested-songs-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--song-item-border);
+        }
+
+        .suggested-songs-header h3 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+
+        .close-suggested-songs {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+        }
+
+        .suggested-song-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: var(--song-item-bg);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid var(--song-item-border);
+        }
+
+        .suggested-song-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .suggested-song-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .suggested-song-meta {
+            font-size: 0.85rem;
+            color: var(--song-meta-color);
+        }
+
+        .suggested-song-match {
+            display: inline-block;
+            margin-top: 5px;
+            padding: 2px 8px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .toggle-suggested-songs {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            bottom: 0px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 900;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .toggle-suggested-songs:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .suggested-songs-drawer {
+                width: 45%;
+                right: -85%;
+            }
+            
+            .toggle-suggested-songs {
+                right: 10px;
+                bottom: 180px;
+            }
+        }
+
         :root {
             --primary-color: #4a6fa5;
             --secondary-color: #166088;
@@ -1490,6 +1605,7 @@
         let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
         let keepScreenOn = false;
         let autoScrollSpeed = localStorage.getItem('autoScrollSpeed') || 1500;
+        let suggestedSongsDrawerOpen = false;
 
         async function loadSongsFromFile() {
             try {
@@ -2146,34 +2262,134 @@
             });
         }
 
-        function renderDeleteSongs() {
-            deleteContent.innerHTML = '';
-            if (songs.length === 0) {
-                deleteContent.innerHTML = '<p>No songs available to delete.</p>';
+        function getSuggestedSongs() {
+            if (!songPreviewEl.dataset.songId) return [];
+            
+            const currentSong = songs.find(s => s.id == songPreviewEl.dataset.songId);
+            if (!currentSong) return [];
+            
+            // Calculate similarity scores for all other songs
+            const scoredSongs = songs
+                .filter(song => song.id !== currentSong.id)
+                .map(song => {
+                    let score = 0;
+                    
+                    // Match on category
+                    if (song.category === currentSong.category) score += 20;
+                    
+                    // Match on key (exact match gets higher score)
+                    if (song.key === currentSong.key) score += 15;
+                    else if (song.key.replace(/m$/, '') === currentSong.key.replace(/m$/, '')) score += 10;
+                    
+                    // Match on time signature
+                    if (song.time === currentSong.time) score += 10;
+                    
+                    // Match on taal
+                    if (song.taal && currentSong.taal && song.taal === currentSong.taal) score += 10;
+                    
+                    // Match on genres
+                    const currentGenres = currentSong.genres || (currentSong.genre ? [currentSong.genre] : []);
+                    const songGenres = song.genres || (song.genre ? [song.genre] : []);
+                    const genreMatches = currentGenres.filter(g => songGenres.includes(g)).length;
+                    score += genreMatches * 5;
+                    
+                    return { ...song, score };
+                })
+                .filter(song => song.score > 0) // Only include songs with some match
+                .sort((a, b) => b.score - a.score) // Sort by score descending
+                .slice(0, 5); // Only take top 5
+            
+            return scoredSongs;
+        }
+
+        function showSuggestedSongs() {
+            const suggestedSongs = getSuggestedSongs();
+            const content = document.getElementById('suggestedSongsContent');
+            
+            if (suggestedSongs.length === 0) {
+                content.innerHTML = '<p>No suggested songs found based on the current song.</p>';
                 return;
             }
-            songs
-                .sort((a, b) => a.title.localeCompare(b.title))
-                .forEach(song => {
-                    const div = document.createElement('div');
-                    div.className = 'song-item';
-                    div.innerHTML = `
-                        <div class="song-title">${song.title}</div>
-                        <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre} | ${song.category}</div>
-                        <div class="song-actions">
-                            <button class="btn btn-delete delete-song">Delete</button>
-                        </div>
-                    `;
-                    div.querySelector('.delete-song').addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openDeleteSongModal(song.id);
-                    });
-                    div.addEventListener('click', () => {
-                        showPreview(song);
-                    });
-                    deleteContent.appendChild(div);
+            
+            content.innerHTML = '';
+            
+            suggestedSongs.forEach(song => {
+                const div = document.createElement('div');
+                div.className = 'suggested-song-item';
+                div.dataset.songId = song.id;
+                
+                const displayGenres = song.genres ? song.genres.join(', ') : song.genre || '';
+                
+                div.innerHTML = `
+                    <div class="suggested-song-title">${song.title}</div>
+                    <div class="suggested-song-meta">
+                        ${song.key} | ${song.tempo} | ${song.time} | ${song.taal || ''} | ${displayGenres}
+                    </div>
+                    <span class="suggested-song-match">${song.score}% match</span>
+                `;
+                
+                div.addEventListener('click', () => {
+                    showPreview(song);
+                    closeSuggestedSongsDrawer();
                 });
+                
+                content.appendChild(div);
+            });
         }
+
+        function toggleSuggestedSongsDrawer() {
+            const drawer = document.getElementById('suggestedSongsDrawer');
+            const toggleBtn = document.getElementById('toggleSuggestedSongs');
+            
+            if (suggestedSongsDrawerOpen) {
+                drawer.classList.remove('open');
+                toggleBtn.style.right = '20px';
+            } else {
+                showSuggestedSongs();
+                drawer.classList.add('open');
+                toggleBtn.style.right = '370px';
+            }
+            
+            suggestedSongsDrawerOpen = !suggestedSongsDrawerOpen;
+        }
+
+        function closeSuggestedSongsDrawer() {
+            const drawer = document.getElementById('suggestedSongsDrawer');
+            const toggleBtn = document.getElementById('toggleSuggestedSongs');
+            
+            drawer.classList.remove('open');
+            toggleBtn.style.right = '20px';
+            suggestedSongsDrawerOpen = false;
+        }
+
+            function renderDeleteSongs() {
+                deleteContent.innerHTML = '';
+                if (songs.length === 0) {
+                    deleteContent.innerHTML = '<p>No songs available to delete.</p>';
+                    return;
+                }
+                songs
+                    .sort((a, b) => a.title.localeCompare(b.title))
+                    .forEach(song => {
+                        const div = document.createElement('div');
+                        div.className = 'song-item';
+                        div.innerHTML = `
+                            <div class="song-title">${song.title}</div>
+                            <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre} | ${song.category}</div>
+                            <div class="song-actions">
+                                <button class="btn btn-delete delete-song">Delete</button>
+                            </div>
+                        `;
+                        div.querySelector('.delete-song').addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            openDeleteSongModal(song.id);
+                        });
+                        div.addEventListener('click', () => {
+                            showPreview(song);
+                        });
+                        deleteContent.appendChild(div);
+                    });
+            }
 
         function renderSetlist(category) {
             const container = category === 'praise' ? praiseSetlistSongs : worshipSetlistSongs;
@@ -2315,7 +2531,9 @@
             setupAutoScroll();
             applyLyricsBackground(song.category === 'praise');
             
-
+            if (suggestedSongsDrawerOpen) {
+                showSuggestedSongs();
+            }
         }
 
         function cleanUpLyrics(lyrics) {
@@ -3250,6 +3468,19 @@
                 toggle.classList.toggle('active');
             });
 
+                // Suggested songs
+            document.getElementById('toggleSuggestedSongs').addEventListener('click', toggleSuggestedSongsDrawer);
+            document.getElementById('closeSuggestedSongs').addEventListener('click', closeSuggestedSongsDrawer);
+            document.addEventListener('click', (e) => {
+                const drawer = document.getElementById('suggestedSongsDrawer');
+                const toggleBtn = document.getElementById('toggleSuggestedSongs');
+                
+                if (suggestedSongsDrawerOpen && 
+                    !e.target.closest('#suggestedSongsDrawer') && 
+                    e.target !== toggleBtn) {
+                    closeSuggestedSongsDrawer();
+                }
+            });
             // Make toggle buttons draggable
             makeToggleDraggable('toggle-sidebar');
             makeToggleDraggable('toggle-songs');
@@ -3366,5 +3597,17 @@
             });
         });
     </script>
+    <!-- Suggested Songs Drawer -->
+<div class="suggested-songs-drawer" id="suggestedSongsDrawer">
+    <div class="suggested-songs-header">
+        <h3>Suggested Songs</h3>
+        <button class="close-suggested-songs" id="closeSuggestedSongs">&times;</button>
+    </div>
+    <div id="suggestedSongsContent"></div>
+</div>
+
+<button class="toggle-suggested-songs" id="toggleSuggestedSongs" title="Suggested Songs">
+    <i class="fa fa-history"></i>
+</button>
 </body>
 </html>

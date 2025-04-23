@@ -6,65 +6,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
 
-        /* Add these styles to your CSS */
-        .suggested-songs {
-            position: fixed;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 250px;
-            max-height: 60vh;
-            overflow-y: auto;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            padding: 15px;
-            z-index: 999;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(5px);
-        }
-
-        body.dark-mode .suggested-songs {
-            background: rgba(45, 55, 72, 0.9);
-            color: var(--dark-text);
-        }
-
-        .suggested-songs h3 {
-            margin-top: 0;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        .suggested-songs .song-item {
-            margin: 8px 0;
-            padding: 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-            .suggested-songs .song-item:hover {
-                background: rgba(0, 0, 0, 0.05);
-            }
-
-        body.dark-mode .suggested-songs .song-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .close-suggested {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            color: #666;
-        }
-
-        body.dark-mode .close-suggested {
-            color: #aaa;
-        }
         :root {
             --primary-color: #4a6fa5;
             --secondary-color: #166088;
@@ -1020,18 +961,6 @@
                 color: var(--favorite-color);
             }
 
-        /* Suggested songs */
-        .suggested-songs {
-            margin-top: 20px;
-            padding: 10px;
-            background: rgba(0,0,0,0.05);
-            border-radius: 6px;
-        }
-
-            .suggested-songs h3 {
-                margin-bottom: 10px;
-                color: var(--primary-color);
-            }
 
         /* Settings layout */
         .settings-grid {
@@ -1306,11 +1235,7 @@
         <!-- Preview Section -->
         <div class="preview-section" id="songPreview">
             <h2>Select a song</h2>
-            <div class="song-lyrics"></div>
-            <div class="suggested-songs" id="suggestedSongs" style="display: none;">
-                <h3>You Might Also Like</h3>
-                <div id="suggestedSongsContent"></div>
-            </div>
+            <div class="song-lyrics">No song is selected</div>
         </div>
     </div>
 
@@ -1741,59 +1666,6 @@
             renderSongs(favoriteSongs, favoritesContent);
         }
 
-        // Update the showSuggestedSongs function
-        function showSuggestedSongs(currentSong) {
-            if (!currentSong) {
-                suggestedSongsEl.style.display = 'none';
-                return;
-            }
-
-            // Find songs in the same category with similar genres or keys
-            const similarSongs = songs.filter(song => {
-                if (song.id === currentSong.id) return false;
-                if (song.category !== currentSong.category) return false;
-        
-                // Check for matching genres
-                const currentGenres = currentSong.genres || [currentSong.genre];
-                const songGenres = song.genres || [song.genre];
-                const genreMatch = currentGenres.some(genre => songGenres.includes(genre));
-        
-                // Check for similar keys (same root note)
-                const currentKeyRoot = currentSong.key.replace(/m$/, '');
-                const songKeyRoot = song.key.replace(/m$/, '');
-                const keyMatch = currentKeyRoot === songKeyRoot;
-        
-                return genreMatch || keyMatch;
-            }).slice(0, 5); // Limit to 5 suggestions
-
-            suggestedSongsContent.innerHTML = `
-                <button class="close-suggested" id="closeSuggested">×</button>
-                <h3>Similar Songs</h3>
-                ${similarSongs.length === 0 ? '<p>No similar songs found</p>' : ''}
-            `;
-
-            similarSongs.forEach(song => {
-                const div = document.createElement('div');
-                div.className = 'song-item';
-                div.dataset.songId = song.id;
-                div.innerHTML = `
-                    <div class="song-title">${song.title}</div>
-                    <div class="song-meta">${song.key} | ${song.genre || song.genres?.join(', ')}</div>
-                `;
-                div.addEventListener('click', () => {
-                    showPreview(song);
-                });
-                suggestedSongsContent.appendChild(div);
-            });
-
-            suggestedSongsEl.style.display = 'block';
-    
-            // Add close button event
-            document.getElementById('closeSuggested').addEventListener('click', (e) => {
-                e.stopPropagation();
-                suggestedSongsEl.style.display = 'none';
-            });
-        }
 
         // Initialize screen wake lock
         function initScreenWakeLock() {
@@ -2394,54 +2266,7 @@
             renderSetlist(category);
         }
 
-        // Show suggested songs
-        function showSuggestedSongs(currentSong) {
-            if (!currentSong) {
-                suggestedSongsEl.style.display = 'none';
-                return;
-            }
 
-            // Find songs in the same category with similar genres or keys
-            const similarSongs = songs.filter(song => {
-                if (song.id === currentSong.id) return false;
-                if (song.category !== currentSong.category) return false;
-                
-                // Check for matching genres
-                const currentGenres = currentSong.genres || [currentSong.genre];
-                const songGenres = song.genres || [song.genre];
-                const genreMatch = currentGenres.some(genre => songGenres.includes(genre));
-                
-                // Check for similar keys (same root note)
-                const currentKeyRoot = currentSong.key.replace(/m$/, '');
-                const songKeyRoot = song.key.replace(/m$/, '');
-                const keyMatch = currentKeyRoot === songKeyRoot;
-                
-                return genreMatch || keyMatch;
-            }).slice(0, 5); // Limit to 5 suggestions
-
-            if (similarSongs.length === 0) {
-                suggestedSongsEl.style.display = 'none';
-                return;
-            }
-
-            suggestedSongsContent.innerHTML = '';
-            similarSongs.forEach(song => {
-                const div = document.createElement('div');
-                div.className = 'song-item';
-                div.style.margin = '5px 0';
-                div.style.padding = '8px';
-                div.innerHTML = `
-                    <div class="song-title">${song.title}</div>
-                    <div class="song-meta">${song.key} | ${song.genre}</div>
-                `;
-                div.addEventListener('click', () => {
-                    showPreview(song);
-                });
-                suggestedSongsContent.appendChild(div);
-            });
-
-            suggestedSongsEl.style.display = 'block';
-        }
 
         // Preview functions
         function showPreview(song) {
@@ -2492,8 +2317,7 @@
             setupAutoScroll();
             applyLyricsBackground(song.category === 'praise');
             
-            // Show suggested songs
-            showSuggestedSongs(song);
+
         }
 
         function cleanUpLyrics(lyrics) {

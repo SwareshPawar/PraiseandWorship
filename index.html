@@ -37,7 +37,7 @@
 
         .suggested-songs-header h3 {
             margin: 0;
-            color: var(--text-color);
+            color:var(--text-color);
         }
 
         .close-suggested-songs {
@@ -85,41 +85,29 @@
         }
 
         .toggle-suggested-songs {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            bottom: 0px;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: var(--accent-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            z-index: 900;
-            transition: all 0.3s;
-            border: none;
-        }
+        position: fixed;
+        right: 20px;
+        top: 20px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--accent-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        z-index: 900;
+        transition: all 0.3s;
+        border: none;
+    }
 
         .toggle-suggested-songs:hover {
             transform: scale(1.1);
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
 
-        @media (max-width: 768px) {
-            .suggested-songs-drawer {
-                width: 45%;
-                right: -85%;
-            }
-            
-            .toggle-suggested-songs {
-                right: 10px;
-                bottom: 180px;
-            }
-        }
 
         :root {
             --primary-color: #4a6fa5;
@@ -923,8 +911,8 @@
         }
 
         .auto-scroll-btn {
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--accent-color);
             color: white;
@@ -1031,8 +1019,8 @@
             position: fixed;
             bottom: 70px;
             right: 20px;
-            width: 40px;
-            height: 40px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--accent-color);
             color: white;
@@ -1104,6 +1092,16 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            .suggested-songs-drawer {
+                width: 45%;
+                right: -85%;
+            }
+            
+            .toggle-suggested-songs {
+                right: 10px;
+                bottom: 180px;
+            }
+            
             #toggle-sidebar {
                 top: 100px;
                 left: 10px;
@@ -1203,7 +1201,7 @@
         </div>
 
         <!-- Keep screen on button -->
-        <button class="keep-screen-on" id="keepScreenOnBtn" title="Keep Screen On"><i class="fas fa-lightbulb"></i></button>
+        <button class="keep-screen-on" id="keepScreenOnBtn" title="Keep Screen On"><i class="fa fa-sign-language"></i></button>
 
         <!-- Notification -->
         <div class="notification" id="notification"></div>
@@ -3607,7 +3605,7 @@
 </div>
 
 <button class="toggle-suggested-songs" id="toggleSuggestedSongs" title="Suggested Songs">
-    <i class="fa fa-history"></i>
+    <i class="fa fa-random"></i>
 </button>
 </body>
 </html>

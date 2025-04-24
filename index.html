@@ -20,28 +20,6 @@
     </script>
     <style>
 
-        .song-preview {
-            transition: transform 0.3s ease;
-        }
-
-        .swipe-left {
-            animation: swipeLeft 0.3s forwards;
-        }
-
-        .swipe-right {
-            animation: swipeRight 0.3s forwards;
-        }
-
-        @keyframes swipeLeft {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(-100%); opacity: 0; }
-        }
-
-        @keyframes swipeRight {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-
         /* Add to your existing CSS */
         .song-preview {
             transition: transform 0.3s ease;
@@ -1707,62 +1685,6 @@
                     });
                 },
 
-                showPreview: function(song, direction = 'none') {
-                    // Add animation class based on direction
-                    const preview = $('#songPreview');
-                    if (direction === 'left') {
-                        preview.addClass('swipe-left');
-                    } else if (direction === 'right') {
-                        preview.addClass('swipe-right');
-                    }
-
-                    // Wait for animation to complete if any
-                    setTimeout(() => {
-                        preview.removeClass('swipe-left swipe-right');
-                        
-                        // Rest of your existing showPreview code...
-                        preview.data({
-                            songId: song.id,
-                            originalLyrics: song.lyrics,
-                            originalKey: song.key
-                        });
-
-                        // ... rest of the method ...
-                        
-                    }, direction === 'none' ? 0 : 300); // Match timeout with CSS transition duration
-                },
-
-                setupMouseDrag: function() {
-                    const previewEl = $('#songPreview')[0];
-                    if (!previewEl) return;
-
-                    let mouseDownX = 0;
-                    let mouseUpX = 0;
-                    const threshold = 50;
-
-                    previewEl.addEventListener('mousedown', (e) => {
-                        mouseDownX = e.clientX;
-                    });
-
-                    previewEl.addEventListener('mouseup', (e) => {
-                        mouseUpX = e.clientX;
-                        const diff = mouseUpX - mouseDownX;
-                        
-                        if (diff < -threshold) {
-                            this.showNextSong();
-                        } else if (diff > threshold) {
-                            this.showPreviousSong();
-                        }
-                    });
-                },
-
-                cleanup: function() {
-                    const previewEl = $('#songPreview')[0];
-                    if (previewEl && this.swipeHandlers) {
-                        previewEl.removeEventListener('touchstart', this.swipeHandlers.start);
-                        previewEl.removeEventListener('touchend', this.swipeHandlers.end);
-                    }
-                },
                 setupSwipeGestures: function() {
                     const previewEl = $('#songPreview')[0];
                     if (!previewEl) return;
@@ -1851,7 +1773,6 @@
                     
                     const nextIndex = (currentIndex + 1) % songs.length;
                     this.showPreview(songs[nextIndex]);
-                    this.showPreview(songs[nextIndex], 'left');
                 },
 
                 showPreviousSong: function() {
@@ -1899,7 +1820,6 @@
                     
                     const prevIndex = (currentIndex - 1 + songs.length) % songs.length;
                     this.showPreview(songs[prevIndex]);
-                    this.showPreview(songs[prevIndex], 'right');
                 },
 
 

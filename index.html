@@ -6,6 +6,114 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
 
+        .song-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+            gap: 10px;
+        }
+
+        .song-title {
+            font-weight: 600;
+            flex-grow: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .song-item .favorite-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0 5px;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .song-item .favorite-btn.favorited {
+            color: var(--favorite-color);
+        }
+
+        .song-item .favorite-btn:hover {
+            color: var(--favorite-color);
+            transform: scale(1.1);
+        }
+
+        .song-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+
+        .song-title {
+            font-weight: 600;
+            flex-grow: 1;
+            margin-right: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .song-item .favorite-btn {
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .song-item .favorite-btn.favorited {
+            color: var(--favorite-color);
+        }
+
+        .song-item .favorite-btn:hover {
+            color: var(--favorite-color);
+            transform: scale(1.1);
+        }
+
+        /* Make action buttons more compact */
+        .song-actions .btn {
+            padding: 3px 8px;
+            font-size: 0.8rem;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .preview-actions {
+            display: flex;
+            gap: 4px;
+            margin: 5px 0;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 768px) {
+            .preview-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .preview-actions {
+                justify-content: center;
+                align-items: flex-start;
+                display: flex;
+                gap: 5px;
+            }
+        }
+
         /* Suggested Songs Drawer */
         .suggested-songs-drawer {
             position: fixed;
@@ -87,7 +195,7 @@
         .toggle-suggested-songs {
         position: fixed;
         right: 20px;
-        top: 50px;
+        top: 100px;
         width: 36px;
         height: 36px;
         border-radius: 50%;
@@ -252,6 +360,7 @@
             transform: scale(1.1);
             opacity: 1;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            justify-content: space-between;
         }
 
         .panel-toggle::after {
@@ -264,6 +373,7 @@
             border-radius: 50%;
             background-color: var(--accent-color);
             animation: pulse 2s infinite;
+            justify-content: space-between;
         }
 
         @keyframes pulse {
@@ -386,7 +496,7 @@
         .songs-section {
             width: var(--songs-panel-width);
             background: var(--light-bg);
-            padding: 10px;
+            padding: 5px;
             position: fixed;
             left: var(--sidebar-width);
             height: 100%;
@@ -426,8 +536,8 @@
         .song-item {
             background: var(--song-item-bg);
             color: var(--song-item-text);
-            margin: 10px 0;
-            padding: 12px;
+            margin: 4px 0;
+            padding: 6px 8px;
             border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             cursor: pointer;
@@ -444,11 +554,29 @@
             }
 
         .song-title {
+            font-size: 0.95rem;
             font-weight: 600;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
+        }
+
+        .transpose-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .transpose-controls .btn {
+            padding: 5px 12px;
+            min-width: 40px;
         }
 
         .song-meta {
+            gap: 4px; 
+            padding: 5px 0;
+            border-top: 1px solid var(--song-item-border);
+            border-bottom: 1px solid var(--song-item-border);
+            margin: 5px 0;
             color: var(--song-meta-color);
             font-size: 0.85rem;
             margin-bottom: 8px;
@@ -503,6 +631,9 @@
 
         /* Button Styles */
         .btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
             padding: 6px 12px;
             border: none;
             border-radius: 4px;
@@ -1045,15 +1176,15 @@
 
         /* Favorite button */
         .favorite-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
             background: none;
             border: none;
             color: #ccc;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1rem;
+            padding: 6px 12px;
             transition: color 0.2s;
+            display: flex;
+            align-items: center;
         }
 
             .favorite-btn:hover {
@@ -1195,8 +1326,6 @@
 
         <!-- Auto-scroll controls -->
         <div class="auto-scroll-controls">
-            <button class="auto-scroll-btn" id="autoScrollUp" title="Scroll Up"><i class="fas fa-arrow-up"></i></button>
-            <button class="auto-scroll-btn" id="autoScrollDown" title="Scroll Down"><i class="fas fa-arrow-down"></i></button>
             <button class="auto-scroll-btn" id="toggleAutoScroll" title="Auto Scroll"><i class="fas fa-play"></i></button>
         </div>
 
@@ -2204,19 +2333,21 @@
                 const displayGenres = song.genres ? song.genres.join(', ') : song.genre || '';
                 
                 div.innerHTML = `
+                <div class="song-header">
+                    <span class="song-title">${song.title}</span>
                     <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" data-song-id="${song.id}">
                         <i class="fas fa-heart"></i>
                     </button>
-                    <div class="song-title">${song.title}</div>
-                    <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.taal || ''} | ${displayGenres}</div>
-                    <div class="song-actions">
-                        <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'} toggle-setlist">
-                            ${isInSetlist ? 'Remove from Setlist' : 'Add to Setlist'}
-                        </button>
-                        <button class="btn btn-edit edit-song">Edit</button>
-                    </div>
-                `;
-                
+                </div>
+                <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.taal || ''} | ${displayGenres}</div>
+                <div class="song-actions">
+                    <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'} toggle-setlist">
+                        ${isInSetlist ? 'Remove' : 'Add'}
+                    </button>
+                    <button class="btn btn-edit edit-song">Edit</button>
+                </div>
+            `;
+               
                 // Favorite button event
                 div.querySelector('.favorite-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -2225,10 +2356,18 @@
                 
                 div.querySelector('.toggle-setlist').addEventListener('click', (e) => {
                     e.stopPropagation();
+                    const songId = parseInt(div.dataset.songId);
+                    const song = songs.find(s => s.id === songId);
+                    if (!song) return;
+                    
+                    const isInSetlist = song.category === 'praise' 
+                        ? praiseSetlist.some(s => s.id === songId)
+                        : worshipSetlist.some(s => s.id === songId);
+                    
                     if (isInSetlist) {
-                        removeFromSetlist(song.id, song.category);
+                        removeFromSetlist(songId, song.category);
                     } else {
-                        addToSetlist(song.id);
+                        addToSetlist(songId);
                     }
                 });
                 
@@ -2486,36 +2625,60 @@
             songPreviewEl.dataset.originalLyrics = song.lyrics;
             songPreviewEl.dataset.originalKey = song.key;
 
-            // Use the raw lyrics without any cleaning that might affect spacing
-            const displayLyrics = song.lyrics;
-
+            // Check if song is in setlist
+            const isInSetlist = song.category === 'praise' 
+                ? praiseSetlist.some(s => s.id === song.id)
+                : worshipSetlist.some(s => s.id === song.id);
+            
             // Check if song is favorite
             const isFavorite = favorites.includes(song.id);
 
             songPreviewEl.innerHTML = `
                 <h2>${song.title}</h2>
-                <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" id="previewFavoriteBtn" data-song-id="${song.id}">
-                    <i class="fas fa-heart"></i>
-                </button>
+                <div class="preview-actions">
+                    <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" id="previewFavoriteBtn" data-song-id="${song.id}">
+                        <i class="fas fa-heart"></i>    
+                    </button>
+                    <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'}" id="previewSetlistBtn">
+                        ${isInSetlist ? 'Remove from Setlist' : 'Add to Setlist'}
+                    </button>
+                    <button class="btn btn-edit" id="previewEditBtn">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
                 <div class="song-meta">
                     <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
                     <p><strong>Tempo:</strong> ${song.tempo}</p>
                     <p><strong>Time Signature:</strong> ${song.time}</p>
                     ${song.taal ? `<p><strong>Taal:</strong> ${song.taal}</p>` : ''}
                     ${song.genres ? `<p><strong>Genres:</strong> ${song.genres.join(', ')}</p>` : 
-                     song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
+                    song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
                 </div>
                 <div class="transpose-controls">
                     <button class="btn btn-primary" id="transpose-down">-</button>
                     <span>Transpose: <span id="transpose-level">0</span></span>
                     <button class="btn btn-primary" id="transpose-up">+</button>
                 </div>
-                <div class="song-lyrics">${formatLyricsWithChords(displayLyrics, 0)}</div>
+                <div class="song-lyrics">${formatLyricsWithChords(song.lyrics, 0)}</div>
             `;
             
             // Favorite button event
             document.getElementById('previewFavoriteBtn').addEventListener('click', (e) => {
                 toggleFavorite(song.id);
+            });
+            
+            // Setlist button event
+            document.getElementById('previewSetlistBtn').addEventListener('click', (e) => {
+                if (isInSetlist) {
+                    removeFromSetlist(song.id, song.category);
+                } else {
+                    addToSetlist(song.id);
+                }
+            });
+            
+            // Edit button event
+            document.getElementById('previewEditBtn').addEventListener('click', (e) => {
+                editSong(song.id);
             });
             
             document.getElementById('transpose-up').addEventListener('click', () => {
@@ -2677,8 +2840,7 @@
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
             }
-            
-            // Update button state
+            // Reset button to play state
             if (toggleAutoScrollBtn) {
                 toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
                 toggleAutoScrollBtn.classList.remove('active');
@@ -2691,8 +2853,10 @@
             }
             
             const scrollStep = direction === 'down' ? 20 : -20;
-            toggleAutoScrollBtn.innerHTML = '<i class="fas fa-pause"></i>';
-            toggleAutoScrollBtn.classList.add('active');
+            if (toggleAutoScrollBtn) {
+                toggleAutoScrollBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                toggleAutoScrollBtn.classList.add('active');
+            }
             
             autoScrollInterval = setInterval(() => {
                 if (isUserScrolling) return;
@@ -2705,8 +2869,10 @@
                     (direction === 'up' && currentScroll <= 10)) {
                     clearInterval(autoScrollInterval);
                     autoScrollInterval = null;
-                    toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    toggleAutoScrollBtn.classList.remove('active');
+                    if (toggleAutoScrollBtn) {
+                        toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
+                        toggleAutoScrollBtn.classList.remove('active');
+                    }
                     return;
                 }
                 
@@ -2730,12 +2896,16 @@
 
         function toggleAutoScroll() {
             if (autoScrollInterval) {
+                // Pause scrolling
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
                 toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
                 toggleAutoScrollBtn.classList.remove('active');
             } else {
+                // Start scrolling down
                 startAutoScroll('down');
+                toggleAutoScrollBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                toggleAutoScrollBtn.classList.add('active');
             }
         }
 
@@ -2765,21 +2935,16 @@
                 saveSetlists();
                 showNotification(`"${song.title}" added to ${song.category} setlist`);
                 
-                if (setlistSection.style.display === 'block' &&
-                    (song.category === 'praise' && praiseSetlistTab.classList.contains('active') ||
-                    song.category === 'worship' && worshipSetlistTab.classList.contains('active'))) {
-                    renderSetlist(song.category);
+                // Update button in song list
+                updateSetlistButton(id, true);
+                
+                // Update button in preview if this is the current song
+                if (songPreviewEl.dataset.songId == id) {
+                    updatePreviewSetlistButton(true);
                 }
                 
-                // Update the song item in the list
-                const songItem = document.querySelector(`.song-item[data-song-id="${id}"]`);
-                if (songItem) {
-                    const btn = songItem.querySelector('.toggle-setlist');
-                    if (btn) {
-                        btn.textContent = 'Remove from Setlist';
-                        btn.classList.remove('btn-primary');
-                        btn.classList.add('btn-delete');
-                    }
+                if (setlistSection.style.display === 'block') {
+                    renderSetlist(song.category);
                 }
             }
         }
@@ -2795,17 +2960,27 @@
             }
             saveSetlists();
             showNotification(`"${song.title}" removed from ${category} setlist`);
-            renderSetlist(category);
             
-            // Update the song item in the list
-            const songItem = document.querySelector(`.song-item[data-song-id="${id}"]`);
-            if (songItem) {
-                const btn = songItem.querySelector('.toggle-setlist');
-                if (btn) {
-                    btn.textContent = 'Add to Setlist';
-                    btn.classList.remove('btn-delete');
-                    btn.classList.add('btn-primary');
-                }
+            // Update button in song list
+            updateSetlistButton(id, false);
+            
+            // Update button in preview if this is the current song
+            if (songPreviewEl.dataset.songId == id) {
+                updatePreviewSetlistButton(false);
+            }
+            
+            if (setlistSection.style.display === 'block') {
+                renderSetlist(category);
+            }
+        }
+
+        // Helper function to update setlist button in preview
+        function updatePreviewSetlistButton(isInSetlist) {
+            const previewBtn = document.getElementById('previewSetlistBtn');
+            if (previewBtn) {
+                previewBtn.textContent = isInSetlist ? 'Remove from Setlist' : 'Add to Setlist';
+                previewBtn.classList.toggle('btn-primary', !isInSetlist);
+                previewBtn.classList.toggle('btn-delete', isInSetlist);
             }
         }
 
@@ -2834,6 +3009,18 @@
                 const previewBtn = document.getElementById('previewFavoriteBtn');
                 if (previewBtn) {
                     previewBtn.classList.toggle('favorited', index === -1);
+                }
+            }
+        }
+
+        function updateSetlistButton(songId, isInSetlist) {
+            const songItem = document.querySelector(`.song-item[data-song-id="${songId}"]`);
+            if (songItem) {
+                const btn = songItem.querySelector('.toggle-setlist');
+                if (btn) {
+                    btn.textContent = isInSetlist ? 'Remove' : 'Add';
+                    btn.classList.toggle('btn-primary', !isInSetlist);
+                    btn.classList.toggle('btn-delete', isInSetlist);
                 }
             }
         }
@@ -2948,6 +3135,10 @@
                     renderSongs('worship', keyFilter.value, genreFilter.value);
                 }
             });
+
+            if (toggleAutoScrollBtn) {
+                toggleAutoScrollBtn.addEventListener('click', toggleAutoScroll);
+            }
 
             genreFilter.addEventListener('change', () => {
                 if (praiseTab.classList.contains('active')) {
@@ -3241,13 +3432,6 @@
             songPreviewEl.addEventListener('touchmove', handleUserScroll);
             
             // Auto-scroll controls
-            autoScrollUpBtn.addEventListener('click', () => {
-                startAutoScroll('up');
-            });
-            
-            autoScrollDownBtn.addEventListener('click', () => {
-                startAutoScroll('down');
-            });
             
             toggleAutoScrollBtn.addEventListener('click', toggleAutoScroll);
             

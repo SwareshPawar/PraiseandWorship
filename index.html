@@ -2360,32 +2360,86 @@
             if (!songPreviewEl.dataset.songId) return [];
             
             const currentSong = songs.find(s => s.id == songPreviewEl.dataset.songId);
-            if (!currentSong) return [];
+            if (!currentSong || !currentSong.category) return []; // Added category check
             
-            const scoredSongs = songs
-                .filter(song => song.id !== currentSong.id)
-                .map(song => {
-                    let score = 0;
+            // Get current properties
+            const currentCategory = currentSong.category.toLowerCase(); // Ensure case-insensitive
+            const currentKey = (currentSong.key || '').toLowerCase();
+            const isCurrentMinor = currentKey.endsWith('m');
+            
+            // Weightings
+            const WEIGHTS = {
+                scaleType: 40,  // Major/minor match
+                keyRoot: 10,   // Same root bonus
+                timeSignature: 20,
+                taal: 15,
+                genre: 15
+            };
+
+            // STRICT filtering - only same category
+            const sameCategorySongs = songs.filter(song => 
+                song.id !== currentSong.id && 
+                song.category && 
+                song.category.toLowerCase() === currentCategory
+            );
+            
+            // If no songs in same category, return empty
+            if (sameCategorySongs.length === 0) return [];
+            
+            const scoredSongs = sameCategorySongs.map(song => {
+                const songKey = (song.key || '').toLowerCase();
+                const isSongMinor = songKey.endsWith('m');
+                
+                let score = 0;
+                
+                // 1. Scale type match (40%)
+                if (isSongMinor === isCurrentMinor) {
+                    score += WEIGHTS.scaleType;
+                }
+                
+                // 2. Key root bonus (10%)
+                if (songKey.replace(/m$/, '') === currentKey.replace(/m$/, '')) {
+                    score += WEIGHTS.keyRoot;
+                }
+                
+                // 3. Time signature (20%)
+                if (song.time && currentSong.time && 
+                    song.time.toLowerCase() === currentSong.time.toLowerCase()) {
+                    score += WEIGHTS.timeSignature;
+                }
+                
+                // 4. Taal (15%)
+                if (song.taal && currentSong.taal && 
+                    song.taal.toLowerCase() === currentSong.taal.toLowerCase()) {
+                    score += WEIGHTS.taal;
+                }
+                
+                // 5. Genre (15%)
+                const currentGenres = currentSong.genres 
+                    || (currentSong.genre ? [currentSong.genre] : []);
+                const songGenres = song.genres 
+                    || (song.genre ? [song.genre] : []);
                     
-                    if (song.category === currentSong.category) score += 20;
-                    
-                    if (song.key === currentSong.key) score += 15;
-                    else if (song.key.replace(/m$/, '') === currentSong.key.replace(/m$/, '')) score += 10;
-                    
-                    if (song.time === currentSong.time) score += 10;
-                    
-                    if (song.taal && currentSong.taal && song.taal === currentSong.taal) score += 10;
-                    
-                    const currentGenres = currentSong.genres || (currentSong.genre ? [currentSong.genre] : []);
-                    const songGenres = song.genres || (song.genre ? [song.genre] : []);
-                    const genreMatches = currentGenres.filter(g => songGenres.includes(g)).length;
-                    score += genreMatches * 5;
-                    
-                    return { ...song, score };
-                })
-                .filter(song => song.score > 0)
-                .sort((a, b) => b.score - a.score)
-                .slice(0, 5);
+                if (currentGenres.length > 0 && songGenres.length > 0) {
+                    const matches = currentGenres.filter(g => 
+                        songGenres.map(sg => sg.toLowerCase())
+                        .includes(g.toLowerCase())
+                    );
+                    score += (matches.length / currentGenres.length) * WEIGHTS.genre;
+                }
+                
+                return {
+                    ...song,
+                    score,
+                    percentageMatch: Math.min(Math.round(score), 100),
+                    scaleMatch: isSongMinor === isCurrentMinor ? 'Same' : 'Different',
+                    rootMatch: songKey.replace(/m$/, '') === currentKey.replace(/m$/, '') 
+                        ? 'Same' : 'Different'
+                };
+            })
+            .filter(song => song.score > 0)
+            .sort((a, b) => b.score - a.score || b.rootMatch.localeCompare(a.rootMatch))
+            .slice(0, 10);
             
             return scoredSongs;
         }

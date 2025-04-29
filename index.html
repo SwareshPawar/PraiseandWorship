@@ -195,7 +195,7 @@
         .toggle-suggested-songs {
         position: fixed;
         right: 20px;
-        top: 100px;
+        top: 50px;
         width: 36px;
         height: 36px;
         border-radius: 50%;
@@ -631,7 +631,6 @@
 
         /* Button Styles */
         .btn {
-            display: flex;
             align-items: center;
             gap: 5px;
             padding: 6px 12px;
@@ -1094,8 +1093,8 @@
             position: absolute;
             top: 100%;
             left: 0;
-            width: 100%;
-            max-height: 200px;
+            width: 40%;
+            max-height: 150px;
             overflow-y: auto;
             background: white;
             border: 1px solid #ddd;
@@ -1522,9 +1521,9 @@
                     <option value="Bm">Bm</option>
                 </select>
                 <label for="songTempo">Tempo (BPM):</label>
-                <input type="text" id="songTempo" placeholder="e.g., 80 BPM" required>
+                <input type="text" id="songTempo" placeholder="e.g., 80 BPM" >
                 <label for="songTime">Time Signature:</label>
-                <select id="songTime" required>
+                <select id="songTime" >
                     <option value="4/4">4/4</option>
                     <option value="3/4">3/4</option>
                     <option value="2/4">2/4</option>
@@ -1607,7 +1606,7 @@
                     <option value="Bm">Bm</option>
                 </select>
                 <label for="editSongTempo">Tempo (BPM):</label>
-                <input type="text" id="editSongTempo" placeholder="e.g., 80 BPM" required>
+                <input type="text" id="editSongTempo" placeholder="e.g., 80 BPM">
                 <label for="editSongTime">Time Signature:</label>
                 <select id="editSongTime" required>
                     <option value="4/4">4/4</option>
@@ -1733,17 +1732,16 @@
         let keepScreenOn = false;
         let autoScrollSpeed = localStorage.getItem('autoScrollSpeed') || 1500;
         let suggestedSongsDrawerOpen = false;
-
+    
         async function loadSongsFromFile() {
             try {
-                // Try multiple possible paths for GitHub Pages compatibility
                 const pathsToTry = [
                     './songs.json',
                     '/songs.json',
                     'songs.json',
                     `${window.location.pathname.split('/')[1]}/songs.json`
                 ];
-
+    
                 for (const path of pathsToTry) {
                     try {
                         const response = await fetch(path);
@@ -1760,7 +1758,6 @@
                     }
                 }
                 
-                // Fallback to embedded songs if available
                 const embedded = document.getElementById('embeddedSongs');
                 if (embedded && embedded.textContent.trim() !== '[]') {
                     const embeddedData = JSON.parse(embedded.textContent);
@@ -1773,26 +1770,24 @@
                 return [];
             }
         }
-
+    
         function connectWebSocket() {
             if (!window.WebSocket) {
                 console.warn("WebSockets not supported in this browser");
                 return;
             }
-
-            // Remove WebSocket connection as it's not needed for GitHub Pages
             console.log("WebSocket connection removed for GitHub Pages compatibility");
         }
-
+    
         function updateSongCount() {
             document.getElementById('totalSongs').textContent = songs.length;
             document.getElementById('praiseCount').textContent = songs.filter(s => s.category === 'praise').length;
             document.getElementById('worshipCount').textContent = songs.filter(s => s.category === 'worship').length;
         }
-
+    
         let praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || [];
         let worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || [];
-
+    
         // DOM Elements
         const praiseTab = document.getElementById('praiseTab');
         const worshipTab = document.getElementById('worshipTab');
@@ -1804,6 +1799,7 @@
         const showSetlistEl = document.getElementById('showSetlist');
         const showAllEl = document.getElementById('showAll');
         const showDeleteEl = document.getElementById('showDelete');
+        const showFavoritesEl = document.getElementById('showFavorites');
         const setlistSection = document.getElementById('setlistSection');
         const praiseSetlistSongs = document.getElementById('praiseSetlistSongs');
         const worshipSetlistSongs = document.getElementById('worshipSetlistSongs');
@@ -1811,6 +1807,8 @@
         const worshipSetlistTab = document.getElementById('worshipSetlistTab');
         const deleteSection = document.getElementById('deleteSection');
         const deleteContent = document.getElementById('deleteContent');
+        const favoritesSection = document.getElementById('favoritesSection');
+        const favoritesContent = document.getElementById('favoritesContent');
         const addSongModal = document.getElementById('addSongModal');
         const openAddSongModal = document.getElementById('openAddSongModal');
         const newSongForm = document.getElementById('newSongForm');
@@ -1831,12 +1829,10 @@
         const toggleSongsBtn = document.getElementById('toggle-songs');
         const toggleAllPanelsBtn = document.getElementById('toggle-all-panels');
         const mergeBtn = document.getElementById('mergeSongsBtn');
-        const autoScrollUpBtn = document.getElementById('autoScrollUp');
-        const autoScrollDownBtn = document.getElementById('autoScrollDown');
         const toggleAutoScrollBtn = document.getElementById('toggleAutoScroll');
         const keepScreenOnBtn = document.getElementById('keepScreenOnBtn');
         const notificationEl = document.getElementById('notification');
-
+    
         // Auto-scroll and chord variables
         let autoScrollInterval = null;
         let isUserScrolling = false;
@@ -1845,19 +1841,15 @@
         const CHORD_LINE_REGEX = /^(\s*[A-G](?:#|b)?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?\s*)+$/i;
         const INLINE_CHORD_REGEX = /\[([A-G](?:#|b)?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?)\]/gi;
         const SLASH_CHORD_REGEX = /([A-G](?:#|b)?)(?:\/([A-G](?:#|b)?))?/gi;
-
+    
         // Search history
         let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
-
+    
         // Initialize the application
         async function init() {
-            // Load songs from JSON file
             songs = await loadSongsFromFile();
-            
-            // Load any songs from localStorage that might have been added
             const localSongs = JSON.parse(localStorage.getItem('songs')) || [];
             if (localSongs.length > 0) {
-                // Merge with existing songs, avoiding duplicates
                 const existingIds = new Set(songs.map(s => s.id));
                 localSongs.forEach(song => {
                     if (!existingIds.has(song.id)) {
@@ -1866,49 +1858,34 @@
                 });
             }
             
-            // Load settings
             loadSettings();
-
-            // Set up event listeners
             addEventListeners();
             addPanelToggles();
-
-            // Render initial content
             renderSongs('praise', '', '');
-
-            // Apply initial lyrics background
             applyLyricsBackground(document.getElementById('praiseTab').classList.contains('active'));
-
-            // Apply dark mode if enabled
+    
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
                 document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
             }
-
-            // Connect to WebSocket
+    
             connectWebSocket();
-
             updateSongCount();
-            
-            // Initialize screen wake lock if supported
             initScreenWakeLock();
         }
-
-        function renderFavorites() {
-            const favoritesContent = document.getElementById('favoritesContent');
-            favoritesContent.innerHTML = '';
     
+        function renderFavorites() {
+            favoritesContent.innerHTML = '';
+        
             if (favorites.length === 0) {
                 favoritesContent.innerHTML = '<p>No favorite songs yet.</p>';
                 return;
             }
-    
+        
             const favoriteSongs = songs.filter(song => favorites.includes(song.id));
             renderSongs(favoriteSongs, favoritesContent);
         }
-
-
-        // Initialize screen wake lock
+    
         function initScreenWakeLock() {
             if ('wakeLock' in navigator) {
                 keepScreenOnBtn.style.display = 'flex';
@@ -1916,8 +1893,7 @@
                 keepScreenOnBtn.style.display = 'none';
             }
         }
-
-        // Toggle screen wake lock
+    
         async function toggleScreenWakeLock() {
             if (!('wakeLock' in navigator)) return;
             
@@ -1937,8 +1913,7 @@
                 showNotification('Screen may sleep');
             }
         }
-
-        // Show notification
+    
         function showNotification(message, duration = 3000) {
             notificationEl.textContent = message;
             notificationEl.classList.add('show');
@@ -1947,24 +1922,23 @@
                 notificationEl.classList.remove('show');
             }, duration);
         }
-
-        // Settings functions
+    
         function loadSettings() {
             const savedHeader = localStorage.getItem("sidebarHeader");
             if (savedHeader) document.querySelector(".sidebar-header h2").textContent = savedHeader;
-
+    
             const savedSetlistLabel = localStorage.getItem("setlistText");
             if (savedSetlistLabel) showSetlistEl.textContent = savedSetlistLabel;
-
+    
             const sidebarWidth = localStorage.getItem("sidebarWidth") || "15";
             const songsPanelWidth = localStorage.getItem("songsPanelWidth") || "20";
             const previewMargin = localStorage.getItem("previewMargin") || "40";
             const savedAutoScrollSpeed = localStorage.getItem("autoScrollSpeed") || "1500";
-
+    
             document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}%`);
             document.documentElement.style.setProperty('--songs-panel-width', `${songsPanelWidth}%`);
             document.documentElement.style.setProperty('--preview-margin-left', `${previewMargin}px`);
-
+    
             document.getElementById('sidebarWidthInput').value = sidebarWidth;
             document.getElementById('songsPanelWidthInput').value = songsPanelWidth;
             document.getElementById('previewMarginInput').value = previewMargin;
@@ -1972,7 +1946,7 @@
             
             autoScrollSpeed = parseInt(savedAutoScrollSpeed);
         }
-
+    
         function saveSettings() {
             const newHeader = document.getElementById("sidebarHeaderInput").value;
             const newSetlist = document.getElementById("setlistTextInput").value;
@@ -1980,14 +1954,14 @@
             const songsPanelWidth = document.getElementById("songsPanelWidthInput").value;
             const previewMargin = document.getElementById("previewMarginInput").value;
             const newAutoScrollSpeed = document.getElementById("autoScrollSpeedInput").value;
-
+    
             document.querySelector(".sidebar-header h2").textContent = newHeader;
             showSetlistEl.textContent = newSetlist;
-
+    
             document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}%`);
             document.documentElement.style.setProperty('--songs-panel-width', `${songsPanelWidth}%`);
             document.documentElement.style.setProperty('--preview-margin-left', `${previewMargin}px`);
-
+    
             localStorage.setItem("sidebarHeader", newHeader);
             localStorage.setItem("setlistText", newSetlist);
             localStorage.setItem("sidebarWidth", sidebarWidth);
@@ -1996,47 +1970,49 @@
             localStorage.setItem("autoScrollSpeed", newAutoScrollSpeed);
             
             autoScrollSpeed = parseInt(newAutoScrollSpeed);
-
+    
             updatePositions();
         }
-
-        // Lyrics background functions
+    
         function applyLyricsBackground(isPraise) {
             const lyricsContainer = document.querySelector(".song-lyrics");
             if (!lyricsContainer) return;
             lyricsContainer.classList.remove("lyrics-bg-praise", "lyrics-bg-worship");
             lyricsContainer.classList.add(isPraise ? "lyrics-bg-praise" : "lyrics-bg-worship");
         }
-
-        // Panel toggle functions
+    
         function addPanelToggles() {
             const sidebar = document.querySelector('.sidebar');
             const songsSection = document.querySelector('.songs-section');
             const previewSection = document.querySelector('.preview-section');
-
+    
             if (!sidebar || !songsSection || !previewSection || !toggleSidebarBtn || !toggleSongsBtn || !toggleAllPanelsBtn) {
                 console.error('One or more elements not found for panel toggles');
                 return;
             }
-
+    
             toggleSidebarBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 sidebar.classList.toggle('hidden');
                 if (window.innerWidth <= 768) {
-                    songsSection.classList.add('hidden');
+                    if (!sidebar.classList.contains('hidden')) {
+                        songsSection.classList.add('hidden');
+                    }
                 }
                 updatePositions();
             });
-
+    
             toggleSongsBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 songsSection.classList.toggle('hidden');
                 if (window.innerWidth <= 768) {
-                    sidebar.classList.add('hidden');
+                    if (!songsSection.classList.contains('hidden')) {
+                        sidebar.classList.add('hidden');
+                    }
                 }
                 updatePositions();
             });
-
+    
             toggleAllPanelsBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const areBothHidden = sidebar.classList.contains('hidden') && songsSection.classList.contains('hidden');
@@ -2045,7 +2021,7 @@
                 toggleAllPanelsBtn.querySelector('i').className = areBothHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
                 updatePositions();
             });
-
+    
             document.addEventListener('click', (e) => {
                 if (window.innerWidth <= 768 &&
                     !e.target.closest('.sidebar') &&
@@ -2058,7 +2034,7 @@
                     updatePositions();
                 }
             });
-
+    
             if (window.innerWidth > 768) {
                 sidebar.classList.remove('hidden');
                 songsSection.classList.remove('hidden');
@@ -2067,10 +2043,10 @@
                 songsSection.classList.add('hidden');
             }
             updatePositions();
-
+    
             window.addEventListener('resize', updatePositions);
         }
-
+    
         function updatePositions() {
             if (window.innerWidth > 768) {
                 if (document.querySelector('.sidebar').classList.contains('hidden')) {
@@ -2092,8 +2068,7 @@
                 document.querySelector('.preview-section').classList.add('full-width');
             }
         }
-
-        // Song management functions
+    
         function saveSongs(toFile = false) {
             if (toFile) {
                 try {
@@ -2115,14 +2090,14 @@
                     }));
                 }
             }
-
+    
             localStorage.setItem('songs', JSON.stringify(songs));
             const embedded = document.getElementById('embeddedSongs');
             if (embedded) {
                 embedded.textContent = JSON.stringify(songs, null, 2);
             }
         }
-
+    
         function saveSetlists() {
             localStorage.setItem('praiseSetlist', JSON.stringify(praiseSetlist));
             localStorage.setItem('worshipSetlist', JSON.stringify(worshipSetlist));
@@ -2135,11 +2110,11 @@
                 }));
             }
         }
-
+    
         function saveFavorites() {
             localStorage.setItem('favorites', JSON.stringify(favorites));
         }
-
+    
         function downloadSongs() {
             const data = {
                 songs: songs,
@@ -2157,7 +2132,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
-
+    
         function handleFileUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2191,7 +2166,7 @@
             };
             reader.readAsText(file);
         }
-
+    
         function handleMergeUpload(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2203,14 +2178,14 @@
                         const existingIds = new Set(songs.map(s => s.id));
                         const newSongs = data.songs.filter(song => !existingIds.has(song.id));
                         const nextId = Math.max(0, ...songs.map(s => s.id)) + 1;
-
+    
                         newSongs.forEach((song, index) => {
                             song.id = nextId + index;
                         });
-
+    
                         songs = [...songs, ...newSongs];
                         saveSongs();
-
+    
                         showNotification(`${newSongs.length} new songs merged successfully.`);
                         if (praiseTab.classList.contains('active')) {
                             renderSongs('praise', keyFilter.value, genreFilter.value);
@@ -2226,8 +2201,7 @@
             };
             reader.readAsText(file);
         }
-
-        // Check for duplicate song
+    
         function isDuplicateSong(title, lyrics, currentId = null) {
             return songs.some(song => {
                 if (currentId && song.id === currentId) return false;
@@ -2235,61 +2209,59 @@
                        song.lyrics.toLowerCase() === lyrics.toLowerCase();
             });
         }
-
-        // Search functions
+    
         function saveSearchQuery(query) {
             if (!query.trim()) return;
-
+    
             searchHistory = searchHistory.filter(item => item.toLowerCase() !== query.toLowerCase());
             searchHistory.unshift(query);
-
+    
             if (searchHistory.length > 10) {
                 searchHistory = searchHistory.slice(0, 10);
             }
-
+    
             localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
         }
-
+    
         function showSearchHistory() {
             const dropdown = document.getElementById('searchHistoryDropdown');
             dropdown.innerHTML = '';
-
+    
             if (searchHistory.length === 0) {
                 dropdown.style.display = 'none';
                 return;
             }
-
+    
             const header = document.createElement('div');
             header.className = 'search-history-header';
             header.textContent = 'Recent Searches';
             dropdown.appendChild(header);
-
+    
             searchHistory.forEach(query => {
                 const item = document.createElement('div');
                 item.className = 'search-history-item';
                 item.textContent = query;
-
+    
                 item.addEventListener('click', () => {
                     document.getElementById('searchInput').value = query;
                     dropdown.style.display = 'none';
                     const event = new Event('input', { bubbles: true });
                     document.getElementById('searchInput').dispatchEvent(event);
                 });
-
+    
                 dropdown.appendChild(item);
             });
-
+    
             dropdown.style.display = 'block';
         }
-
+    
         function highlightText(text, query) {
             if (!query) return text;
-
+    
             const regex = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
             return text.replace(regex, match => `<span class="highlight">${match}</span>`);
         }
-
-        // Rendering functions
+    
         function renderSongs(categoryOrSongs, filterOrContainer, genreFilterValue) {
             let songsToRender;
             let container;
@@ -2321,15 +2293,12 @@
                 div.className = 'song-item';
                 div.dataset.songId = song.id;
                 
-                // Check if song is in setlist
                 const isInSetlist = song.category === 'praise' 
                     ? praiseSetlist.some(s => s.id === song.id)
                     : worshipSetlist.some(s => s.id === song.id);
                     
-                // Check if song is favorite
                 const isFavorite = favorites.includes(song.id);
                 
-                // Get genres to display
                 const displayGenres = song.genres ? song.genres.join(', ') : song.genre || '';
                 
                 div.innerHTML = `
@@ -2348,7 +2317,6 @@
                 </div>
             `;
                
-                // Favorite button event
                 div.querySelector('.favorite-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
                     toggleFavorite(song.id);
@@ -2384,47 +2352,30 @@
                         document.querySelector('.preview-section').classList.add('full-width');
                     }
                 });
-                document.getElementById('showFavorites').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    praiseContent.classList.remove('active');
-                    worshipContent.classList.remove('active');
-                    setlistSection.style.display = 'none';
-                    deleteSection.style.display = 'none';
-                    favoritesSection.style.display = 'block';
-                    renderFavorites();
-                    document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-                    e.target.classList.add('active');
-                });
                 container.appendChild(div);
             });
         }
-
+    
         function getSuggestedSongs() {
             if (!songPreviewEl.dataset.songId) return [];
             
             const currentSong = songs.find(s => s.id == songPreviewEl.dataset.songId);
             if (!currentSong) return [];
             
-            // Calculate similarity scores for all other songs
             const scoredSongs = songs
                 .filter(song => song.id !== currentSong.id)
                 .map(song => {
                     let score = 0;
                     
-                    // Match on category
                     if (song.category === currentSong.category) score += 20;
                     
-                    // Match on key (exact match gets higher score)
                     if (song.key === currentSong.key) score += 15;
                     else if (song.key.replace(/m$/, '') === currentSong.key.replace(/m$/, '')) score += 10;
                     
-                    // Match on time signature
                     if (song.time === currentSong.time) score += 10;
                     
-                    // Match on taal
                     if (song.taal && currentSong.taal && song.taal === currentSong.taal) score += 10;
                     
-                    // Match on genres
                     const currentGenres = currentSong.genres || (currentSong.genre ? [currentSong.genre] : []);
                     const songGenres = song.genres || (song.genre ? [song.genre] : []);
                     const genreMatches = currentGenres.filter(g => songGenres.includes(g)).length;
@@ -2432,13 +2383,13 @@
                     
                     return { ...song, score };
                 })
-                .filter(song => song.score > 0) // Only include songs with some match
-                .sort((a, b) => b.score - a.score) // Sort by score descending
-                .slice(0, 5); // Only take top 5
+                .filter(song => song.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
             
             return scoredSongs;
         }
-
+    
         function showSuggestedSongs() {
             const suggestedSongs = getSuggestedSongs();
             const content = document.getElementById('suggestedSongsContent');
@@ -2473,7 +2424,7 @@
                 content.appendChild(div);
             });
         }
-
+    
         function toggleSuggestedSongsDrawer() {
             const drawer = document.getElementById('suggestedSongsDrawer');
             const toggleBtn = document.getElementById('toggleSuggestedSongs');
@@ -2489,7 +2440,7 @@
             
             suggestedSongsDrawerOpen = !suggestedSongsDrawerOpen;
         }
-
+    
         function closeSuggestedSongsDrawer() {
             const drawer = document.getElementById('suggestedSongsDrawer');
             const toggleBtn = document.getElementById('toggleSuggestedSongs');
@@ -2498,36 +2449,36 @@
             toggleBtn.style.right = '20px';
             suggestedSongsDrawerOpen = false;
         }
-
-            function renderDeleteSongs() {
-                deleteContent.innerHTML = '';
-                if (songs.length === 0) {
-                    deleteContent.innerHTML = '<p>No songs available to delete.</p>';
-                    return;
-                }
-                songs
-                    .sort((a, b) => a.title.localeCompare(b.title))
-                    .forEach(song => {
-                        const div = document.createElement('div');
-                        div.className = 'song-item';
-                        div.innerHTML = `
-                            <div class="song-title">${song.title}</div>
-                            <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre} | ${song.category}</div>
-                            <div class="song-actions">
-                                <button class="btn btn-delete delete-song">Delete</button>
-                            </div>
-                        `;
-                        div.querySelector('.delete-song').addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            openDeleteSongModal(song.id);
-                        });
-                        div.addEventListener('click', () => {
-                            showPreview(song);
-                        });
-                        deleteContent.appendChild(div);
-                    });
+    
+        function renderDeleteSongs() {
+            deleteContent.innerHTML = '';
+            if (songs.length === 0) {
+                deleteContent.innerHTML = '<p>No songs available to delete.</p>';
+                return;
             }
-
+            songs
+                .sort((a, b) => a.title.localeCompare(b.title))
+                .forEach(song => {
+                    const div = document.createElement('div');
+                    div.className = 'song-item';
+                    div.innerHTML = `
+                        <div class="song-title">${song.title}</div>
+                        <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre} | ${song.category}</div>
+                        <div class="song-actions">
+                            <button class="btn btn-delete delete-song">Delete</button>
+                        </div>
+                    `;
+                    div.querySelector('.delete-song').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openDeleteSongModal(song.id);
+                    });
+                    div.addEventListener('click', () => {
+                        showPreview(song);
+                    });
+                    deleteContent.appendChild(div);
+                });
+        }
+    
         function renderSetlist(category) {
             const container = category === 'praise' ? praiseSetlistSongs : worshipSetlistSongs;
             const setlist = category === 'praise' ? praiseSetlist : worshipSetlist;
@@ -2536,12 +2487,12 @@
                 container.innerHTML = '<p>Your ' + category + ' setlist is empty.</p>';
                 return;
             }
-
+    
             const ul = document.createElement('ul');
             ul.className = 'setlist-sortable';
             ul.style.listStyle = 'none';
             ul.style.padding = '0';
-
+    
             setlist.forEach((song, index) => {
                 const li = document.createElement('li');
                 li.style.display = 'flex';
@@ -2553,42 +2504,42 @@
                 li.style.borderRadius = '5px';
                 li.setAttribute('draggable', 'true');
                 li.dataset.songId = song.id;
-
+    
                 li.innerHTML = `
                     <span><span class="setlist-index">${index + 1}.</span> ${song.title} (${song.key} | ${song.genre})</span>
                     <div class="song-actions">
                         <button class="btn btn-delete" onclick="removeFromSetlist(${song.id}, '${song.category}')">Remove</button>
                     </div>
                 `;
-
+    
                 li.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('btn')) {
                         showPreview(song);
                     }
                 });
-
+    
                 ul.appendChild(li);
             });
-
+    
             container.appendChild(ul);
             enableDrag(container, category);
         }
-
+    
         function enableDrag(container, category) {
             let draggedItem = null;
-
+    
             container.querySelectorAll("li").forEach(item => {
                 item.addEventListener("dragstart", e => {
                     draggedItem = item;
                     setTimeout(() => item.style.display = "none", 0);
                 });
-
+    
                 item.addEventListener("dragend", () => {
                     item.style.display = "flex";
                     draggedItem = null;
                     updateSetlistOrder(container, category);
                 });
-
+    
                 item.addEventListener("dragover", e => {
                     e.preventDefault();
                     const bounding = item.getBoundingClientRect();
@@ -2601,38 +2552,33 @@
                 });
             });
         }
-
+    
         function updateSetlistOrder(container, category) {
             const ids = Array.from(container.querySelectorAll("li")).map(li => parseInt(li.dataset.songId));
             const fullList = category === 'praise' ? praiseSetlist : worshipSetlist;
             const newList = ids.map(id => fullList.find(song => song.id === id));
-
+    
             if (category === 'praise') {
                 praiseSetlist = newList;
             } else {
                 worshipSetlist = newList;
             }
-
+    
             saveSetlists();
             renderSetlist(category);
         }
-
-
-
-        // Preview functions
+    
         function showPreview(song) {
             songPreviewEl.dataset.songId = song.id;
             songPreviewEl.dataset.originalLyrics = song.lyrics;
             songPreviewEl.dataset.originalKey = song.key;
-
-            // Check if song is in setlist
+    
             const isInSetlist = song.category === 'praise' 
                 ? praiseSetlist.some(s => s.id === song.id)
                 : worshipSetlist.some(s => s.id === song.id);
             
-            // Check if song is favorite
             const isFavorite = favorites.includes(song.id);
-
+    
             songPreviewEl.innerHTML = `
                 <h2>${song.title}</h2>
                 <div class="preview-actions">
@@ -2662,12 +2608,10 @@
                 <div class="song-lyrics">${formatLyricsWithChords(song.lyrics, 0)}</div>
             `;
             
-            // Favorite button event
             document.getElementById('previewFavoriteBtn').addEventListener('click', (e) => {
                 toggleFavorite(song.id);
             });
             
-            // Setlist button event
             document.getElementById('previewSetlistBtn').addEventListener('click', (e) => {
                 if (isInSetlist) {
                     removeFromSetlist(song.id, song.category);
@@ -2676,7 +2620,6 @@
                 }
             });
             
-            // Edit button event
             document.getElementById('previewEditBtn').addEventListener('click', (e) => {
                 editSong(song.id);
             });
@@ -2696,31 +2639,29 @@
                 showSuggestedSongs();
             }
         }
-
+    
         function cleanUpLyrics(lyrics) {
             return lyrics.replace(/\n{3,}/g, '\n\n');
         }
-
+    
         function formatLyricsWithChords(lyrics, transposeLevel) {
             const lines = lyrics.split('\n');
             let output = [];
-
+    
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
-
+    
                 if (line.trim() === '') {
                     output.push(`<div class="lyric-line">${line}</div>`);
                     continue;
                 }
-
+    
                 if (isChordLine(line)) {
-                    // For chord lines, preserve ALL whitespace exactly
                     let processedLine = line.replace(
                         /([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?(?:\/[A-G][#b]?)?)/gi,
                         (chord) => {
-                            if (!chord.trim()) return chord; // Return spaces unchanged
+                            if (!chord.trim()) return chord;
                             
-                            // Handle slash chords
                             if (chord.includes('/')) {
                                 const [baseChord, bassNote] = chord.split('/');
                                 const transposedBase = transposeChord(baseChord.trim(), transposeLevel);
@@ -2734,11 +2675,9 @@
                     output.push(`<div class="chord-line">${processedLine}</div>`);
                 }
                 else if (hasInlineChords(line)) {
-                    // For lines with inline chords
                     let processedLine = line.replace(
                         /\[([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?(?:\/[A-G][#b]?)?)\]/gi,
                         (match, chord) => {
-                            // Handle slash chords in inline notation
                             if (chord.includes('/')) {
                                 const [baseChord, bassNote] = chord.split('/');
                                 const transposedBase = transposeChord(baseChord, transposeLevel);
@@ -2751,51 +2690,46 @@
                     output.push(`<div class="lyric-line">${processedLine}</div>`);
                 }
                 else {
-                    // Regular lyric line - preserve exactly as is
                     output.push(`<div class="lyric-line">${line}</div>`);
                 }
             }
-
+    
             return output.join('');
         }
-
-        // Helper functions for chord detection
+    
         function isChordLine(line) {
             return /^(\s*[A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?(?:\/[A-G][#b]?)?\s*)+$/i.test(line.trim());
         }
-
+    
         function hasInlineChords(line) {
             return /\[([A-G][#b]?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?(?:\/[A-G][#b]?)?)\]/i.test(line);
         }
-
+    
         function transposeChord(chord, steps) {
             if (steps === 0 || !chord) return chord;
-
-            // Handle slash chords separately
+    
             if (chord.includes('/')) {
                 const [baseChord, bassNote] = chord.split('/');
                 const transposedBase = transposeSingleChord(baseChord, steps);
                 const transposedBass = bassNote ? transposeSingleChord(bassNote, steps) : '';
                 return transposedBase + (transposedBass ? '/' + transposedBass : '');
             }
-
+    
             return transposeSingleChord(chord, steps);
         }
-
+    
         function transposeSingleChord(chord, steps) {
             if (steps === 0 || !chord) return chord;
-
+    
             const match = chord.match(/^([A-G][#b]?)(.*)$/i);
             if (!match) return chord;
-
+    
             const baseNote = match[1];
             const quality = match[2] || '';
-
-            // Normalize to sharps for easier transposition
+    
             const normalizedNote = baseNote.replace('b', '#').toUpperCase();
             let currentIndex = CHORDS.indexOf(normalizedNote);
             if (currentIndex === -1) {
-                // Handle flats that don't have direct sharp equivalents
                 const flatToSharp = { 'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#' };
                 const sharpNote = flatToSharp[baseNote];
                 if (sharpNote) {
@@ -2803,11 +2737,10 @@
                 }
                 if (currentIndex === -1) return chord;
             }
-
+    
             const newIndex = (currentIndex + steps + CHORDS.length) % CHORDS.length;
             let newBaseNote = CHORDS[newIndex];
-
-            // Convert back to flat if that's what was originally used
+    
             const preferFlat = ['F', 'Bb', 'Eb', 'Ab', 'Db'];
             if (preferFlat.includes(newBaseNote)) {
                 const sharpToFlat = { 'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb' };
@@ -2815,24 +2748,24 @@
             } else if (baseNote === baseNote.toLowerCase()) {
                 newBaseNote = newBaseNote.toLowerCase();
             }
-
+    
             return newBaseNote + quality;
         }
-
+    
         function updatePreviewWithTransposition(level) {
             if (!songPreviewEl.dataset.songId) return;
-
+    
             const lyrics = songPreviewEl.dataset.originalLyrics;
             document.getElementById('transpose-level').textContent = level;
             const originalKey = songPreviewEl.dataset.originalKey;
             document.getElementById('current-key').textContent = level === 0 ? originalKey : transposeChord(originalKey, level);
-
+    
             const lyricsContainer = document.querySelector('.song-lyrics');
             if (lyricsContainer) {
                 lyricsContainer.innerHTML = formatLyricsWithChords(lyrics, level);
             }
         }
-
+    
         function setupAutoScroll() {
             isUserScrolling = false;
             songPreviewEl.scrollTop = 0;
@@ -2840,13 +2773,12 @@
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
             }
-            // Reset button to play state
             if (toggleAutoScrollBtn) {
                 toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
                 toggleAutoScrollBtn.classList.remove('active');
             }
         }
-
+    
         function startAutoScroll(direction = 'down') {
             if (autoScrollInterval) {
                 clearInterval(autoScrollInterval);
@@ -2893,22 +2825,20 @@
                 requestAnimationFrame(animateScroll);
             }, autoScrollSpeed);
         }
-
+    
         function toggleAutoScroll() {
             if (autoScrollInterval) {
-                // Pause scrolling
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
                 toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
                 toggleAutoScrollBtn.classList.remove('active');
             } else {
-                // Start scrolling down
                 startAutoScroll('down');
                 toggleAutoScrollBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 toggleAutoScrollBtn.classList.add('active');
             }
         }
-
+    
         function handleUserScroll() {
             isUserScrolling = true;
             if (autoScrollInterval) {
@@ -2918,13 +2848,11 @@
                 toggleAutoScrollBtn.classList.remove('active');
             }
             
-            // Reset the user scrolling flag after a short delay
             setTimeout(() => {
                 isUserScrolling = false;
             }, 1000);
         }
-
-        // Song manipulation functions
+    
         function addToSetlist(id) {
             const song = songs.find(s => s.id === id);
             if (!song) return;
@@ -2935,10 +2863,8 @@
                 saveSetlists();
                 showNotification(`"${song.title}" added to ${song.category} setlist`);
                 
-                // Update button in song list
                 updateSetlistButton(id, true);
                 
-                // Update button in preview if this is the current song
                 if (songPreviewEl.dataset.songId == id) {
                     updatePreviewSetlistButton(true);
                 }
@@ -2948,7 +2874,7 @@
                 }
             }
         }
-
+    
         function removeFromSetlist(id, category) {
             const song = songs.find(s => s.id === id);
             if (!song) return;
@@ -2961,10 +2887,8 @@
             saveSetlists();
             showNotification(`"${song.title}" removed from ${category} setlist`);
             
-            // Update button in song list
             updateSetlistButton(id, false);
             
-            // Update button in preview if this is the current song
             if (songPreviewEl.dataset.songId == id) {
                 updatePreviewSetlistButton(false);
             }
@@ -2973,8 +2897,7 @@
                 renderSetlist(category);
             }
         }
-
-        // Helper function to update setlist button in preview
+    
         function updatePreviewSetlistButton(isInSetlist) {
             const previewBtn = document.getElementById('previewSetlistBtn');
             if (previewBtn) {
@@ -2983,7 +2906,7 @@
                 previewBtn.classList.toggle('btn-delete', isInSetlist);
             }
         }
-
+    
         function toggleFavorite(id) {
             const index = favorites.indexOf(id);
             const song = songs.find(s => s.id === id);
@@ -2998,13 +2921,11 @@
             
             saveFavorites();
             
-            // Update favorite buttons
             const favButtons = document.querySelectorAll(`.favorite-btn[data-song-id="${id}"]`);
             favButtons.forEach(btn => {
                 btn.classList.toggle('favorited', index === -1);
             });
             
-            // If the song is currently being previewed, update its button
             if (songPreviewEl.dataset.songId == id) {
                 const previewBtn = document.getElementById('previewFavoriteBtn');
                 if (previewBtn) {
@@ -3012,7 +2933,7 @@
                 }
             }
         }
-
+    
         function updateSetlistButton(songId, isInSetlist) {
             const songItem = document.querySelector(`.song-item[data-song-id="${songId}"]`);
             if (songItem) {
@@ -3024,8 +2945,7 @@
                 }
             }
         }
-
-        // Safely redraw the preview if a song is displayed
+    
         function redrawPreviewOnThemeChange() {
             if (songPreviewEl.dataset.songId) {
                 try {
@@ -3040,7 +2960,7 @@
                 }
             }
         }
-
+    
         function editSong(id) {
             const song = songs.find(s => s.id === id);
             if (!song) return;
@@ -3052,7 +2972,6 @@
             document.getElementById('editSongTime').value = song.time;
             document.getElementById('editSongTaal').value = song.taal;
             
-            // Handle genres - support both old single genre and new multi-genre
             const genres = song.genres || (song.genre ? [song.genre] : []);
             const editSelectedGenres = document.getElementById('editSelectedGenres');
             editSelectedGenres.innerHTML = '';
@@ -3065,7 +2984,6 @@
                 `;
                 editSelectedGenres.appendChild(tag);
                 
-                // Mark the option as selected
                 const options = document.querySelectorAll('#editGenreDropdown .multiselect-option');
                 options.forEach(opt => {
                     if (opt.dataset.value === genre) {
@@ -3077,7 +2995,7 @@
             document.getElementById('editSongLyrics').value = song.lyrics;
             editSongModal.style.display = 'flex';
         }
-
+    
         function openDeleteSongModal(id) {
             const song = songs.find(s => s.id === id);
             if (!song) return;
@@ -3085,48 +3003,47 @@
             document.getElementById('deleteSongTitle').textContent = song.title;
             deleteSongModal.style.display = 'flex';
         }
-
-        // Event listeners setup
+    
         function addEventListeners() {
             // Tab switching
             praiseTab.addEventListener('click', () => {
                 setlistSection.style.display = 'none';
                 deleteSection.style.display = 'none';
+                favoritesSection.style.display = 'none';
                 praiseTab.classList.add('active');
                 worshipTab.classList.remove('active');
                 praiseContent.classList.add('active');
                 worshipContent.classList.remove('active');
                 renderSongs('praise', keyFilter.value, genreFilter.value);
                 applyLyricsBackground(true);
-            });
-
-            // Replace your existing theme toggle code with this:
-            document.getElementById('themeToggle').addEventListener('click', () => {
-                isDarkMode = !isDarkMode;
-                localStorage.setItem('darkMode', isDarkMode);
-                document.body.classList.toggle('dark-mode');
-
-                const toggle = document.getElementById('themeToggle');
-                if (isDarkMode) {
-                    toggle.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
-                } else {
-                    toggle.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
-                }
                 
-                redrawPreviewOnThemeChange();
+                // Mobile view: show songs panel and hide sidebar
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.songs-section').classList.remove('hidden');
+                    document.querySelector('.sidebar').classList.add('hidden');
+                    document.querySelector('.preview-section').classList.remove('full-width');
+                }
             });
-
+    
             worshipTab.addEventListener('click', () => {
                 setlistSection.style.display = 'none';
                 deleteSection.style.display = 'none';
+                favoritesSection.style.display = 'none';
                 worshipTab.classList.add('active');
                 praiseTab.classList.remove('active');
                 worshipContent.classList.add('active');
                 praiseContent.classList.remove('active');
                 renderSongs('worship', keyFilter.value, genreFilter.value);
                 applyLyricsBackground(false);
+                
+                // Mobile view: show songs panel and hide sidebar
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.songs-section').classList.remove('hidden');
+                    document.querySelector('.sidebar').classList.add('hidden');
+                    document.querySelector('.preview-section').classList.remove('full-width');
+                }
             });
-
+    
             // Filter changes
             keyFilter.addEventListener('change', () => {
                 if (praiseTab.classList.contains('active')) {
@@ -3135,11 +3052,7 @@
                     renderSongs('worship', keyFilter.value, genreFilter.value);
                 }
             });
-
-            if (toggleAutoScrollBtn) {
-                toggleAutoScrollBtn.addEventListener('click', toggleAutoScroll);
-            }
-
+    
             genreFilter.addEventListener('change', () => {
                 if (praiseTab.classList.contains('active')) {
                     renderSongs('praise', keyFilter.value, genreFilter.value);
@@ -3147,7 +3060,7 @@
                     renderSongs('worship', keyFilter.value, genreFilter.value);
                 }
             });
-
+    
             // Menu navigation
             showSetlistEl.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -3155,16 +3068,23 @@
                 worshipContent.classList.remove('active');
                 setlistSection.style.display = 'block';
                 deleteSection.style.display = 'none';
+                favoritesSection.style.display = 'none';
                 praiseSetlistTab.classList.add('active');
                 worshipSetlistTab.classList.remove('active');
                 praiseSetlistSongs.style.display = 'block';
                 worshipSetlistSongs.style.display = 'none';
                 renderSetlist('praise');
-                showSetlistEl.classList.add('active');
-                showAllEl.classList.remove('active');
-                showDeleteEl.classList.remove('active');
+                document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Mobile view: show songs panel and hide sidebar
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.songs-section').classList.remove('hidden');
+                    document.querySelector('.sidebar').classList.add('hidden');
+                    document.querySelector('.preview-section').classList.remove('full-width');
+                }
             });
-
+    
             showAllEl.addEventListener('click', (e) => {
                 e.preventDefault();
                 praiseContent.classList.add('active');
@@ -3173,25 +3093,56 @@
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'none';
                 renderSongs('praise', keyFilter.value, genreFilter.value);
-                showAllEl.classList.add('active');
-                showSetlistEl.classList.remove('active');
-                showDeleteEl.classList.remove('active');
-                showFavorites.classList.remove('active');
+                document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                e.target.classList.add('active');
                 applyLyricsBackground(true);
+                
+                // Mobile view: show songs panel and hide sidebar
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.songs-section').classList.remove('hidden');
+                    document.querySelector('.sidebar').classList.add('hidden');
+                    document.querySelector('.preview-section').classList.remove('full-width');
+                }
             });
-
+    
             showDeleteEl.addEventListener('click', (e) => {
                 e.preventDefault();
                 praiseContent.classList.remove('active');
                 worshipContent.classList.remove('active');
                 setlistSection.style.display = 'none';
                 deleteSection.style.display = 'block';
+                favoritesSection.style.display = 'none';
                 renderDeleteSongs();
-                showDeleteEl.classList.add('active');
-                showAllEl.classList.remove('active');
-                showSetlistEl.classList.remove('active');
+                document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Mobile view: show songs panel and hide sidebar
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.songs-section').classList.remove('hidden');
+                    document.querySelector('.sidebar').classList.add('hidden');
+                    document.querySelector('.preview-section').classList.remove('full-width');
+                }
             });
-
+    
+            showFavoritesEl.addEventListener('click', (e) => {
+                e.preventDefault();
+                praiseContent.classList.remove('active');
+                worshipContent.classList.remove('active');
+                setlistSection.style.display = 'none';
+                deleteSection.style.display = 'none';
+                favoritesSection.style.display = 'block';
+                renderFavorites();
+                document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Mobile view: show songs panel and hide sidebar
+                if (window.innerWidth <= 768) {
+                    document.querySelector('.songs-section').classList.remove('hidden');
+                    document.querySelector('.sidebar').classList.add('hidden');
+                    document.querySelector('.preview-section').classList.remove('full-width');
+                }
+            });
+    
             // Setlist tab switching
             praiseSetlistTab.addEventListener('click', () => {
                 praiseSetlistTab.classList.add('active');
@@ -3200,7 +3151,7 @@
                 worshipSetlistSongs.style.display = 'none';
                 renderSetlist('praise');
             });
-
+    
             worshipSetlistTab.addEventListener('click', () => {
                 worshipSetlistTab.classList.add('active');
                 praiseSetlistTab.classList.remove('active');
@@ -3208,7 +3159,7 @@
                 praiseSetlistSongs.style.display = 'none';
                 renderSetlist('worship');
             });
-
+    
             // Song modals
             openAddSongModal.addEventListener('click', () => {
                 addSongModal.style.display = 'flex';
@@ -3217,13 +3168,13 @@
                     opt.classList.remove('selected');
                 });
             });
-
+    
             document.querySelectorAll('.close-modal').forEach(button => {
                 button.addEventListener('click', () => {
                     button.closest('.modal').style.display = 'none';
                 });
             });
-
+    
             // Multi-select genre functionality
             document.getElementById('songGenre').addEventListener('click', (e) => {
                 e.preventDefault();
@@ -3235,7 +3186,6 @@
                 document.getElementById('editGenreDropdown').classList.toggle('show');
             });
             
-            // Close dropdowns when clicking outside
             document.addEventListener('click', (e) => {
                 if (!e.target.closest('.multiselect-container')) {
                     document.getElementById('genreDropdown').classList.remove('show');
@@ -3243,7 +3193,6 @@
                 }
             });
             
-            // Genre selection
             document.querySelectorAll('#genreDropdown .multiselect-option').forEach(option => {
                 option.addEventListener('click', () => {
                     option.classList.toggle('selected');
@@ -3272,7 +3221,6 @@
                     `;
                     container.appendChild(tag);
                     
-                    // Add remove functionality
                     tag.querySelector('.remove-tag').addEventListener('click', (e) => {
                         e.stopPropagation();
                         opt.classList.remove('selected');
@@ -3280,20 +3228,18 @@
                     });
                 });
             }
-
+    
             // Form submissions
             newSongForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const title = document.getElementById('songTitle').value;
                 const lyrics = document.getElementById('songLyrics').value;
                 
-                // Check for duplicates
                 if (isDuplicateSong(title, lyrics)) {
                     showNotification('A song with this title and lyrics already exists!');
                     return;
                 }
                 
-                // Get selected genres
                 const selectedGenres = Array.from(document.querySelectorAll('#genreDropdown .multiselect-option.selected'))
                     .map(opt => opt.dataset.value);
                 
@@ -3330,20 +3276,18 @@
                 newSongForm.reset();
                 document.getElementById('selectedGenres').innerHTML = '';
             });
-
+    
             editSongForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const id = parseInt(document.getElementById('editSongId').value);
                 const title = document.getElementById('editSongTitle').value;
                 const lyrics = document.getElementById('editSongLyrics').value;
                 
-                // Check for duplicates (excluding current song)
                 if (isDuplicateSong(title, lyrics, id)) {
                     showNotification('A song with this title and lyrics already exists!');
                     return;
                 }
                 
-                // Get selected genres
                 const selectedGenres = Array.from(document.querySelectorAll('#editGenreDropdown .multiselect-option.selected'))
                     .map(opt => opt.dataset.value);
                 
@@ -3363,14 +3307,14 @@
                     genres: selectedGenres,
                     lyrics: lyrics
                 };
-
+    
                 songs = songs.map(song => song.id === id ? updatedSong : song);
                 saveSongs();
-
+    
                 praiseSetlist = praiseSetlist.map(song => song.id === id ? updatedSong : song);
                 worshipSetlist = worshipSetlist.map(song => song.id === id ? updatedSong : song);
                 saveSetlists();
-
+    
                 if (deleteSection.style.display === 'block') {
                     renderDeleteSongs();
                 } else if (setlistSection.style.display === 'block') {
@@ -3380,20 +3324,20 @@
                 } else {
                     renderSongs('worship', keyFilter.value, genreFilter.value);
                 }
-
+    
                 if (songPreviewEl.dataset.songId == id) {
                     showPreview(updatedSong);
                 }
-
+    
                 showNotification('Song updated successfully!');
                 editSongModal.style.display = 'none';
                 editSongForm.reset();
             });
-
+    
             cancelDeleteSong.addEventListener('click', () => {
                 deleteSongModal.style.display = 'none';
             });
-
+    
             deleteSongForm.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const id = parseInt(document.getElementById('deleteSongId').value);
@@ -3401,18 +3345,17 @@
                 
                 songs = songs.filter(s => s.id !== id);
                 saveSongs();
-
+    
                 praiseSetlist = praiseSetlist.filter(s => s.id !== id);
                 worshipSetlist = worshipSetlist.filter(s => s.id !== id);
                 saveSetlists();
                 
-                // Remove from favorites if needed
                 const favIndex = favorites.indexOf(id);
                 if (favIndex !== -1) {
                     favorites.splice(favIndex, 1);
                     saveFavorites();
                 }
-
+    
                 if (songPreviewEl.dataset.songId == id) {
                     songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics"></div>';
                     songPreviewEl.dataset.songId = '';
@@ -3421,28 +3364,27 @@
                         autoScrollInterval = null;
                     }
                 }
-
+    
                 renderDeleteSongs();
                 showNotification(`"${song.title}" deleted successfully`);
                 deleteSongModal.style.display = 'none';
             });
-
+    
             // Preview scrolling
             songPreviewEl.addEventListener('wheel', handleUserScroll);
             songPreviewEl.addEventListener('touchmove', handleUserScroll);
             
             // Auto-scroll controls
-            
             toggleAutoScrollBtn.addEventListener('click', toggleAutoScroll);
             
             // Keep screen on button
             keepScreenOnBtn.addEventListener('click', toggleScreenWakeLock);
-
+    
             // Bulk operations
             deleteAllSongsBtn.addEventListener('click', () => {
                 confirmDeleteAllModal.style.display = 'flex';
             });
-
+    
             mergeBtn.addEventListener('click', () => {
                 const fileInput = document.createElement('input');
                 fileInput.type = 'file';
@@ -3453,11 +3395,11 @@
                 fileInput.click();
                 document.body.removeChild(fileInput);
             });
-
+    
             cancelDeleteAll.addEventListener('click', () => {
                 confirmDeleteAllModal.style.display = 'none';
             });
-
+    
             confirmDeleteAll.addEventListener('click', () => {
                 songs = [];
                 praiseSetlist = [];
@@ -3476,14 +3418,14 @@
                 showNotification('All songs have been deleted.');
                 confirmDeleteAllModal.style.display = 'none';
             });
-
+    
             // Search functionality
             searchInput.addEventListener('input', function (e) {
                 const query = e.target.value.trim().toLowerCase();
                 clearSearchBtn.style.display = query ? 'block' : 'none';
                 const searchResults = document.getElementById('searchResults');
                 const searchResultsContent = document.getElementById('searchResultsContent');
-
+    
                 if (query.length === 0) {
                     searchResults.classList.remove('active');
                     if (praiseTab.classList.contains('active')) {
@@ -3493,7 +3435,7 @@
                     }
                     return;
                 }
-
+    
                 const filtered = songs.filter(song => {
                     return (
                         song.title.toLowerCase().includes(query) ||
@@ -3503,22 +3445,22 @@
                         (song.genres && song.genres.some(g => g.toLowerCase().includes(query)))
                     );
                 });
-
+    
                 if (filtered.length === 0) {
                     searchResultsContent.innerHTML = '<p>No results found</p>';
                     searchResults.classList.add('active');
                     return;
                 }
-
+    
                 searchResultsContent.innerHTML = '';
-
+    
                 filtered.forEach(song => {
                     const resultItem = document.createElement('div');
                     resultItem.className = 'search-result-item';
                     resultItem.dataset.songId = song.id;
-
+    
                     const highlightedTitle = highlightText(song.title, query);
-
+    
                     let lyricsSnippet = '';
                     if (song.lyrics && song.lyrics.toLowerCase().includes(query)) {
                         const lyricsLower = song.lyrics.toLowerCase();
@@ -3530,13 +3472,13 @@
                         if (endPos < song.lyrics.length) lyricsSnippet = lyricsSnippet + '...';
                         lyricsSnippet = highlightText(lyricsSnippet, query);
                     }
-
+    
                     resultItem.innerHTML = `
                         <div class="search-result-title">${highlightedTitle}</div>
                         <div class="search-result-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre || ''}</div>
                         ${lyricsSnippet ? `<div class="search-result-snippet">${lyricsSnippet}</div>` : ''}
                     `;
-
+    
                     resultItem.addEventListener('click', () => {
                         const foundSong = songs.find(s => s.id === song.id);
                         if (foundSong) {
@@ -3548,10 +3490,10 @@
                             }
                         }
                     });
-
+    
                     searchResultsContent.appendChild(resultItem);
                 });
-
+    
                 searchResults.classList.add('active');
             });
             
@@ -3579,7 +3521,7 @@
                     document.getElementById('searchHistoryDropdown').style.display = 'none';
                 }
             });
-
+    
             // Download/upload
             downloadBtn.addEventListener('click', downloadSongs);
             uploadBtn.addEventListener('click', () => {
@@ -3592,7 +3534,7 @@
                 fileInput.click();
                 document.body.removeChild(fileInput);
             });
-
+    
             // HTML download
             document.getElementById('downloadHtmlWithSongsBtn').addEventListener('click', () => {
                 try {
@@ -3607,7 +3549,7 @@
                         script.textContent = JSON.stringify(songs, null, 2);
                         clone.querySelector('body').appendChild(script);
                     }
-
+    
                     const fullHtml = '<!DOCTYPE html>\n' + clone.outerHTML;
                     const blob = new Blob([fullHtml], { type: 'text/html' });
                     const a = document.createElement('a');
@@ -3622,26 +3564,26 @@
                     showNotification('Failed to generate updated HTML: ' + err.message);
                 }
             });
-
+    
             // Settings
             const settingsBtn = document.createElement("button");
             settingsBtn.id = "settingsBtn";
             settingsBtn.textContent = "🛠";
             document.querySelector(".app-container").appendChild(settingsBtn);
-
+    
             settingsBtn.addEventListener("click", () => {
                 document.getElementById("sidebarHeaderInput").value = document.querySelector(".sidebar-header h2").textContent;
                 document.getElementById("setlistTextInput").value = showSetlistEl.textContent;
                 document.getElementById("settingsModal").style.display = "flex";
             });
-
+    
             document.getElementById("settingsForm").addEventListener("submit", function (e) {
                 e.preventDefault();
                 saveSettings();
                 showNotification('Settings saved successfully');
                 document.getElementById("settingsModal").style.display = "none";
             });
-
+    
             // Folder toggle
             document.getElementById('toggleSongTools').addEventListener('click', () => {
                 const folder = document.getElementById('songToolsContent');
@@ -3649,8 +3591,8 @@
                 folder.classList.toggle('show');
                 toggle.classList.toggle('active');
             });
-
-                // Suggested songs
+    
+            // Suggested songs
             document.getElementById('toggleSuggestedSongs').addEventListener('click', toggleSuggestedSongsDrawer);
             document.getElementById('closeSuggestedSongs').addEventListener('click', closeSuggestedSongsDrawer);
             document.addEventListener('click', (e) => {
@@ -3663,22 +3605,38 @@
                     closeSuggestedSongsDrawer();
                 }
             });
+    
+            // Theme toggle
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                isDarkMode = !isDarkMode;
+                localStorage.setItem('darkMode', isDarkMode);
+                document.body.classList.toggle('dark-mode');
+    
+                const toggle = document.getElementById('themeToggle');
+                if (isDarkMode) {
+                    toggle.innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+                } else {
+                    toggle.innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+                }
+                
+                redrawPreviewOnThemeChange();
+            });
+    
             // Make toggle buttons draggable
             makeToggleDraggable('toggle-sidebar');
             makeToggleDraggable('toggle-songs');
             makeToggleDraggable('toggle-all-panels');
         }
-
-        // Draggable toggle buttons
+    
         function makeToggleDraggable(id) {
             const el = document.getElementById(id);
             let isDragging = false, offsetX = 0, offsetY = 0;
-
+    
             const savePosition = () => {
                 const pos = { top: el.style.top, left: el.style.left };
                 localStorage.setItem(id + '-pos', JSON.stringify(pos));
             };
-
+    
             const restorePosition = () => {
                 const saved = localStorage.getItem(id + '-pos');
                 if (saved) {
@@ -3686,7 +3644,6 @@
                     el.style.top = pos.top;
                     el.style.left = pos.left;
                 } else {
-                    // Default positions
                     if (id === 'toggle-sidebar') {
                         el.style.top = '100px';
                         el.style.left = '10px';
@@ -3699,12 +3656,12 @@
                     }
                 }
             };
-
+    
             const onMove = (clientX, clientY) => {
                 el.style.left = clientX - offsetX + 'px';
                 el.style.top = clientY - offsetY + 'px';
             };
-
+    
             const onEnd = () => {
                 isDragging = false;
                 document.body.style.userSelect = '';
@@ -3717,37 +3674,37 @@
                 }
                 savePosition();
             };
-
+    
             el.addEventListener('mousedown', function (e) {
                 isDragging = true;
                 offsetX = e.clientX - el.offsetLeft;
                 offsetY = e.clientY - el.offsetTop;
                 document.body.style.userSelect = 'none';
             });
-
+    
             document.addEventListener('mousemove', function (e) {
                 if (isDragging) onMove(e.clientX, e.clientY);
             });
-
+    
             document.addEventListener('mouseup', onEnd);
-
+    
             el.addEventListener('touchstart', function (e) {
                 isDragging = true;
                 const touch = e.touches[0];
                 offsetX = touch.clientX - el.offsetLeft;
                 offsetY = touch.clientY - el.offsetTop;
             }, { passive: false });
-
+    
             el.addEventListener('touchmove', function (e) {
                 if (isDragging) {
                     const touch = e.touches[0];
                     onMove(touch.clientX, touch.clientY);
                 }
             }, { passive: false });
-
+    
             el.addEventListener('touchend', onEnd);
             restorePosition();
-
+    
             let timeout;
             const showTemporarily = () => {
                 el.classList.add('showing');
@@ -3756,24 +3713,23 @@
                     el.classList.remove('showing');
                 }, 3000);
             };
-
+    
             el.addEventListener('mouseenter', () => el.classList.add('showing'));
             el.addEventListener('mouseleave', () => el.classList.remove('showing'));
             el.addEventListener('touchstart', showTemporarily, { passive: true });
         }
-
+    
         // Global functions
         window.addToSetlist = addToSetlist;
         window.editSong = editSong;
         window.openDeleteSongModal = openDeleteSongModal;
         window.removeFromSetlist = removeFromSetlist;
         window.renderSetlist = renderSetlist;
-
+    
         // Start the application
         window.addEventListener('DOMContentLoaded', () => {
             init().catch(err => {
                 console.error('Initialization failed:', err);
-                // Fallback initialization if needed
                 songs = JSON.parse(localStorage.getItem('songs')) || [];
                 renderSongs('praise', '', '');
             });

@@ -2364,11 +2364,10 @@
             
             // Weightings for different factors
             const WEIGHTS = {
-                scaleQuality: 45,    // Major/minor match
-                keyProximity: 18,    // ±3 whole steps
-                timeSignature:25,
+                tonal: 50,
+                timeSignature: 30,
                 taal: 0,
-                genre: 12
+                genre: 20
             };
 
             // Key processing
@@ -2381,20 +2380,23 @@
             const currentKeyIndex = circleOfFifths.indexOf(currentKeyRoot);
             
             const scoredSongs = songs
-                // Primary filter: Must be same category
-                .filter(song => song.id !== currentSong.id && song.category === currentSong.category)
+                // Primary filter: Must be same category, with explicit restriction for Praise and Worship
+                .filter(song => {
+                    if (song.id === currentSong.id) return false;
+                    // Explicitly restrict to Praise or Worship if current song is in those categories
+                    if (currentSong.category === 'Praise') return song.category === 'Praise';
+                    if (currentSong.category === 'Worship') return song.category === 'Worship';
+                    // For other categories, match the same category
+                    return song.category === currentSong.category;
+                })
                 .map(song => {
                     let score = 0;
                     const songKey = song.key || '';
                     const songKeyRoot = songKey.replace(/m$/, '');
                     const isSongMinor = songKey.endsWith('m');
                     
-                    // 1. Scale Quality Match (40%)
-                    if (isSongMinor === isCurrentMinor) {
-                        score += WEIGHTS.scaleQuality;
-                    }
-                    
-                    // 2. Key Proximity (30%)
+                    // 1. Combined Tonal Score (50%)
+                    let tonalScore = 0;
                     if (currentKeyIndex >= 0) {
                         const songKeyIndex = circleOfFifths.indexOf(songKeyRoot);
                         if (songKeyIndex >= 0) {
@@ -2403,38 +2405,45 @@
                                 circleOfFifths.length - Math.abs(songKeyIndex - currentKeyIndex)
                             );
                             
-                            // Score based on proximity (0-3 steps gets full points, then degrades)
+                            // Mode match (70% of tonal weight)
+                            if (isSongMinor === isCurrentMinor) {
+                                tonalScore += 0.7 * WEIGHTS.tonal; // 35 points for mode match
+                            } else {
+                                tonalScore += 0.2 * WEIGHTS.tonal; // 10 points for relative major/minor
+                            }
+                            
+                            // Key proximity (30% of tonal weight)
                             if (distance <= 3) {
-                                score += WEIGHTS.keyProximity * (1 - distance/6);
+                                tonalScore += (0.3 * WEIGHTS.tonal) * (1 - distance / 6); // Up to 15 points
                             }
                         }
                     }
+                    score += tonalScore;
                     
-                    // 3. Time Signature (15%)
+                    // 2. Time Signature (25%)
                     if (song.time === currentSong.time) {
                         score += WEIGHTS.timeSignature;
                     }
                     
-                    // 4. Taal (10%)
+                    // 3. Taal (0%)
                     if (song.taal && currentSong.taal && song.taal === currentSong.taal) {
                         score += WEIGHTS.taal;
                     }
                     
-                    // 5. Genre (5%)
+                    // 4. Genre (25%, per-match scoring)
                     const currentGenres = currentSong.genres || (currentSong.genre ? [currentSong.genre] : []);
                     const songGenres = song.genres || (song.genre ? [song.genre] : []);
                     const genreMatches = currentGenres.filter(g => songGenres.includes(g)).length;
                     if (genreMatches > 0) {
-                        score += (genreMatches / currentGenres.length) * WEIGHTS.genre;
+                        const basePointsPerMatch = 5;
+                        const maxGenreScore = WEIGHTS.genre * 2;
+                        score += Math.min(genreMatches * basePointsPerMatch, maxGenreScore);
                     }
-                    
-                    // Calculate percentage match
-                    percentageMatch: Math.round(score);
                     
                     return { 
                         ...song, 
-                        score,  // Keep original score for internal calculations
-                        percentageMatch: Math.round(score),  // Rounded to nearest whole number
+                        score,
+                        percentageMatch: Math.round(score),
                         scaleMatch: isSongMinor === isCurrentMinor ? 'Same' : 'Different',
                         keyDistance: currentKeyIndex >= 0 && circleOfFifths.indexOf(songKeyRoot) >= 0 
                             ? Math.min(
@@ -2446,14 +2455,9 @@
                 })
                 .filter(song => song.score > 0)
                 .sort((a, b) => {
-                    // First sort by score descending
                     if (b.score !== a.score) return b.score - a.score;
-                    
-                    // Then by scale match
                     if (a.scaleMatch === 'Same' && b.scaleMatch !== 'Same') return -1;
                     if (a.scaleMatch !== 'Same' && b.scaleMatch === 'Same') return 1;
-                    
-                    // Then by key proximity
                     return a.keyDistance - b.keyDistance;
                 })
                 .slice(0, 25);

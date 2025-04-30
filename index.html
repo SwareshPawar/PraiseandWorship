@@ -2365,10 +2365,10 @@
             // Weightings for different factors
             const WEIGHTS = {
                 scaleQuality: 40,    // Major/minor match
-                keyProximity: 10,    // ±3 whole steps
+                keyProximity: 20,    // ±3 whole steps
                 timeSignature:30,
-                taal: 5,
-                genre: 15
+                taal: 0,
+                genre: 10
             };
 
             // Key processing
@@ -2651,22 +2651,17 @@
             const isFavorite = favorites.includes(song.id);
     
             songPreviewEl.innerHTML = `
-                <div class="preview-header">
-                    <h2>${song.title}</h2>
-                    <div class="preview-actions">
-                        <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" id="previewFavoriteBtn" data-song-id="${song.id}">
-                            <i class="fas fa-heart"></i>    
-                        </button>
-                        <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'}" id="previewSetlistBtn">
-                            ${isInSetlist ? 'Remove' : 'Add'}
-                        </button>
-                        <button class="btn btn-edit" id="previewEditBtn">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-primary" id="transpose-down">-</button>
-                        <span>Transpose: <span id="transpose-level">0</span></span>
-                        <button class="btn btn-primary" id="transpose-up">+</button>
-                    </div>
+                <h2>${song.title}</h2>
+                <div class="preview-actions">
+                    <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" id="previewFavoriteBtn" data-song-id="${song.id}">
+                        <i class="fas fa-heart"></i>    
+                    </button>
+                    <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'}" id="previewSetlistBtn">
+                        ${isInSetlist ? 'Remove from Setlist' : 'Add to Setlist'}
+                    </button>
+                    <button class="btn btn-edit" id="previewEditBtn">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
                 </div>
                 <div class="song-meta">
                     <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
@@ -2675,6 +2670,11 @@
                     ${song.taal ? `<p><strong>Taal:</strong> ${song.taal}</p>` : ''}
                     ${song.genres ? `<p><strong>Genres:</strong> ${song.genres.join(', ')}</p>` : 
                     song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
+                </div>
+                <div class="transpose-controls">
+                    <button class="btn btn-primary" id="transpose-down">-</button>
+                    <span>Transpose: <span id="transpose-level">0</span></span>
+                    <button class="btn btn-primary" id="transpose-up">+</button>
                 </div>
                 <div class="song-lyrics">${formatLyricsWithChords(song.lyrics, 0)}</div>
             `;

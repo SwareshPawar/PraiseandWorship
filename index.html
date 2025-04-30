@@ -2362,87 +2362,103 @@
             const currentSong = songs.find(s => s.id == songPreviewEl.dataset.songId);
             if (!currentSong) return [];
             
-            // Weightings for different factors (totaling 100%)
+            // Weightings for different factors
             const WEIGHTS = {
-                keyMatch: 50,      // 50% weight for key matches
-                timeSignature: 20, // 20% for time signature
-                taal: 15,          // 15% for taal
-                genre: 15          // 15% for genre
+                tonal: 50,
+                timeSignature: 25,
+                taal: 15,
+                genre: 10
             };
-            
-            // Extract key information
+
+            // Key processing
             const currentKey = currentSong.key || '';
             const currentKeyRoot = currentKey.replace(/m$/, '');
             const isCurrentMinor = currentKey.endsWith('m');
             
+            // Circle of fifths for key proximity calculation
+            const circleOfFifths = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'G#', 'D#', 'A#', 'F'];
+            const currentKeyIndex = circleOfFifths.indexOf(currentKeyRoot);
+            
             const scoredSongs = songs
-                // Primary filter: Must be same category
-                .filter(song => song.id !== currentSong.id && song.category === currentSong.category)
+                // Primary filter: Must be same category, with explicit restriction for Praise and Worship
+                .filter(song => {
+                    if (song.id === currentSong.id) return false;
+                    // Explicitly restrict to Praise or Worship if current song is in those categories
+                    if (currentSong.category === 'Praise') return song.category === 'Praise';
+                    if (currentSong.category === 'Worship') return song.category === 'Worship';
+                    // For other categories, match the same category
+                    return song.category === currentSong.category;
+                })
                 .map(song => {
                     let score = 0;
                     const songKey = song.key || '';
                     const songKeyRoot = songKey.replace(/m$/, '');
                     const isSongMinor = songKey.endsWith('m');
                     
-                    // 1. Key Matching (50% weight)
-                    if (songKey === currentKey) {
-                        score += WEIGHTS.keyMatch; // Exact match (root + scale)
-                    } else if (songKeyRoot === currentKeyRoot && isSongMinor === isCurrentMinor) {
-                        score += WEIGHTS.keyMatch * 0.9; // Same root and scale (major/minor)
-                    } else if (songKeyRoot === currentKeyRoot) {
-                        score += WEIGHTS.keyMatch * 0.4; // Same root, different scale
-                    } else if (isSongMinor === isCurrentMinor) {
-                        score += WEIGHTS.keyMatch * 0.2; // Same scale, different root
+                    // 1. Combined Tonal Score (50%)
+                    let tonalScore = 0;
+                    if (currentKeyIndex >= 0) {
+                        const songKeyIndex = circleOfFifths.indexOf(songKeyRoot);
+                        if (songKeyIndex >= 0) {
+                            const distance = Math.min(
+                                Math.abs(songKeyIndex - currentKeyIndex),
+                                circleOfFifths.length - Math.abs(songKeyIndex - currentKeyIndex)
+                            );
+                            
+                            // Mode match (70% of tonal weight)
+                            if (isSongMinor === isCurrentMinor) {
+                                tonalScore += 0.7 * WEIGHTS.tonal; // 35 points for mode match
+                            } else {
+                                tonalScore += 0.2 * WEIGHTS.tonal; // 10 points for relative major/minor
+                            }
+                            
+                            // Key proximity (30% of tonal weight)
+                            if (distance <= 3) {
+                                tonalScore += (0.3 * WEIGHTS.tonal) * (1 - distance / 6); // Up to 15 points
+                            }
+                        }
                     }
+                    score += tonalScore;
                     
-                    // 2. Time Signature (20% weight)
+                    // 2. Time Signature (25%)
                     if (song.time === currentSong.time) {
                         score += WEIGHTS.timeSignature;
                     }
                     
-                    // 3. Taal (15% weight)
+                    // 3. Taal (0%)
                     if (song.taal && currentSong.taal && song.taal === currentSong.taal) {
                         score += WEIGHTS.taal;
                     }
                     
-                    // 4. Genre (15% weight)
+                    // 4. Genre (25%, per-match scoring)
                     const currentGenres = currentSong.genres || (currentSong.genre ? [currentSong.genre] : []);
                     const songGenres = song.genres || (song.genre ? [song.genre] : []);
                     const genreMatches = currentGenres.filter(g => songGenres.includes(g)).length;
                     if (genreMatches > 0) {
-                        score += (genreMatches / currentGenres.length) * WEIGHTS.genre;
+                        const basePointsPerMatch = 5;
+                        const maxGenreScore = WEIGHTS.genre * 2;
+                        score += Math.min(genreMatches * basePointsPerMatch, maxGenreScore);
                     }
-                    
-                    // Calculate percentage match
-                    const percentageMatch = Math.min(Math.round(score), 100);
-                    
-                    // Determine key match type for sorting
-                    const keyMatch = songKey === currentKey ? 'Exact' :
-                                songKeyRoot === currentKeyRoot && isSongMinor === isCurrentMinor ? 'RootAndScale' :
-                                songKeyRoot === currentKeyRoot ? 'Root' :
-                                isSongMinor === isCurrentMinor ? 'Scale' : 'None';
                     
                     return { 
                         ...song, 
                         score,
-                        percentageMatch,
-                        keyMatch
+                        percentageMatch: Math.round(score),
+                        scaleMatch: isSongMinor === isCurrentMinor ? 'Same' : 'Different',
+                        keyDistance: currentKeyIndex >= 0 && circleOfFifths.indexOf(songKeyRoot) >= 0 
+                            ? Math.min(
+                                Math.abs(circleOfFifths.indexOf(songKeyRoot) - currentKeyIndex),
+                                circleOfFifths.length - Math.abs(circleOfFifths.indexOf(songKeyRoot) - currentKeyIndex)
+                            )
+                            : null
                     };
                 })
                 .filter(song => song.score > 0)
                 .sort((a, b) => {
-                    // First sort by score descending
                     if (b.score !== a.score) return b.score - a.score;
-                    
-                    // Then by key match quality
-                    const keyPriority = {
-                        'Exact': 4,        // Exact key match
-                        'RootAndScale': 3, // Same root and scale (major/minor)
-                        'Root': 2,         // Same root, different scale
-                        'Scale': 1,        // Same scale, different root
-                        'None': 0          // No match
-                    };
-                    return keyPriority[b.keyMatch] - keyPriority[a.keyMatch];
+                    if (a.scaleMatch === 'Same' && b.scaleMatch !== 'Same') return -1;
+                    if (a.scaleMatch !== 'Same' && b.scaleMatch === 'Same') return 1;
+                    return a.keyDistance - b.keyDistance;
                 })
                 .slice(0, 25);
             

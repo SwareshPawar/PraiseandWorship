@@ -2543,9 +2543,9 @@
                         ${song.genres ? `<br>Genres: ${song.genres.join(', ')}` : 
                         song.genre ? `<br>Genre: ${song.genre}` : ''}
                     </div>
+                    <div class="suggested-song-match">Match Score: ${song.matchScore}%</div>
                 `;
-                // <div class="suggested-song-match">Match Score: ${song.matchScore}%</div>
-                //     <div class="suggested-song-meta">
+                // <div class="suggested-song-meta">
                 //         Language Match: ${song.languageScore}% |
                 //         ${song.scaleMatch ? '✓ Same Scale' : '✗ Different Scale'} |
                 //         ${song.timeMatch ? '✓ Same Time Signature' : '✗ Different Time Signature'} |

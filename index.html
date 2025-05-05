@@ -6,6 +6,127 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
 
+        /* ===== SWIPE ANIMATIONS & FEEDBACK ===== */
+        .song-preview-container {
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
+        }
+
+        .song-slide {
+        transition: transform 0.3s cubic-bezier(0.22, 0.61, 0.36, 1);
+        will-change: transform;
+        }
+
+        /* Swipe direction indicators */
+        .swipe-indicator {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 2rem;
+        color: var(--accent-color);
+        opacity: 0;
+        transition: opacity 0.2s;
+        z-index: 10;
+        }
+
+        .swipe-indicator.prev {
+        left: 15px;
+        }
+
+        .swipe-indicator.next {
+        right: 15px;
+        }
+
+        /* Active swipe states */
+        .swiping-left .swipe-indicator.next,
+        .swiping-right .swipe-indicator.prev {
+        opacity: 0.5;
+        }
+
+        .swipe-active {
+        transform: translateX(30px);
+        }
+
+        .swipe-active.swipe-left {
+        transform: translateX(-30px);
+        }
+
+        /* Mobile-optimized touch area */
+        .song-lyrics {
+        padding: 20px;
+        touch-action: pan-y;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+        }
+
+        /* Visual feedback during swipe */
+        body:active .song-lyrics {
+        background-color: rgba(0,0,0,0.02);
+        }
+
+        /* ===== MEDIA QUERIES ===== */
+        @media (max-width: 768px) {
+        .swipe-indicator {
+            font-size: 1.5rem;
+        }
+        
+        .song-slide {
+            transition-duration: 0.25s;
+        }
+        }
+
+        /* Add these styles */
+        .preview-section {
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            overflow-y: auto;
+            touch-action: pan-y; /* Allows vertical scroll but prevents horizontal */
+        }
+
+        .song-lyrics {
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Add these styles to your existing CSS */
+        #prevSongBtn, #nextSongBtn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+
+        .preview-header h2 {
+            margin: 0;
+            flex-grow: 1;
+            text-align: center;
+        }
+
+
+        .preview-header > div:first-child {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .preview-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .preview-header > div:first-child {
+                order: -1;
+            }
+        }
+
         .song-header {
             display: flex;
             justify-content: space-between;
@@ -1386,6 +1507,9 @@
                         <button class="sidebar-btn btn-delete" id="deleteAllSongsBtn">
                             <i class="fas fa-trash-alt"></i> Delete All Songs
                         </button>
+                        <button class="sidebar-btn btn-delete" id="resetAppBtn">
+                            <i class="fas fa-redo"></i> Reset Application
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1726,6 +1850,14 @@
                         <input type="text" id="setlistTextInput" required>
                     </div>
                     <div class="settings-group">
+                        <label for="sessionResetOption">Session Reset:</label>
+                        <select id="sessionResetOption">
+                            <option value="manual">Manual (default)</option>
+                            <option value="onClose">Reset on window close</option>
+                            <option value="onRefresh">Reset on page refresh</option>
+                        </select>
+                    </div>
+                    <div class="settings-group">
                         <label for="sidebarWidthInput">Sidebar Width (%):</label>
                         <input type="number" id="sidebarWidthInput" min="10" max="100" value="30">
                     </div>
@@ -1764,6 +1896,9 @@
         let keepScreenOn = false;
         let autoScrollSpeed = localStorage.getItem('autoScrollSpeed') || 1500;
         let suggestedSongsDrawerOpen = false;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isScrolling = false;
     
         async function loadSongsFromFile() {
             try {
@@ -1879,6 +2014,7 @@
         let isNavigatingHistory = false;
         let isAnyModalOpen = false;
         let currentModal = null;
+
     
         // Search history
         let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
@@ -2075,6 +2211,8 @@
     
             const savedSetlistLabel = localStorage.getItem("setlistText");
             if (savedSetlistLabel) showSetlistEl.textContent = savedSetlistLabel;
+
+            const sessionResetOption = localStorage.getItem("sessionResetOption") || "manual";
     
             const sidebarWidth = localStorage.getItem("sidebarWidth") || "15";
             const songsPanelWidth = localStorage.getItem("songsPanelWidth") || "20";
@@ -2089,6 +2227,8 @@
             document.getElementById('songsPanelWidthInput').value = songsPanelWidth;
             document.getElementById('previewMarginInput').value = previewMargin;
             document.getElementById('autoScrollSpeedInput').value = savedAutoScrollSpeed;
+            document.getElementById("sessionResetOption").value = sessionResetOption;
+
             
             autoScrollSpeed = parseInt(savedAutoScrollSpeed);
         }
@@ -2100,6 +2240,7 @@
             const songsPanelWidth = document.getElementById("songsPanelWidthInput").value;
             const previewMargin = document.getElementById("previewMarginInput").value;
             const newAutoScrollSpeed = document.getElementById("autoScrollSpeedInput").value;
+            const sessionResetOption = document.getElementById("sessionResetOption").value;
     
             document.querySelector(".sidebar-header h2").textContent = newHeader;
             showSetlistEl.textContent = newSetlist;
@@ -2114,6 +2255,8 @@
             localStorage.setItem("songsPanelWidth", songsPanelWidth);
             localStorage.setItem("previewMargin", previewMargin);
             localStorage.setItem("autoScrollSpeed", newAutoScrollSpeed);
+            localStorage.setItem("sessionResetOption", sessionResetOption);
+
             
             autoScrollSpeed = parseInt(newAutoScrollSpeed);
     
@@ -2243,6 +2386,37 @@
                 embedded.textContent = JSON.stringify(songs, null, 2);
             }
         }
+
+        // Add this function
+        function optimizeMemoryUsage() {
+            // Clean up large data structures when not needed
+            if (songs.length > 500) {
+                songs = songs.slice(0, 500);
+                saveSongs();
+            }
+            
+            if (searchHistory.length > 50) {
+                searchHistory = searchHistory.slice(0, 50);
+                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+            }
+            
+            // Force garbage collection (works in most modern browsers)
+            if (window.gc) {
+                window.gc();
+            } else if (window.CollectGarbage) {
+                window.CollectGarbage();
+            } else {
+                try {
+                    if (window.performance && window.performance.memory) {
+                        console.log("Memory usage:", 
+                            (window.performance.memory.usedJSHeapSize / 1048576).toFixed(2), "MB");
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // Call periodically (every 5 minutes)
+        setInterval(optimizeMemoryUsage, 300000);
     
         function saveSetlists() {
             localStorage.setItem('praiseSetlist', JSON.stringify(praiseSetlist));
@@ -2513,6 +2687,72 @@
                 });
                 container.appendChild(div);
             });
+        }
+
+        function resetApplicationState() {
+            // Clear all data from memory
+            songs = [];
+            praiseSetlist = [];
+            worshipSetlist = [];
+            favorites = [];
+            searchHistory = [];
+            navigationHistory = [];
+            currentHistoryPosition = -1;
+            
+            // Clear all local storage
+            localStorage.removeItem('songs');
+            localStorage.removeItem('praiseSetlist');
+            localStorage.removeItem('worshipSetlist');
+            localStorage.removeItem('favorites');
+            localStorage.removeItem('searchHistory');
+            localStorage.removeItem('darkMode');
+            localStorage.removeItem('sidebarHeader');
+            localStorage.removeItem('setlistText');
+            localStorage.removeItem('sidebarWidth');
+            localStorage.removeItem('songsPanelWidth');
+            localStorage.removeItem('previewMargin');
+            localStorage.removeItem('autoScrollSpeed');
+            localStorage.removeItem('sessionResetOption');
+            localStorage.removeItem('memoryOptimization');
+            
+            // Reset UI
+            songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics">No song is selected</div>';
+            praiseContent.innerHTML = '<p>No songs found.</p>';
+            worshipContent.innerHTML = '<p>No songs found.</p>';
+            praiseSetlistSongs.innerHTML = '<p>Your praise setlist is empty.</p>';
+            worshipSetlistSongs.innerHTML = '<p>Your worship setlist is empty.</p>';
+            deleteContent.innerHTML = '<p>No songs available to delete.</p>';
+            favoritesContent.innerHTML = '<p>No favorite songs yet.</p>';
+            
+            // Reset filters and search
+            searchInput.value = '';
+            clearSearchBtn.style.display = 'none';
+            document.getElementById('searchResults').classList.remove('active');
+            keyFilter.value = '';
+            genreFilter.value = '';
+            
+            // Reset counters
+            document.getElementById('totalSongs').textContent = '0';
+            document.getElementById('praiseCount').textContent = '0';
+            document.getElementById('worshipCount').textContent = '0';
+            
+            // Reset theme to light mode if it was dark
+            if (document.body.classList.contains('dark-mode')) {
+                document.body.classList.remove('dark-mode');
+                document.getElementById('themeToggle').innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+                localStorage.setItem('darkMode', 'false');
+            }
+            
+            // Show default view
+            praiseTab.click();
+            showAllEl.click();
+            
+            showNotification('Application has been reset to initial state');
+            
+            // Reload the page to ensure complete reset
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
         }
     
         function getSuggestedSongs(currentSongId) {
@@ -3008,12 +3248,29 @@
     
             // Build the preview HTML
             songPreviewEl.innerHTML = `
-             <div class="preview-header">
-                <h2>${song.title}</h2>
-                <div class="preview-actions">
-                    <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" id="previewFavoriteBtn" data-song-id="${song.id}">
-                        <i class="fas fa-heart"></i>    
+            <div class="song-preview-container">
+                <div class="song-slide">
+                <div class="preview-header">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                    <button class="btn btn-primary" id="prevSongBtn" title="Previous Song">
+                        <i class="fas fa-chevron-left"></i>
                     </button>
+                    <h2>${song.title}</h2>
+                    <button class="btn btn-primary" id="nextSongBtn" title="Next Song">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    </div>
+                    <div class="preview-actions">
+                    <!-- Keep your existing action buttons here -->
+                    ${isFavorite ? `
+                        <button class="favorite-btn favorited" id="previewFavoriteBtn" data-song-id="${song.id}">
+                        <i class="fas fa-heart"></i>
+                        </button>
+                    ` : `
+                        <button class="favorite-btn" id="previewFavoriteBtn" data-song-id="${song.id}">
+                        <i class="fas fa-heart"></i>
+                        </button>
+                    `}
                     <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'}" id="previewSetlistBtn">
                         ${isInSetlist ? 'Remove from Setlist' : 'Add to Setlist'}
                     </button>
@@ -3022,7 +3279,9 @@
                     </button>
                     </div>
                 </div>
+
                 <div class="song-meta">
+                    <!-- Keep your existing meta data here -->
                     <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
                     ${song.tempo ? `<p><strong>Tempo:</strong> ${song.tempo}</p>` : ''}
                     ${song.time ? `<p><strong>Time Signature:</strong> ${song.time}</p>` : ''}
@@ -3030,12 +3289,21 @@
                     ${song.genres ? `<p><strong>Genres:</strong> ${song.genres.join(', ')}</p>` : 
                     song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
                 </div>
+
                 <div class="transpose-controls">
+                    <!-- Keep your transpose controls here -->
                     <button class="btn btn-primary" id="transpose-down">-</button>
                     <span>Transpose: <span id="transpose-level">0</span></span>
                     <button class="btn btn-primary" id="transpose-up">+</button>
                 </div>
+
                 <div class="song-lyrics">${formatLyricsWithChords(song.lyrics, 0)}</div>
+
+                <!-- Add these new swipe indicators -->
+                <div class="swipe-indicator prev">←</div>
+                <div class="swipe-indicator next">→</div>
+                </div>
+            </div>
             `;
             
             // Attach all event listeners
@@ -3045,6 +3313,10 @@
             if (isNavigatingHistory) {
                 setTimeout(() => { isNavigatingHistory = false; }, 100);
             }
+
+            // Next/Prev song buttons
+            document.getElementById('nextSongBtn')?.addEventListener('click', showNextSong);
+            document.getElementById('prevSongBtn')?.addEventListener('click', showPrevSong);
         
             document.getElementById('previewFavoriteBtn').addEventListener('click', (e) => {
                 toggleFavorite(song.id);
@@ -3495,6 +3767,71 @@
             document.getElementById('deleteSongTitle').textContent = song.title;
             deleteSongModal.style.display = 'flex';
         }
+
+        function getCurrentSongList() {
+            if (deleteSection.style.display === 'block') {
+                return songs.slice().sort((a, b) => a.title.localeCompare(b.title));
+            } else if (favoritesSection.style.display === 'block') {
+                return songs.filter(song => favorites.includes(song.id));
+            } else if (setlistSection.style.display === 'block') {
+                const activeSetlist = praiseSetlistTab.classList.contains('active') ? 
+                    praiseSetlist : worshipSetlist;
+                return activeSetlist;
+            } else {
+                // Regular song list view with filters applied
+                const category = praiseTab.classList.contains('active') ? 'praise' : 'worship';
+                const keyFilterValue = keyFilter.value;
+                const genreFilterValue = genreFilter.value;
+                
+                return songs
+                    .filter(song => song.category === category)
+                    .filter(song => keyFilterValue === "" || song.key === keyFilterValue)
+                    .filter(song => {
+                        if (!genreFilterValue) return true;
+                        if (!song.genres) return song.genre === genreFilterValue;
+                        return song.genres.includes(genreFilterValue);
+                    })
+                    .sort((a, b) => a.title.localeCompare(b.title));
+            }
+        }
+
+        function showNextSong() {
+            const currentSongId = parseInt(songPreviewEl.dataset.songId);
+            if (!currentSongId) return;
+            
+            const songList = getCurrentSongList();
+            if (songList.length === 0) return;
+            
+            const currentIndex = songList.findIndex(song => song.id === currentSongId);
+            const nextIndex = (currentIndex + 1) % songList.length;
+            
+            showPreview(songList[nextIndex]);
+        }
+
+        function showPrevSong() {
+            const currentSongId = parseInt(songPreviewEl.dataset.songId);
+            if (!currentSongId) return;
+            
+            const songList = getCurrentSongList();
+            if (songList.length === 0) return;
+            
+            const currentIndex = songList.findIndex(song => song.id === currentSongId);
+            const prevIndex = (currentIndex - 1 + songList.length) % songList.length;
+            
+            showPreview(songList[prevIndex]);
+        }
+
+        function handleSwipe() {
+            const swipeThreshold = 50; // Minimum swipe distance in pixels
+            
+            if (touchStartX - touchEndX > swipeThreshold) {
+                // Swipe left - next song
+                showNextSong();
+            } else if (touchEndX - touchStartX > swipeThreshold) {
+                // Swipe right - previous song
+                showPrevSong();
+            }
+        }
     
         function addEventListeners() {
             // Tab switching
@@ -3651,6 +3988,108 @@
                 praiseSetlistSongs.style.display = 'none';
                 renderSetlist('worship');
             });
+
+            document.getElementById('resetAppBtn').addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('Are you sure you want to reset the application?\n\nThis will:' + 
+                            '\n- Clear all songs and setlists' +
+                            '\n- Reset all settings to defaults' +
+                            '\n- Clear search history' +
+                            '\n- Remove all favorites')) {
+                    resetApplicationState();
+                }
+            });
+
+
+            
+            let touchStartX = 0;
+            let isScrolling = false;
+
+            
+            songPreviewEl.addEventListener('touchstart', (e) => {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY; // Track Y position too
+                isScrolling = false;
+            }, { passive: true });
+
+            songPreviewEl.addEventListener('touchstart', () => {
+            document.querySelector('.song-slide').classList.remove('swipe-active', 'swipe-left');
+            });
+
+            songPreviewEl.addEventListener('touchmove', (e) => {
+            const slide = document.querySelector('.song-slide');
+            const diffX = e.touches[0].clientX - touchStartX;
+            
+            if (Math.abs(diffX) > 20) {
+                slide.classList.add(diffX > 0 ? 'swiping-right' : 'swiping-left');
+                slide.classList.add('swipe-active');
+                if (diffX < 0) slide.classList.add('swipe-left');
+            }
+            });
+
+            songPreviewEl.addEventListener('touchmove', (e) => {
+                if (!songPreviewEl.dataset.songId) return;
+                
+                const touchX = e.touches[0].clientX;
+                const touchY = e.touches[0].clientY; // Get current Y position
+                const diffX = touchX - touchStartX;
+                const diffY = touchY - touchStartY; // Calculate vertical movement
+                
+                // Check if the user is scrolling vertically (not swiping)
+                if (Math.abs(diffY) > 10) {
+                    isScrolling = true;
+                    return; // Exit if vertical scroll detected
+                }
+                
+                // Only prevent default for horizontal swipes
+                if (Math.abs(diffX) > 5) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            songPreviewEl.addEventListener('touchend', (e) => {
+                if (!songPreviewEl.dataset.songId || isScrolling) return;
+                
+                const touchEndX = e.changedTouches[0].clientX;
+                const diffX = touchEndX - touchStartX;
+                const swipeThreshold = 50;
+                
+                if (diffX < -swipeThreshold) {
+                    showNextSong(); // Swipe left
+                } else if (diffX > swipeThreshold) {
+                    showPrevSong(); // Swipe right
+                }
+            }, { passive: true });
+
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                
+                if (e.key === 'ArrowRight') {
+                    showNextSong();
+                } else if (e.key === 'ArrowLeft') {
+                    showPrevSong();
+                }
+
+                document.addEventListener('keydown', (e) => {
+                // Don't navigate if we're typing in an input field
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
+                    return;
+                }
+                
+                // Only handle left/right arrows when a song is being previewed
+                if (!songPreviewEl.dataset.songId) return;
+                
+                if (e.key === 'ArrowRight') {
+                    showNextSong();
+                    e.preventDefault();
+                } else if (e.key === 'ArrowLeft') {
+                    showPrevSong();
+                    e.preventDefault();
+                }
+            });
+            });
     
             // Song modals
             openAddSongModal.addEventListener('click', () => {
@@ -3682,6 +4121,24 @@
                 if (!e.target.closest('.multiselect-container')) {
                     document.getElementById('genreDropdown').classList.remove('show');
                     document.getElementById('editGenreDropdown').classList.remove('show');
+                }
+            });
+            // Handle session reset based on settings
+            window.addEventListener('beforeunload', (e) => {
+                const resetOption = localStorage.getItem("sessionResetOption") || "manual";
+                
+                if (resetOption === "onClose") {
+                    resetApplicationState();
+                }
+                
+                // Existing beforeunload logic...
+            });
+
+            window.addEventListener('load', () => {
+                const resetOption = localStorage.getItem("sessionResetOption") || "manual";
+                
+                if (resetOption === "onRefresh") {
+                    resetApplicationState();
                 }
             });
             

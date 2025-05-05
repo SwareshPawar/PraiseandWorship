@@ -823,7 +823,7 @@
             top: 100%;
             left: 0;
             width: 100%;
-            max-height: 200px;
+            max-height: 100px;
             overflow-y: auto;
             background: white;
             border: 1px solid #ddd;
@@ -836,6 +836,7 @@
             padding: 8px 10px;
             cursor: pointer;
             border-bottom: 1px solid #eee;
+            transition: background-color 0.2s;
         }
 
             .search-history-item:hover {
@@ -847,6 +848,8 @@
             font-weight: bold;
             border-bottom: 1px solid #eee;
             background-color: #f9f9f9;
+            position: sticky;
+            top: 0;
         }
 
         .search-results {
@@ -1870,6 +1873,12 @@
         const CHORD_LINE_REGEX = /^(\s*[A-G](?:#|b)?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?\s*)+$/i;
         const INLINE_CHORD_REGEX = /\[([A-G](?:#|b)?(?:m|maj|min|dim|aug|m7|maj7|7|sus2|sus4)?)\]/gi;
         const SLASH_CHORD_REGEX = /([A-G](?:#|b)?)(?:\/([A-G](?:#|b)?))?/gi;
+
+        let navigationHistory = [];
+        let currentHistoryPosition = -1;
+        let isNavigatingHistory = false;
+        let isAnyModalOpen = false;
+        let currentModal = null;
     
         // Search history
         let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
@@ -1901,6 +1910,114 @@
             connectWebSocket();
             updateSongCount();
             initScreenWakeLock();
+            setupModalClosing();
+            setupSuggestedSongsClosing();
+            setupModals();
+            setupWindowCloseConfirmation();
+            
+
+
+            // Back/forward navigation
+
+            // Page exit confirmation
+            window.addEventListener('beforeunload', (e) => {
+            // Only show confirmation if there are songs in setlists or editing
+            if (NewSetlist.length > 0 || OldSetlist.length > 0 || 
+                document.querySelector('.modal[style*="flex"]')) {
+                e.preventDefault();
+                // Modern browsers require returnValue to be set
+                e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                return e.returnValue;
+            }
+        });
+
+            // Handle initial page load with hash
+            if (window.location.hash) {
+                const songId = parseInt(window.location.hash.replace('#song-', ''));
+                const song = songs.find(s => s.id === songId);
+                if (song) {
+                    navigationHistory = [song.id];
+                    currentHistoryPosition = 0;
+                    history.replaceState({ 
+                        songId: song.id, 
+                        position: 0 
+                    }, '', `#song-${song.id}`);
+                    showPreview(song, true);
+                }
+            }
+
+            window.addEventListener('popstate', (event) => {
+
+                if (event.state?.modalOpen) {
+                    if (currentModal) {
+                        closeModal(currentModal);
+                    }
+                    return;
+                }
+
+            // Handle song navigation
+            if (event.state?.position !== undefined) {
+                isNavigatingHistory = true;
+                currentHistoryPosition = event.state.position;
+                
+                const songId = navigationHistory[currentHistoryPosition];
+                const song = songs.find(s => s.id === songId);
+                
+                if (song) {
+                    showPreview(song, true);
+                } else {
+                    songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics">No song is selected</div>';
+                }
+            }
+        });
+                    if (window.location.hash) {
+                const songId = parseInt(window.location.hash.replace('#song-', ''));
+                const song = songs.find(s => s.id === songId);
+                if (song) {
+                    navigationHistory.push(song.id);
+                    currentHistoryPosition = 0;
+                    history.replaceState({ songId: song.id, position: 0 }, '', `#song-${song.id}`);
+                    showPreview(song);
+                }
+            }
+        }
+
+        function setupSuggestedSongsClosing() {
+            const drawer = document.getElementById('suggestedSongsDrawer');
+            const toggleBtn = document.getElementById('toggleSuggestedSongs');
+            
+            // Click outside to close
+            document.addEventListener('click', (e) => {
+                if (suggestedSongsDrawerOpen && 
+                    !e.target.closest('#suggestedSongsDrawer') && 
+                    e.target !== toggleBtn) {
+                    closeSuggestedSongsDrawer();
+                }
+            });
+            
+            // Escape key to close
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && suggestedSongsDrawerOpen) {
+                    closeSuggestedSongsDrawer();
+                }
+            });
+            
+            // Ensure close button works
+            document.getElementById('closeSuggestedSongs').addEventListener('click', closeSuggestedSongsDrawer);
+        }
+        
+
+        function setupModalClosing() {
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', () => {
+                    const modal = button.closest('.modal');
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Remove the outside click handler completely
         }
     
         function renderFavorites() {
@@ -2265,6 +2382,19 @@
             header.className = 'search-history-header';
             header.textContent = 'Recent Searches';
             dropdown.appendChild(header);
+
+             // Add clear history button
+             const clearBtn = document.createElement('div');
+            clearBtn.className = 'search-history-item';
+            clearBtn.style.fontWeight = 'bold';
+            clearBtn.style.cursor = 'pointer';
+            clearBtn.textContent = 'Clear History';
+            clearBtn.addEventListener('click', () => {
+                searchHistory = [];
+                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                dropdown.style.display = 'none';
+            });
+            dropdown.appendChild(clearBtn);
     
             searchHistory.forEach(query => {
                 const item = document.createElement('div');
@@ -2401,123 +2531,212 @@
             // Define scoring weights (total = 100)
             const WEIGHTS = {
                 language: 20,        // Language match from genres
-                scale: 30,           // Major/Minor match
+                scale: 30,           // Scale match (major/minor and harmonic relationships)
                 timeSignature: 25,   // Time Signature match
-                taal: 5,            // Taal match
-                tempo: 10,           // Tempo similarity
-                genre: 10            // Non-language genre matches
+                taal: 15,            // Taal match
+                tempo: 5,            // Tempo similarity
+                genre: 5             // Non-language genre matches
             };
 
-            // Helper function to check if keys are in the same scale (major/minor)
-            function isSameScale(key1, key2) {
-                const majorKeys = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-                const minorKeys = ['Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m', 'Am', 'A#m', 'Bm'];
-                return (majorKeys.includes(key1) && majorKeys.includes(key2)) || 
-                    (minorKeys.includes(key1) && minorKeys.includes(key2));
-            }
+            // Time signature compatible pairs
+            const TIME_SIGNATURE_COMPATIBILITY = {
+                '6/8': ['3/4'],
+                '3/4': ['6/8']
+            };
 
-            // Helper function to calculate tempo similarity score
-            function getTempoSimilarity(tempo1, tempo2) {
+            // Harmonic relationships (Circle of Fifths + Relative Major/Minor)
+            const HARMONIC_RELATIONS = {
+                // Major keys: [dominant, subdominant, relative minor]
+                'C': ['G', 'F', 'Am'],
+                'G': ['D', 'C', 'Em'],
+                'D': ['A', 'G', 'F#m'],
+                'A': ['E', 'D', 'C#m'],
+                'E': ['B', 'A', 'G#m'],
+                'B': ['F#', 'E', 'G#m'],
+                'F#': ['C#', 'B', 'D#m'],
+                'C#': ['G#', 'F#', 'A#m'],
+                'F': ['C', 'Bb', 'Dm'],
+                'Bb': ['F', 'Eb', 'Gm'],
+                'Eb': ['Bb', 'Ab', 'Cm'],
+                'Ab': ['Eb', 'Db', 'Fm'],
+                'Db': ['Ab', 'Gb', 'Bbm'],
+                'Gb': ['Db', 'Cb', 'Ebm'],
+                
+                // Minor keys: [dominant, subdominant, relative major]
+                'Am': ['Em', 'Dm', 'C'],
+                'Em': ['Bm', 'Am', 'G'],
+                'Bm': ['F#m', 'Em', 'D'],
+                'F#m': ['C#m', 'Bm', 'A'],
+                'C#m': ['G#m', 'F#m', 'E'],
+                'G#m': ['D#m', 'C#m', 'B'],
+                'D#m': ['A#m', 'G#m', 'F#'],
+                'A#m': ['Fm', 'D#m', 'C#'],
+                'Dm': ['Am', 'Gm', 'F'],
+                'Gm': ['Dm', 'Cm', 'Bb'],
+                'Cm': ['Gm', 'Fm', 'Eb'],
+                'Fm': ['Cm', 'Bbm', 'Ab'],
+                'Bbm': ['Fm', 'Ebm', 'Db']
+            };
+
+            // Determine current song's scale type
+            const isCurrentMajor = currentSong.key && !currentSong.key.endsWith('m');
+            const isCurrentMinor = currentSong.key && currentSong.key.endsWith('m');
+
+            // Helper functions
+            const isMajor = key => key && !key.endsWith('m');
+            const isMinor = key => key && key.endsWith('m');
+            const isSameScaleType = (key1, key2) => (isMajor(key1) && isMajor(key2)) || (isMinor(key1) && isMinor(key2));
+
+            const getTempoSimilarity = (tempo1, tempo2) => {
                 if (!tempo1 || !tempo2) return 0;
                 const bpm1 = parseInt(tempo1) || 0;
                 const bpm2 = parseInt(tempo2) || 0;
-                if (bpm1 === 0 || bpm2 === 0) return 0;
-                const diff = Math.abs(bpm1 - bpm2);
-                return Math.max(0, 1 - (diff / 50)); // 50 BPM difference = 0 score
-            }
+                return bpm1 && bpm2 ? Math.max(0, 1 - (Math.abs(bpm1 - bpm2) / 50)) : 0;
+            };
 
-            // Helper function to extract languages from genres
-            function getLanguagesFromGenres(genres) {
-                if (!genres) return [];
-                return genres.filter(genre => LANGUAGE_TAGS.includes(genre));
-            }
+            const getLanguagesFromGenres = genres => 
+                genres ? genres.filter(genre => LANGUAGE_TAGS.includes(genre)) : [];
+            
+            const getNonLanguageGenres = genres => 
+                genres ? genres.filter(genre => !LANGUAGE_TAGS.includes(genre)) : [];
 
-            // Helper function to extract non-language genres
-            function getNonLanguageGenres(genres) {
-                if (!genres) return [];
-                return genres.filter(genre => !LANGUAGE_TAGS.includes(genre));
-            }
+            const getLanguageMatchScore = (genres1, genres2) => {
+                const langs1 = getLanguagesFromGenres(genres1);
+                const langs2 = getLanguagesFromGenres(genres2);
+                return langs1.length && langs2.length ? 
+                    langs1.filter(lang => langs2.includes(lang)).length / Math.max(langs1.length, langs2.length) : 0;
+            };
 
-            // Helper function to calculate language match score
-            function getLanguageMatchScore(genres1, genres2) {
-                const languages1 = getLanguagesFromGenres(genres1);
-                const languages2 = getLanguagesFromGenres(genres2);
-                if (!languages1.length || !languages2.length) return 0;
-                const matches = languages1.filter(lang => languages2.includes(lang)).length;
-                const maxLanguages = Math.max(languages1.length, languages2.length);
-                return maxLanguages > 0 ? (matches / maxLanguages) : 0;
-            }
+            const getGenreMatchScore = (genres1, genres2) => {
+                const genresA = getNonLanguageGenres(genres1);
+                const genresB = getNonLanguageGenres(genres2);
+                return genresA.length && genresB.length ? 
+                    genresA.filter(g => genresB.includes(g)).length / Math.max(genresA.length, genresB.length) : 0;
+            };
 
-            // Helper function to calculate non-language genre match score
-            function getGenreMatchScore(genres1, genres2) {
-                const nonLanguageGenres1 = getNonLanguageGenres(genres1);
-                const nonLanguageGenres2 = getNonLanguageGenres(genres2);
-                if (!nonLanguageGenres1.length || !nonLanguageGenres2.length) return 0;
-                const matches = nonLanguageGenres1.filter(genre => nonLanguageGenres2.includes(genre)).length;
-                const maxGenres = Math.max(nonLanguageGenres1.length, nonLanguageGenres2.length);
-                return maxGenres > 0 ? (matches / maxGenres) : 0;
-            }
-
-            // Calculate scores for each song
+            // Score each song
             const scoredSongs = sameCategorySongs.map(song => {
+                const details = {
+                    sameScaleType: isSameScaleType(currentSong.key, song.key),
+                    scalePriority: 0,
+                    languageScore: 0,
+                    languages: [],
+                    timeMatchType: 'none', // 'exact', 'compatible', or 'none'
+                    taalMatch: false,
+                    tempoSimilarity: 0,
+                    genreMatch: 0
+                };
+
                 let score = 0;
 
-                // 1. Language match (highest priority)
-                const languageScore = getLanguageMatchScore(
+                // 1. Language match
+                details.languageScore = getLanguageMatchScore(
                     currentSong.genres || (currentSong.genre ? [currentSong.genre] : []),
                     song.genres || (song.genre ? [song.genre] : [])
                 );
-                score += WEIGHTS.language * languageScore;
+                score += WEIGHTS.language * details.languageScore;
+                details.languages = getLanguagesFromGenres(song.genres || (song.genre ? [song.genre] : []));
 
-                // 2. Scale match (Major/Minor)
-                if (isSameScale(currentSong.key, song.key)) {
-                    score += WEIGHTS.scale;
+                // 2. Scale relationships
+                if (currentSong.key && song.key) {
+                    if (currentSong.key === song.key) {
+                        score += WEIGHTS.scale;
+                        details.scalePriority = 4;
+                    } 
+                    else if ((isCurrentMajor && song.key === HARMONIC_RELATIONS[currentSong.key]?.[2]) ||
+                            (isCurrentMinor && currentSong.key === HARMONIC_RELATIONS[song.key]?.[2])) {
+                        score += WEIGHTS.scale * 0.9;
+                        details.scalePriority = 3;
+                    }
+                    else if (HARMONIC_RELATIONS[currentSong.key]?.includes(song.key)) {
+                        score += WEIGHTS.scale * 0.8;
+                        details.scalePriority = 2;
+                    }
+                    else if (details.sameScaleType) {
+                        score += WEIGHTS.scale * 0.5;
+                        details.scalePriority = 1;
+                    }
                 }
 
-                // 3. Time Signature and Taal
+                // 3. Time signature matching
                 if (currentSong.time === song.time) {
+                    details.timeMatchType = 'exact';
                     score += WEIGHTS.timeSignature;
-                }
-                if (currentSong.taal === song.taal) {
-                    score += WEIGHTS.taal;
+                } 
+                else if (TIME_SIGNATURE_COMPATIBILITY[currentSong.time]?.includes(song.time)) {
+                    details.timeMatchType = 'compatible';
+                    score += WEIGHTS.timeSignature * 0.9;
                 }
 
-                // 4. Tempo similarity
-                const tempoScore = getTempoSimilarity(currentSong.tempo, song.tempo);
-                score += WEIGHTS.tempo * tempoScore;
+                // 4. Taal match
+                details.taalMatch = currentSong.taal === song.taal;
+                if (details.taalMatch) score += WEIGHTS.taal;
 
-                // 5. Non-language genre matches
-                const genreScore = getGenreMatchScore(
+                // 5. Tempo similarity
+                details.tempoSimilarity = getTempoSimilarity(currentSong.tempo, song.tempo);
+                score += WEIGHTS.tempo * details.tempoSimilarity;
+
+                // 6. Non-language genres
+                details.genreMatch = getGenreMatchScore(
                     currentSong.genres || (currentSong.genre ? [currentSong.genre] : []),
                     song.genres || (song.genre ? [song.genre] : [])
                 );
-                score += WEIGHTS.genre * genreScore;
-
-                // Cap score at 100
-                score = Math.min(Math.round(score), 100);
+                score += WEIGHTS.genre * details.genreMatch;
 
                 return {
                     ...song,
-                    matchScore: score,
-                    languageScore: Math.round(languageScore * 100),
-                    languages: getLanguagesFromGenres(song.genres || (song.genre ? [song.genre] : [])),
-                    scaleMatch: isSameScale(currentSong.key, song.key),
-                    timeMatch: currentSong.time === song.time,
-                    taalMatch: currentSong.taal === song.taal,
-                    tempoSimilarity: Math.round(tempoScore * 100),
-                    genreMatch: Math.round(genreScore * 100)
+                    matchScore: Math.min(Math.round(score), 100),
+                    matchDetails: {
+                        ...details,
+                        languageScore: Math.round(details.languageScore * 100),
+                        tempoSimilarity: Math.round(details.tempoSimilarity * 100),
+                        genreMatch: Math.round(details.genreMatch * 100)
+                    }
                 };
             });
 
-            // Sort by language score first (descending), then by total match score (descending)
-            return scoredSongs
-                .sort((a, b) => {
-                    if (b.languageScore !== a.languageScore) {
-                        return b.languageScore - a.languageScore;
-                    }
-                    return b.matchScore - a.matchScore;
-                })
-                .slice(0, 12);
+            // Sort by priority
+            return scoredSongs.sort((a, b) => {
+                // 1. Same scale type (major/minor)
+                if (a.matchDetails.sameScaleType !== b.matchDetails.sameScaleType) {
+                    return b.matchDetails.sameScaleType - a.matchDetails.sameScaleType;
+                }
+                
+                // 2. Time signature (exact > compatible > none)
+                const timePriority = {
+                    'exact': 2,
+                    'compatible': 1,
+                    'none': 0
+                };
+                const aTimePrio = timePriority[a.matchDetails.timeMatchType];
+                const bTimePrio = timePriority[b.matchDetails.timeMatchType];
+                if (aTimePrio !== bTimePrio) {
+                    return bTimePrio - aTimePrio;
+                }
+                
+                // 3. Language match
+                if (a.matchDetails.languageScore !== b.matchDetails.languageScore) {
+                    return b.matchDetails.languageScore - a.matchDetails.languageScore;
+                }
+                
+                // 4. Taal match
+                if (a.matchDetails.taalMatch !== b.matchDetails.taalMatch) {
+                    return b.matchDetails.taalMatch - a.matchDetails.taalMatch;
+                }
+                
+                // 5. Scale relationship quality
+                if (a.matchDetails.scalePriority !== b.matchDetails.scalePriority) {
+                    return b.matchDetails.scalePriority - a.matchDetails.scalePriority;
+                }
+                
+                // 6. Tempo similarity
+                if (a.matchDetails.tempoSimilarity !== b.matchDetails.tempoSimilarity) {
+                    return b.matchDetails.tempoSimilarity - a.matchDetails.tempoSimilarity;
+                }
+                
+                // 7. Total score
+                return b.matchScore - a.matchScore;
+            }).slice(0, 20);
         }
     
         function showSuggestedSongs() {
@@ -2703,19 +2922,93 @@
             saveSetlists();
             renderSetlist(category);
         }
+
+        function attachPreviewEventListeners(song) {
+            // Favorite button
+            document.getElementById('previewFavoriteBtn')?.addEventListener('click', () => {
+                toggleFavorite(song.id);
+                // Update the button state
+                const isFavorite = favorites.includes(song.id);
+                const favBtn = document.getElementById('previewFavoriteBtn');
+                favBtn.classList.toggle('favorited', isFavorite);
+            });
+
+            // Setlist button
+            document.getElementById('previewSetlistBtn')?.addEventListener('click', () => {
+                const isInSetlist = song.category === 'New' 
+                    ? NewSetlist.some(s => s.id === song.id)
+                    : OldSetlist.some(s => s.id === song.id);
+                
+                if (isInSetlist) {
+                    removeFromSetlist(song.id, song.category);
+                } else {
+                    addToSetlist(song.id);
+                }
+                
+                // Update the button after a short delay to allow state to update
+                setTimeout(() => {
+                    const newIsInSetlist = song.category === 'New' 
+                        ? NewSetlist.some(s => s.id === song.id)
+                        : OldSetlist.some(s => s.id === song.id);
+                    const setlistBtn = document.getElementById('previewSetlistBtn');
+                    setlistBtn.textContent = newIsInSetlist ? 'Remove from Setlist' : 'Add to Setlist';
+                    setlistBtn.classList.toggle('btn-primary', !newIsInSetlist);
+                    setlistBtn.classList.toggle('btn-delete', newIsInSetlist);
+                }, 100);
+            });
+
+            // Edit button
+            document.getElementById('previewEditBtn')?.addEventListener('click', () => {
+                editSong(song.id);
+            });
+
+            // Transpose controls
+            document.getElementById('transpose-up')?.addEventListener('click', () => {
+                const currentLevel = parseInt(document.getElementById('transpose-level').textContent);
+                updatePreviewWithTransposition(currentLevel + 1);
+            });
+
+            document.getElementById('transpose-down')?.addEventListener('click', () => {
+                const currentLevel = parseInt(document.getElementById('transpose-level').textContent);
+                updatePreviewWithTransposition(currentLevel - 1);
+            });
+
+            // Setup auto-scroll if needed
+            setupAutoScroll();
+        }
     
-        function showPreview(song) {
+            function showPreview(song, fromHistory = false) {
+            // Update history if this is a new navigation (not from back/forward)
+            if (!fromHistory && !isNavigatingHistory && !currentModal) {
+                if (currentHistoryPosition < navigationHistory.length - 1) {
+                    navigationHistory = navigationHistory.slice(0, currentHistoryPosition + 1);
+                }
+                
+                navigationHistory.push(song.id);
+                currentHistoryPosition = navigationHistory.length - 1;
+                
+                history.pushState({ 
+                    songId: song.id, 
+                    position: currentHistoryPosition 
+                }, '', `#song-${song.id}`);
+            }
+
+            // Clear the preview and reset state
+            songPreviewEl.innerHTML = '';
             songPreviewEl.dataset.songId = song.id;
             songPreviewEl.dataset.originalLyrics = song.lyrics;
             songPreviewEl.dataset.originalKey = song.key;
     
+             // Check if song is in setlist/favorites
             const isInSetlist = song.category === 'praise' 
                 ? praiseSetlist.some(s => s.id === song.id)
                 : worshipSetlist.some(s => s.id === song.id);
             
             const isFavorite = favorites.includes(song.id);
     
+            // Build the preview HTML
             songPreviewEl.innerHTML = `
+             <div class="preview-header">
                 <h2>${song.title}</h2>
                 <div class="preview-actions">
                     <button class="favorite-btn ${isFavorite ? 'favorited' : ''}" id="previewFavoriteBtn" data-song-id="${song.id}">
@@ -2727,11 +3020,12 @@
                     <button class="btn btn-edit" id="previewEditBtn">
                         <i class="fas fa-edit"></i> Edit
                     </button>
+                    </div>
                 </div>
                 <div class="song-meta">
                     <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
-                    <p><strong>Tempo:</strong> ${song.tempo}</p>
-                    <p><strong>Time Signature:</strong> ${song.time}</p>
+                    ${song.tempo ? `<p><strong>Tempo:</strong> ${song.tempo}</p>` : ''}
+                    ${song.time ? `<p><strong>Time Signature:</strong> ${song.time}</p>` : ''}
                     ${song.taal ? `<p><strong>Taal:</strong> ${song.taal}</p>` : ''}
                     ${song.genres ? `<p><strong>Genres:</strong> ${song.genres.join(', ')}</p>` : 
                     song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
@@ -2744,6 +3038,14 @@
                 <div class="song-lyrics">${formatLyricsWithChords(song.lyrics, 0)}</div>
             `;
             
+            // Attach all event listeners
+            attachPreviewEventListeners(song);
+            
+            // Reset navigation flag if this was a history navigation
+            if (isNavigatingHistory) {
+                setTimeout(() => { isNavigatingHistory = false; }, 100);
+            }
+        
             document.getElementById('previewFavoriteBtn').addEventListener('click', (e) => {
                 toggleFavorite(song.id);
             });
@@ -3095,6 +3397,60 @@
                     console.error("Error redrawing preview:", e);
                 }
             }
+        }
+
+        function openModal(modal) {
+        // Close any existing modal first
+            if (currentModal) {
+                closeModal(currentModal);
+            }
+            
+            modal.style.display = 'flex';
+            currentModal = modal;
+            document.body.style.overflow = 'hidden';
+            
+            // Add to history to handle back button
+            history.pushState({ modalOpen: true }, '');
+        }
+
+        function closeModal(modal) {
+            modal.style.display = 'none';
+            currentModal = null;
+            document.body.style.overflow = '';
+            
+            // Update history if we're closing via back button
+            if (history.state?.modalOpen) {
+                history.back();
+            }
+        }
+
+        function setupWindowCloseConfirmation() {
+            window.addEventListener('beforeunload', (e) => {
+                const hasUnsavedSetlists = NewSetlist.length > 0 || OldSetlist.length > 0;
+                const isEditing = isAnyModalOpen;
+                
+                if (hasUnsavedSetlists || isEditing) {
+                    e.preventDefault();
+                    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                    return e.returnValue;
+                }
+            });
+        }
+
+        function setupModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                // Only keep the close button functionality
+                modal.querySelectorAll('.close-modal').forEach(btn => {
+                    btn.addEventListener('click', () => closeModal(modal));
+                });
+            });
+            
+            // Keep the escape key functionality
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && currentModal) {
+                    closeModal(currentModal);
+                }
+            });
         }
     
         function editSong(id) {
@@ -3571,6 +3927,10 @@
                     }
                     return;
                 }
+
+                if (query.length > 0) {
+                    saveSearchQuery(query);
+                }
     
                 const filtered = songs.filter(song => {
                     return (
@@ -3638,6 +3998,7 @@
                 searchInput.value = '';
                 clearSearchBtn.style.display = 'none';
                 document.getElementById('searchResults').classList.remove('active');
+                document.getElementById('searchHistoryDropdown').style.display = 'none';
                 if (praiseTab.classList.contains('active')) {
                     renderSongs('praise', keyFilter.value, genreFilter.value);
                 } else {

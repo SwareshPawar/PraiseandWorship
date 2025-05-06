@@ -1363,23 +1363,6 @@
       "lyrics": "C           F         C            C           F         C\nHail Jesus! You're my King! (Echo) Hail Jesus! You're my King!\nC               F     C            C               F     C\nYour life frees me to sing (Echo)  Your life frees me to sing\nC                 F      C            C                 F      C\nI will praise You all my days (Echo)  I will praise You all my days\nC                 F        C            C                 F        C\nYou're perfect in all Your ways (Echo)  You're perfect in all Your ways\n \nC           F         C            C           F         C\nHail Jesus! You're my Lord! (Echo) Hail Jesus! You're my Lord!\nC       F        C            C       F        C\nI will obey Your word (Echo)  I will obey Your word\nC                  F       C            C                  F       C\nI want to see Your kingdom come (Echo)  I want to see Your kingdom come\nC               F         C           C               F        C\nNot my will but Yours be done (Echo)  Not my will but Yours be done\n \n \n[Chorus]\n \nD            G      D             D            G      D\nGlory, glory to the Lamb! (Echo)  Glory, glory to the Lamb!\nD               G       D           D               G       D\nYou'll take me into the land(Echo)  You'll take me into the land\nD               G       D            D               G       D\nWe will conquer in Your name (Echo)  We will conquer in Your name\nD                  G     D                D                  G     D\nAnd proclaim that \"Jesus reigns!\" (Echo)  And proclaim that \"Jesus reigns!\"\n \n \n[Verse 2]\n \nD           G       D              D         G       D\nHail, hail Lion of Judah! (Echo)  Hail, hail Lion of Judah!\nD         G       D            D         G       D\nHow wonderful You are! (Echo)  How wonderful You are!\nD          G       D              D          G       D\nHail, hail Lion of Judah! (Echo)  Hail, hail Lion of Judah!\nD        G       D            D        G       D\nHow powerful You are! (Echo)  How powerful You are!\n \nD           G         D             D           G         D\nHail Jesus! You're my King! (Echo)  Hail Jesus! You're my King!\nD               G     D            D               G     D\nYour life frees me to sing (Echo)  Your life frees me to sing\nD                 G      D            D                 G      D\nI will praise You all my days (Echo)  I will praise You all my days\nD                 G        D            D                 G        D\nYou're perfect in all Your ways (Echo)  You're perfect in all Your ways\n \nD           G         D            D           G         D\nHail Jesus! You're my Lord! (Echo) Hail Jesus! You're my Lord!\nD        G       D            D       G        D\nI will obey Your word (Echo)  I will obey Your word\nD                  G       D            D                  G       D\nI want to see Your kingdom come (Echo)  I want to see Your kingdom come\nD               G        D            D               G        D\nNot my will but Yours be done (Echo)  Not my will but Yours be done\n \n \n[Chorus]\n \nE            A      E             E            A      E\nGlory, glory to the Lamb! (Echo)  Glory, glory to the Lamb!\nE                A      E            E                A      E\nYou'll take me into the land (Echo)  You'll take me into the land\nE               A       E            E               A       E\nWe will conquer in Your name (Echo)  We will conquer in Your name\nE                  A     E                E                  A     E\nAnd proclaim that \"Jesus reigns!\" (Echo)  And proclaim that \"Jesus reigns!\"\n \nE          A       E              E          A       E\nHail, hail Lion of Judah! (Echo)  Hail, hail Lion of Judah!\nE         A       E            E         A       E\nHow wonderful You are! (Echo)  How wonderful You are!\nE          A       E              E          A       E\nHail, hail Lion of Judah! (Echo)  Hail, hail Lion of Judah!\nE        A       E            E        A       E\nHow powerful You are! (Echo)  How powerful You are"
     },
     {
-      "id": 23,
-      "title": "Halaat badal jate",
-      "category": "praise",
-      "key": "C",
-      "tempo": "110",
-      "time": "4/4",
-      "genre": "Traditional",
-      "lyrics": " A      G     A\nHalaat badal jaate hain\n         G     A\nHalaat badal jaate hain\n               D\nYasu tere aane se\nG              A\nYasu tere aane se\n               D\nYasu tere aane se\nG              A\nYasu tere aane se\n                  G\nTere aane se tere aane se\n     D       G       A\nTere aane se aane se aane se\n                  G\nTere aane se tere aane se\n     D       G       A\nTere aane se aane se aane se\n         G     A\nHalaat badal jaate hain\n         G     A\nHalaat badal jaate hain\n\nA                 D\nKodon se chhalani hua\nG                    A\n  Zakhmon se choor hua\n                 G\nMeri hi khatir yesu\nD           G       A \n  Mar ke tu zinda hua\n         G     A\nBimar shifa paate hain\n                 D\nYesu tere chhune se\nG                A\nYesu tere chhune se\n\nYair ki beti ko\nYesu ne zinda kiya\nMurda lasar ko\nYesu ne zinda kiya\nMurde bhi ji uthate hain\nyesu tere aane se\n\nSooli pe daku ko\nYesu ne muaf kiya \nKhoon ki dhara se\nSabhon ko saaf kiya \nBadakar badal jaate hain\nYesu tere chhune se",
-      "genres": [
-        "Hindi",
-        "Praise",
-        "Qawalli",
-        "Miracle"
-      ],
-      "taal": "Keherwa"
-    },
-    {
       "id": 168,
       "title": "Hallelujah Stuti Gaye",
       "category": "praise",
@@ -4847,5 +4830,8 @@
       ],
       "lyrics": "हो लेंगे हम यीशु के संग 2\nजिसने दिया है पापों से मुक्ति\n\nधन्य हो उसका नाम…………. 2\nमार्ग सत्य जीवन, यीशू ही है ………2.\nजो उसपर विस्वास करेगा\nअनंत जीवन वो पायेगा…………… टू\nहो लेंगे हम ………..\n\nजीवन की रोटी, यीशू ही है\nजो उसको खायेगा\nवो तो कभी ना मरेगा\nहो लेंगे हम ………"
     }
-  ]
+  ],
+  "praiseSetlist": [],
+  "worshipSetlist": [],
+  "favorites": []
 }

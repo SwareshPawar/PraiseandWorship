@@ -1357,18 +1357,18 @@
             }
             
             #toggle-sidebar {
-                top: 100px;
-                left: 10px;
+                bottom: 280px;
+                right: 10px;
             }
 
             #toggle-songs {
-                top: 150px;
-                left: 10px;
+                bottom: 180px;
+                right: 10px;
             }
 
             #toggle-all-panels {
-                top: 200px;
-                left: 10px;
+                bottom: 230px;
+                right: 10px;
             }
 
             .sidebar.hidden ~ #toggle-songs {
@@ -3213,7 +3213,7 @@
                 updatePreviewWithTransposition(currentLevel - 1);
             });
 
-            document.getElementById('transposeReset').addEventListener('click', () => {
+                        document.getElementById('transposeReset').addEventListener('click', () => {
                 updatePreviewWithTransposition(0);
             });
 
@@ -4615,14 +4615,14 @@
                     el.style.left = pos.left;
                 } else {
                     if (id === 'toggle-sidebar') {
-                        el.style.top = '100px';
-                        el.style.left = '10px';
+                        el.style.bottom = '280px';
+                        el.style.right = '10px';
                     } else if (id === 'toggle-songs') {
-                        el.style.top = '150px';
-                        el.style.left = '10px';
+                        el.style.bottom = '180px';
+                        el.style.right = '10px';
                     } else if (id === 'toggle-all-panels') {
-                        el.style.top = '200px';
-                        el.style.left = '10px';
+                        el.style.bottom = '230px';
+                        el.style.right   = '10px';
                     }
                 }
             };

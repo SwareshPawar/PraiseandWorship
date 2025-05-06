@@ -3213,6 +3213,10 @@
                 updatePreviewWithTransposition(currentLevel - 1);
             });
 
+            document.getElementById('transposeReset').addEventListener('click', () => {
+                updatePreviewWithTransposition(0);
+            });
+
             // Setup auto-scroll if needed
             setupAutoScroll();
         }
@@ -3295,6 +3299,7 @@
                     <button class="btn btn-primary" id="transpose-down">-</button>
                     <span>Transpose: <span id="transpose-level">0</span></span>
                     <button class="btn btn-primary" id="transpose-up">+</button>
+                    <button id="transposeReset" class="btn btn-primary">Reset</button>
                 </div>
 
                 <div class="song-lyrics">${formatLyricsWithChords(song.lyrics, 0)}</div>
@@ -3472,9 +3477,7 @@
     
         function updatePreviewWithTransposition(level) {
             if (!songPreviewEl.dataset.songId) return;
-            
             level = Math.max(-12, Math.min(12, level));
-            
             const lyrics = songPreviewEl.dataset.originalLyrics;
             document.getElementById('transpose-level').textContent = level;
             const originalKey = songPreviewEl.dataset.originalKey;
@@ -3998,6 +4001,7 @@
                 praiseSetlistSongs.style.display = 'none';
                 renderSetlist('worship');
             });
+
 
             document.getElementById('resetAppBtn').addEventListener('click', function(e) {
                 e.preventDefault();
@@ -4569,6 +4573,8 @@
                     closeSuggestedSongsDrawer();
                 }
             });
+
+
     
             // Theme toggle
             document.getElementById('themeToggle').addEventListener('click', () => {
@@ -4687,7 +4693,7 @@
         window.addToSetlist = addToSetlist;
         window.editSong = editSong;
         window.openDeleteSongModal = openDeleteSongModal;
-        window.removeFromSetlist = removeFromSetlist;    
+        window.removeFromSetlist = removeFromSetlist;
         window.renderSetlist = renderSetlist;
     
         // Start the application

@@ -3334,13 +3334,17 @@
                 editSong(song.id);
             });
             
-            document.getElementById('transpose-up').addEventListener('click', () => {
-                const currentLevel = parseInt(document.getElementById('transpose-level').textContent);
-                updatePreviewWithTransposition(currentLevel + 1);
+            document.getElementById('transpose-up').addEventListener('click', (e) => {
+                console.log('Transpose up clicked');
+                const currentLevel = parseInt(document.getElementById('transpose-level').textContent) || 0;
+                console.log('Current level:', currentLevel, 'New level:', currentLevel + 1);
+                updatePreviewWithTransposition(currentLevel);
+                e.stopPropagation(); // Prevent event bubbling
             });
+
             document.getElementById('transpose-down').addEventListener('click', () => {
-                const currentLevel = parseInt(document.getElementById('transpose-level').textContent);
-                updatePreviewWithTransposition(currentLevel - 1);
+                const currentLevel = parseInt(document.getElementById('transpose-level').textContent) || 0;
+                updatePreviewWithTransposition(currentLevel); // Only -1
             });
             setupAutoScroll();
             applyLyricsBackground(song.category === 'praise');
@@ -3417,54 +3421,60 @@
     
         function transposeChord(chord, steps) {
             if (steps === 0 || !chord) return chord;
-    
+
             if (chord.includes('/')) {
                 const [baseChord, bassNote] = chord.split('/');
-                const transposedBase = transposeSingleChord(baseChord, steps);
-                const transposedBass = bassNote ? transposeSingleChord(bassNote, steps) : '';
+                const transposedBase = transposeSingleChord(baseChord.trim(), steps);
+                const transposedBass = bassNote ? transposeSingleChord(bassNote.trim(), steps) : '';
                 return transposedBase + (transposedBass ? '/' + transposedBass : '');
             }
-    
-            return transposeSingleChord(chord, steps);
+            
+            return transposeSingleChord(chord.trim(), steps);
         }
     
         function transposeSingleChord(chord, steps) {
             if (steps === 0 || !chord) return chord;
-    
+
             const match = chord.match(/^([A-G][#b]?)(.*)$/i);
             if (!match) return chord;
-    
+
             const baseNote = match[1];
             const quality = match[2] || '';
-    
-            const normalizedNote = baseNote.replace('b', '#').toUpperCase();
-            let currentIndex = CHORDS.indexOf(normalizedNote);
-            if (currentIndex === -1) {
-                const flatToSharp = { 'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#' };
-                const sharpNote = flatToSharp[baseNote];
-                if (sharpNote) {
-                    currentIndex = CHORDS.indexOf(sharpNote);
-                }
-                if (currentIndex === -1) return chord;
-            }
-    
-            const newIndex = (currentIndex + steps + CHORDS.length) % CHORDS.length;
-            let newBaseNote = CHORDS[newIndex];
-    
-            const preferFlat = ['F', 'Bb', 'Eb', 'Ab', 'Db'];
-            if (preferFlat.includes(newBaseNote)) {
+
+            // Chromatic scale with both sharps and flats
+            const chromaticScale = [
+                'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
+                'C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'
+            ];
+            
+            // Find current position
+            let currentIndex = chromaticScale.indexOf(baseNote);
+            if (currentIndex === -1) return chord;
+
+            // Calculate new position (steps is already ±1)
+            const newIndex = (currentIndex + steps + 12) % 12;
+            let newBaseNote = chromaticScale[newIndex];
+
+            // Maintain notation style (sharp vs flat)
+            const preferFlats = ['F', 'Bb', 'Eb', 'Ab', 'Db'];
+            if (preferFlats.includes(newBaseNote)) {
                 const sharpToFlat = { 'C#': 'Db', 'D#': 'Eb', 'F#': 'Gb', 'G#': 'Ab', 'A#': 'Bb' };
                 newBaseNote = sharpToFlat[newBaseNote] || newBaseNote;
-            } else if (baseNote === baseNote.toLowerCase()) {
+            }
+
+            // Maintain case
+            if (baseNote === baseNote.toLowerCase()) {
                 newBaseNote = newBaseNote.toLowerCase();
             }
-    
+
             return newBaseNote + quality;
         }
     
         function updatePreviewWithTransposition(level) {
             if (!songPreviewEl.dataset.songId) return;
-    
+            
+            level = Math.max(-12, Math.min(12, level));
+            
             const lyrics = songPreviewEl.dataset.originalLyrics;
             document.getElementById('transpose-level').textContent = level;
             const originalKey = songPreviewEl.dataset.originalKey;
@@ -4677,7 +4687,7 @@
         window.addToSetlist = addToSetlist;
         window.editSong = editSong;
         window.openDeleteSongModal = openDeleteSongModal;
-        window.removeFromSetlist = removeFromSetlist;
+        window.removeFromSetlist = removeFromSetlist;    
         window.renderSetlist = renderSetlist;
     
         // Start the application

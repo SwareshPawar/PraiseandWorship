@@ -1,6 +1,565 @@
 {
   "songs": [
     {
+      "id": 400,
+      "title": "Hungama Howe Jashn Maneye",
+      "category": "praise",
+      "key": "G",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Dance"
+      ],
+      "lyrics": "G                              C\nTere Saath Saath Hum Toh Chalte Rahe\n                D             G\nTere Haath Haath Hum Toh Thame Rahe\n \n \nG                   D\nChahe Jaha Bhi Hum Jayenge\n     C              G\nYeshu Naam Hum Le Jayenge\n                       C\nHum Sab Ek Hokar Bolenge\n                       D\nKhushiyon Se Shore Machadege\n \n \nD       G          C\nHungama Howe Jashn Maneye\n      Em\nYeshu Masih Ki Jai Gaye\n \n \nG            D\nSeeti Bajao, Aur Taali Bajao\nG\nArre Jhumo Aur Nacho\n    D     G\nAur Awaaz Uthao\n"
+    },
+    {
+      "id": 399,
+      "title": "Jeevan Mileya Mileya",
+      "category": "praise",
+      "key": "D",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Thanksgiving",
+        "Love",
+        "Good Friday"
+      ],
+      "lyrics": "Jeevan Mileya Mileya\nAshish Thehri Thehri\nBarkat Ai Ai Eh Khuda\n\nBandhan Tutt Tutt\nGamm Bhi Chhutte Chhutte\nAtharu Sukh  Sukh Aye Khuda\n\nJeevan Mileya Mileya\nAshish Thehri Thehri\nBarkat Ai Ai Eh Khuda\n\nMeri Daal Vo  Ban Jata\nKhyal Rakhata Har Pal Ka\nMara Dukh Sukh ka Sathi Mere Naal Saath Saath Chalata\nNa Main Rukana Rukana Na Main Thakna Thakna\nKaranga Mahima  Mahima Aye Khuda\n\nJeevan Mileya Mileya\nAshish Thehri Thehri\nBarkat Ai Ai Eh Khuda\n\nImaan Jo Main Kiya Hath Tera Tham Liya\nTune Muj pe Taras  Kiya Muje Changa Kar Diya\nAannad Paya Paya Tu Jabse Aaya Aaya Dushman Haare Haare Aye Khuda\n\nJeevan Mileya Mileya\nAshish Thehri Thehri\nBarkat Ai Ai Eh Khuda\n\n Yasu Jevan Ka Sagar Barpuri Data Hai\nMuje Beta Banakar Vo Aashish Vo Deta Hai\nNa Koi Tuzasa Milega Na Koi Tuzasa Hoga\nTu Sabse Sunder Sunder Aye Khuda\n\nJeevan Mileya Mileya\nAshish Thehri Thehri\nBarkat Ai Ai Eh Khuda"
+    },
+    {
+      "id": 398,
+      "title": "Yahowa Mera Badasha",
+      "category": "praise",
+      "key": "D",
+      "tempo": "120",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Dance",
+        "Qawalli"
+      ],
+      "lyrics": "यहोवा मेरा बादशाह\nवो करता भला सदा\nघोषणा करें वो करता भला\nअपने लोगों के साथ\nवो करता भला अपने लोगों के साथ\nउसका है अलग अंधा\nयहोवा वो करता भला सदा\nयहोवा पा जाते बीमार\nउसके दर पे शिफा ले जाते दुखी\nसुन के वो दुआ देता है जवाब\nकर बंधन से भी आजाद"
+    },
+    {
+      "id": 396,
+      "title": "Yeshu Naam ki jai jai ho",
+      "category": "worship",
+      "key": "D",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Worship",
+        "Hindi",
+        "Love"
+      ],
+      "lyrics": "Yeshu Naam ki jai jai ho * 4\n\nVerse 1 :\nUske kode khaane se\nMai changa hua\nYeshu Naam ki jai jai ho\n\nVerse 2 :\nUske lahoo behne se\nMai changa hua\nYeshu Naam ki jai jai ho"
+    },
+    {
+      "id": 395,
+      "title": "Usne daakhras aur tel",
+      "category": "praise",
+      "key": "D",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Easter",
+        "Christmas",
+        "Hindi",
+        "Thanksgiving",
+        "Miracle",
+        "Love"
+      ],
+      "lyrics": "Usne daakhras aur tel udela\nUsne daakhras aur tel udela\nmeri atmaa ko changa kiya\nyariho ke kinare adhmua pada\nUsne daakhras aur tel udela\nYeshu Yeshu Yeshu\nmaine tujhko pa liya\nYeshu Yeshu Yeshu\nmaine tujhko pa liya\nYeshu Yeshu Yeshu\nmaine tujhko pa liya\nmaine Yeshu ko pa liya"
+    },
+    {
+      "id": 394,
+      "title": "Tootkar bikharne na dega",
+      "category": "worship",
+      "key": "G",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Worship",
+        "Hindi",
+        "Love",
+        "Good Friday"
+      ],
+      "lyrics": "[Verse 1]\n \nG                    Em     Em7\nTootkar bikharne na dega mujhe\nC              D\nYeshu masih ka pyaar\nG       Bm     Em\nJisne akela na chhoda mujhe\nC      D     G\nKaisa anokha pyaar\n \n \n[REPEAT]\n \nG                    Em     Em7\nTootkar bikharne na dega mujhe\nC              D\nYeshu masih ka pyaar\nG       Bm     Em\nJisne akela na chhoda mujhe\nC      D     G\nKaisa anokha pyaar\n \n \n[Chorus]\n \nC         D       G       Em\nMa ki terha mujhe thamega wo\nC        D       G\nGirne na dega mujhe\n    C          D        Bm       Em\nMere aankho ke aansu ko ponchega wo\nC        D      G\nBahon me lega mujhe\n \n \n[Verse 2]\n \nG                Em\nMeri nirbalta me meri Samarth\nC              D\nYeshu masih ka pyaar\nG              Em\nJisne akela na chhoda mujhe\nC      D    G\nKaisa anokha pyaar\n \n \n[REPEAT]\n \nG                Em\nMeri nirbalta me meri Samarth\nC              D\nYeshu masih ka pyaar\nG              Em\nJisne akela na chhoda mujhe\nC      D    G\nKaisa anokha pyaar\n \n \n[Chorus]\n \nC         D       G       Em\nMa ki terha mujhe thamega wo\nC        D       G\nGirne na dega mujhe\n    C          D        Bm       Em\nMere aankho ke aansu ko ponchega wo\nC        D      G\nBahon me lega mujhe\n \n \n[REPEAT]\n \nC         D       G       Em\nMa ki terha mujhe thamega wo\nC        D       G\nGirne na dega mujhe\n    C          D        Bm       Em\nMere aankho ke aansu ko ponchega wo\nC        D      G\nBahon me lega mujhe\n \n \n[Bridge]\n \nG     C   D   G\nYeshu aa.......\nG     C   D   G\nYeshu aa.......\nG     C   D   Em\nYeshu aa.......\n      Am     D\nYeshu aa...\n \n \n[Outro]\n \nG     C   D   G\nYeshu aa.......  (2)\nG     C   D   Em\nYeshu aa.......\n      Am     D\nYeshu aa...\n      G\nYeshu aa...\n"
+    },
+    {
+      "id": 393,
+      "title": "Prarthna kare aradhna",
+      "category": "praise",
+      "key": "D",
+      "tempo": "110",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Dance",
+        "Action",
+        "Thanksgiving"
+      ],
+      "lyrics": "D                                  Bm        \n1.   Aaradhna mai hai chutkara,\nD                             Bm\naaradhna mai hai changaii\nA                                                                            \nSharer praan aatma mai shanty aanand deta hai\nG                  A           D\njaan se pyara prabhu\n\nD                         Bm                    \nCh- Prarthna kare aradhna kare,\nG               A                    D\nWo aacha hai sabse bhala hai – 2\nA                                      D\nChutkara paaye humesha  - 2\n\n2.   Mangoge tumhe milega, dhundoge tum paaooge – 2\nKhatkhatao khulengi swarg ki aashishe\npaao tum unhe aabhi.\n\n3.   Prarthna karo niranter, prarthna karo vishvas se – 2\nDharmi jan ki prarthna visvas ki prarthna\nkholti hai sare bandhan ko"
+    },
+    {
+      "id": 392,
+      "title": "Prabhu Maza Taranara",
+      "category": "worship",
+      "key": "D",
+      "tempo": "70",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Worship",
+        "Thanksgiving",
+        "Love",
+        "Marathi"
+      ],
+      "lyrics": "प्रभू माझा तारणारा,\nप्रभू माझा प्रेमळ बापा\nआ.आ.आ.आ (2)\n\nतूझ सोडूनी\nजीवन माझे\nव्यर्थ, व्यर्थ, व्यर्थ आहे (2)\n\nतुझ्याविना मी\nराहू कसा रे (2)\n\nमाझ्या देवा,\nमाझ्या पित्या\nआ. आ. आ. आ\n\nप्रभू माझा तारणारा,\nप्रभू माझा प्रेमळ बापा\nआ.आ.आ.आ (2)\n\nतुझ्याविना हे जीवन माझे ,\nअपूर्ण, अपूर्ण, अपूर्णच आहे … (2)\n\nतुझ्याविना हे\nजीवन माझे\nअपूर्ण, अपूर्ण, अपूर्णच आहे … (2)\n\nमी अनुभवतो\nतुझी कृपा रे.. (2)\n\nमाझ्या ख्रिस्ता, माझ्या पित्या,\nआ, आ, आ, आ\n\nप्रभू माझा तारणारा,\nप्रभू माझा प्रेमळ बापा\nआ.आ.आ.आ (2)"
+    },
+    {
+      "id": 391,
+      "title": "Ek Hi Zindagani hain",
+      "category": "praise",
+      "key": "D",
+      "tempo": "120",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Thanksgiving",
+        "Love"
+      ],
+      "lyrics": "एक ही जिंदगानी है ,\nतेरे लिए बितानी है ,\nजीऊं या मरुँ में ,\nतेरे लिए गाउँ में यह\n\nगीत .....गीत .....गीत .....गीत .....\n\nतेरी रोशनी में पाऊं अपनी रोशनी\nजगत की ज्योति तूं है मसिह\n\nमसिह ... मसिह ... मसिह ... मसिह ..\n\nमिले जो आप मुझे ,\nमिली मुझे जिंदगी ,\nकितना हसीं है मसिह\n\nमसिह ... मसिह ... मसिह ... मसिह ..\n\nएक ही जिंदगानी है ,\nतेरे लिए बितानी है ,\nजीऊं या मरुँ में ,\nतेरे लिए गाउँ में यह\n\nगीत .....गीत .....गीत .....गीत .....\n\nमसिह ... मसिह ... मसिह ... मसिह ..\n\nयेशु मसिह ..............."
+    },
+    {
+      "id": 390,
+      "title": "Yeshua  Masiha",
+      "category": "praise",
+      "key": "D",
+      "tempo": "120",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Thanksgiving",
+        "Dance"
+      ],
+      "lyrics": "yeshua  masiha x2\n\nalpha omega yeshua masiha\nadi aur ant hai yeshua masiha\njeevan ki roti yeshua masiha\njeevan ka jal hai yeshua masiha x2\n\nyeshua masiha\nyeshua masiha\nyeshua masiha\n\nyeshua masiha\n\npurab ke gaye yeshua masiha\npaschim ke gaye yeshua masiha\nuttar ke gaye yeshua masiha\ndakshin ke gaye yeshua masiha\nsab milke gaye yeshua masiha"
+    },
+    {
+      "id": 388,
+      "title": "Teri stuti prashansa",
+      "category": "praise",
+      "key": "D",
+      "tempo": "120",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Thanksgiving",
+        "Dance"
+      ],
+      "lyrics": "Teri stuti prashansa ho,\nTeri har pal mahima ho (2)\n\nTu avarnit hai, tu sundar hai,\nMera pehala pehala pyaar hai (2)\nTeri stuti prashansa ho,\nTeri har pal mahima ho (2)\n\nMeri nirashao mein\nMeri aasha bana tu\nMeri khamoshiyon ko\nSamajha tune prabhu\n\nDil ki geharaiyo mein\nBasta tu hee prabhu\nTeri ichchhao ko mein\nPura karata chalu"
+    },
+    {
+      "id": 387,
+      "title": "Tu pukare main aaoon",
+      "category": "worship",
+      "key": "G#",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Worship",
+        "Hindi",
+        "Thanksgiving",
+        "Holy Spirit",
+        "Love"
+      ],
+      "lyrics": "     Ab          Eb\nTu pukare main aaoon\n     Bb          Eb\nTu sunaye main sunu\n     Ab          Eb\nTu pukare main aaoon\n     Bb          Eb\nTu sunaye main sunu\n\n  Eb  Ab  Cm  Bb\nYeshu...\n  Eb  Fm  Cm  Bb\nYeshu...\n  Eb  Ab  Cm  Bb\nYeshu...\n  Eb  Fm  Cm  Bb\nYeshu...\n\n        Eb      Ab\nTu mera charvah\n          Bb\nMain tera bhed hu\n        Eb       Ab\nTu mera marg hai\n          Bb\nJispe par main chalu\n\nTu chalaye main chalu\nTu chahe main chahu\nTu chalaye main chalu\nTu chahe main chahu\n\nYeshu...\n\nTu mera gadh hai\nJisme panah main lu\nTu mera srijanhar\nMain teri rachna hu\n         \nTu chalaye main chalu...\n\nYeshu...\n           \nTu pukare main aaoon...\n \nTu chalaye main chalu...\n\nYeshu..."
+    },
+    {
+      "id": 386,
+      "title": "Dolu Dolu Main",
+      "category": "praise",
+      "key": "D",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Dance",
+        "Action",
+        "Hindi",
+        "Thanksgiving",
+        "Miracle"
+      ],
+      "lyrics": "Dolu Dolu Main,\nNachu Nachu Main, \nTere pyaar ke geet main x2\n\nDaud ke jaise veena Bajau\nMariyam ki jaise Dafli Bajau x 2\n\nDolu Dolu Main Nachu Nachu main\nTere pyaar ke geet gaau."
+    },
+    {
+      "id": 385,
+      "title": "Kurbaan Hua",
+      "category": "worship",
+      "key": "D",
+      "tempo": "90",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Worship",
+        "Hindi",
+        "Thanksgiving",
+        "Love"
+      ],
+      "lyrics": "Verse : 1 \nMere Gunaho Ki\nSaza Tune Li Yeshua\nKaise Karun Adaa\nKhuda Tera, Main Shukriya\nChorus\nKurbaan Hua, Kurbaan Hua\nKurbaan Hua, Mere Liye\nSab Kuch Sahaa, Kuch Na Kaha\nBas Chup Raha, Mere Liye\nMere Liye\nVerse : 2\nKaaton Ka Sir Pe Taaj\nLahoo Badan Se, Beh Raha\nKodon Ki Maar Kha Ke\nKhuda Ka Memna\nKurbaan Hua -2 \nKurbaan Hua...\nBridge\nJise Paap Nahi Pata\nKhud Paap Ban Gaya\nMeri Maut Ke Badle\nKhud Sooli Chad Gaya -3\nChorus : 2\nPura Hua, Pura Hua\nPura Hua, Usne Kaha\nParda Phataa, Fasla Mitaa\nKurbaan Hua, Hai Yeshua\nMere Liye, Mere Liye..."
+    },
+    {
+      "id": 384,
+      "title": "Jab Sath Hai Masiha",
+      "category": "praise",
+      "key": "C",
+      "tempo": "120",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Miracle",
+        "Qawalli",
+        "Hindi"
+      ],
+      "lyrics": "Kyon Tu Darta Hai Tere Liye Wo Ladta Hai – 2\nNa Rath Na Ghode – 2 Vijay Dilayenge\nJab Sath Hai Masiha – 2 Jeet Ham Jayenge\nJab Sath Hai Masiha Jeet Ham Jayenge\nJeet Ham Jayenge – 3 Ham Fataha Payenge\n\n(1)\nUske Logo Ko Jo Bhi Koi Lalkarta Hai,\nBacche Se Fir Wohi Balwan Ko Marta Hai – 2\nDaud Jaise Goliyath – 2 Ham Harayenge\nJab Sath Hai Masiha – 2 Jeet Ham Jayenge\nJab Sath Hai Masiha Jeet Ham Jayenge\nJeet Ham Jayenge – 3 Ham Fataha Payenge\n\n(2)\nHam Leke Chalenge Apne Sath Hathiyar Roohani,\nSaitan Bhi Harega Hamse Dushman Jo Jane – 2\nYeshu Naam Me Ham To – 2 Badhte Jayenge\nJab Sath Hai Masiha – 2 Jeet Ham Jayenge\nJab Sath Hai Masiha Jeet Ham Jayenge\nJeet Ham Jayenge – 3 Ham Fataha Payenge\n\n(3)\nPaigam Mahobbat Ko Ghar Ghar Pahuchayenge,\nNafarat Ko Bhi Ham Pyar Se Jeet Dikhayenge – 2\nYeshu Aane Wala – 2 Sabko Batayenge\nJab Sath Hai Masiha – 2 Jeet ham Jayenge\nJab Sath Hai Masiha Jeet Ham Jayenge\nJeet Ham Jayenge – 3 Ham Fataha Payenge"
+    },
+    {
+      "id": 383,
+      "title": "Badhta Badhta Tu Rahe",
+      "category": "worship",
+      "key": "D",
+      "tempo": "110",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Worship",
+        "Hindi",
+        "Love"
+      ],
+      "lyrics": "Verse 1:\nHuzoori mai Teri , hum aye hai\nChahiye Hume , bas Tu\nKhamiye Humme , kaafi sare hai\nAdhure na rahe , jab ho Tu (x2)\n\nPre-Chorus:\nTu na rahe , toh hum kya kar sake\nDil ki kami , puri Tu kare (x2)\n\nChorus:\nBadhta badhta badhta Tu rahe\nMai ghat tha rahu,\nmai ghat tha rahu (x2)\n\nVerse 2:\nMahima ho Teri , sada sarwada\nTujhsa hai yaha , koi na\n\nPre-Chorus:\nTu na rahe toh hum kya Kar sake\nDil ki kami puri Tu kare (x2)\n\nChorus:\nBadhta badhta badhta Tu rahe\nMai ghat tha rahu,\nmai ghat tha rahu (x2)\n\nBridge:\nBade jab Tu sansaar mai sab sar uthaye\nBade jab Tu shaitan bhi thar tharaye (x4)\n\nChorus:\nTu badhta Tu badhta Tu badhta\nmain ghat tha rahu\nmain ghat tha rahu (x2)"
+    },
+    {
+      "id": 382,
+      "title": "Hai Javeda Yeshu Masiha",
+      "category": "praise",
+      "key": "C",
+      "tempo": "110",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Dance"
+      ],
+      "lyrics": "[Intro]\nC   D   Am   G/B\n \n[Chorus]\nC                D\nHai Javeda Yeshu Masiha\nAm               G/B\nHai Javeda Yeshu Masiha\n \n[Verse 1]\nG            Am\nTu avval aur Tu aakhir hai\nC             D\n(Tu avval aur Tu aakhir hai)\nG            Am\nIs dil ka Tu baadshah hai\nC             D\n(Is dil ka Tu baadshah hai)\n \n \n[Pre-Chorus 1]\nG            Am\nTu avval aur tu aakhir hai\nC            D\nIs dil ka tu baadshah hai\nEm           C#dim\nTu avval aur tu aakhir hai\nC\nIs dil ka tu baadshah hai\n \n[Chorus]\nC                D\nHai Javeda Yeshu Masiha\nAm               G/B\nHai Javeda Yeshu Masiha\n \n[Verse 2]\nG                Am\nFarishton ki bhi raag Tu hai\nC                 D\n(Farishton ki bhi raag Tu hai)\nG           Am\nBhajte Tera naam Yeshu hai\nC            D\n(Bhajte Tera naam Yeshu hai)\n \n[Pre-Chorus 2]\nG                Am\nFarishton ki bhi raag Tu hai\nC           D\nBhajte Tera naam Yeshu hai\nEm               C#dim\nFarishton ki bhi raag Tu hai\nC\nBhajte Tera naam Yeshu hai\n \n[Chorus]\nC                D\nHai Javeda Yeshu Masiha\nAm               G/B\nHai Javeda Yeshu Masiha\n \n[Verse 3]\nG          Am\nHallelujah Hallelujah\nC          D\n(Hallelujah Hallelujah)\nG              Am\nSang mil gaaye hallelujah\nC              D\n(Sang mil gaaye hallelujah)\n \n[Pre-Chorus 3]\nG          Am\nHallelujah Hallelujah\nC              D\nSang mil gaaye Hallelujah\nEm         C#dim\nHallelujah Hallelujah\nC\nSang mil gaaye Hallelujah\n \n[Chorus]\nC                D\nHai Javeda Yeshu Masiha\nAm               G/B\nHai Javeda Yeshu Masiha\n"
+    },
+    {
+      "id": 381,
+      "title": "Sukhi haddiyo ji utho ",
+      "category": "praise",
+      "key": "D",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Qawalli",
+        "Love",
+        "Miracle"
+      ],
+      "lyrics": "Sukhi haddiyo ji utho \nyeshu ke naam mein\n\nsukhi haddiyo\nyeshu ke naam mein\n\n\n1. Yeshu ka naam jo\nmurde jilaata hai \nyeshu ka naam jo \nlangde chalata hai\nyeshu ke naam mein\nhai thikana \nyeshu ka naam \njo azadi dilata hai\n\n\nae bimaariyon, laachaariyo \nchhod jao\nyeshu ke naam mein….\n\n\n            2. yeshu ka naam              \n\nshifa hai, shifa hai \nyeshu ke naam mein hi phatah hai\nyeshu ka naam mitaye\ngunaah ko \nyeshu ka naam kare \nzindagi ata hai\n\nAe bediyo \nAe bandano\ntut jao\nyeshu ke naam mein….\n\n\n3. yeshu masih ka naam \nsab se pyaara \ngirate huo ko \nvo deta sahara\nyeshu ke naam mein \nhai sachai \nyeshu ka naam hai \nmera kaphara \n\nae kamiyo, kamzoriyo \nchod jao \nyeshu ke naam mein….\n\n\n4. chutakara milta hai \nyeshu ke naam mein\nrihai hoti hai \nyeshu ke naam mein \nmasah se bharate hai\nyeshu ke naam mein\nkaam bhi hote hai \nyeshu ke naam me\n\nAe bimaariyo, laachariyo\nchhod jao\nyeshu ke naam mein…"
+    },
+    {
+      "id": 380,
+      "title": "Meri To Izzat Hi Khudawand",
+      "category": "praise",
+      "key": "D",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Thanksgiving",
+        "Love"
+      ],
+      "lyrics": "Meri To Izzat Hi Khudawand Hai ~Hai~ – 2\nMeri To Takat Hi Khudawand Hai ~Hai~\n\nMera Apna To Kuch Bhi Nahin ~Han~\n\nMera Apna To Kuch Bhi Nahin\nMeri To Rag Rag Mein Naam Uska Likha Hai\nIzzat Hi Khudawand Hai ~Hai~\nMeri To Daolat Hi Khudawand Hai ~Hai~\n\n(1)\nTere Kahne Se Chalta Hoon Main,\nTere Kahne Se Rukta Hoon Main,\nTere Kalaam Me Rahkar Hi Ab,\nHar Ek Kaam Ko Karta Hoon Main,\nTere Kahne Se Chalta Hoon Main,\nMujhe Khauf Kisi Ka Nahin Han~~\n\nMujhe Khauf Kisi Ka Nahin\nMaine Jabse Tere Raston Ko Chuna Hai\n\n(2)\nHar Ek Dua Ko Usne Suna Hai Usne Suna Hai,\nAarzoo Puri Woh Karta Hai Haan Karta Hai,\n\nMujhe Uski Razaa Manzoor\n~~\nMujhe Uski Razaa Manzoor\nKya Behtar Mere Liye Usko Pata Hai"
+    },
+    {
+      "id": 379,
+      "title": "Kab tak khuda mera kabtak",
+      "category": "worship",
+      "key": "D",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Hindi",
+        "Worship",
+        "Love"
+      ],
+      "lyrics": "Kab tak khuda mera kabtak\nKab tak khuda mera kabtak\naye khuda mujh pe apna keher na dikha\nab to mujh pe rehem ker ki mai mer chala\n\nMujh ko de de shifa\nMujh ko de de shifa\nBekarari meri jaan ki badhti rahegi\nkab tak khuda mere kab tak\nkab tak khuda mere kab tak \n \nAye khudawand tu ab meri jaan ko chudaa\napni rehmat ki khatir se mujh ko bacha\nmar ke kaise karunga tujhe yaad main\nkabr mai shukr kaise karunga adaa\nmain to karhate karhate thak hi gaya\naur kab tak khuda mere kab tak  \n \nMere bister pe hai aansuon ki nami\nmeri aankhe bhi ro ro ke jati rahin\naye mere dushmano tum ye sunlo zara\nmere malik ne sunli hai meri dua\nhai wo dushman mere bekaraar aur sharminda\nrehmat khuda teri rehmat\nrehmat khuda teri rehmat"
+    },
+    {
+      "id": 378,
+      "title": "Jivan ki khoj me nikala",
+      "category": "praise",
+      "key": "D",
+      "tempo": "95",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Love",
+        "Forgiveness"
+      ],
+      "lyrics": "Jivan ki khoj me nikala re – 2\nyeshu paya, yeshu paya – 2\nMarga paya, satya paya,\nJivan paya re (4 bara)\nO sathi re, sathi re\nai bandhu re, bandhu re\n\nis duniya me, ghor aandhera\nShaitaan ne hai, ḍala ḍera\nsabke man ko, usne ghera – 2\nO nikala ujiyare ki khoj me – 2\nyeshu paya, yeshu paya\nMarga paya…\n\nMan ke aandara, paap ki nagari\nBharati jaye, karma ki gagari\nKaun bachaye, bhav sagar se\nHa, meri pyasi aankhiya tarse\nNikala chhutkare ki khoj me – 2\nyeshu paya…"
+    },
+    {
+      "id": 377,
+      "title": "Khuda se maango milega",
+      "category": "worship",
+      "key": "E",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Hindi",
+        "Worship",
+        "Love",
+        "Thanksgiving"
+      ],
+      "lyrics": "          E       C#m\nKhuda se maango milega\n      A           B\nUska vada hai woh dega\n     F#       B        E\nUske vade pe aitebaar karo\n \n[Chorus]\n        A       C#m        B          E\nKhuda se pyar karo pyar karo pyar karo\n \n[Verse 2]\n       E          C#m\nWahi to raah hai sach hai,\n    A           E\nWahi to jeevan hai\n         A        F#\nAur usne rooh jo bheji hai,\n  B         E\nSaath hardam hai\n \n         A        F#\nAur usne rooh jo bheji hai,\n \n        E          C#m\nWoh sada saath chalega,\n      F#m         B\nUska vada hai chalega,\n     F#       B        E\nUske vade pe aitebaar karo\n \n[Verse 3]\n      E         C#m\nPehle uski baadshaahat,\n    A          B\nAur uski raah chuno\n     F#                   B\nTumko duniya ki har ik cheez bhi,\n    A     E\nWoh dega suno\n  E             C#m\nWoh jo kehta hai karega,\n     F#m       B\nUska vada hai karega,\n  F#         B         E\nUske vade pe aitebaar karo\n \n[Chorus]\n        A       C#m        B          E\nKhuda se pyar karo pyar karo pyar karo"
+    },
+    {
+      "id": 376,
+      "title": "Tera Pyaar Hai Mahan",
+      "category": "praise",
+      "key": "D",
+      "tempo": "120",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Thanksgiving",
+        "Miracle"
+      ],
+      "lyrics": "Tera Pyaar Hai Mahan\n\nTera Pyaar Hai Mahan\n\nMain Jo Pehle Murda Tha,\n\nTune Daali Mujhme Jaan\n\nTera Pyaar Hai Mahan\n\nTera Pyaar Hai Mahan\n\nMain Jo Pehle Murda Tha,\n\nTune Daali Mujhme Jaan\n\n \n\nKyun Na Bolu Phir mein\n\nTeri Jay jaykar\n\nKyun Na Bolu Phir mein\n\nTeri Jay jaykar\n\nJay jaykar, Jay Jaykar\n\nTune Mere Liye Kya Kuch na Kiya\n\nJay jaykar, Jay Jaykar\n\nTune Mere Liye Kya Kuch na Kiya\n\n \n\nMeri Surat Bigdi Thi\n\nMera Dil bhi ThaKhaali\n\nTune Seencha Lahu Se\n\nTaaki Aaye Hariyaali \n\nMeri Surat Bigdi Thi\n\nMera Dil bhi ThaKhaali\n\nTune Seencha Lahu Se\n\nTaaki Aaye Hariyaali \n\nKyun na Bolu Phir mein\n\nTeri Jay jaykar\n\nKyun na Bolu Phir mein\n\nTeri Jay jaykar\n\nJay jaykar, Jay jaykar\n\nTune Mere Liye Kya Kuch Na Kiya\n\nJay jaykar, Jay jaykar\n\nTune Mere Liye Kya Kuch Na Kiya\n\n \n\nAayi Jeevan Mein Khushi\n\nAayi Abdi Zindagi\n\nTu Hai Zinda Shafiya\n\nTune Yeh Hai Kya Kiya\n\nAayi Jeevan Mein Khushi\n\nAayi Abdi Zindagi\n\nTu Hai Zinda Shafiya\n\nTune Yeh Hai Kya Kiya\n\nKyun na Bolu Phir mein\n\nTeri Jay jaykar\n\nKyun na Bolu Phir mein\n\nTeri Jay jaykar\n\nJay jaykar, Jay jaykar\n\nTune Mere Liye Kya Kuch Na Kiya\n\nJay jaykar, Jay jaykar\n\nTune Mere Liye Kya Kuch Na Kiya"
+    },
+    {
+      "id": 375,
+      "title": "Main Mandir hoon tera",
+      "category": "praise",
+      "key": "D",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Thanksgiving",
+        "Love"
+      ],
+      "lyrics": "मेरी साँस मे तेरी साँस है\nमेरे रूह मे पाक रूह\nमेरी आँख मे तेरी आँख है\nमेरे हाथ मे तेरा हाथ\nतू चले मै चलू, तू रुके मै रुकू\nतू कहे जो वही मै करू\nतू छुए मै छूऊ, जो कहे वो करू\nरूह मन जिस्म सब सौंप दू\nमै मंदिर हूँ तेरा, ज़िंदा घर हूँ तेरा (2)\nमेरी मर्जी अब नही तेरी होगी रजा (2)\nयही बन गया मेरा सारा जीवन\nए खुदा ए खुदा\nमै मंदिर हूँ तेरा, ज़िंदा घर हूँ तेरा\nमेरी मर्जी अब नही तेरी होगी रजा\nयही बन गया मेरा सारा जीवन\nए खुदा ए खुदा\nमै मंदिर हूँ तेरा\nमै मंदिर हूँ\nप्रभु का मंदिर हूँ\nपवित्र मंदिर हूँ\nतेरा जलाल मुजमे दिखे\nसूरत तेरी मैं बनू\nजब रूह तेरा है मुजमे तो\nआज़ाद हूँ पाक हूँ\nऐसा बर्तन बनू, जिसमे तु है भरा\nजूठ मिट जाए कर दे खरा\nमै खुदावंद मे हूँ, हो गया हूँ नया\nजो पुराना था जाता रहा\nमै मंदिर हूँ तेरा, ज़िंदा घर हूँ तेरा\nहा... मेरी मर्जी अब नही तेरी होगी रजा\nयही बन गया मेरा सारा जीवन\nए खुदा ए खुदा\nमै मंदिर हूँ तेरा\nए मददगार तुजसे है प्यार\nए पाक रूह पाक रूह\nसिखला मुजे अपना कलाम\nदिखला मुजे राह तू\nतूने मुजको चुना मुजमे रहने लगा\nऐसा मुजपे करम है किया\nपापी इतना बडा जो गुन्हेगार था\nअपना बेटा मुजे कर दिया\nमै मंदिर हूँ तेरा, ज़िंदा घर हूँ तेरा\nमेरी मर्जी अब नही तेरी होगी रजा\nहा यही बन गया मेरा सारा जीवन\nए खुदा ए खुदा\nमै मंदिर हूँ तेरा\nमै मंदिर हूँ\nमेरी मर्जी अब नही तेरी होगी रजा\nयही बन गया मेरा सारा जीवन\nए खुदा ए खुदा"
+    },
+    {
+      "id": 374,
+      "title": "Meri rooh khuda ki",
+      "category": "worship",
+      "key": "F",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Hindi",
+        "Worship",
+        "Thanksgiving",
+        "Love"
+      ],
+      "lyrics": "       F                     Bb \nMeri rooh khuda ki pyasi hai\n         F\nMeri rooh (x2)\n          F\nJaise hirni paani ke\n                    Bb\nnaalon ko tarasti hai\n        F\nMeri rooh\n        F                     Dm \nMeri rooh khuda ki pyasi hai\n        C\nMeri rooh\n         F                     Bb \nMeri rooh khuda ki pyasi hai\n         F\nMeri rooh \n\nVerse 1\n         F                       Bb \nRaat aur din aasoon behte hain\n      F                    Bb\nDuniya wale sab kehte hain\n       C                      F\nHai kaun kahan hai tera khuda\n          F               Bb\nKyun hai itna bechain yeh dil\n          F                   Bb\nKyun jaan yeh girti jaati hai\n          C                F\nHoga kis din deedar tera\n        F                 Bb \nKab hoga milna rubaru\n        C\nMeri rooh\n        F                     Bb \n\nMeri rooh khuda ki pyasi hai\n         F\nMeri rooh \n\nVerse 2\n       F                            Bb \nYardaan ki zameen se gaaunga\n      F                     Bb\nKohe mizgaar se gaaunga\n          C                  F\nGeharaon se geharaon tak\n         F                   Bb\nRaat aur din hoga tera karam\n          F                   Bb\nMein geet dua ke gaaunga\n          C                     F\nWoh mujhpe kare apni rehmat\n        F                 Bb \nHai meri bus yeh arzoo\n        C\nMeri Rooh\n        F                     Bb \nMeri rooh khuda ki pyasi hai\n         F\nMeri rooh \n\nVerse 3\n         F                        Bb \nDushman ki malamat teer si hai\n           F                  Bb\nKyun uske zulm ka saug karoon\n       C                     F\nChattaan hai meri mera khuda\n          F                             Bb\nWoh mujhse yeh hardam kehte hain\n        F                       Bb\nHai kaun kahan hai tera khuda\n      C                   F\nHoga kis din deedar tera\n          F               Bb \nMere toote dil ki aas hai tu\n        C\nMeri rooh\n        F                     Bb \nMeri rooh khuda ki pyasi hai\n         F\nMeri rooh \n\n"
+    },
+    {
+      "id": 373,
+      "title": "Pahado pe haste hain",
+      "category": "praise",
+      "key": "D",
+      "tempo": "120",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Qawalli",
+        "Hindi",
+        "Miracle"
+      ],
+      "lyrics": "पहाड़ों पे हँसते हैं, \n\nमसीहा के दीवाने -2 \n\nपहाड़ों से कहते हैं, \n\nमसीहा के परवाने -2 \n\nChorus:\n\nयीशु नाम में उखड़ो, \n\nकलाम से उखड़ो -2 \n\nबीमारी के, लाचारी के, \n\nग़रीबी के पहाड़ों \n\nउखड़ो, उखड़ो, उखड़ो -4 \n\n2\n\nउन चीज़ो को बुलाते हैं, \n\nजो नहीं के जैसे हैं \n\nन-उमीदी की हालत में, \n\nईमान लाते हैं -4 \n\nये ना जोर से है, \n\nऔर ना ताकत से है -2 \n\nपाक रूह की ताक़त से कहते हैं \n\nउखड़ो, उखड़ो, उखड़ो -2 \n\n3\n\nईमान में मजबूत हैं, \n\nतमजीद करते हैं, \n\nखुदावंद के वादों पे, \n\nशक न करते हैं -4 \n\nवो लहू से धुले, \n\nऔर मसह से भरे -2 \n\nपाक रूह की ताक़त से कहते हैं \n\nउखड़ो, उखड़ो, उखड़ो -2 \n\n4\n\nमजबूत हैं बलवान हैं, \n\nनिराश ना होते हैं, \n\nखुदा के बेटे-बेटियां, \n\nबलवंत होते हैं -4 \n\nवो ईमान से भरे, \n\nऔर चट्टान पर खड़े -2 \n\nपाक रूह की ताक़त से कहते हैं \n\nउखड़ो, उखड़ो, उखड़ो -2 \n\nपहाड़ों पे हँसते हैं, \n\nमसीहा के दीवाने -2 \n\nपहाड़ों से कहते हैं, \n\nमसीहा के परवाने -2 ' \n\nChorus:\n\nयीशु नाम में उखड़ो, \n\nकलाम से उखड़ो -2 \n\nबीमारी के, लाचारी के, \n\nग़रीबी के पहाड़ों \n\nउखड़ो, उखड़ो, उखड़ो -4 "
+    },
+    {
+      "id": 372,
+      "title": "Be-Saharon Ka Ek Sahara",
+      "category": "praise",
+      "key": "D",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Love"
+      ],
+      "lyrics": "Be-Saharon Ka Ek Sahara\nWo Hai Mera Yeshu Pyara -2\nBe-Saharon Ka \nNiraash Kyon Hote Ho?\nAasha Kyon Khote Ho? -2 \nAao Aao Yeshu Paas \nPao Tum Chhutkara -2 \nBe-Saharon Ka Ek Sahara...\nKhatron Se Kyon Darte Ho?\nAage Kyon Nahin Badhte Ho? -2\nPao Pao Yeshu Se\nShakti Aur Sahara -2 \nBe-Saharon Ka Ek Sahara..."
+    },
+    {
+      "id": 371,
+      "title": "Yishu tum ho taranahare",
+      "category": "praise",
+      "key": "D",
+      "tempo": "95",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Thanksgiving"
+      ],
+      "lyrics": "Yishu tum ho taranahare‚ jag ke palanahare\nMahima teri karta jaha aur karate hai chad sitare\n\nTu swarg ka raja ham dharati ke vasi hosanna teri gate\napna tana, mana, dhan sab lekar pas tere ate -2.\nKar do kshama pyare prabhu jitane bhi ho pap hamare\n\naradhana teri, ham karate rahenge jab tak jivan ho\nTeri hi vachan ko, sunate rahenge m rutyu ko ane do -2.\nswarg ki raha, dikha de prabhu aur sang chal tu hamare"
+    },
+    {
+      "id": 370,
+      "title": "Anmol ya Pritila",
+      "category": "praise",
+      "key": "D",
+      "tempo": "90",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Marathi",
+        "Love"
+      ],
+      "lyrics": "अनमोल या प्रीतीला कवटाळुनि धरावे \nप्रीति तुझी स्मरावी हृदयात साठवावी  \n\nदेवाने या जगावर अनमोल केली प्रीति \nधाड़ीला पुत्र जगती जोडावयास नाती \nप्रभु येशूच्या प्रितीची आठवण सदा करावी \nप्रीति तुझी स्मरावी     \n\nप्रभु येशूच्या प्रितीचे वधस्तंभ हे निशान \nआम्हा पाप्यासाठी दिला क्रुसवारी प्राण  \nराजाचा रंक झाला पाप्या क्षमा मिळाली \nप्रीति तुझी स्मरावी  "
+    },
+    {
+      "id": 369,
+      "title": "Tu Vaibhavane Jevha",
+      "category": "praise",
+      "key": "D",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Marathi",
+        "Thanksgiving",
+        "Love"
+      ],
+      "lyrics": "तू वैभवाने जेव्हा, येशील येशू देवा \nया दीन पामराला विसरू नकोस देवा#\n.. \nगेलास कृसावरी, पाप्याला तुच तारी \nतू जीवनाचा ठेवा, आहेस येशू देवा \nया दीन पामराला... \n\nतू जीवनाचा झरा, आमुचा आधार खरा \nहृदयात तू असावा, करितो तुझा मी धावा \nया दीन पामराला.... "
+    },
+    {
+      "id": 368,
+      "title": "Tere Siva Jag Me Masiha",
+      "category": "worship",
+      "key": "D",
+      "tempo": "90",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Worship",
+        "Forgiveness",
+        "Hindi",
+        "Good Friday"
+      ],
+      "lyrics": "तेरे सिवा जग में मसीहा\nकोई नहीं है सहारा,\nकोई नहीं है हमारा\n\nसुख और दुख में,\nरहता प्रभु तू, बेसहारों का\nतू ही है सहारा\nतू ही है सहारा\n\nजीवन के पथ पर,\nले चल प्रभु तू, तेरी राहों पे\nचलना सिखा दे,\nचलना सिखा दे"
+    },
+    {
+      "id": 367,
+      "title": "Tere liye mere liye aaya ",
+      "category": "praise",
+      "key": "D",
+      "tempo": "90",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Hindi",
+        "Thanksgiving",
+        "Miracle"
+      ],
+      "lyrics": "ter liye mere liye aaya \naaya vah insaan banake \naa karake usane bachaaya\n insaan pe kurabaan hoke\n\nrahe anokhee dikhaane \naaya vah hamako bachaane \nsachcha balidaan hai kiya \nusane ham sabako bachaake \naaya na anajaan banake \n\nduniyaan ke saagar mein aake \nhalachal so usane macha ke \nsote hue ko jaga ke \nmukti ka sooraj dikhaake \naaya vah insaan banake \n\njeevan ka sachcha sahaara \nbanake raha vah hamaara \naao ye aashishako baante \nsaare jahaan kee suna ke \naaya vah insaan banake"
+    },
+    {
+      "id": 366,
+      "title": "Elisha ki naaman ne baat",
+      "category": "praise",
+      "key": "D",
+      "tempo": "100",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Dance",
+        "Action",
+        "Hindi",
+        "Miracle"
+      ],
+      "lyrics": "Elisha ki naaman ne baat maan kar\nYardan nadhi me doobki lagayi * 2\n\nDoobki lagyi re baba\nDoobki lagyi * 4\n\nEk bar do bar\nTeen char bar\nPach aur che aur saat lagayi * 2\n\nDoobki lagyi re baba\nDoobki lagyi * 4\n\nDekho yeh kaisa chamatkar hua\nNaaman kodo se channga hua * 2\n\nDoobki lagyi re baba\nDoobki lagyi * 4"
+    },
+    {
+      "id": 365,
+      "title": "Jay jay kar ",
+      "category": "praise",
+      "key": "C",
+      "tempo": "120",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Praise",
+        "Easter",
+        "Dance",
+        "Hindi"
+      ],
+      "lyrics": "jay jay kar jay jay kar\njay jay kar yeshu teri\njay jay kar 2.\nyeshu teri jay yeshu teri jay 2.\nyeshu teri jay jayakar 2.\n\nanugrah kari vo data hai 2.\nBhala vo sabka chahat hai 2.\nVahi karta hai udar 2.\n\nati karunaamya dayalu hai 2.\nKrodh vilamba se karta hai 2.\nSabase karta hai pyar 2.\n\nGirate huon ko uṭhata hai\nBoz vo sabka uṭhata hai\nMahima teri apar 2"
+    },
+    {
+      "id": 364,
+      "title": "Holy Forever",
+      "category": "worship",
+      "key": "C",
+      "tempo": "80",
+      "time": "4/4",
+      "taal": "Keherwa",
+      "genres": [
+        "Worship"
+      ],
+      "lyrics": "  C  \n[Intro]\n \nF   Am G     C/E    Am  G\n \n \n[Verse 1]\n \n  C                    F                 C\nA thousand generations falling down in worship\n   Am               G             F\nTo sing the song of ages to the Lamb\n    C                             F               C\nAnd all who've gone before us and all who will believe\n     Am                G            F\nWill sing the song of ages to the Lamb\n \n \n[Pre-chorus]\n \n     F                  Am\nYour name is the highest\n     G\nYour name is the greatest\n     Am                     F\nYour name stands above them all\n    F                    Am\nAll thrones and dominions\n    G\nAll powers and positions\n     Am                     Dm\nYour name stands above them all\n \n \n[Chorus]\n \n                F      Am G\nAnd the angels cry: \"Ho-o-ly\"\n               C/E        Am\nAll creation cries: \"Ho-o-ly\"\n                Dm        G\nYou are lifted high, ho-o-ly\n          C    Csus4   C\nHoly fore - ver\n \n \n[Verse 2]\n \nC                           F                C\nIf you've been forgiven and if you've been redeemed\nAm               G             F\nSing the song forever to the Lamb\nC                          F                 C\nIf you walk in freedom and if you bear His name\nAm               G             F\nSing the song forever to the Lamb\n      Am               G          F\nWe'll sing the song forever and amen\n \n \n[Chorus 2]\n \n                F      Am G\nAnd the angels cry: \"Ho-o-ly\"\n               C/E        Am\nAll creation cries: \"Ho-o-ly\"\n                Dm        G\nYou are lifted high, ho-o-ly\n          C    Csus4   C\nHoly fore - ver\n             C/E  F       Am G\nHear your people sing: \"Ho-o-ly\"\n                C/E         Am\nTo the King of Kings: \"Ho-o-ly\"\n                Dm      G\nYou will always be ho-o-ly\n          C   Csus4   C\nHoly fore - ver\n \n \n[Pre-chorus 2]\n \n     F                  Am\nYour name is the highest\n     G\nYour name is the greatest\n     Am                     F\nYour name stands above them all\n    F                    Am\nAll thrones and dominions\n    G\nAll powers and positions\n     Am                     F\nYour name stands above them all\n \n            F                  Am\nJesus, Your name is the highest\n     G\nYour name is the greatest\n     Am                     F\nYour name stands above them all\n    F                    Am\nAll thrones and dominions\n    G\nAll powers and positions\n     Am                     Dm\nYour name stands above them all\n \n \n[Chorus 2]\n \n                F      Am G\nAnd the angels cry: \"Ho-o-ly\"\n               C/E        Am\nAll creation cries: \"Ho-o-ly\"\n                Dm         G\nYou are lifted high: \"Ho-o-ly\"\n          C    Csus4  C\nHoly fore - ver\n             C/E  F       Am G\nHear your people sing: \"Ho-o-ly\"\n                C/E         Am\nTo the King of Kings: \"Ho-o-ly\"\n                Dm      G\nYou will always be ho-o-ly\n          C    Csus4   C\nHoly fore - ver\n \n \n[Tag]\n \n                Dm      G\nYou will always be ho-o-ly\n          C    Csus4  C\nHoly fore - ver"
+    },
+    {
       "id": 363,
       "title": "Prarthna Main Tujhse Karu ",
       "category": "worship",
@@ -4633,7 +5192,7 @@
     {
       "id": 35,
       "title": "Tumsa Koi Nahi",
-      "category": "worship",
+      "category": "praise",
       "key": "D",
       "tempo": "70",
       "time": "4/4",

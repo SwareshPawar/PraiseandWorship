@@ -1,0 +1,1451 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Song Management Portal</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@indic-transliteration/hindi-transliteration@1.0.0/dist/bundle.js"></script>
+    <style>
+
+        /* Added above */
+        .stat-box.no-chords {
+            background-color: #f1c40f; /* Yellow background for emphasis */
+            color: #2c3e50;
+        }
+        .stat-box.no-chords .stat-value {
+            color: #2c3e50;
+        }        
+
+        #bpmCalculatorPopup {
+            /* Added above */
+        }
+        #tapBpmBtn:active {
+            background-color: #27ae60;
+            transform: scale(0.98);
+        }
+
+        .auto-tag-section {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+        .auto-tag-btn {
+            background-color: #2ecc71;
+            margin-right: 10px;
+        }
+        .auto-tag-btn:hover {
+            background-color: #27ae60;
+        }
+        .tag-suggestions {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .tag-suggestion {
+            background-color: #e0e0e0;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+        .tag-suggestion:hover {
+            background-color: #d0d0d0;
+        }
+
+        .stats-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e8f4fc;
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+        .stat-box {
+            background-color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            min-width: 120px;
+        }
+        .stat-label {
+            font-size: 0.9em;
+            color: #363636;
+        }
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .total-songs {
+            background-color: #3498db;
+            color: white;
+        }
+        .total-songs .stat-value {
+            color: white;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .toolbar {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        button, .btn {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover, .btn:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        tr.editing {
+            background-color: #fffde7;
+        }
+        input, select, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: monospace;
+            white-space: pre;
+        }
+        .genre-tag {
+            display: inline-block;
+            background: #e0e0e0;
+            padding: 3px 8px;
+            margin: 2px;
+            border-radius: 3px;
+            font-size: 0.8em;
+        }
+        .genre-input {
+            display: flex;
+            align-items: center;
+        }
+        .genre-input input {
+            flex-grow: 1;
+            margin-right: 5px;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+        .search-box input {
+            width: 300px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .lyrics-container {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            background: white;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 500px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            padding: 15px;
+            border-radius: 4px;
+            right: 0;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .show {
+            display: block;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .sort-options {
+            margin-bottom: 15px;
+        }
+        .sort-options label {
+            margin-right: 10px;
+        }
+        .multiselect-container {
+            position: relative;
+            width: 100%;
+        }
+        .multiselect-dropdown {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 100%;
+            z-index: 100;
+        }
+        .multiselect-option {
+            padding: 8px;
+            cursor: pointer;
+        }
+        .multiselect-option:hover {
+            background-color: #f0f0f0;
+        }
+        .multiselect-option.selected {
+            background-color: #3498db;
+            color: white;
+        }
+        .selected-genres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .selected-genre {
+            background-color: #e0e0e0;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+        }
+        .selected-genre-remove {
+            margin-left: 5px;
+            cursor: pointer;
+        }
+        .clear-data-btn {
+            background-color: #e74c3c;
+        }
+        .clear-data-btn:hover {
+            background-color: #c0392b;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .tab:hover {
+            background-color: #d0d0d0;
+        }
+        .tab.active:hover {
+            background-color: #2980b9;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Song Management Portal</h1>
+        <div class="stats-container" id="statsContainer"></div>
+        <div class="toolbar">
+            <button id="addSongBtn">Add New Song</button>
+            <button id="importBtn">Import JSON</button>
+            <button id="exportBtn">Export JSON</button>
+            <button id="clearDataBtn" class="clear-data-btn">Clear All Data</button>
+            <button id="bpmCalculatorBtn">BPM Calculator</button>
+            <button id="bulkDetectKeysBtn" style="background-color: #9b59b6;">Bulk Detect Keys</button>
+            <div id="bpmCalculatorPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.3); z-index:1000;">
+                <h3>BPM Calculator</h3>
+                <p>Tap the button or press spacebar in rhythm with the song</p>
+                <button id="tapBpmBtn" style="padding:15px 30px; font-size:18px;">Tap to the Beat</button>
+                <div id="bpmDisplay" style="font-size:24px; margin:15px 0; text-align:center;">--</div>
+                <div id="bpmHistory" style="height:100px; overflow-y:auto;"></div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button id="applyBpmBtn" style="background-color:#2ecc71;">Apply to Current Song</button>
+                    <button id="closeBpmBtn">Close</button>
+                </div>
+            </div>
+            <button id="autoTagBtn" class="auto-tag-btn">Auto-Tag Songs</button>
+            <input type="file" id="fileInput" accept=".json" style="display: none;">
+            <div id="bulkKeyDetectionPopup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.3); z-index:1000; max-width: 500px;">
+                <h3>Bulk Key Detection</h3>
+                <div id="bulkKeyDetectionStatus" style="margin: 15px 0;">
+                    <p>This will analyze lyrics of all songs and attempt to detect their musical keys.</p>
+                    <p>Found <span id="bulkKeyDetectionCount">0</span> songs with detectable chords.</p>
+                </div>
+                <div id="bulkKeyDetectionPreview" style="max-height: 200px; overflow-y: auto; margin: 10px 0; border: 1px solid #ddd; padding: 10px;"></div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button id="applyBulkKeysBtn" style="background-color:#2ecc71;">Apply Detected Keys</button>
+                    <button id="closeBulkKeysBtn">Close</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="Search songs...">
+        </div>
+        
+        <div class="sort-options">
+            <label>Sort by:</label>
+            <select id="sortSelect">
+                <option value="id-asc">ID (Ascending)</option>
+                <option value="id-desc">ID (Descending)</option>
+                <option value="title-asc">Title (A-Z)</option>
+                <option value="title-desc">Title (Z-A)</option>
+            </select>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="all-songs">All Songs</div>
+            <div class="tab" data-tab="no-chords">Songs Without Chords</div>
+        </div>
+        
+        <div id="all-songs" class="tab-content active">
+            <table id="songsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Key</th>
+                        <th>Tempo</th>
+                        <th>Time</th>
+                        <th>Taal</th>
+                        <th>Genres</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="songsTableBody">
+                    <!-- Songs will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="no-chords" class="tab-content">
+            <table id="noChordsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Key</th>
+                        <th>Tempo</th>
+                        <th>Time</th>
+                        <th>Taal</th>
+                        <th>Genres</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="noChordsTableBody">
+                    <!-- Songs without chords will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Constants for localStorage
+        const STORAGE_KEY = 'songManagementPortalData';
+        
+        // Available options for dropdowns
+        const categoryOptions = [
+            {value: "praise", label: "Praise"},
+            {value: "worship", label: "Worship"},
+        ];
+        
+        const keyOptions = [
+            "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
+            "Cm", "C#m", "Dm", "D#m", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "A#m", "Bm"
+        ];
+        
+        const timeOptions = ["4/4", "3/4", "2/4", "6/8", "5/4", "7/8"];
+        
+        const taalOptions = ["Keherwa",  "Keherwa Slow","Dadra", "Dadra Slow", "Rupak", "EkTaal", "JhapTaal", "TeenTaal", "Deepchandi", "Garba",  "Waltz", "Western"];
+        
+        const genreOptions = [
+            "Praise", "Worship", "Christmas", "Easter", "Good Friday", "Dance", 
+            "Action", "Love", "Forgiveness", "Holy Spirit", "Qawalli", "Miracle",  "Thanksgiving", "Hindi","Marathi", "English"
+        ];
+
+        const BPM_HISTORY_SIZE = 10; 
+        let tapTimes = [];
+        let bpmResult = null;
+
+        const languageTags = ["English", "Hindi", "Marathi"];
+
+        const keywordTags = {
+            'Praise': ['praise', 'celebrate', 'joy', 'rejoice', 'dance', 'exalt','Stuti','higher','behold'],
+            'Worship': ['worship','desier', 'adore', 'bow down', 'magnify', 'glorify','halelujah','mahaan','Sinhasan','aatma','aaradhana','kshma','daya','prarthana'],
+            'Miracle': ['miracle', 'wonder', 'sign', 'supernatural','chamatkar','chamatkarik','ashcharya','ashcharyajanak','karma'],
+            'Qawalli': ['mehboobat', 'qawwali', 'sufi', 'devotional','mehboob','rakhawala','darbar'],
+            'Holy Spirit': ['holy spirit', 'spirit', 'comforter', 'helper', 'advocate','pavitraatma','pavitraatma','parakletos','paraklet','pavitra','atma','Aatma'],
+            'Thanksgiving': ['thank you', 'grateful', 'gratitude', 'blessing','shukriya','shukri','ashirwad','Dhanyavad','dhanyavad','dhanyawad','aabhari','mahima'],
+            'Love': ['love', 'beloved', 'cherish', 'adore','pyaar', 'ishq', 'mohabbat', 'prem','ashiq','aashiq','aashiqi','aashiqana'],
+            'Forgiveness': ['forgive', 'mercy', 'pardon', 'redeem','maafi','kshama','kshamapana'],
+            'Christmas': ['christmas', 'nativity', 'advent', 'noel','janam','paida'],
+            'Good Friday': ['krus', 'cross', 'crucifixion', 'sacrifice','maran','क्रूस','marnala'],
+            'Easter': ['easter','zinda', 'resurrection', 'risen', 'cross', 'crucifixion','krus', 'punarutthan','jivit'],   
+            'Hindi': ['mera', 'hain', 'hai','deta','jivit','zinda','pyara','humko','khushi','sukh','sukhada','sukhad','sukhadayi','हमको','खुशी','सुखद','सुखदायी','सुखदायक','प्यारा','मेरा','है','हैं','जिवित'],   
+            'Marathi': ['येशू', 'माझा', 'पूर्ण', 'मी','krus','jivanta','premal','punarutthan','yeshula','dya','tyala','maharaj','zhala','bola','amhi','aamhi','आम्ही','आम्हाला','आमच्या','जिवंत','नावात','करेल','माझा','तुझा','तुला','तुमचा','तुमच्या','तुम्हाला','तुमच्या','tumhi','tumhala','tumchya','tumachya','tula','tujha','tujhya','tujhya','tula','tuza','tuzyat','tuzyat','tuzyat','tuzyat','tuzyat'],   
+            'English': ['Love', 'Now', 'This','God','believe','glorify','jesus','jesus christ','make','savior','sacrifice','cross','crucifixion','resurrection','life','eternal','holy spirit','spirit','comforter', 'helper', 'advocate','make','savior','sacrifice','cross','crucifixion','resurrection','life','eternal','holy spirit','spirit','comforter', 'helper', 'advocate','jesus','jesus christ','make','savior','sacrifice','cross','crucifixion','resurrection','life','eternal','holy spirit','spirit','comforter', 'helper', 'advocate'],   
+        };
+
+        const timeTaalRelations = {
+            "4/4": ["Keherwa", "Keherwa Slow", "Western", "TeenTaal"],
+            "3/4": ["Dadra", "Waltz"],
+            "6/8": ["Dadra Slow", "Garba", "EkTaal"],
+            "7/8": ["Rupak", "Deepchandi"],
+            "2/4": ["Keherwa", "Dadra"],
+            "5/4": []
+        };
+        
+        // Application state
+        let songs = [];
+        let currentEditingId = null;
+        let sortMethod = 'id-asc';
+        let activeTab = 'all-songs';
+        
+        // DOM elements
+        const songsTableBody = document.getElementById('songsTableBody');
+        const noChordsTableBody = document.getElementById('noChordsTableBody');
+        const addSongBtn = document.getElementById('addSongBtn');
+        const importBtn = document.getElementById('importBtn');
+        const exportBtn = document.getElementById('exportBtn');
+        const clearDataBtn = document.getElementById('clearDataBtn');
+        const fileInput = document.getElementById('fileInput');
+        const searchInput = document.getElementById('searchInput');
+        const sortSelect = document.getElementById('sortSelect');
+        const autoTagBtn = document.getElementById('autoTagBtn');
+        const bulkDetectKeysBtn = document.getElementById('bulkDetectKeysBtn');
+        const bulkKeyDetectionPopup = document.getElementById('bulkKeyDetectionPopup');
+        const bulkKeyDetectionCount = document.getElementById('bulkKeyDetectionCount');
+        const bulkKeyDetectionPreview = document.getElementById('bulkKeyDetectionPreview');
+        const applyBulkKeysBtn = document.getElementById('applyBulkKeysBtn');
+        const closeBulkKeysBtn = document.getElementById('closeBulkKeysBtn');
+        
+        // Initialize - Load data from localStorage
+        function loadFromLocalStorage() {
+            const savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                try {
+                    const parsedData = JSON.parse(savedData);
+                    songs = parsedData.songs || [];
+                    songs.forEach(song => {
+                        if (!Array.isArray(song.genres)) song.genres = [];
+                    });
+                    sortMethod = parsedData.sortMethod || 'id-asc';
+                    sortSelect.value = sortMethod;
+                } catch (e) {
+                    console.error("Failed to parse saved data", e);
+                }
+            }
+        }
+
+        function isValidChord(chord) {
+            if (!/^[A-G](#|b)?/i.test(chord)) return false;
+            
+            const validPatterns = [
+                /^[A-G](#|b)?$/,
+                /^[A-G](#|b)?(maj|min|m|M|aug|dim|sus)/,
+                /^[A-G](#|b)?[0-9]/,
+                /^[A-G](#|b)?\/[A-G](#|b)?$/,
+                /^[A-G](#|b)?(add|omit)/,
+            ];
+            
+            return validPatterns.some(pattern => pattern.test(chord));
+        }
+
+        function bulkDetectKeys() {
+            const songsWithLyrics = songs.filter(song => song.lyrics && song.lyrics.trim() !== '');
+            const songsWithChangedKeys = songsWithLyrics.map(song => {
+                const detectedKey = detectKeyFromLyrics(song.lyrics);
+                const validKey = detectedKey && keyOptions.includes(detectedKey);
+                
+                if (validKey && (!song.key || song.key !== detectedKey)) {
+                    return {
+                        ...song,
+                        detectedKey: detectedKey,
+                        currentKey: song.key || 'No key'
+                    };
+                }
+                return null;
+            }).filter(Boolean);
+            
+            bulkKeyDetectionCount.textContent = songsWithChangedKeys.length;
+            
+            if (songsWithChangedKeys.length > 0) {
+                bulkKeyDetectionPreview.innerHTML = songsWithChangedKeys.map(song => 
+                    `<div><strong>${song.id}. ${song.title}</strong>: ${song.currentKey} → <span style="color:#27ae60;">${song.detectedKey}</span></div>`
+                ).join('');
+            } else {
+                bulkKeyDetectionPreview.innerHTML = '<p>No songs with detectable key changes found.</p>';
+                applyBulkKeysBtn.disabled = true;
+            }
+            
+            bulkKeyDetectionPopup.style.display = 'block';
+            bulkKeyDetectionPopup.detectableSongs = songsWithChangedKeys;
+        }
+
+        function applyBulkDetectedKeys() {
+            const detectableSongs = bulkKeyDetectionPopup.detectableSongs;
+            if (!detectableSongs || detectableSongs.length === 0) return;
+            
+            let updatedCount = 0;
+            detectableSongs.forEach(songData => {
+                const song = songs.find(s => s.id === songData.id);
+                if (song && songData.detectedKey) {
+                    song.key = songData.detectedKey;
+                    updatedCount++;
+                }
+            });
+            
+            bulkKeyDetectionPopup.style.display = 'none';
+            applyBulkKeysBtn.disabled = false;
+            saveToLocalStorage();
+            renderSongsTable();
+            alert(`Successfully updated keys for ${updatedCount} songs!`);
+        }
+
+        function validateLanguageTags(genres) {
+            const assignedLanguageTags = genres.filter(genre => languageTags.includes(genre));
+            return assignedLanguageTags.length <= 1;
+        }
+
+        function enforceCategoryTagConsistency() {
+            songs.forEach(song => {
+                if (song.genres.includes("Praise") && song.category !== "praise") {
+                    song.category = "praise";
+                }
+                if (song.genres.includes("Worship") && song.category !== "worship") {
+                    song.category = "worship";
+                }
+            });
+        }
+
+        function suggestTagsFromLyrics(lyrics) {
+            if (!lyrics) return [];
+            
+            const lowerLyrics = lyrics.toLowerCase();
+            const suggestedTags = [];
+            
+            // Check for each keyword group
+            for (const [tag, keywords] of Object.entries(keywordTags)) {
+                if (keywords.some(keyword => lowerLyrics.includes(keyword.toLowerCase()))) {
+                    if (!suggestedTags.includes(tag)) {
+                        if ((tag === "Worship" && !suggestedTags.includes("Praise")) || 
+                            (tag === "Praise" && !suggestedTags.includes("Worship")) || 
+                            (tag !== "Worship" && tag !== "Praise")) {
+                            suggestedTags.push(tag);
+                        }
+                    }
+                }
+            }
+            
+            return suggestedTags;
+        }
+
+        function autoTagAllSongs() {
+            if (!confirm('This will analyze all songs and suggest tags based on lyrics. Continue?')) {
+                enforceCategoryTagConsistency();
+                saveToLocalStorage();
+                renderSongsTable();
+                return;
+            }
+            
+            songs.forEach(song => {
+                const suggestedTags = suggestTagsFromLyrics(song.lyrics);
+                
+                suggestedTags.forEach(tag => {
+                    if (!song.genres.includes(tag)) {
+                        if ((tag === "Worship" && !song.genres.includes("Praise")) || 
+                            (tag === "Praise" && !song.genres.includes("Worship")) || 
+                            (tag !== "Worship" && tag !== "Praise")) {
+                            song.genres.push(tag);
+                        }
+                    }
+                });
+
+
+            });
+            
+            saveToLocalStorage();
+            renderSongsTable();
+            alert(`Auto-tagging complete! Updated ${songs.length} songs.`);
+        }
+
+        function showTagSuggestions(row, song) {
+            const suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'tag-suggestions';
+            
+            const suggestedTags = suggestTagsFromLyrics(song.lyrics)
+                .filter(tag => {
+                    if (song.genres.includes("Worship") && tag === "Praise") return false;
+                    if (song.genres.includes("Praise") && tag === "Worship") return false;
+                    return !song.genres.includes(tag);
+                });
+            
+            if (suggestedTags.length === 0) {
+                suggestionsContainer.innerHTML = '<em>No additional tags suggested from lyrics</em>';
+            } else {
+                suggestedTags.forEach(tag => {
+                    const tagElement = document.createElement('div');
+                    tagElement.className = 'tag-suggestion';
+                    tagElement.textContent = tag;
+                    tagElement.addEventListener('click', () => {
+                        if ((tag === "Worship" && song.genres.includes("Praise")) || 
+                            (tag === "Praise" && song.genres.includes("Worship"))) {
+                            alert("A song can't be both Worship and Praise - please remove the other tag first");
+                            return;
+                        }
+                        
+                        if (!song.genres.includes(tag)) {
+                            song.genres.push(tag);
+                            renderSongsTable();
+                        }
+                    });
+                    suggestionsContainer.appendChild(tagElement);
+                });
+            }
+            
+            const genresCell = row.querySelector('td:nth-child(8)');
+            const autoTagSection = document.createElement('div');
+            autoTagSection.className = 'auto-tag-section';
+            autoTagSection.innerHTML = '<div>Suggested tags:</div>';
+            autoTagSection.appendChild(suggestionsContainer);
+            genresCell.appendChild(autoTagSection);
+        }
+
+        function calculateBPM() {
+            if (tapTimes.length < 2) return null;
+            
+            const intervals = [];
+            for (let i = 1; i < tapTimes.length; i++) {
+                intervals.push(tapTimes[i] - tapTimes[i - 1]);
+            }
+            
+            const averageInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+            return Math.round(60000 / averageInterval);
+        }
+
+        function updateBpmDisplay() {
+            const display = document.getElementById('bpmDisplay');
+            const history = document.getElementById('bpmHistory');
+            
+            if (tapTimes.length < 2) {
+                display.textContent = '--';
+                history.innerHTML = 'Tap at least twice to calculate BPM';
+                return;
+            }
+            
+            bpmResult = calculateBPM();
+            display.textContent = bpmResult + ' BPM';
+            
+            history.innerHTML = tapTimes.map((t, i) => 
+                i > 0 ? `<div>Tap ${i}: ${Math.round(60000/(t-tapTimes[i-1]))} BPM</div>` : ''
+            ).join('').slice(0, BPM_HISTORY_SIZE);
+        }
+
+        function saveScrollPosition() {
+            return window.pageYOffset || document.documentElement.scrollTop;
+        }
+
+        function restoreScrollPosition(position) {
+            window.scrollTo(0, position);
+        }
+
+        function handleTap() {
+            const now = Date.now();
+            
+            if (tapTimes.length > 0 && now - tapTimes[tapTimes.length - 1] > 3000) {
+                tapTimes = [];
+            }
+            
+            tapTimes.push(now);
+            if (tapTimes.length > BPM_HISTORY_SIZE) {
+                tapTimes.shift();
+            }
+            
+            updateBpmDisplay();
+        }
+
+        function initBpmCalculator() {
+            const bpmBtn = document.getElementById('bpmCalculatorBtn');
+            const popup = document.getElementById('bpmCalculatorPopup');
+            const tapBtn = document.getElementById('tapBpmBtn');
+            const applyBtn = document.getElementById('applyBpmBtn');
+            const closeBtn = document.getElementById('closeBpmBtn');
+            
+            bpmBtn.addEventListener('click', () => {
+                tapTimes = [];
+                bpmResult = null;
+                popup.style.display = 'block';
+                updateBpmDisplay();
+            });
+            
+            tapBtn.addEventListener('click', handleTap);
+            
+            document.addEventListener('keydown', (e) => {
+                if (popup.style.display === 'block' && e.code === 'Space') {
+                    e.preventDefault();
+                    handleTap();
+                    tapBtn.style.transform = 'scale(0.98)';
+                    setTimeout(() => tapBtn.style.transform = '', 100);
+                }
+            });
+            
+            applyBtn.addEventListener('click', () => {
+                if (bpmResult && currentEditingId) {
+                    const song = songs.find(s => s.id === currentEditingId);
+                    if (song) {
+                        song.tempo = bpmResult.toString();
+                        const tempoInput = document.querySelector('tr.editing input[data-field="tempo"]');
+                        if (tempoInput) tempoInput.value = bpmResult;
+                    }
+                }
+                popup.style.display = 'none';
+            });
+            
+            closeBtn.addEventListener('click', () => {
+                popup.style.display = 'none';
+            });
+        }
+        
+        function saveToLocalStorage() {
+            const dataToSave = {
+                songs: songs,
+                praiseSetlist: [],
+                worshipSetlist: [],
+                favorites: [],
+                sortMethod: sortMethod
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave, null, 2));
+        }
+        
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all songs? This cannot be undone.')) {
+                songs = [];
+                localStorage.removeItem(STORAGE_KEY);
+                renderSongsTable();
+            }
+        }
+        
+        function getNextId() {
+            return songs.length > 0 ? Math.max(...songs.map(s => s.id)) + 1 : 1;
+        }
+        
+        function sortSongs() {
+            switch(sortMethod) {
+                case 'id-asc':
+                    songs.sort((a, b) => a.id - b.id);
+                    break;
+                case 'id-desc':
+                    songs.sort((a, b) => b.id - a.id);
+                    break;
+                case 'title-asc':
+                    songs.sort((a, b) => a.title.localeCompare(b.title));
+                    break;
+                case 'title-desc':
+                    songs.sort((a, b) => b.title.localeCompare(a.title));
+                    break;
+                default:
+                    songs.sort((a, b) => a.id - b.id);
+            }
+        }
+        
+        function extractChords(lyrics) {
+            if (!lyrics) return [];
+            
+            const chordRegex = /(?:^|\s|\[)([A-G](?:#|b)?(?:maj|min|m|M|aug|dim|sus)?(?:[0-9]*)?(?:\/[A-G](?:#|b)?)?(?=\s|$|\]|,|\.))/g;
+            
+            const chords = new Set();
+            let match;
+            
+            while ((match = chordRegex.exec(lyrics)) !== null) {
+                const chord = match[1];
+                if (chord && isValidChord(chord)) {
+                    chords.add(chord);
+                }
+            }
+            
+            const lines = lyrics.split('\n');
+            lines.forEach(line => {
+                if (isChordLine(line)) {
+                    const lineChords = line.match(/([A-G](?:#|b)?(?:maj|min|m|M|aug|dim|sus)?(?:[0-9]*)?(?:\/[A-G](?:#|b)?)?)/g);
+                    if (lineChords) {
+                        lineChords.forEach(chord => {
+                            if (isValidChord(chord)) chords.add(chord);
+                        });
+                    }
+                }
+            });
+            
+            return Array.from(chords);
+        }
+
+        function isChordLine(line) {
+            line = line.trim();
+            if (!line) return false;
+            
+            const words = line.split(/\s+/);
+            let chordCount = 0;
+            let wordCount = 0;
+            
+            words.forEach(word => {
+                if (isValidChord(word.replace(/[\[\]]/g, ''))) {
+                    chordCount++;
+                } else if (word.length > 2) {
+                    wordCount++;
+                }
+            });
+            
+            return chordCount > 0 && (chordCount / (chordCount + wordCount)) > 0.66;
+        }
+
+        function detectKeyFromLyrics(lyrics) {
+            const chords = extractChords(lyrics);
+            if (chords.length === 0) return null;
+            
+            // Count chord occurrences
+            const chordCounts = {};
+            chords.forEach(chord => {
+                // Get root note (first part before any quality/extensions)
+                const root = chord.replace(/^([A-G](#|b)?).*$/, '$1');
+                chordCounts[root] = (chordCounts[root] || 0) + 1;
+            });
+            
+            // Find most common root note
+            let mostCommonRoot = null;
+            let maxCount = 0;
+            
+            for (const [root, count] of Object.entries(chordCounts)) {
+                if (count > maxCount) {
+                    mostCommonRoot = root;
+                    maxCount = count;
+                }
+            }
+            
+            // If we have a clear winner (at least 2 occurrences and at least 2x more than others)
+            if (maxCount >= 2) {
+                let isClearWinner = true;
+                for (const [root, count] of Object.entries(chordCounts)) {
+                    if (root !== mostCommonRoot && count > maxCount / 2) {
+                        isClearWinner = false;
+                        break;
+                    }
+                }
+                
+                if (isClearWinner) {
+                    // Try to determine major/minor based on chord qualities
+                    const minorChords = chords.filter(c => c.includes('m') || c.includes('min'));
+                    const majorChords = chords.filter(c => c.includes('M') || c.includes('maj'));
+                    
+                    if (minorChords.length > majorChords.length * 1.5) {
+                        return mostCommonRoot + 'm';
+                    } else if (majorChords.length > minorChords.length * 1.5) {
+                        return mostCommonRoot;
+                    }
+                    
+                    // Default to major if unclear
+                    return mostCommonRoot;
+                }
+            }
+            
+            // Fallback to first chord if no clear key
+            const firstChord = chords[0];
+            const root = firstChord.replace(/^([A-G](#|b)?).*$/, '$1');
+            
+            // Check if first chord is minor
+            if (firstChord.includes('m') || firstChord.includes('min')) {
+                return root + 'm';
+            }
+            
+            return root;
+        }
+
+        // Function to detect key from chords (returns the first chord found)
+        function detectKeyFromLyrics(lyrics) {
+            const chords = extractChords(lyrics);
+            if (chords.length > 0) {
+                // Get the first chord and simplify it (remove extensions)
+                const firstChord = chords[0];
+                // Basic simplification - just take the root and quality (major/minor)
+                const simplified = firstChord.replace(/[0-9\/].*$/, '');
+                return simplified;
+            }
+            return null;
+        }
+        function updateKeyDropdown(row, key) {
+            if (!row || !key) return;
+            
+            const keySelect = row.querySelector('select[data-field="key"]');
+            if (keySelect && keyOptions.includes(key)) {
+                keySelect.value = key;
+            }
+        }
+
+        function updateStatistics() {
+            const statsContainer = document.getElementById('statsContainer');
+            
+            const totalSongs = songs.length;
+            const praiseCount = songs.filter(song => song.category === 'praise').length;
+            const worshipCount = songs.filter(song => song.category === 'worship').length;
+            const uncategorizedCount = songs.filter(song => !song.category || song.category === '').length;
+            const noChordsCount = songs.filter(song => !song.lyrics || extractChords(song.lyrics).length === 0).length;
+            const allGenres = songs.flatMap(song => song.genres || []);
+            const uniqueGenres = [...new Set(allGenres)].length;
+            
+            statsContainer.innerHTML = `
+                <div class="stat-box total-songs">
+                    <div class="stat-label">Total Songs</div>
+                    <div class="stat-value">${totalSongs}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Praise Songs</div>
+                    <div class="stat-value">${praiseCount}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Worship Songs</div>
+                    <div class="stat-value">${worshipCount}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Uncategorized</div>
+                    <div class="stat-value">${uncategorizedCount}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">No Chords</div>
+                    <div class="stat-value">${noChordsCount}</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Unique Genres</div>
+                    <div class="stat-value">${uniqueGenres}</div>
+                </div>
+            `;
+        }
+
+        function renderSongsTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            const filteredSongs = activeTab === 'no-chords' 
+                ? songs.filter(song => !song.lyrics || extractChords(song.lyrics).length === 0)
+                : songs;
+            
+            const finalSongs = currentEditingId 
+                ? filteredSongs 
+                : filteredSongs.filter(song => 
+                    song.title.toLowerCase().includes(searchTerm) ||
+                    (song.category && song.category.toLowerCase().includes(searchTerm)) ||
+                    (song.key && song.key.toLowerCase().includes(searchTerm))
+                );
+            
+            const tableBody = activeTab === 'no-chords' ? noChordsTableBody : songsTableBody;
+            tableBody.innerHTML = '';
+            
+            finalSongs.forEach(song => {
+                const isEditing = currentEditingId === song.id;
+                const row = document.createElement('tr');
+                if (isEditing) row.classList.add('editing');
+                
+                const categorySelect = categoryOptions.map(opt => 
+                    `<option value="${opt.value}" ${song.category === opt.value ? 'selected' : ''}>${opt.label}</option>`
+                ).join('');
+                
+                const keySelect = keyOptions.map(key => 
+                    `<option value="${key}" ${song.key === key ? 'selected' : ''}>${key}</option>`
+                ).join('');
+                
+                const timeSelect = timeOptions.map(time => 
+                    `<option value="${time}" ${song.time === time ? 'selected' : ''}>${time}</option>`
+                ).join('');
+                
+                const taalSelect = taalOptions.map(taal => 
+                    `<option value="${taal}" ${song.taal === taal ? 'selected' : ''}>${taal}</option>`
+                ).join('');
+                
+                row.innerHTML = `
+                    <td>${song.id}</td>
+                    <td>${isEditing ? `<input type="text" value="${escapeHtml(song.title)}" data-field="title">` : song.title}</td>
+                    <td>${isEditing ? `<select data-field="category">${categorySelect}</select>` : (categoryOptions.find(c => c.value === song.category)?.label || song.category || '')}</td>
+                    <td>${isEditing ? `<select data-field="key">${keySelect}</select>` : song.key || ''}</td>
+                    <td>${isEditing ? `<input type="text" value="${escapeHtml(song.tempo || '')}" data-field="tempo" placeholder="e.g., 80 BPM">` : song.tempo || ''}</td>
+                    <td>${isEditing ? `<select data-field="time">${timeSelect}</select>` : song.time || ''}</td>
+                    <td>${isEditing ? `<select data-field="taal">${taalSelect}</select>` : song.taal || ''}</td>
+                    <td>${isEditing ? renderGenresInput(song.genres) : renderGenresDisplay(song.genres)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${isEditing ? `
+                                <button class="save-btn" data-id="${song.id}">Save</button>
+                                <button class="cancel-btn" data-id="${song.id}">Cancel</button>
+                                <button class="edit-lyrics-btn" data-id="${song.id}">Edit Lyrics</button>
+                                <button class="detect-key-btn" data-id="${song.id}">Detect Key</button>
+                            ` : `
+                                <button class="edit-btn" data-id="${song.id}">Edit</button>
+                                <button class="delete-btn" data-id="${song.id}">Delete</button>
+                                <div class="dropdown">
+                                    <button class="lyrics-btn" data-id="${song.id}">View Lyrics</button>
+                                    <div id="lyrics-dropdown-${song.id}" class="dropdown-content">
+                                        <div class="lyrics-container">${song.lyrics || 'No lyrics available'}</div>
+                                    </div>
+                                </div>
+                            `}
+                        </div>
+                        ${isEditing ? `
+                            <div id="lyrics-editor-${song.id}" style="margin-top: 10px; display: none;">
+                                <textarea data-field="lyrics" style="width: 100%;">${escapeHtml(song.lyrics || '')}</textarea>
+                            </div>
+                        ` : ''}
+                    </td>
+                `;
+                tableBody.appendChild(row);
+                
+                if (isEditing) {
+                    row.querySelector('.save-btn').addEventListener('click', () => saveSong(song.id));
+                    row.querySelector('.cancel-btn').addEventListener('click', () => cancelEdit(song.id));
+                    row.querySelector('.edit-lyrics-btn').addEventListener('click', (e) => {
+                        const editor = document.getElementById(`lyrics-editor-${song.id}`);
+                        editor.style.display = editor.style.display === 'none' ? 'block' : 'none';
+                        e.target.textContent = editor.style.display === 'none' ? 'Edit Lyrics' : 'Hide Lyrics Editor';
+                    });
+                    row.querySelector('.detect-key-btn').addEventListener('click', () => {
+                        detectKey(song.id);
+                    });
+                    
+                    initGenreMultiselect(row, song);
+                    showTagSuggestions(row, song);
+                } else {
+                    row.querySelector('.edit-btn').addEventListener('click', () => editSong(song.id));
+                    row.querySelector('.delete-btn').addEventListener('click', () => {
+                        if (confirm('Are you sure you want to delete this song?')) {
+                            deleteSong(song.id);
+                        }
+                    });
+                    
+                    const lyricsBtn = row.querySelector('.lyrics-btn');
+                    const dropdown = row.querySelector(`#lyrics-dropdown-${song.id}`);
+                    
+                    lyricsBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        document.querySelectorAll('.dropdown-content').forEach(d => {
+                            if (d !== dropdown) d.classList.remove('show');
+                        });
+                        dropdown.classList.toggle('show');
+                    });
+                }
+            });
+            
+            window.addEventListener('click', () => {
+                document.querySelectorAll('.dropdown-content').forEach(d => {
+                    d.classList.remove('show');
+                });
+                document.querySelectorAll('.multiselect-dropdown').forEach(d => {
+                    d.style.display = 'none';
+                });
+            });
+            
+            saveToLocalStorage();
+            updateStatistics();
+        }
+        
+        function initGenreMultiselect(row, song) {
+            const container = row.querySelector('.multiselect-container');
+            const input = container.querySelector('.compact-input');
+            const dropdown = container.querySelector('.multiselect-dropdown');
+            const selectedContainer = container.querySelector('.selected-genres');
+            
+            dropdown.innerHTML = genreOptions.map(genre => `
+                <div class="multiselect-option ${song.genres.includes(genre) ? 'selected' : ''}" 
+                     data-value="${genre}">${genre}</div>
+            `).join('');
+            
+            function updateSelectedGenres() {
+                selectedContainer.innerHTML = song.genres.map(genre => `
+                    <div class="selected-genre">
+                        ${genre}
+                        <span class="selected-genre-remove" data-value="${genre}">×</span>
+                    </div>
+                `).join('');
+                
+                selectedContainer.querySelectorAll('.selected-genre-remove').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const genre = e.target.getAttribute('data-value');
+                        song.genres = song.genres.filter(g => g !== genre);
+                        updateSelectedGenres();
+                        dropdown.querySelector(`.multiselect-option[data-value="${genre}"]`).classList.remove('selected');
+                    });
+                });
+            }
+            
+            updateSelectedGenres();
+            
+            input.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+            });
+            
+            dropdown.querySelectorAll('.multiselect-option').forEach(option => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const genre = e.target.getAttribute('data-value');
+                    
+                    if (languageTags.includes(genre)) {
+                        song.genres = song.genres.filter(g => !languageTags.includes(g));
+                    }
+                    
+                    if ((genre === "Worship" && song.genres.includes("Praise")) || 
+                        (genre === "Praise" && song.genres.includes("Worship"))) {
+                        alert("A song can't be both Worship and Praise - please remove the other tag first");
+                        return;
+                    }
+                    
+                    if (song.genres.includes(genre)) {
+                        song.genres = song.genres.filter(g => g !== genre);
+                        e.target.classList.remove('selected');
+                    } else {
+                        song.genres.push(genre);
+                        e.target.classList.add('selected');
+                    }
+                    
+                    updateSelectedGenres();
+                });
+            });
+        }
+        
+        function renderGenresDisplay(genres) {
+            if (!genres || genres.length === 0) return '';
+            return genres.map(genre => `<span class="genre-tag">${escapeHtml(genre)}</span>`).join('');
+        }
+        
+        function renderGenresInput(genres) {
+            if (!Array.isArray(genres)) genres = [];
+            
+            return `
+                <div class="multiselect-container">
+                    <input type="text" class="compact-input" placeholder="Select genres..." readonly>
+                    <div class="multiselect-dropdown"></div>
+                    <div class="selected-genres">
+                        ${genres.map(genre => `
+                            <div class="selected-genre">
+                                ${escapeHtml(genre)}
+                                <span class="selected-genre-remove" data-value="${escapeHtml(genre)}">×</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        
+        function editSong(id) {
+            const scrollPos = saveScrollPosition();
+            currentEditingId = id;
+            renderSongsTable();
+            restoreScrollPosition(scrollPos);
+        }
+        
+        function saveSong(id) {
+            enforceCategoryTagConsistency();
+            const row = document.querySelector(`tr.editing`);
+            if (row) {
+                const song = songs.find(s => s.id === id);
+                
+                row.querySelectorAll('input[data-field]').forEach(input => {
+                    const field = input.getAttribute('data-field');
+                    song[field] = input.value;
+                });
+                
+                row.querySelectorAll('select[data-field]').forEach(select => {
+                    const field = select.getAttribute('data-field');
+                    song[field] = select.value;
+                });
+                
+                const lyricsTextarea = row.querySelector('textarea[data-field="lyrics"]');
+                if (lyricsTextarea) {
+                    song.lyrics = lyricsTextarea.value;
+                    
+                    const detectedKey = detectKeyFromLyrics(song.lyrics);
+                    if (detectedKey && keyOptions.includes(detectedKey)) {
+                        song.key = detectedKey;
+                        updateKeyDropdown(row, detectedKey);
+                    }
+                }
+
+                if (!validateLanguageTags(song.genres)) {
+                    alert("A song can only have one language tag (English, Hindi, or Marathi)");
+                    return;
+                }
+                
+                currentEditingId = null;
+                sortSongs();
+                renderSongsTable();
+                restoreScrollPosition(scrollPos);
+            }
+        }
+        
+        function detectKey(id) {
+            const song = songs.find(s => s.id === id);
+            if (song && song.lyrics) {
+                const detectedKey = detectKeyFromLyrics(song.lyrics);
+                if (detectedKey) {
+                    if (keyOptions.includes(detectedKey)) {
+                        song.key = detectedKey;
+                        const row = document.querySelector(`tr.editing`);
+                        updateKeyDropdown(row, detectedKey);
+                        return detectedKey;
+                    } else {
+                        alert(`Detected chord "${detectedKey}" is not in our key options`);
+                    }
+                } else {
+                    alert('No chords found in lyrics');
+                }
+            } else {
+                alert('No lyrics available for this song');
+            }
+            return null;
+        }
+        
+        function cancelEdit(id) {
+            const song = songs.find(s => s.id === id);
+            if (song && song.title === 'New Song' && !song.category && !song.key && !song.tempo && !song.time && !song.taal && song.genres.length === 0 && !song.lyrics) {
+                songs = songs.filter(s => s.id !== id);
+            }
+            
+            currentEditingId = null;
+            renderSongsTable();
+        }
+        
+        function deleteSong(id) {
+            songs = songs.filter(song => song.id !== id);
+            renderSongsTable();
+        }
+        
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe.toString()
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    activeTab = tab.getAttribute('data-tab');
+                    document.getElementById(activeTab).classList.add('active');
+                    
+                    renderSongsTable();
+                });
+            });
+        }
+        
+        addSongBtn.addEventListener('click', () => {
+            const newSong = {
+                id: getNextId(),
+                title: 'New Song',
+                category: '',
+                key: '',
+                tempo: '',
+                time: '',
+                taal: '',
+                genres: [],
+                lyrics: ''
+            };
+            
+            songs.unshift(newSong);
+        // Temporarily set sort method to id-desc to show newest song at top
+        sortMethod = 'id-desc';
+        sortSelect.value = sortMethod;
+        sortSongs();
+        renderSongsTable();
+        editSong(newSong.id);
+        
+            // Auto-scroll to the new song's row
+            setTimeout(() => {
+                const newSongRow = document.querySelector(`tr.editing`);
+                if (newSongRow) {
+                    newSongRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 0);
+        });
+
+        bulkDetectKeysBtn.addEventListener('click', bulkDetectKeys);
+        applyBulkKeysBtn.addEventListener('click', applyBulkDetectedKeys);
+        closeBulkKeysBtn.addEventListener('click', () => {
+            bulkKeyDetectionPopup.style.display = 'none';
+        });
+        
+        importBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+        
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        if (data.songs && Array.isArray(data.songs)) {
+                            songs = data.songs;
+                            enforceCategoryTagConsistency();
+                            sortSongs();
+                            renderSongsTable();
+                            alert(`Successfully imported ${songs.length} songs`);
+                        }
+                    } catch (error) {
+                        alert('Error parsing JSON: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+            fileInput.value = '';
+        });
+        
+        exportBtn.addEventListener('click', () => {
+            const data = { 
+                songs: songs,
+                praiseSetlist: [],
+                worshipSetlist: [],
+                favorites: []
+            };
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'songs_export.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        autoTagBtn.addEventListener('click', autoTagAllSongs);
+        
+        clearDataBtn.addEventListener('click', clearAllData);
+        
+        searchInput.addEventListener('input', () => {
+            renderSongsTable();
+        });
+        
+        sortSelect.addEventListener('change', () => {
+            sortMethod = sortSelect.value;
+            sortSongs();
+            renderSongsTable();
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            enforceCategoryTagConsistency();
+            sortSongs();
+            initTabs();
+            renderSongsTable();
+            initBpmCalculator();
+        });
+    </script>
+</body>
+</html>

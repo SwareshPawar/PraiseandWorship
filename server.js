@@ -104,7 +104,7 @@ function requireAdmin(req, res, next) {
 // GET user favorites
 app.get('/api/user/favorites', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
-  const doc = await db.collection('UserData').findOne({ _id: userId });
+  const doc = await usersCollection.findOne({ _id: new ObjectId(userId) });
   res.json(doc?.favorites || []);
 });
 
@@ -112,8 +112,8 @@ app.get('/api/user/favorites', localAuthMiddleware, async (req, res) => {
 app.post('/api/user/favorites', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
   const { favorites } = req.body;
-  await db.collection('UserData').updateOne(
-    { _id: userId },
+  await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
     { $set: { favorites } },
     { upsert: true }
   );
@@ -124,7 +124,7 @@ app.post('/api/user/favorites', localAuthMiddleware, async (req, res) => {
 app.get('/api/user/setlist', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
   const type = req.query.type === 'worship' ? 'worshipSetlist' : 'praiseSetlist';
-  const doc = await db.collection('UserData').findOne({ _id: userId });
+  const doc = await usersCollection.findOne({ _id: new ObjectId(userId) });
   res.json(doc?.[type] || []);
 });
 
@@ -133,8 +133,8 @@ app.post('/api/user/setlist', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
   const { type, setlist } = req.body;
   const field = type === 'worship' ? 'worshipSetlist' : 'praiseSetlist';
-  await db.collection('UserData').updateOne(
-    { _id: userId },
+  await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
     { $set: { [field]: setlist } },
     { upsert: true }
   );
@@ -257,15 +257,20 @@ app.delete('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => 
 
 app.get('/api/userdata', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
-  const doc = await db.collection('UserData').findOne({ _id: userId });
-  res.json(doc || { favorites: [], praiseSetlist: [], worshipSetlist: [] });
+  const doc = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  if (!doc) {
+    return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [] });
+  }
+  // Only return relevant fields
+  const { favorites = [], praiseSetlist = [], worshipSetlist = [], name, email } = doc;
+  res.json({ favorites, praiseSetlist, worshipSetlist, name, email });
 });
 
 app.put('/api/userdata', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
   const { favorites, praiseSetlist, worshipSetlist, name, email } = req.body;
-  await db.collection('UserData').updateOne(
-    { _id: userId },
+  await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
     { $set: { favorites, praiseSetlist, worshipSetlist, name, email } },
     { upsert: true }
   );

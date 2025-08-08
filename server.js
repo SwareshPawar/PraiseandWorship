@@ -58,6 +58,7 @@ function generateToken(user) {
   return jwt.sign({
     id: user._id,
     email: user.email,
+    name: user.name,
     isAdmin: user.isAdmin || false
   }, JWT_SECRET, { expiresIn: '7d' });
 }
@@ -173,7 +174,7 @@ app.put('/api/songs/:id', localAuthMiddleware, requireAdmin, async (req, res) =>
   }
 });
 
-app.delete('/api/songs/:id', basicAuth, async (req, res) => {
+app.delete('/api/songs/:id', localAuthMiddleware, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const result = await songsCollection.deleteOne({ id: parseInt(id) });
@@ -186,7 +187,7 @@ app.delete('/api/songs/:id', basicAuth, async (req, res) => {
   }
 });
 
-app.delete('/api/songs', basicAuth, async (req, res) => {
+app.delete('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => {
   try {
     await songsCollection.deleteMany({});
     res.json({ message: 'All songs deleted' });

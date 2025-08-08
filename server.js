@@ -214,6 +214,16 @@ app.put('/api/userdata', localAuthMiddleware, async (req, res) => {
 
 // ====== SPACE FOR ADMIN ASSIGNMENT ======
 // To assign admin, use the /api/users/:id/promote endpoint as an admin user.
+
+// --- TEMPORARY: Promote Swaresh to admin via GET /make-me-admin (for setup only) ---
+app.get('/make-me-admin', async (req, res) => {
+  const email = 'swareshpawar@gmail.com';
+  const result = await usersCollection.updateOne({ email }, { $set: { isAdmin: true } });
+  if (result.matchedCount === 0) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  res.json({ message: `${email} promoted to admin` });
+});
 main().then(() => {
   const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

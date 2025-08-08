@@ -20,6 +20,8 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+let favoritesCollection;
+let setlistsCollection;
 
 const app = express();
 let db;
@@ -80,16 +82,13 @@ function localAuthMiddleware(req, res, next) {
 
 
 async function main() {
-  try {
-    await client.connect();
-    db = client.db('PraiseAndWorship');
-    songsCollection = db.collection('PraiseAndWorships');
-    usersCollection = db.collection('Users');
-    console.log('Connected to MongoDB');
-  } catch (err) {
-    console.error('Failed to connect to MongoDB:', err);
-    process.exit(1);
-  }
+  await client.connect();
+  db = client.db('PraiseAndWorship');
+  songsCollection = db.collection('PraiseAndWorships');
+  usersCollection = db.collection('Users');
+  favoritesCollection = db.collection('Favorites');
+  setlistsCollection = db.collection('Setlists');
+  console.log('Connected to MongoDB');
 }
 
 function requireAdmin(req, res, next) {
@@ -102,18 +101,20 @@ function requireAdmin(req, res, next) {
 // ===== Local Auth Endpoints =====
 // --- User Favorites and Setlist API ---
 // GET user favorites
+// GET user favorites from separate collection
 app.get('/api/user/favorites', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
-  const doc = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  const doc = await favoritesCollection.findOne({ userId });
   res.json(doc?.favorites || []);
 });
 
 // POST user favorites
+// Save favorites in a separate collection
 app.post('/api/user/favorites', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
   const { favorites } = req.body;
-  await usersCollection.updateOne(
-    { _id: new ObjectId(userId) },
+  await favoritesCollection.updateOne(
+    { userId },
     { $set: { favorites } },
     { upsert: true }
   );
@@ -121,21 +122,21 @@ app.post('/api/user/favorites', localAuthMiddleware, async (req, res) => {
 });
 
 // GET user setlist (type=praise|worship)
+// GET user setlist from separate collection
 app.get('/api/user/setlist', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
-  const type = req.query.type === 'worship' ? 'worshipSetlist' : 'praiseSetlist';
-  const doc = await usersCollection.findOne({ _id: new ObjectId(userId) });
-  res.json(doc?.[type] || []);
+  const type = req.query.type === 'worship' ? 'worship' : 'praise';
+  const doc = await setlistsCollection.findOne({ userId, type });
+  res.json(doc?.setlist || []);
 });
 
-// POST user setlist
+// Save setlist in a separate collection
 app.post('/api/user/setlist', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
   const { type, setlist } = req.body;
-  const field = type === 'worship' ? 'worshipSetlist' : 'praiseSetlist';
-  await usersCollection.updateOne(
-    { _id: new ObjectId(userId) },
-    { $set: { [field]: setlist } },
+  await setlistsCollection.updateOne(
+    { userId, type },
+    { $set: { setlist } },
     { upsert: true }
   );
   res.json({ message: 'Setlist updated' });

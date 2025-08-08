@@ -62,9 +62,13 @@ const songSchema = new mongoose.Schema({
 });
 const Song = mongoose.model('PraiseAndWorship', songSchema, 'PraiseAndWorships');
 
+// Serve static frontend files
+const path = require('path');
+app.use(express.static(path.join(__dirname)));
+
 // API routes
 app.get('/', (req, res) => {
-  res.send('Praise & Worship Songs backend is running!');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Get all songs

@@ -150,6 +150,11 @@ app.post('/api/register', async (req, res) => {
   const hash = await bcrypt.hash(password, 10);
   const user = { email, password: hash, name, isAdmin: false };
   const result = await usersCollection.insertOne(user);
+  const userId = result.insertedId.toString();
+  // Create empty favorites and setlists documents for the new user
+  await favoritesCollection.insertOne({ userId, favorites: [] });
+  await setlistsCollection.insertOne({ userId, type: 'praise', setlist: [] });
+  await setlistsCollection.insertOne({ userId, type: 'worship', setlist: [] });
   const token = generateToken({ ...user, _id: result.insertedId });
   res.json({ token });
 });

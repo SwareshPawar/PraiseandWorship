@@ -1888,7 +1888,63 @@
         []
     </script>
 
+    <!-- Auth0 SPA JS -->
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/1.20/auth0-spa-js.production.js"></script>
+    <div id="auth0-controls" style="position: absolute; top: 10px; right: 20px; z-index: 1000;">
+      <button id="loginBtn">Login</button>
+      <button id="logoutBtn" style="display:none;">Logout</button>
+      <span id="userEmail" style="margin-left: 10px;"></span>
+    </div>
     <script>
+        // ====== Auth0 Config ======
+        const AUTH0_DOMAIN = 'dev-yr80e6pevtcdjxvg.us.auth0.com';
+        const AUTH0_CLIENT_ID = 'Q1PyriLbgLVsC21MrBBC8RJgcnaTx6SV'; // Replace with your actual client ID
+        const AUTH0_AUDIENCE = 'https://oldandnew.onrender.com/api';
+        let auth0Client = null;
+        let accessToken = null;
+        let user = null;
+
+        async function configureAuth0() {
+            auth0Client = await createAuth0Client({
+                domain: AUTH0_DOMAIN,
+                clientId: AUTH0_CLIENT_ID,
+                audience: AUTH0_AUDIENCE,
+                cacheLocation: 'localstorage',
+                useRefreshTokens: true
+            });
+            // Handle redirect callback
+            if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
+                await auth0Client.handleRedirectCallback();
+                window.history.replaceState({}, document.title, '/');
+            }
+            updateAuthUI();
+        }
+
+        async function updateAuthUI() {
+            const isAuthenticated = await auth0Client.isAuthenticated();
+            user = isAuthenticated ? await auth0Client.getUser() : null;
+            accessToken = isAuthenticated ? await auth0Client.getTokenSilently() : null;
+            document.getElementById('loginBtn').style.display = isAuthenticated ? 'none' : 'inline-block';
+            document.getElementById('logoutBtn').style.display = isAuthenticated ? 'inline-block' : 'none';
+            document.getElementById('userEmail').textContent = isAuthenticated && user ? user.email : '';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            configureAuth0();
+            document.getElementById('loginBtn').addEventListener('click', () => {
+                auth0Client.loginWithRedirect();
+            });
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                auth0Client.logout({ returnTo: window.location.origin });
+            });
+        });
+        // Helper: fetch with Auth0 token for protected routes
+        async function authFetch(url, options = {}) {
+            if (!accessToken) throw new Error('Not authenticated');
+            options.headers = options.headers || {};
+            options.headers['Authorization'] = `Bearer ${accessToken}`;
+            return fetch(url, options);
+        }
         // Initialize songs and setlists
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         let socket = null;
@@ -1901,41 +1957,24 @@
         let touchStartY = 0;
         let isScrolling = false;
     
-        async function loadSongsFromFile() {
+
+        // Fetch all songs from backend
+        async function loadSongsFromBackend() {
             try {
-                const pathsToTry = [
-                    './songs.json',
-                    '/songs.json',
-                    'songs.json',
-                    `${window.location.pathname.split('/')[1]}/songs.json`
-                ];
-    
-                for (const path of pathsToTry) {
-                    try {
-                        const response = await fetch(path);
-                        if (response.ok) {
-                            const data = await response.json();
-                            if (Array.isArray(data)) {
-                                return data;
-                            } else if (Array.isArray(data.songs)) {
-                                return data.songs;
-                            }
-                        }
-                    } catch (e) {
-                        console.log(`Failed to load from ${path}`, e);
-                    }
+                const response = await fetch(`${API_BASE_URL}/songs`);
+                if (!response.ok) throw new Error('Failed to fetch songs');
+                const data = await response.json();
+                // Map _id to id for frontend compatibility
+                songs = data.map(song => ({ ...song, id: song._id || song.id }));
+                if (praiseTab && praiseTab.classList.contains('active')) {
+                    renderSongs('praise', keyFilter.value, genreFilter.value);
+                } else {
+                    renderSongs('worship', keyFilter.value, genreFilter.value);
                 }
-                
-                const embedded = document.getElementById('embeddedSongs');
-                if (embedded && embedded.textContent.trim() !== '[]') {
-                    const embeddedData = JSON.parse(embedded.textContent);
-                    return Array.isArray(embeddedData) ? embeddedData : [];
-                }
-                
-                return [];
+                updateSongCount();
             } catch (err) {
-                console.error('Error loading songs:', err);
-                return [];
+                showNotification('Error loading songs from server', 4000);
+                console.error(err);
             }
         }
     
@@ -2015,36 +2054,27 @@
         let isAnyModalOpen = false;
         let currentModal = null;
 
+        const API_BASE_URL = 'http://localhost:3001/api';
+
     
         // Search history
         let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
     
         // Initialize the application
+
         async function init() {
-            songs = await loadSongsFromFile();
-            const localSongs = JSON.parse(localStorage.getItem('songs')) || [];
-            if (localSongs.length > 0) {
-                const existingIds = new Set(songs.map(s => s.id));
-                localSongs.forEach(song => {
-                    if (!existingIds.has(song.id)) {
-                        songs.push(song);
-                    }
-                });
-            }
-            
+            await loadSongsFromBackend();
             loadSettings();
             addEventListeners();
             addPanelToggles();
-            renderSongs('praise', '', '');
             applyLyricsBackground(document.getElementById('praiseTab').classList.contains('active'));
-    
+
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
                 document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
             }
-    
+
             connectWebSocket();
-            updateSongCount();
             initScreenWakeLock();
             setupModalClosing();
             setupSuggestedSongsClosing();
@@ -2625,15 +2655,13 @@
                 const div = document.createElement('div');
                 div.className = 'song-item';
                 div.dataset.songId = song.id;
-                
                 const isInSetlist = song.category === 'praise' 
                     ? praiseSetlist.some(s => s.id === song.id)
                     : worshipSetlist.some(s => s.id === song.id);
-                    
                 const isFavorite = favorites.includes(song.id);
-                
                 const displayGenres = song.genres ? song.genres.join(', ') : song.genre || '';
-                
+                // Only show delete button if user is logged in (admin)
+                const showDelete = typeof user !== 'undefined' && user;
                 div.innerHTML = `
                 <div class="song-header">
                     <span class="song-title">${song.title}</span>
@@ -2647,6 +2675,7 @@
                         ${isInSetlist ? 'Remove' : 'Add'}
                     </button>
                     <button class="btn btn-edit edit-song">Edit</button>
+                    ${showDelete ? `<button class="btn btn-delete delete-song"><i class="fas fa-trash"></i> Delete</button>` : ''}
                 </div>
             `;
                
@@ -2654,29 +2683,31 @@
                     e.stopPropagation();
                     toggleFavorite(song.id);
                 });
-                
                 div.querySelector('.toggle-setlist').addEventListener('click', (e) => {
                     e.stopPropagation();
                     const songId = parseInt(div.dataset.songId);
-                    const song = songs.find(s => s.id === songId);
-                    if (!song) return;
-                    
-                    const isInSetlist = song.category === 'praise' 
+                    const songObj = songs.find(s => s.id === songId);
+                    if (!songObj) return;
+                    const isInSetlist = songObj.category === 'praise' 
                         ? praiseSetlist.some(s => s.id === songId)
                         : worshipSetlist.some(s => s.id === songId);
-                    
                     if (isInSetlist) {
-                        removeFromSetlist(songId, song.category);
+                        removeFromSetlist(songId, songObj.category);
                     } else {
                         addToSetlist(songId);
                     }
                 });
-                
                 div.querySelector('.edit-song').addEventListener('click', (e) => {
                     e.stopPropagation();
                     editSong(song.id);
                 });
-                
+                // Delete button event (admin only)
+                if (div.querySelector('.delete-song')) {
+                    div.querySelector('.delete-song').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openDeleteSongModal(song.id);
+                    });
+                }
                 div.addEventListener('click', () => {
                     showPreview(song);
                     if (window.innerWidth <= 768) {
@@ -3281,6 +3312,7 @@
                     <button class="btn btn-edit" id="previewEditBtn">
                         <i class="fas fa-edit"></i> Edit
                     </button>
+                    ${typeof user !== 'undefined' && user ? `<button class="btn btn-delete" id="previewDeleteBtn"><i class="fas fa-trash"></i> Delete</button>` : ''}
                     </div>
                 </div>
 
@@ -3326,7 +3358,6 @@
             document.getElementById('previewFavoriteBtn').addEventListener('click', (e) => {
                 toggleFavorite(song.id);
             });
-            
             document.getElementById('previewSetlistBtn').addEventListener('click', (e) => {
                 if (isInSetlist) {
                     removeFromSetlist(song.id, song.category);
@@ -3334,10 +3365,16 @@
                     addToSetlist(song.id);
                 }
             });
-            
             document.getElementById('previewEditBtn').addEventListener('click', (e) => {
                 editSong(song.id);
             });
+            // Delete button event (admin only)
+            if (document.getElementById('previewDeleteBtn')) {
+                document.getElementById('previewDeleteBtn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openDeleteSongModal(song.id);
+                });
+            }
             
             document.getElementById('transpose-up').addEventListener('click', (e) => {
                 console.log('Transpose up clicked');
@@ -4191,144 +4228,173 @@
             }
     
             // Form submissions
-            newSongForm.addEventListener('submit', (e) => {
+            newSongForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const title = document.getElementById('songTitle').value;
                 const lyrics = document.getElementById('songLyrics').value;
-                
                 if (isDuplicateSong(title, lyrics)) {
                     showNotification('A song with this title and lyrics already exists!');
                     return;
                 }
-                
                 const selectedGenres = Array.from(document.querySelectorAll('#genreDropdown .multiselect-option.selected'))
                     .map(opt => opt.dataset.value);
-                
                 if (selectedGenres.length === 0) {
                     showNotification('Please select at least one genre');
                     return;
                 }
-                
-                const newSong = {
-                    id: Math.max(...songs.map(s => s.id), 0) + 1,
+                const songData = {
                     title: title,
                     category: document.getElementById('songCategory').value,
                     key: document.getElementById('songKey').value,
                     tempo: document.getElementById('songTempo').value,
                     time: document.getElementById('songTime').value,
                     taal: document.getElementById('songTaal').value,
-                    genres: selectedGenres,
+                    genre: selectedGenres,
                     lyrics: lyrics
                 };
-                
-                songs.push(newSong);
-                saveSongs();
-                
-                if (deleteSection.style.display === 'block') {
-                    renderDeleteSongs();
-                } else if (praiseTab.classList.contains('active')) {
-                    renderSongs('praise', keyFilter.value, genreFilter.value);
-                } else {
-                    renderSongs('worship', keyFilter.value, genreFilter.value);
+                try {
+                    const response = await fetch(`${API_BASE_URL}/songs`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(songData)
+                    });
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error || 'Failed to add song');
+                    }
+                    const newSong = await response.json();
+                    songs.push(newSong);
+                    if (deleteSection.style.display === 'block') {
+                        renderDeleteSongs();
+                    } else if (praiseTab.classList.contains('active')) {
+                        renderSongs('praise', keyFilter.value, genreFilter.value);
+                    } else {
+                        renderSongs('worship', keyFilter.value, genreFilter.value);
+                    }
+                    updateSongCount();
+                    showNotification('Song added successfully!');
+                    addSongModal.style.display = 'none';
+                    newSongForm.reset();
+                    document.getElementById('selectedGenres').innerHTML = '';
+                } catch (err) {
+                    showNotification('Error adding song: ' + err.message, 4000);
+                    console.error(err);
                 }
-                
-                showNotification('Song added successfully!');
-                addSongModal.style.display = 'none';
-                newSongForm.reset();
-                document.getElementById('selectedGenres').innerHTML = '';
             });
     
-            editSongForm.addEventListener('submit', (e) => {
+            editSongForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const id = parseInt(document.getElementById('editSongId').value);
+                const id = document.getElementById('editSongId').value;
                 const title = document.getElementById('editSongTitle').value;
                 const lyrics = document.getElementById('editSongLyrics').value;
-                
                 if (isDuplicateSong(title, lyrics, id)) {
                     showNotification('A song with this title and lyrics already exists!');
                     return;
                 }
-                
                 const selectedGenres = Array.from(document.querySelectorAll('#editGenreDropdown .multiselect-option.selected'))
                     .map(opt => opt.dataset.value);
-                
                 if (selectedGenres.length === 0) {
                     showNotification('Please select at least one genre');
                     return;
                 }
-                
                 const updatedSong = {
-                    id,
                     title: title,
                     category: document.getElementById('editSongCategory').value,
                     key: document.getElementById('editSongKey').value,
                     tempo: document.getElementById('editSongTempo').value,
                     time: document.getElementById('editSongTime').value,
                     taal: document.getElementById('editSongTaal').value,
-                    genres: selectedGenres,
+                    genre: selectedGenres,
                     lyrics: lyrics
                 };
-    
-                songs = songs.map(song => song.id === id ? updatedSong : song);
-                saveSongs();
-    
-                praiseSetlist = praiseSetlist.map(song => song.id === id ? updatedSong : song);
-                worshipSetlist = worshipSetlist.map(song => song.id === id ? updatedSong : song);
-                saveSetlists();
-    
-                if (deleteSection.style.display === 'block') {
-                    renderDeleteSongs();
-                } else if (setlistSection.style.display === 'block') {
-                    renderSetlist(praiseSetlistTab.classList.contains('active') ? 'praise' : 'worship');
-                } else if (praiseTab.classList.contains('active')) {
-                    renderSongs('praise', keyFilter.value, genreFilter.value);
-                } else {
-                    renderSongs('worship', keyFilter.value, genreFilter.value);
+                try {
+                    const response = await fetch(`${API_BASE_URL}/songs/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updatedSong)
+                    });
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error || 'Failed to update song');
+                    }
+                    const newSong = await response.json();
+                    songs = songs.map(song => song._id === newSong._id ? newSong : song);
+                    if (deleteSection.style.display === 'block') {
+                        renderDeleteSongs();
+                    } else if (setlistSection.style.display === 'block') {
+                        renderSetlist(praiseSetlistTab.classList.contains('active') ? 'praise' : 'worship');
+                    } else if (praiseTab.classList.contains('active')) {
+                        renderSongs('praise', keyFilter.value, genreFilter.value);
+                    } else {
+                        renderSongs('worship', keyFilter.value, genreFilter.value);
+                    }
+                    if (songPreviewEl.dataset.songId == newSong._id) {
+                        showPreview(newSong);
+                    }
+                    showNotification('Song updated successfully!');
+                    editSongModal.style.display = 'none';
+                    editSongForm.reset();
+                } catch (err) {
+                    showNotification('Error updating song: ' + err.message, 4000);
+                    console.error(err);
                 }
-    
-                if (songPreviewEl.dataset.songId == id) {
-                    showPreview(updatedSong);
-                }
-    
-                showNotification('Song updated successfully!');
-                editSongModal.style.display = 'none';
-                editSongForm.reset();
             });
     
             cancelDeleteSong.addEventListener('click', () => {
                 deleteSongModal.style.display = 'none';
             });
     
-            deleteSongForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const id = parseInt(document.getElementById('deleteSongId').value);
-                const song = songs.find(s => s.id === id);
-                
-                songs = songs.filter(s => s.id !== id);
-                saveSongs();
-    
-                praiseSetlist = praiseSetlist.filter(s => s.id !== id);
-                worshipSetlist = worshipSetlist.filter(s => s.id !== id);
-                saveSetlists();
-                
-                const favIndex = favorites.indexOf(id);
-                if (favIndex !== -1) {
-                    favorites.splice(favIndex, 1);
-                    saveFavorites();
+            // Ensure deleteSongFromBackend is defined before use
+            async function deleteSongFromBackend(songId) {
+                if (!songId) {
+                    showNotification('Invalid song ID for deletion', 4000);
+                    return;
                 }
-    
-                if (songPreviewEl.dataset.songId == id) {
-                    songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics"></div>';
-                    songPreviewEl.dataset.songId = '';
-                    if (autoScrollInterval) {
-                        clearInterval(autoScrollInterval);
-                        autoScrollInterval = null;
+                try {
+                    const response = await authFetch(`${API_BASE_URL}/songs/${songId}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        let errorMsg = 'Failed to delete song';
+                        try {
+                            const errData = await response.json();
+                            errorMsg = errData.message || errorMsg;
+                        } catch {
+                            errorMsg = await response.text();
+                        }
+                        throw new Error(errorMsg);
                     }
+                    // Remove song from local list and update UI
+                    songs = songs.filter(s => s.id !== songId && s._id !== songId);
+                    praiseSetlist = praiseSetlist.filter(s => s.id !== songId && s._id !== songId);
+                    worshipSetlist = worshipSetlist.filter(s => s.id !== songId && s._id !== songId);
+                    const favIndex = favorites.indexOf(songId);
+                    if (favIndex !== -1) {
+                        favorites.splice(favIndex, 1);
+                        saveFavorites();
+                    }
+                    if (songPreviewEl.dataset.songId == songId) {
+                        songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics"></div>';
+                        songPreviewEl.dataset.songId = '';
+                        if (autoScrollInterval) {
+                            clearInterval(autoScrollInterval);
+                            autoScrollInterval = null;
+                        }
+                    }
+                    renderDeleteSongs();
+                    showNotification('Song deleted successfully');
+                    if (deleteSongModal) deleteSongModal.style.display = 'none';
+                } catch (err) {
+                    showNotification('Error deleting song: ' + err.message, 4000);
+                    console.error(err);
                 }
-    
-                renderDeleteSongs();
-                showNotification(`"${song.title}" deleted successfully`);
-                deleteSongModal.style.display = 'none';
+            }
+
+            deleteSongForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('deleteSongId').value;
+                await deleteSongFromBackend(id);
+                // The deleteSongFromBackend function handles UI updates and notifications
             });
     
             // Preview scrolling

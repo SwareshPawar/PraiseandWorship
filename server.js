@@ -1,9 +1,25 @@
+// Temporary basic auth middleware for admin actions
+function basicAuth(req, res, next) {
+  const auth = req.headers['authorization'];
+  if (!auth || !auth.startsWith('Basic ')) {
+    res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
+    return res.status(401).send('Authentication required.');
+  }
+  const base64 = auth.split(' ')[1];
+  const [user, pass] = Buffer.from(base64, 'base64').toString().split(':');
+  if (user === 'SwareshPawar' && pass === 'Swar@123') { // Change password as needed
+    return next();
+  }
+  res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
+  return res.status(401).send('Invalid credentials.');
+}
+
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const { expressjwt: jwt } = require('express-jwt');
-const jwksRsa = require('jwks-rsa');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 
 const app = express();
 let db;
@@ -34,23 +50,40 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static('public'));
 
-const authMiddleware = jwt({
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `https://dev-yr80e6pevtcdjxvg.us.auth0.com/.well-known/jwks.json`
-  }),
-  audience: "https://praiseandworship.onrender.com/api",
-  issuer: `https://dev-yr80e6pevtcdjxvg.us.auth0.com/`,
-  algorithms: ["RS256"]
-});
+
+const JWT_SECRET = process.env.JWT_SECRET || 'changeme_secret';
+let usersCollection;
+
+function generateToken(user) {
+  return jwt.sign({
+    id: user._id,
+    email: user.email,
+    isAdmin: user.isAdmin || false
+  }, JWT_SECRET, { expiresIn: '7d' });
+}
+
+function localAuthMiddleware(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'No token provided' });
+  }
+  const token = authHeader.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
+
 
 async function main() {
   try {
     await client.connect();
     db = client.db('PraiseAndWorship');
     songsCollection = db.collection('PraiseAndWorships');
+    usersCollection = db.collection('Users');
     console.log('Connected to MongoDB');
   } catch (err) {
     console.error('Failed to connect to MongoDB:', err);
@@ -59,13 +92,50 @@ async function main() {
 }
 
 function requireAdmin(req, res, next) {
-  const roles = req.auth && req.auth['https://praiseandworship.example.com/roles'];
-  if (roles && roles.includes('admin')) {
+  if (req.user && req.user.isAdmin) {
     return next();
   }
   return res.status(403).json({ error: 'Admin access required' });
 }
 
+// ===== Local Auth Endpoints =====
+// Register
+app.post('/api/register', async (req, res) => {
+  const { email, password, name } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+  const existing = await usersCollection.findOne({ email });
+  if (existing) return res.status(409).json({ error: 'User already exists' });
+  const hash = await bcrypt.hash(password, 10);
+  const user = { email, password: hash, name, isAdmin: false };
+  const result = await usersCollection.insertOne(user);
+  const token = generateToken({ ...user, _id: result.insertedId });
+  res.json({ token });
+});
+
+// Login
+app.post('/api/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = await usersCollection.findOne({ email });
+  if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+  const match = await bcrypt.compare(password, user.password);
+  if (!match) return res.status(401).json({ error: 'Invalid credentials' });
+  const token = generateToken(user);
+  res.json({ token });
+});
+
+// Promote user to admin (admin only)
+app.post('/api/users/:id/promote', localAuthMiddleware, requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  const result = await usersCollection.updateOne({ _id: new ObjectId(id) }, { $set: { isAdmin: true } });
+  if (result.matchedCount === 0) return res.status(404).json({ error: 'User not found' });
+  res.json({ message: 'User promoted to admin' });
+});
+
+// List users (admin only)
+app.get('/api/users', localAuthMiddleware, requireAdmin, async (req, res) => {
+  const users = await usersCollection.find({}, { projection: { password: 0 } }).toArray();
+  res.json(users);
+});
 app.get('/api/songs', async (req, res) => {
   try {
     const songs = await songsCollection.find({}).toArray();
@@ -75,7 +145,7 @@ app.get('/api/songs', async (req, res) => {
   }
 });
 
-app.post('/api/songs', authMiddleware, async (req, res) => {
+app.post('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => {
   try {
     if (typeof req.body.id !== 'number') {
       const last = await songsCollection.find().sort({ id: -1 }).limit(1).toArray();
@@ -89,7 +159,7 @@ app.post('/api/songs', authMiddleware, async (req, res) => {
   }
 });
 
-app.put('/api/songs/:id', authMiddleware, async (req, res) => {
+app.put('/api/songs/:id', localAuthMiddleware, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const update = { $set: req.body };
@@ -103,7 +173,7 @@ app.put('/api/songs/:id', authMiddleware, async (req, res) => {
   }
 });
 
-app.delete('/api/songs/:id', authMiddleware, requireAdmin, async (req, res) => {
+app.delete('/api/songs/:id', basicAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const result = await songsCollection.deleteOne({ id: parseInt(id) });
@@ -116,7 +186,7 @@ app.delete('/api/songs/:id', authMiddleware, requireAdmin, async (req, res) => {
   }
 });
 
-app.delete('/api/songs', authMiddleware, requireAdmin, async (req, res) => {
+app.delete('/api/songs', basicAuth, async (req, res) => {
   try {
     await songsCollection.deleteMany({});
     res.json({ message: 'All songs deleted' });
@@ -125,14 +195,14 @@ app.delete('/api/songs', authMiddleware, requireAdmin, async (req, res) => {
   }
 });
 
-app.get('/api/userdata', authMiddleware, async (req, res) => {
-  const userId = req.auth.sub;
+app.get('/api/userdata', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
   const doc = await db.collection('UserData').findOne({ _id: userId });
   res.json(doc || { favorites: [], praiseSetlist: [], worshipSetlist: [] });
 });
 
-app.put('/api/userdata', authMiddleware, async (req, res) => {
-  const userId = req.auth.sub;
+app.put('/api/userdata', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
   const { favorites, praiseSetlist, worshipSetlist, name, email } = req.body;
   await db.collection('UserData').updateOne(
     { _id: userId },
@@ -142,6 +212,8 @@ app.put('/api/userdata', authMiddleware, async (req, res) => {
   res.json({ message: 'User data updated' });
 });
 
+// ====== SPACE FOR ADMIN ASSIGNMENT ======
+// To assign admin, use the /api/users/:id/promote endpoint as an admin user.
 main().then(() => {
   const PORT = process.env.PORT || 3001;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

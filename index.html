@@ -1890,61 +1890,147 @@
 
     <!-- Auth0 SPA JS -->
     <script src="https://cdn.auth0.com/js/auth0-spa-js/1.20/auth0-spa-js.production.js"></script>
-    <div id="auth0-controls" style="position: absolute; top: 10px; right: 20px; z-index: 1000;">
+    <div id="local-auth-controls" style="position: absolute; top: 10px; right: 20px; z-index: 1000;">
       <button id="loginBtn">Login</button>
+      <button id="registerBtn" style="display:none;">Register</button>
       <button id="logoutBtn" style="display:none;">Logout</button>
+      <button id="adminPanelBtn" style="display:none;">Admin Panel</button>
       <span id="userEmail" style="margin-left: 10px;"></span>
     </div>
+    <!-- Local Auth Modals -->
+    <div id="loginModal" class="modal" style="display:none; align-items:center; justify-content:center;">
+      <div class="modal-content">
+        <span id="closeLoginModal" class="close-modal">&times;</span>
+        <h2>Login</h2>
+        <form id="loginForm">
+          <input type="email" id="loginEmail" placeholder="Email" required><br>
+          <input type="password" id="loginPassword" placeholder="Password" required><br>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+    <div id="registerModal" class="modal" style="display:none; align-items:center; justify-content:center;">
+      <div class="modal-content">
+        <span id="closeRegisterModal" class="close-modal">&times;</span>
+        <h2>Register</h2>
+        <form id="registerForm">
+          <input type="text" id="registerName" placeholder="Name" required><br>
+          <input type="email" id="registerEmail" placeholder="Email" required><br>
+          <input type="password" id="registerPassword" placeholder="Password" required><br>
+          <button type="submit">Register</button>
+        </form>
+      </div>
+    </div>
+    <!-- ====== SPACE FOR ADMIN ASSIGNMENT UI ====== -->
+    <!-- You can add a user list and promote-to-admin button here, visible only to admins -->
     <script>
-        // ====== Auth0 Config ======
-        const AUTH0_DOMAIN = 'dev-yr80e6pevtcdjxvg.us.auth0.com';
-        const AUTH0_CLIENT_ID = 'xxs2dbEd27Df67x1U6QrYlhXAMeKwDFi'; // Replace with your actual client ID
-        const AUTH0_AUDIENCE = 'https://praiseandworship.onrender.com/api';
-        let auth0Client = null;
-        let accessToken = null;
-        let user = null;
+        // ====== Local Auth Config ======
+        let jwtToken = localStorage.getItem('jwtToken') || null;
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
 
-        async function configureAuth0() {
-            auth0Client = await createAuth0Client({
-                domain: AUTH0_DOMAIN,
-                clientId: AUTH0_CLIENT_ID,
-                audience: AUTH0_AUDIENCE,
-                cacheLocation: 'localstorage',
-                useRefreshTokens: true
-            });
-            // Handle redirect callback
-            if (window.location.search.includes('code=') && window.location.search.includes('state=')) {
-                await auth0Client.handleRedirectCallback();
-                window.history.replaceState({}, document.title, '/');
-            }
-            updateAuthUI();
-        }
-
-        async function updateAuthUI() {
-            const isAuthenticated = await auth0Client.isAuthenticated();
-            user = isAuthenticated ? await auth0Client.getUser() : null;
-            accessToken = isAuthenticated ? await auth0Client.getTokenSilently() : null;
+        function updateAuthUI() {
+            const isAuthenticated = !!jwtToken;
             document.getElementById('loginBtn').style.display = isAuthenticated ? 'none' : 'inline-block';
+            document.getElementById('registerBtn').style.display = isAuthenticated ? 'none' : 'inline-block';
             document.getElementById('logoutBtn').style.display = isAuthenticated ? 'inline-block' : 'none';
-            document.getElementById('userEmail').textContent = isAuthenticated && user ? user.email : '';
+            document.getElementById('userEmail').textContent = isAuthenticated && currentUser ? currentUser.email : '';
+            document.getElementById('adminPanelBtn').style.display = (isAuthenticated && currentUser && currentUser.isAdmin) ? 'inline-block' : 'none';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            configureAuth0();
+            updateAuthUI();
             document.getElementById('loginBtn').addEventListener('click', () => {
-                auth0Client.loginWithRedirect();
+                document.getElementById('loginModal').style.display = 'flex';
             });
             document.getElementById('logoutBtn').addEventListener('click', () => {
-                auth0Client.logout({ returnTo: window.location.origin });
+                jwtToken = null;
+                currentUser = null;
+                localStorage.removeItem('jwtToken');
+                localStorage.removeItem('currentUser');
+                updateAuthUI();
+            });
+            document.getElementById('registerBtn').addEventListener('click', () => {
+                document.getElementById('registerModal').style.display = 'flex';
             });
         });
-        // Helper: fetch with Auth0 token for protected routes
+
+        // Helper: fetch with JWT token for protected routes
         async function authFetch(url, options = {}) {
-            if (!accessToken) throw new Error('Not authenticated');
+            if (!jwtToken) throw new Error('Not authenticated');
             options.headers = options.headers || {};
-            options.headers['Authorization'] = `Bearer ${accessToken}`;
+            options.headers['Authorization'] = `Bearer ${jwtToken}`;
             return fetch(url, options);
         }
+
+        // Login/Register modals
+        function setupAuthModals() {
+            document.getElementById('closeLoginModal').onclick = () => {
+                document.getElementById('loginModal').style.display = 'none';
+            };
+            document.getElementById('closeRegisterModal').onclick = () => {
+                document.getElementById('registerModal').style.display = 'none';
+            };
+            document.getElementById('loginForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                try {
+                    const res = await fetch(`${API_BASE_URL}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        jwtToken = data.token;
+                        // Decode token to get user info
+                        const payload = JSON.parse(atob(jwtToken.split('.')[1]));
+                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id };
+                        localStorage.setItem('jwtToken', jwtToken);
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        updateAuthUI();
+                        document.getElementById('loginModal').style.display = 'none';
+                    } else {
+                        alert(data.error || 'Login failed');
+                    }
+                } catch (err) {
+                    alert('Login error');
+                }
+            };
+            document.getElementById('registerForm').onsubmit = async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const name = document.getElementById('registerName').value;
+                try {
+                    const res = await fetch(`${API_BASE_URL}/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password, name })
+                    });
+                    const data = await res.json();
+                    if (res.ok) {
+                        jwtToken = data.token;
+                        const payload = JSON.parse(atob(jwtToken.split('.')[1]));
+                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id };
+                        localStorage.setItem('jwtToken', jwtToken);
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        updateAuthUI();
+                        document.getElementById('registerModal').style.display = 'none';
+                    } else {
+                        alert(data.error || 'Registration failed');
+                    }
+                } catch (err) {
+                    alert('Registration error');
+                }
+            };
+        }
+
+        // Call this after DOMContentLoaded
+        setupAuthModals();
+
+        // Admin panel button (for admin assignment UI)
+        // Add your admin assignment UI logic here, e.g., list users and promote to admin
         // Initialize songs and setlists
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         let socket = null;

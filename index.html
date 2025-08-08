@@ -5,6 +5,23 @@
     <title>Praise & Worship Songs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+        /* Ensure dark mode auth buttons override sidebar-btn styles */
+        .dark-mode .sidebar-btn.auth-btn {
+            background: var(--dark-primary) ;
+            color: var(--sidebar-text-color) ;
+            border: 1.5px solid var(--dark-primary) ;
+            box-shadow: none ;
+            text-shadow: none ;
+            transition: background 0.18s, box-shadow 0.18s, border 0.18s ;
+        }
+        .dark-mode .sidebar-btn.auth-btn:hover,
+        .dark-mode .sidebar-btn.auth-btn:focus {
+            background: var(--dark-primary) ;
+            color: var(--sidebar-text-hover) ;
+            box-shadow: 0 0 0 3px #6a8cff ;
+            border: 1.5px solid var(--dark-accent) ;
+            transform: translateY(-1px) scale(1.04) ;
+        }
 
         /* ===== SWIPE ANIMATIONS & FEEDBACK ===== */
         .song-preview-container {
@@ -1462,6 +1479,15 @@
         <div class="sidebar hidden">
             <div class="sidebar-header">
                 <h2>Praise & Worship</h2>
+                <!-- Auth Controls at Top -->
+                <div id="sidebar-auth-controls" class="auth-controls-top">
+                  <div id="sidebarAuthGreeting" style="margin-bottom: 8px; font-weight: bold;"></div>
+                  <button class="sidebar-btn auth-btn" id="loginBtn">Login</button>
+                  <button class="sidebar-btn auth-btn" id="registerBtn" style="display:none;">Register</button>
+                  <button class="sidebar-btn auth-btn" id="logoutBtn" style="display:none;">Logout</button>
+                  <button class="sidebar-btn auth-btn" id="adminPanelBtn" style="display:none;">Admin Panel</button>
+                </div>
+                <!-- End Auth Controls at Top -->
             </div>
             <ul class="sidebar-menu">
                 <li><a href="#" class="active" id="showAll">All Songs</a></li>
@@ -1476,16 +1502,8 @@
                     <div>Praise: <span id="praiseCount">0</span></div>
                     <div>Worship: <span id="worshipCount">0</span></div>
                 </div>
-                <!-- Local Auth Controls in Sidebar -->
-                <div id="sidebar-auth-controls" style="margin-top: 20px;">
-                  <div id="sidebarAuthGreeting" style="margin-bottom: 8px; font-weight: bold;"></div>
-                  <button class="sidebar-btn" id="loginBtn">Login</button>
-                  <button class="sidebar-btn" id="registerBtn" style="display:none;">Register</button>
-                  <button class="sidebar-btn" id="logoutBtn" style="display:none;">Logout</button>
-                  <button class="sidebar-btn" id="adminPanelBtn" style="display:none;">Admin Panel</button>
-                </div>
-                <!-- End Local Auth Controls -->
                 <div class="theme-toggle" id="themeToggle">
+        <!-- Removed duplicate <style> block for .auth-btn to ensure global styles apply consistently -->
                     <i class="fas fa-moon"></i>
                     <span>Dark Mode</span>
                 </div>
@@ -1896,7 +1914,6 @@
     <!-- Auth0 SPA JS -->
     <script src="https://cdn.auth0.com/js/auth0-spa-js/1.20/auth0-spa-js.production.js"></script>
     <div id="local-auth-controls" style="position: absolute; top: 10px; right: 20px; z-index: 1000;">
-      <button id="loginBtn">Login</button>
       <button id="registerBtn" style="display:none;">Register</button>
       <button id="logoutBtn" style="display:none;">Logout</button>
       <button id="adminPanelBtn" style="display:none;">Admin Panel</button>
@@ -2083,6 +2100,7 @@
                 const data = await response.json();
                 // Map _id to id for frontend compatibility
                 songs = data.map(song => ({ ...song, id: song._id || song.id }));
+                        console.log('Loaded songs:', songs); // <-- Add this line
                 if (praiseTab && praiseTab.classList.contains('active')) {
                     renderSongs('praise', keyFilter.value, genreFilter.value);
                 } else {
@@ -2186,9 +2204,44 @@
             addPanelToggles();
             applyLyricsBackground(document.getElementById('praiseTab').classList.contains('active'));
 
+
             if (isDarkMode) {
                 document.body.classList.add('dark-mode');
                 document.getElementById('themeToggle').innerHTML = '<i class="fas fa-sun"></i><span>Light Mode</span>';
+            }
+
+            // Ensure auth buttons update on theme change
+            function refreshAuthButtonStyles() {
+                // Find the <style> block containing auth-btn CSS
+                const styleBlocks = Array.from(document.querySelectorAll('style'));
+                for (const styleEl of styleBlocks) {
+                    if (styleEl.textContent.includes('.auth-btn')) {
+                        // Remove and re-add the style block to force browser to re-apply
+                        const parent = styleEl.parentNode;
+                        const next = styleEl.nextSibling;
+                        parent.removeChild(styleEl);
+                        // Force reflow
+                        void document.body.offsetWidth;
+                        if (next) {
+                            parent.insertBefore(styleEl, next);
+                        } else {
+                            parent.appendChild(styleEl);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // Listen for theme toggle
+            const themeToggleBtn = document.getElementById('themeToggle');
+            if (themeToggleBtn) {
+                themeToggleBtn.addEventListener('click', () => {
+                    // Force repaint by toggling a dummy class
+                    document.body.classList.add('force-repaint');
+                    setTimeout(() => {
+                        document.body.classList.remove('force-repaint');
+                    }, 30);
+                });
             }
 
             connectWebSocket();
@@ -2904,14 +2957,21 @@
         }
     
         function getSuggestedSongs(currentSongId) {
-            const currentSong = songs.find(song => song.id === parseInt(currentSongId));
+            // Try both number and string match for robustness
+            const currentSong = songs.find(song => song.id === parseInt(currentSongId) || String(song.id) === String(currentSongId));
+            // Log at the top for debugging
+            console.log('getSuggestedSongs: currentSongId', currentSongId);
+            console.log('getSuggestedSongs: songs array', songs);
+            console.log('getSuggestedSongs: currentSong', currentSong);
+            let sameCategorySongs = [];
+            if (currentSong) {
+                sameCategorySongs = songs.filter(song => 
+                    song.id !== parseInt(currentSongId) && 
+                    song.category === currentSong.category
+                );
+            }
+            console.log('getSuggestedSongs: sameCategorySongs', sameCategorySongs);
             if (!currentSong) return [];
-
-            // Filter songs from the same category only
-            const sameCategorySongs = songs.filter(song => 
-                song.id !== parseInt(currentSongId) && 
-                song.category === currentSong.category
-            );
 
             // Define known language tags
             const LANGUAGE_TAGS = ['English', 'Marathi', 'Spanish', 'Hindi', 'French', 'Tamil', 'Telugu', 'Punjabi', 'Bengali'];
@@ -2983,23 +3043,23 @@
             };
 
             const getLanguagesFromGenres = genres => 
-                genres ? genres.filter(genre => LANGUAGE_TAGS.includes(genre)) : [];
+                (Array.isArray(genres) ? genres : (genres ? [genres] : [])).filter(genre => LANGUAGE_TAGS.includes(genre));
             
             const getNonLanguageGenres = genres => 
-                genres ? genres.filter(genre => !LANGUAGE_TAGS.includes(genre)) : [];
+                (Array.isArray(genres) ? genres : (genres ? [genres] : [])).filter(genre => !LANGUAGE_TAGS.includes(genre));
 
             const getLanguageMatchScore = (genres1, genres2) => {
                 const langs1 = getLanguagesFromGenres(genres1);
                 const langs2 = getLanguagesFromGenres(genres2);
-                return langs1.length && langs2.length ? 
-                    langs1.filter(lang => langs2.includes(lang)).length / Math.max(langs1.length, langs2.length) : 0;
+                if (!langs1.length || !langs2.length) return 0;
+                return langs1.some(lang => langs2.includes(lang)) ? 1 : 0;
             };
 
             const getGenreMatchScore = (genres1, genres2) => {
                 const genresA = getNonLanguageGenres(genres1);
                 const genresB = getNonLanguageGenres(genres2);
-                return genresA.length && genresB.length ? 
-                    genresA.filter(g => genresB.includes(g)).length / Math.max(genresA.length, genresB.length) : 0;
+                if (!genresA.length || !genresB.length) return 0;
+                return genresA.some(g => genresB.includes(g)) ? 1 : 0;
             };
 
             // Score each song
@@ -3083,13 +3143,12 @@
                 };
             });
 
-            // Sort by priority
-            return scoredSongs.sort((a, b) => {
+            // Sort by priority and always return top 20, even if score is 0
+            const sorted = scoredSongs.sort((a, b) => {
                 // 1. Same scale type (major/minor)
                 if (a.matchDetails.sameScaleType !== b.matchDetails.sameScaleType) {
                     return b.matchDetails.sameScaleType - a.matchDetails.sameScaleType;
                 }
-                
                 // 2. Time signature (exact > compatible > none)
                 const timePriority = {
                     'exact': 2,
@@ -3101,41 +3160,42 @@
                 if (aTimePrio !== bTimePrio) {
                     return bTimePrio - aTimePrio;
                 }
-                
                 // 3. Language match
                 if (a.matchDetails.languageScore !== b.matchDetails.languageScore) {
                     return b.matchDetails.languageScore - a.matchDetails.languageScore;
                 }
-                
                 // 4. Taal match
                 if (a.matchDetails.taalMatch !== b.matchDetails.taalMatch) {
                     return b.matchDetails.taalMatch - a.matchDetails.taalMatch;
                 }
-                
                 // 5. Scale relationship quality
                 if (a.matchDetails.scalePriority !== b.matchDetails.scalePriority) {
                     return b.matchDetails.scalePriority - a.matchDetails.scalePriority;
                 }
-                
                 // 6. Tempo similarity
                 if (a.matchDetails.tempoSimilarity !== b.matchDetails.tempoSimilarity) {
                     return b.matchDetails.tempoSimilarity - a.matchDetails.tempoSimilarity;
                 }
-                
                 // 7. Total score
                 return b.matchScore - a.matchScore;
-            }).slice(0, 20);
+            });
+            // Always return top 20, even if all scores are 0
+            return sorted.slice(0, 20);
         }
     
         function showSuggestedSongs() {
             const currentSongId = songPreviewEl.dataset.songId;
-            if (!currentSongId) return;
-
-            const suggestedSongs = getSuggestedSongs(currentSongId);
             const suggestedSongsContent = document.getElementById('suggestedSongsContent');
             suggestedSongsContent.innerHTML = '';
+            if (!currentSongId) {
+                suggestedSongsContent.innerHTML = '<p>Select a song to see suggestions.</p>';
+                return;
+            }
 
-            if (suggestedSongs.length === 0) {
+            const suggestedSongs = getSuggestedSongs(currentSongId);
+            console.log('Suggested songs:', suggestedSongs);
+
+            if (!suggestedSongs || suggestedSongs.length === 0) {
                 suggestedSongsContent.innerHTML = '<p>No suggested songs found</p>';
                 return;
             }
@@ -3143,6 +3203,8 @@
             suggestedSongs.forEach(song => {
                 const div = document.createElement('div');
                 div.className = 'suggested-song-item';
+                div.style.margin = '8px 0';
+                div.style.padding = '8px';
                 div.innerHTML = `
                     <div class="suggested-song-title">${song.title}</div>
                     <div class="suggested-song-meta">
@@ -3152,14 +3214,6 @@
                     </div>
                     <div class="suggested-song-match">Match Score: ${song.matchScore}%</div>
                 `;
-                // <div class="suggested-song-meta">
-                //         Language Match: ${song.languageScore}% |
-                //         ${song.scaleMatch ? '✓ Same Scale' : '✗ Different Scale'} |
-                //         ${song.timeMatch ? '✓ Same Time Signature' : '✗ Different Time Signature'} |
-                //         ${song.taalMatch ? '✓ Same Taal' : '✗ Different Taal'} |
-                //         Tempo Match: ${song.tempoSimilarity}% |
-                //         Genre Match: ${song.genreMatch}%
-                //     </div>
                 div.addEventListener('click', () => {
                     showPreview(song);
                     closeSuggestedSongsDrawer();
@@ -3246,8 +3300,7 @@
                 li.style.background = '#f5f7fa';
                 li.style.borderRadius = '5px';
                 li.setAttribute('draggable', 'true');
-                li.dataset.songId = song.id;
-    
+                li.dataset.songId = song.id;    
                 li.innerHTML = `
                     <span><span class="setlist-index">${index + 1}.</span> ${song.title} (${song.key} | ${song.genre})</span>
                     <div class="song-actions">
@@ -3509,6 +3562,9 @@
             applyLyricsBackground(song.category === 'praise');
             
             if (suggestedSongsDrawerOpen) {
+                showSuggestedSongs();
+            } else {
+                // Always update suggestions content, so if user opens drawer after changing song, it's ready
                 showSuggestedSongs();
             }
         }
@@ -3953,8 +4009,8 @@
                     .filter(song => keyFilterValue === "" || song.key === keyFilterValue)
                     .filter(song => {
                         if (!genreFilterValue) return true;
-                        if (!song.genres) return song.genre === genreFilterValue;
-                        return song.genres.includes(genreFilterValue);
+                        const genresArr = Array.isArray(song.genres) ? song.genres : (song.genre ? [song.genre] : []);
+                        return genresArr.includes(genreFilterValue);
                     })
                     .sort((a, b) => a.title.localeCompare(b.title));
             }

@@ -117,9 +117,16 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   const user = await usersCollection.findOne({ email });
-  if (!user) return res.status(401).json({ error: 'Invalid credentials' });
+  if (!user) {
+    console.log(`[LOGIN FAIL] User not found for email: ${email}`);
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
   const match = await bcrypt.compare(password, user.password);
-  if (!match) return res.status(401).json({ error: 'Invalid credentials' });
+  if (!match) {
+    console.log(`[LOGIN FAIL] Password mismatch for email: ${email}`);
+    return res.status(401).json({ error: 'Invalid credentials' });
+  }
+  console.log(`[LOGIN SUCCESS] User: ${email}`);
   const token = generateToken(user);
   res.json({ token });
 });

@@ -177,7 +177,19 @@ app.put('/api/songs/:id', localAuthMiddleware, requireAdmin, async (req, res) =>
 app.delete('/api/songs/:id', localAuthMiddleware, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await songsCollection.deleteOne({ id: parseInt(id) });
+    let result = { deletedCount: 0 };
+    // Try to delete by numeric id first
+    if (!isNaN(Number(id))) {
+      result = await songsCollection.deleteOne({ id: parseInt(id) });
+    }
+    // If not found, try by MongoDB _id
+    if (result.deletedCount === 0) {
+      try {
+        result = await songsCollection.deleteOne({ _id: new ObjectId(id) });
+      } catch (e) {
+        // Not a valid ObjectId, ignore
+      }
+    }
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: 'Song not found' });
     }

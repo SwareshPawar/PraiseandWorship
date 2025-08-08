@@ -1466,7 +1466,7 @@
             <ul class="sidebar-menu">
                 <li><a href="#" class="active" id="showAll">All Songs</a></li>
                 <li><a href="#" id="showSetlist">Setlist</a></li>
-                <li><a href="#" id="showDelete">Delete Songs</a></li>
+                <!-- <li><a href="#" id="showDelete">Delete Songs</a></li> -->
                 <li><a href="#" id="showFavorites">Favorites</a></li>
                 <li><a href="SONGSADMINCHURCHCHORDS.html"><i class="fas fa-cogs"></i> Admin Portal</a></li>
             </ul>
@@ -2777,8 +2777,8 @@
                     : worshipSetlist.some(s => s.id === song.id);
                 const isFavorite = favorites.includes(song.id);
                 const displayGenres = song.genres ? song.genres.join(', ') : song.genre || '';
-                // Only show delete button if user is logged in (admin)
-                const showDelete = typeof user !== 'undefined' && user;
+                // Only show delete button if user is admin
+                const showDelete = currentUser && currentUser.isAdmin;
                 div.innerHTML = `
                 <div class="song-header">
                     <span class="song-title">${song.title}</span>
@@ -3429,7 +3429,7 @@
                     <button class="btn btn-edit" id="previewEditBtn">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    ${typeof user !== 'undefined' && user ? `<button class="btn btn-delete" id="previewDeleteBtn"><i class="fas fa-trash"></i> Delete</button>` : ''}
+                    ${(currentUser && currentUser.isAdmin) ? `<button class="btn btn-delete" id="previewDeleteBtn"><i class="fas fa-trash"></i> Delete</button>` : ''}
                     </div>
                 </div>
 
@@ -4099,7 +4099,9 @@
                 }
             });
     
-            showDeleteEl.addEventListener('click', (e) => {
+            if (showDeleteEl)
+            {
+                showDeleteEl.addEventListener('click', (e) => {
                 e.preventDefault();
                 praiseContent.classList.remove('active');
                 worshipContent.classList.remove('active');
@@ -4117,6 +4119,8 @@
                     document.querySelector('.preview-section').classList.remove('full-width');
                 }
             });
+            }
+
     
             showFavoritesEl.addEventListener('click', (e) => {
                 e.preventDefault();

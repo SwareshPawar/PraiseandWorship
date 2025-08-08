@@ -1471,22 +1471,27 @@
                 <li><a href="SONGSADMINCHURCHCHORDS.html"><i class="fas fa-cogs"></i> Admin Portal</a></li>
             </ul>
             <div class="sidebar-footer">
-                <div class="sidebar-footer">
-                    <div class="song-count">
-                        <div>Total Songs: <span id="totalSongs">0</span></div>
-                        <div>Praise: <span id="praiseCount">0</span></div>
-                        <div>Worship: <span id="worshipCount">0</span></div>
-                    </div>
-
-                    <div class="theme-toggle" id="themeToggle">
-                        <i class="fas fa-moon"></i>
-                        <span>Dark Mode</span>
-                    </div>
-
-                    <button class="sidebar-btn" id="downloadHtmlWithSongsBtn">
-                        <i class="fas fa-file-export"></i> Download HTML with Songs
-                    </button>
+                <div class="song-count">
+                    <div>Total Songs: <span id="totalSongs">0</span></div>
+                    <div>Praise: <span id="praiseCount">0</span></div>
+                    <div>Worship: <span id="worshipCount">0</span></div>
                 </div>
+                <!-- Local Auth Controls in Sidebar -->
+                <div id="sidebar-auth-controls" style="margin-top: 20px;">
+                  <div id="sidebarAuthGreeting" style="margin-bottom: 8px; font-weight: bold;"></div>
+                  <button class="sidebar-btn" id="loginBtn">Login</button>
+                  <button class="sidebar-btn" id="registerBtn" style="display:none;">Register</button>
+                  <button class="sidebar-btn" id="logoutBtn" style="display:none;">Logout</button>
+                  <button class="sidebar-btn" id="adminPanelBtn" style="display:none;">Admin Panel</button>
+                </div>
+                <!-- End Local Auth Controls -->
+                <div class="theme-toggle" id="themeToggle">
+                    <i class="fas fa-moon"></i>
+                    <span>Dark Mode</span>
+                </div>
+                <button class="sidebar-btn" id="downloadHtmlWithSongsBtn">
+                    <i class="fas fa-file-export"></i> Download HTML with Songs
+                </button>
                 <div class="sidebar-folder">
                     <div class="folder-toggle" id="toggleSongTools">
                         <i class="fas fa-folder-open"></i> Song Tools
@@ -1930,11 +1935,17 @@
 
         function updateAuthUI() {
             const isAuthenticated = !!jwtToken;
-            document.getElementById('loginBtn').style.display = isAuthenticated ? 'none' : 'inline-block';
-            document.getElementById('registerBtn').style.display = isAuthenticated ? 'none' : 'inline-block';
-            document.getElementById('logoutBtn').style.display = isAuthenticated ? 'inline-block' : 'none';
-            document.getElementById('userEmail').textContent = isAuthenticated && currentUser ? currentUser.email : '';
-            document.getElementById('adminPanelBtn').style.display = (isAuthenticated && currentUser && currentUser.isAdmin) ? 'inline-block' : 'none';
+            // Sidebar button style
+            document.getElementById('loginBtn').style.display = isAuthenticated ? 'none' : 'block';
+            document.getElementById('registerBtn').style.display = isAuthenticated ? 'none' : 'block';
+            document.getElementById('logoutBtn').style.display = isAuthenticated ? 'block' : 'none';
+            // Show greeting with name if available, else email
+            let displayName = '';
+            if (isAuthenticated && currentUser) {
+                displayName = currentUser.name || currentUser.email || '';
+            }
+            document.getElementById('sidebarAuthGreeting').textContent = isAuthenticated ? `Hi, ${displayName}` : '';
+            document.getElementById('adminPanelBtn').style.display = (isAuthenticated && currentUser && currentUser.isAdmin) ? 'block' : 'none';
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1985,7 +1996,18 @@
                         jwtToken = data.token;
                         // Decode token to get user info
                         const payload = JSON.parse(atob(jwtToken.split('.')[1]));
-                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id };
+                        let name = payload.name;
+                        if (!name) {
+                            // Try to preserve name from localStorage if available
+                            const prev = JSON.parse(localStorage.getItem('currentUser') || 'null');
+                            if (prev && prev.email === payload.email && prev.name) {
+                                name = prev.name;
+                            } else if (document.getElementById('loginEmail')) {
+                                // Fallback to email prefix
+                                name = payload.email.split('@')[0];
+                            }
+                        }
+                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id, name };
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();
@@ -2012,7 +2034,16 @@
                     if (res.ok) {
                         jwtToken = data.token;
                         const payload = JSON.parse(atob(jwtToken.split('.')[1]));
-                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id };
+                        let name = payload.name;
+                        if (!name) {
+                            // Use the name from the registration form if available
+                            if (document.getElementById('registerName')) {
+                                name = document.getElementById('registerName').value;
+                            } else {
+                                name = payload.email.split('@')[0];
+                            }
+                        }
+                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id, name };
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();

@@ -100,6 +100,46 @@ function requireAdmin(req, res, next) {
 }
 
 // ===== Local Auth Endpoints =====
+// --- User Favorites and Setlist API ---
+// GET user favorites
+app.get('/api/user/favorites', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const doc = await db.collection('UserData').findOne({ _id: userId });
+  res.json(doc?.favorites || []);
+});
+
+// POST user favorites
+app.post('/api/user/favorites', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const { favorites } = req.body;
+  await db.collection('UserData').updateOne(
+    { _id: userId },
+    { $set: { favorites } },
+    { upsert: true }
+  );
+  res.json({ message: 'Favorites updated' });
+});
+
+// GET user setlist (type=praise|worship)
+app.get('/api/user/setlist', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const type = req.query.type === 'worship' ? 'worshipSetlist' : 'praiseSetlist';
+  const doc = await db.collection('UserData').findOne({ _id: userId });
+  res.json(doc?.[type] || []);
+});
+
+// POST user setlist
+app.post('/api/user/setlist', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const { type, setlist } = req.body;
+  const field = type === 'worship' ? 'worshipSetlist' : 'praiseSetlist';
+  await db.collection('UserData').updateOne(
+    { _id: userId },
+    { $set: { [field]: setlist } },
+    { upsert: true }
+  );
+  res.json({ message: 'Setlist updated' });
+});
 // Register
 app.post('/api/register', async (req, res) => {
   const { email, password, name } = req.body;

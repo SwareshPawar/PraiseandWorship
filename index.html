@@ -806,6 +806,15 @@
             color: white;
         }
 
+        /* Make delete button smaller on mobile so all 3 fit in a line */
+        @media (max-width: 600px) {
+            .btn-delete {
+                padding: 4px 8px;
+                font-size: 0.78rem;
+                min-width: 0;
+            }
+        }
+
             .btn-delete:hover {
                 background: #b32d37;
             }
@@ -1975,7 +1984,15 @@
                 currentUser = null;
                 localStorage.removeItem('jwtToken');
                 localStorage.removeItem('currentUser');
+                favorites = [];
+                praiseSetlist = [];
+                worshipSetlist = [];
                 updateAuthUI();
+                // Re-render UI to reflect cleared state
+                renderSongs('praise', keyFilter.value, genreFilter.value);
+                renderSongs('worship', keyFilter.value, genreFilter.value);
+                renderSetlist('praise');
+                renderSetlist('worship');
             });
             document.getElementById('registerBtn').addEventListener('click', () => {
                 document.getElementById('registerModal').style.display = 'flex';
@@ -2028,6 +2045,14 @@
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();
+                        // Reload user-specific favorites and setlists on login
+                        favorites = loadUserFavorites();
+                        praiseSetlist = loadUserSetlist('praise');
+                        worshipSetlist = loadUserSetlist('worship');
+                        renderSongs('praise', keyFilter.value, genreFilter.value);
+                        renderSongs('worship', keyFilter.value, genreFilter.value);
+                        renderSetlist('praise');
+                        renderSetlist('worship');
                         document.getElementById('loginModal').style.display = 'none';
                     } else {
                         alert(data.error || 'Login failed');
@@ -2064,6 +2089,14 @@
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();
+                        // Reload user-specific favorites and setlists on register
+                        favorites = loadUserFavorites();
+                        praiseSetlist = loadUserSetlist('praise');
+                        worshipSetlist = loadUserSetlist('worship');
+                        renderSongs('praise', keyFilter.value, genreFilter.value);
+                        renderSongs('worship', keyFilter.value, genreFilter.value);
+                        renderSetlist('praise');
+                        renderSetlist('worship');
                         document.getElementById('registerModal').style.display = 'none';
                     } else {
                         alert(data.error || 'Registration failed');
@@ -2083,7 +2116,39 @@
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         let socket = null;
         let songs = [];
-        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+        // User-specific favorites and setlists
+        function getUserKey(suffix) {
+            if (!currentUser || !currentUser.email) return null;
+            return `${currentUser.email}:${suffix}`;
+        }
+
+        function loadUserFavorites() {
+            const key = getUserKey('favorites');
+            if (!key) return [];
+            return JSON.parse(localStorage.getItem(key)) || [];
+        }
+
+        function saveUserFavorites(favs) {
+            const key = getUserKey('favorites');
+            if (!key) return;
+            localStorage.setItem(key, JSON.stringify(favs));
+        }
+
+        function loadUserSetlist(type) {
+            const key = getUserKey(type + 'Setlist');
+            if (!key) return [];
+            return JSON.parse(localStorage.getItem(key)) || [];
+        }
+
+        function saveUserSetlist(type, setlist) {
+            const key = getUserKey(type + 'Setlist');
+            if (!key) return;
+            localStorage.setItem(key, JSON.stringify(setlist));
+        }
+
+        let favorites = loadUserFavorites();
+        let praiseSetlist = loadUserSetlist('praise');
+        let worshipSetlist = loadUserSetlist('worship');
         let keepScreenOn = false;
         let autoScrollSpeed = localStorage.getItem('autoScrollSpeed') || 1500;
         let suggestedSongsDrawerOpen = false;
@@ -2127,8 +2192,7 @@
             document.getElementById('worshipCount').textContent = songs.filter(s => s.category === 'worship').length;
         }
     
-        let praiseSetlist = JSON.parse(localStorage.getItem('praiseSetlist')) || [];
-        let worshipSetlist = JSON.parse(localStorage.getItem('worshipSetlist')) || [];
+// (Removed: now loaded per user above)
     
         // DOM Elements
         const praiseTab = document.getElementById('praiseTab');
@@ -2619,20 +2683,21 @@
         setInterval(optimizeMemoryUsage, 300000);
     
         function saveSetlists() {
-            localStorage.setItem('praiseSetlist', JSON.stringify(praiseSetlist));
-            localStorage.setItem('worshipSetlist', JSON.stringify(worshipSetlist));
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({
-                    type: 'update',
-                    songs: songs,
-                    praiseSetlist: praiseSetlist,
-                    worshipSetlist: worshipSetlist
-                }));
-            }
+            saveUserSetlist('praise', praiseSetlist);
+            saveUserSetlist('worship', worshipSetlist);
+            // Optionally sync with socket if needed
+            // if (socket && socket.readyState === WebSocket.OPEN) {
+            //     socket.send(JSON.stringify({
+            //         type: 'update',
+            //         songs: songs,
+            //         praiseSetlist: praiseSetlist,
+            //         worshipSetlist: worshipSetlist
+            //     }));
+            // }
         }
     
         function saveFavorites() {
-            localStorage.setItem('favorites', JSON.stringify(favorites));
+            saveUserFavorites(favorites);
         }
     
         function downloadSongs() {
@@ -2855,16 +2920,18 @@
                 });
                 div.querySelector('.toggle-setlist').addEventListener('click', (e) => {
                     e.stopPropagation();
-                    const songId = parseInt(div.dataset.songId);
-                    const songObj = songs.find(s => s.id === songId);
-                    if (!songObj) return;
-                    const isInSetlist = songObj.category === 'praise' 
-                        ? praiseSetlist.some(s => s.id === songId)
-                        : worshipSetlist.some(s => s.id === songId);
-                    if (isInSetlist) {
-                        removeFromSetlist(songId, songObj.category);
+                    // Use the song object directly for reliability
+                    const wasInSetlist = song.category === 'praise'
+                        ? praiseSetlist.some(s => s.id === song.id)
+                        : worshipSetlist.some(s => s.id === song.id);
+                    if (wasInSetlist) {
+                        removeFromSetlist(song.id, song.category);
+                        updateSetlistButton(song.id, false);
+                        if (songPreviewEl.dataset.songId == song.id) updatePreviewSetlistButton(false);
                     } else {
-                        addToSetlist(songId);
+                        addToSetlist(song.id);
+                        updateSetlistButton(song.id, true);
+                        if (songPreviewEl.dataset.songId == song.id) updatePreviewSetlistButton(true);
                     }
                 });
                 div.querySelector('.edit-song').addEventListener('click', (e) => {
@@ -2959,10 +3026,6 @@
         function getSuggestedSongs(currentSongId) {
             // Try both number and string match for robustness
             const currentSong = songs.find(song => song.id === parseInt(currentSongId) || String(song.id) === String(currentSongId));
-            // Log at the top for debugging
-            console.log('getSuggestedSongs: currentSongId', currentSongId);
-            console.log('getSuggestedSongs: songs array', songs);
-            console.log('getSuggestedSongs: currentSong', currentSong);
             let sameCategorySongs = [];
             if (currentSong) {
                 sameCategorySongs = songs.filter(song => 
@@ -2970,7 +3033,7 @@
                     song.category === currentSong.category
                 );
             }
-            console.log('getSuggestedSongs: sameCategorySongs', sameCategorySongs);
+            //
             if (!currentSong) return [];
 
             // Define known language tags
@@ -3193,7 +3256,6 @@
             }
 
             const suggestedSongs = getSuggestedSongs(currentSongId);
-            console.log('Suggested songs:', suggestedSongs);
 
             if (!suggestedSongs || suggestedSongs.length === 0) {
                 suggestedSongsContent.innerHTML = '<p>No suggested songs found</p>';
@@ -3529,10 +3591,17 @@
                 toggleFavorite(song.id);
             });
             document.getElementById('previewSetlistBtn').addEventListener('click', (e) => {
-                if (isInSetlist) {
+                const isInSetlistNow = song.category === 'praise'
+                    ? praiseSetlist.some(s => s.id === song.id)
+                    : worshipSetlist.some(s => s.id === song.id);
+                if (isInSetlistNow) {
                     removeFromSetlist(song.id, song.category);
+                    updatePreviewSetlistButton(false);
+                    updateSetlistButton(song.id, false);
                 } else {
                     addToSetlist(song.id);
+                    updatePreviewSetlistButton(true);
+                    updateSetlistButton(song.id, true);
                 }
             });
             document.getElementById('previewEditBtn').addEventListener('click', (e) => {
@@ -3785,21 +3854,26 @@
         }
     
         function addToSetlist(id) {
+            if (!currentUser || !currentUser.email) {
+                showNotification('Please log in to use setlists');
+                return;
+            }
             const song = songs.find(s => s.id === id);
             if (!song) return;
-            
-            const setlist = song.category === 'praise' ? praiseSetlist : worshipSetlist;
+            let setlist;
+            if (song.category === 'praise') {
+                setlist = praiseSetlist;
+            } else {
+                setlist = worshipSetlist;
+            }
             if (!setlist.some(s => s.id === id)) {
                 setlist.push(song);
                 saveSetlists();
                 showNotification(`"${song.title}" added to ${song.category} setlist`);
-                
                 updateSetlistButton(id, true);
-                
                 if (songPreviewEl.dataset.songId == id) {
                     updatePreviewSetlistButton(true);
                 }
-                
                 if (setlistSection.style.display === 'block') {
                     renderSetlist(song.category);
                 }
@@ -3807,25 +3881,30 @@
         }
     
         function removeFromSetlist(id, category) {
+            if (!currentUser || !currentUser.email) {
+                showNotification('Please log in to use setlists');
+                return;
+            }
             const song = songs.find(s => s.id === id);
             if (!song) return;
-            
+            let setlist;
             if (category === 'praise') {
-                praiseSetlist = praiseSetlist.filter(s => s.id !== id);
+                setlist = praiseSetlist;
             } else {
-                worshipSetlist = worshipSetlist.filter(s => s.id !== id);
+                setlist = worshipSetlist;
             }
-            saveSetlists();
-            showNotification(`"${song.title}" removed from ${category} setlist`);
-            
-            updateSetlistButton(id, false);
-            
-            if (songPreviewEl.dataset.songId == id) {
-                updatePreviewSetlistButton(false);
-            }
-            
-            if (setlistSection.style.display === 'block') {
-                renderSetlist(category);
+            const idx = setlist.findIndex(s => s.id === id);
+            if (idx !== -1) {
+                setlist.splice(idx, 1);
+                saveSetlists();
+                showNotification(`"${song.title}" removed from ${category} setlist`);
+                updateSetlistButton(id, false);
+                if (songPreviewEl.dataset.songId == id) {
+                    updatePreviewSetlistButton(false);
+                }
+                if (setlistSection.style.display === 'block') {
+                    renderSetlist(category);
+                }
             }
         }
     
@@ -3839,9 +3918,12 @@
         }
     
         function toggleFavorite(id) {
+            if (!currentUser || !currentUser.email) {
+                showNotification('Please log in to use favorites');
+                return;
+            }
             const index = favorites.indexOf(id);
             const song = songs.find(s => s.id === id);
-            
             if (index === -1) {
                 favorites.push(id);
                 showNotification(`"${song.title}" added to favorites`);
@@ -3849,14 +3931,11 @@
                 favorites.splice(index, 1);
                 showNotification(`"${song.title}" removed from favorites`);
             }
-            
             saveFavorites();
-            
             const favButtons = document.querySelectorAll(`.favorite-btn[data-song-id="${id}"]`);
             favButtons.forEach(btn => {
                 btn.classList.toggle('favorited', index === -1);
             });
-            
             if (songPreviewEl.dataset.songId == id) {
                 const previewBtn = document.getElementById('previewFavoriteBtn');
                 if (previewBtn) {

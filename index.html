@@ -1958,6 +1958,7 @@
         // ====== Local Auth Config ======
         let jwtToken = localStorage.getItem('jwtToken') || null;
         let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        window.currentUser = currentUser;
 
         function updateAuthUI() {
             const isAuthenticated = !!jwtToken;

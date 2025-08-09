@@ -4428,74 +4428,96 @@
             }
     
             // Form submissions
-            newSongForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const title = document.getElementById('songTitle').value;
-                const lyrics = document.getElementById('songLyrics').value;
-                if (isDuplicateSong(title, lyrics)) {
-                    showNotification('A song with this title and lyrics already exists!');
-                    return;
-                }
-                const selectedGenres = Array.from(document.querySelectorAll('#genreDropdown .multiselect-option.selected'))
-                    .map(opt => opt.dataset.value);
-                if (selectedGenres.length === 0) {
-                    showNotification('Please select at least one genre');
-                    return;
-                }
-                // Token check
-                if (!currentUser || !currentUser.token) {
-                    showNotification('Session expired. Please log in again.');
-                    return;
-                }
-                const songData = {
-                    title: title,
-                    category: document.getElementById('songCategory').value,
-                    key: document.getElementById('songKey').value,
-                    tempo: document.getElementById('songTempo').value,
-                    time: document.getElementById('songTime').value,
-                    taal: document.getElementById('songTaal').value,
-                    genre: selectedGenres,
-                    lyrics: lyrics
-                };
-                try {
-                    const response = await fetch(`${API_BASE_URL}/songs`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${currentUser.token}`
-                        },
-                        body: JSON.stringify(songData)
-                    });
-                    if (response.status === 401) {
-                        showNotification('Session expired or invalid. Please log in again.');
-                        logoutUser && logoutUser();
-                        return;
-                    }
-                    if (!response.ok) {
-                        let errMsg = 'Failed to add song';
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('[Global] DOMContentLoaded fired');
+                const form = document.getElementById('newSongForm');
+                if (form) {
+                    console.log('[Global] newSongForm exists, attaching submit handler');
+                    form.addEventListener('submit', async (e) => {
+                        console.log('[Global] newSongForm submit event fired');
+                        e.preventDefault();
+                        // Defensive: log currentUser and form state even if missing
+                        if (!window.currentUser) {
+                            console.warn('[Global] currentUser is missing at submit time');
+                        }
+                        if (!form) {
+                            console.warn('[Global] newSongForm missing at submit time');
+                        }
+                        const title = document.getElementById('songTitle')?.value;
+                        const lyrics = document.getElementById('songLyrics')?.value;
+                        if (typeof isDuplicateSong === 'function' && isDuplicateSong(title, lyrics)) {
+                            showNotification('A song with this title and lyrics already exists!');
+                            return;
+                        }
+                        const selectedGenres = Array.from(document.querySelectorAll('#genreDropdown .multiselect-option.selected'))
+                            .map(opt => opt.dataset.value);
+                        if (selectedGenres.length === 0) {
+                            showNotification('Please select at least one genre');
+                            return;
+                        }
+                        // Token check
+                        if (!window.currentUser || !window.currentUser.token) {
+                            console.warn('[Global] currentUser or token missing at submit time', window.currentUser);
+                            showNotification('Session expired. Please log in again.');
+                            return;
+                        }
+                        // Debug logs for troubleshooting
+                        console.log('[Add Song] currentUser:', window.currentUser);
+                        const debugAuthHeader = `Bearer ${window.currentUser.token}`;
+                        console.log('[Add Song] Authorization header:', debugAuthHeader);
+                        const songData = {
+                            title: title,
+                            category: document.getElementById('songCategory')?.value,
+                            key: document.getElementById('songKey')?.value,
+                            tempo: document.getElementById('songTempo')?.value,
+                            time: document.getElementById('songTime')?.value,
+                            taal: document.getElementById('songTaal')?.value,
+                            genre: selectedGenres,
+                            lyrics: lyrics
+                        };
                         try {
-                            const errData = await response.json();
-                            errMsg = errData.error || errMsg;
-                        } catch {}
-                        throw new Error(errMsg);
-                    }
-                    const newSong = await response.json();
-                    songs.push(newSong);
-                    if (deleteSection.style.display === 'block') {
-                        renderDeleteSongs();
-                    } else if (praiseTab.classList.contains('active')) {
-                        renderSongs('praise', keyFilter.value, genreFilter.value);
-                    } else {
-                        renderSongs('worship', keyFilter.value, genreFilter.value);
-                    }
-                    updateSongCount();
-                    showNotification('Song added successfully!');
-                    addSongModal.style.display = 'none';
-                    newSongForm.reset();
-                    document.getElementById('selectedGenres').innerHTML = '';
-                } catch (err) {
-                    showNotification('Error adding song: ' + err.message, 4000);
-                    console.error(err);
+                            const response = await fetch(`${API_BASE_URL}/songs`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': debugAuthHeader
+                                },
+                                body: JSON.stringify(songData)
+                            });
+                            if (response.status === 401) {
+                                showNotification('Session expired or invalid. Please log in again.');
+                                logoutUser && logoutUser();
+                                return;
+                            }
+                            if (!response.ok) {
+                                let errMsg = 'Failed to add song';
+                                try {
+                                    const errData = await response.json();
+                                    errMsg = errData.error || errMsg;
+                                } catch {}
+                                throw new Error(errMsg);
+                            }
+                            const newSong = await response.json();
+                            songs.push(newSong);
+                            if (deleteSection.style.display === 'block') {
+                                renderDeleteSongs();
+                            } else if (praiseTab.classList.contains('active')) {
+                                renderSongs('praise', keyFilter.value, genreFilter.value);
+                            } else {
+                                renderSongs('worship', keyFilter.value, genreFilter.value);
+                            }
+                            updateSongCount();
+                            showNotification('Song added successfully!');
+                            addSongModal.style.display = 'none';
+                            form.reset();
+                            document.getElementById('selectedGenres').innerHTML = '';
+                        } catch (err) {
+                            showNotification('Error adding song: ' + err.message, 4000);
+                            console.error(err);
+                        }
+                    });
+                } else {
+                    console.warn('[Global] newSongForm does NOT exist at DOMContentLoaded');
                 }
             });
     

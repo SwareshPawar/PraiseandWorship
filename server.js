@@ -67,7 +67,9 @@ function generateToken(user) {
 
 function localAuthMiddleware(req, res, next) {
   const authHeader = req.headers['authorization'];
+  console.log('[localAuthMiddleware] Authorization header:', authHeader);
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    console.log('[localAuthMiddleware] No token provided');
     return res.status(401).json({ error: 'No token provided' });
   }
   const token = authHeader.split(' ')[1];
@@ -76,6 +78,7 @@ function localAuthMiddleware(req, res, next) {
     req.user = decoded;
     next();
   } catch (err) {
+    console.log('[localAuthMiddleware] JWT error:', err.message);
     return res.status(401).json({ error: 'Invalid token' });
   }
 }

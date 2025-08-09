@@ -4442,6 +4442,11 @@
                     showNotification('Please select at least one genre');
                     return;
                 }
+                // Token check
+                if (!currentUser || !currentUser.token) {
+                    showNotification('Session expired. Please log in again.');
+                    return;
+                }
                 const songData = {
                     title: title,
                     category: document.getElementById('songCategory').value,
@@ -4455,12 +4460,24 @@
                 try {
                     const response = await fetch(`${API_BASE_URL}/songs`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${currentUser.token}`
+                        },
                         body: JSON.stringify(songData)
                     });
+                    if (response.status === 401) {
+                        showNotification('Session expired or invalid. Please log in again.');
+                        logoutUser && logoutUser();
+                        return;
+                    }
                     if (!response.ok) {
-                        const errData = await response.json();
-                        throw new Error(errData.error || 'Failed to add song');
+                        let errMsg = 'Failed to add song';
+                        try {
+                            const errData = await response.json();
+                            errMsg = errData.error || errMsg;
+                        } catch {}
+                        throw new Error(errMsg);
                     }
                     const newSong = await response.json();
                     songs.push(newSong);

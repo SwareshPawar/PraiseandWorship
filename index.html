@@ -2328,7 +2328,13 @@
         let isAnyModalOpen = false;
         let currentModal = null;
 
-        const API_BASE_URL = 'https://praiseandworship.onrender.com/api';
+        // Set API_BASE_URL based on environment (local vs production)
+        let API_BASE_URL;
+        if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') {
+            API_BASE_URL = 'http://localhost:3001/api'; // Local backend
+        } else {
+            API_BASE_URL = 'https://praiseandworship.onrender.com/api'; // Production backend
+        }
 
     
         // Search history

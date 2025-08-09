@@ -723,8 +723,25 @@
 
         .song-actions {
             display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
             gap: 5px;
-            flex-wrap: wrap;
+            align-items: center;
+            overflow-x: auto;
+        }
+
+        /* On small screens, ensure song-actions stays in a single line and buttons don't shrink too much */
+        @media (max-width: 600px) {
+            .song-actions {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+            .song-actions .btn {
+                min-width: 36px;
+                flex: 0 0 auto;
+                font-size: 1rem;
+                padding: 6px 8px;
+            }
         }
 
         /* Preview Section Styles */

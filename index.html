@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +7,30 @@
     <title>Praise & Worship Songs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <style>
+
+                .setlist-remove-btn {
+    min-width: 90px;
+    max-width: 140px;
+    font-size: 1rem;
+    padding: 8px 14px;
+    margin-left: 12px;
+    border-radius: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: ellipsis;
+    display: inline-block;
+        }
+
+/* Ensure setlist song actions do not scroll horizontally and buttons are always visible */
+.setlist-sortable li .song-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    overflow-x: visible;
+    min-width: 110px;
+    justify-content: flex-end;
+}
         /* Ensure dark mode auth buttons override sidebar-btn styles */
         .dark-mode .sidebar-btn.auth-btn {
             background: var(--dark-primary) ;
@@ -223,33 +249,35 @@
         }
 
         .preview-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-            gap: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    gap: 10px;
         }
 
         .preview-actions {
-            display: flex;
-            gap: 4px;
-            margin: 5px 0;
-            flex-wrap: wrap;
+    display: flex;
+    gap: 4px;
+    margin: 5px 0 0 0;
+    flex-wrap: wrap;
+    width: 100%;
+    justify-content: flex-start;
         }
 
         @media (max-width: 768px) {
-            .preview-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .preview-actions {
-                justify-content: center;
-                align-items: flex-start;
-                display: flex;
-                gap: 5px;
-            }
+    .preview-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .preview-actions {
+        justify-content: flex-start;
+        align-items: flex-start;
+        display: flex;
+        gap: 5px;
+        width: 100%;
+        margin-top: 0;
+    }
         }
 
         /* Suggested Songs Drawer */
@@ -825,11 +853,17 @@
 
         /* Make delete button smaller on mobile so all 3 fit in a line */
         @media (max-width: 600px) {
-            .btn-delete {
-                padding: 4px 8px;
-                font-size: 0.78rem;
-                min-width: 0;
-            }
+    .setlist-remove-btn {
+        min-width: 80px;
+        max-width: 100vw;
+        font-size: 0.95rem;
+        padding: 7px 10px;
+        margin-left: 0;
+        margin-top: 6px;
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+    }
         }
 
             .btn-delete:hover {
@@ -1483,6 +1517,27 @@
                 margin-left: 8px;
             }
     </style>
+<style>
+/* Ensure setlist songs are visible in dark mode */
+body.dark-mode .setlist-sortable li {
+    background: #23272f !important;
+    color: #f5f7fa !important;
+}
+body.dark-mode .setlist-sortable li .setlist-index {
+    color: #b3b3b3 !important;
+}
+body.dark-mode .setlist-sortable li .song-actions button {
+    background: #e63946 !important; /* Use the delete color */
+    color: #fff !important;
+    border-color: #e63946 !important;
+}
+body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
+    background: #e63946 !important;
+    color: #fff !important;
+    border-color: #e63946 !important;
+}
+
+</style>
 </head>
 <body>
     <div class="app-container">
@@ -2394,8 +2449,9 @@
                     if (res.ok) {
                         const data = await res.json();
                         favorites = data.favorites || [];
-                        praiseSetlist = data.praiseSetlist || [];
-                        worshipSetlist = data.worshipSetlist || [];
+                        // Map setlist IDs to full song objects
+                        praiseSetlist = (data.praiseSetlist || []).map(id => songs.find(s => s.id == id)).filter(Boolean);
+                        worshipSetlist = (data.worshipSetlist || []).map(id => songs.find(s => s.id == id)).filter(Boolean);
                     }
                 } catch (err) {
                     console.error('Failed to load user data from backend:', err);
@@ -2466,6 +2522,25 @@
                 keepScreenOnBtn.style.display = 'flex';
             } else {
                 keepScreenOnBtn.style.display = 'none';
+            }
+        }
+
+                // Shared function to toggle song in setlist from any button
+        function toggleSongInSetlist(song) {
+            // Defensive: ensure setlists are arrays
+            const praiseSet = Array.isArray(praiseSetlist) ? praiseSetlist : [];
+            const worshipSet = Array.isArray(worshipSetlist) ? worshipSetlist : [];
+            const isInSetlist = song.category === 'praise'
+                ? praiseSet.some(s => s && s.id === song.id)
+                : worshipSet.some(s => s && s.id === song.id);
+            if (isInSetlist) {
+                removeFromSetlist(song.id, song.category);
+                updateSetlistButton(song.id, false);
+                updatePreviewSetlistButton(false);
+            } else {
+                addToSetlist(song.id);
+                updateSetlistButton(song.id, true);
+                updatePreviewSetlistButton(true);
             }
         }
     
@@ -2730,6 +2805,8 @@
             console.log('[Setlist] Saving setlist. currentUser:', currentUser);
             console.log('[Setlist] Authorization header:', debugAuthHeader);
             try {
+                // Filter out null/undefined songs before mapping ids
+                const filteredSetlist = setlist.filter(song => song && song.id != null);
                 await fetch(`${API_BASE_URL}/user/setlist`, {
                     method: 'POST',
                     headers: {
@@ -2738,7 +2815,7 @@
                     },
                     body: JSON.stringify({
                         type, // 'praise' or 'worship'
-                        setlist: setlist.map(song => song.id)
+                        setlist: filteredSetlist.map(song => song.id)
                     })
                 });
             } catch (err) {
@@ -2969,10 +3046,14 @@
                 const div = document.createElement('div');
                 div.className = 'song-item';
                 div.dataset.songId = song.id;
+                // Defensive: ensure setlists and favorites are arrays
+                const praiseSet = Array.isArray(praiseSetlist) ? praiseSetlist : [];
+                const worshipSet = Array.isArray(worshipSetlist) ? worshipSetlist : [];
+                const favs = Array.isArray(favorites) ? favorites : [];
                 const isInSetlist = song.category === 'praise' 
-                    ? praiseSetlist.some(s => s.id === song.id)
-                    : worshipSetlist.some(s => s.id === song.id);
-                const isFavorite = favorites.includes(song.id);
+                    ? praiseSet.some(s => s && s.id === song.id)
+                    : worshipSet.some(s => s && s.id === song.id);
+                const isFavorite = favs.includes(song.id);
                 const displayGenres = song.genres ? song.genres.join(', ') : song.genre || '';
                 // Only show delete button if user is admin
                 const showDelete = currentUser && currentUser.isAdmin;
@@ -2999,19 +3080,7 @@
                 });
                 div.querySelector('.toggle-setlist').addEventListener('click', (e) => {
                     e.stopPropagation();
-                    // Use the song object directly for reliability
-                    const wasInSetlist = song.category === 'praise'
-                        ? praiseSetlist.some(s => s.id === song.id)
-                        : worshipSetlist.some(s => s.id === song.id);
-                    if (wasInSetlist) {
-                        removeFromSetlist(song.id, song.category);
-                        updateSetlistButton(song.id, false);
-                        if (songPreviewEl.dataset.songId == song.id) updatePreviewSetlistButton(false);
-                    } else {
-                        addToSetlist(song.id);
-                        updateSetlistButton(song.id, true);
-                        if (songPreviewEl.dataset.songId == song.id) updatePreviewSetlistButton(true);
-                    }
+                    toggleSongInSetlist(song);
                 });
                 div.querySelector('.edit-song').addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -3120,12 +3189,12 @@
 
             // Define scoring weights (total = 100)
             const WEIGHTS = {
-                language: 20,        // Language match from genres
+                language: 10,        // Language match from genres
                 scale: 30,           // Scale match (major/minor and harmonic relationships)
-                timeSignature: 25,   // Time Signature match
-                taal: 15,            // Taal match
-                tempo: 5,            // Tempo similarity
-                genre: 5             // Non-language genre matches
+                timeSignature: 30,   // Time Signature match
+                taal: 10,            // Taal match
+                tempo: 0,            // Tempo similarity
+                genre: 15             // Non-language genre matches
             };
 
             // Time signature compatible pairs
@@ -3419,18 +3488,20 @@
     
         function renderSetlist(category) {
             const container = category === 'praise' ? praiseSetlistSongs : worshipSetlistSongs;
-            const setlist = category === 'praise' ? praiseSetlist : worshipSetlist;
+            let setlist = category === 'praise' ? praiseSetlist : worshipSetlist;
+            // Filter out undefined/null
+            setlist = setlist.filter(song => song && typeof song === 'object' && song.id != null);
             container.innerHTML = '';
             if (setlist.length === 0) {
                 container.innerHTML = '<p>Your ' + category + ' setlist is empty.</p>';
                 return;
             }
-    
+
             const ul = document.createElement('ul');
             ul.className = 'setlist-sortable';
             ul.style.listStyle = 'none';
             ul.style.padding = '0';
-    
+
             setlist.forEach((song, index) => {
                 const li = document.createElement('li');
                 li.style.display = 'flex';
@@ -3440,67 +3511,40 @@
                 li.style.marginBottom = '8px';
                 li.style.background = '#f5f7fa';
                 li.style.borderRadius = '5px';
-                li.setAttribute('draggable', 'true');
-                li.dataset.songId = song.id;    
+                // REMOVE draggable attribute
+                li.dataset.songId = song.id;
                 li.innerHTML = `
                     <span><span class="setlist-index">${index + 1}.</span> ${song.title} (${song.key} | ${song.genre})</span>
-                    <div class="song-actions">
-                        <button class="btn btn-delete" onclick="removeFromSetlist(${song.id}, '${song.category}')">Remove</button>
+                    <div class="song-actions" style="margin-left:16px;">
+                        <button class="btn btn-delete setlist-remove-btn" style="min-width:70px;max-width:100px;overflow:hidden;white-space:nowrap;" onclick="removeFromSetlist(${song.id}, '${song.category}')">Remove</button>
                     </div>
                 `;
-    
+                // Only trigger preview if not clicking a button
                 li.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('btn')) {
                         showPreview(song);
                     }
                 });
-    
                 ul.appendChild(li);
             });
-    
+
             container.appendChild(ul);
-            enableDrag(container, category);
+            // Drag-and-drop disabled
         }
     
         function enableDrag(container, category) {
-            let draggedItem = null;
-    
-            container.querySelectorAll("li").forEach(item => {
-                item.addEventListener("dragstart", e => {
-                    draggedItem = item;
-                    setTimeout(() => item.style.display = "none", 0);
-                });
-    
-                item.addEventListener("dragend", () => {
-                    item.style.display = "flex";
-                    draggedItem = null;
-                    updateSetlistOrder(container, category);
-                });
-    
-                item.addEventListener("dragover", e => {
-                    e.preventDefault();
-                    const bounding = item.getBoundingClientRect();
-                    const offset = e.clientY - bounding.top + (bounding.height / 2);
-                    if (offset > bounding.height / 2) {
-                        item.parentNode.insertBefore(draggedItem, item.nextSibling);
-                    } else {
-                        item.parentNode.insertBefore(draggedItem, item);
-                    }
-                });
-            });
+            // Drag-and-drop functionality removed
         }
     
         function updateSetlistOrder(container, category) {
+            // Use the global songs array to always get the correct song object for each id
             const ids = Array.from(container.querySelectorAll("li")).map(li => parseInt(li.dataset.songId));
-            const fullList = category === 'praise' ? praiseSetlist : worshipSetlist;
-            const newList = ids.map(id => fullList.find(song => song.id === id));
-    
+            const newList = ids.map(id => songs.find(song => song && song.id === id)).filter(song => song && typeof song === 'object' && song.id != null);
             if (category === 'praise') {
                 praiseSetlist = newList;
             } else {
                 worshipSetlist = newList;
             }
-    
             saveSetlists();
             renderSetlist(category);
         }
@@ -3515,29 +3559,7 @@
                 favBtn.classList.toggle('favorited', isFavorite);
             });
 
-            // Setlist button
-            document.getElementById('previewSetlistBtn')?.addEventListener('click', () => {
-                const isInSetlist = song.category === 'New' 
-                    ? NewSetlist.some(s => s.id === song.id)
-                    : OldSetlist.some(s => s.id === song.id);
-                
-                if (isInSetlist) {
-                    removeFromSetlist(song.id, song.category);
-                } else {
-                    addToSetlist(song.id);
-                }
-                
-                // Update the button after a short delay to allow state to update
-                setTimeout(() => {
-                    const newIsInSetlist = song.category === 'New' 
-                        ? NewSetlist.some(s => s.id === song.id)
-                        : OldSetlist.some(s => s.id === song.id);
-                    const setlistBtn = document.getElementById('previewSetlistBtn');
-                    setlistBtn.textContent = newIsInSetlist ? 'Remove from Setlist' : 'Add to Setlist';
-                    setlistBtn.classList.toggle('btn-primary', !newIsInSetlist);
-                    setlistBtn.classList.toggle('btn-delete', newIsInSetlist);
-                }, 100);
-            });
+            // (Removed duplicate/incorrect previewSetlistBtn handler. The correct handler is attached after rendering the preview.)
 
             // Edit button
             document.getElementById('previewEditBtn')?.addEventListener('click', () => {
@@ -3586,11 +3608,14 @@
             songPreviewEl.dataset.originalKey = song.key;
     
              // Check if song is in setlist/favorites
+            // Defensive: ensure setlists and favorites are arrays
+            const praiseSet = Array.isArray(praiseSetlist) ? praiseSetlist : [];
+            const worshipSet = Array.isArray(worshipSetlist) ? worshipSetlist : [];
+            const favs = Array.isArray(favorites) ? favorites : [];
             const isInSetlist = song.category === 'praise' 
-                ? praiseSetlist.some(s => s.id === song.id)
-                : worshipSetlist.some(s => s.id === song.id);
-            
-            const isFavorite = favorites.includes(song.id);
+                ? praiseSet.some(s => s && s.id === song.id)
+                : worshipSet.some(s => s && s.id === song.id);
+            const isFavorite = favs.includes(song.id);
     
             // Build the preview HTML
             songPreviewEl.innerHTML = `
@@ -3598,13 +3623,7 @@
                 <div class="song-slide">
                 <div class="preview-header">
                     <div style="display: flex; align-items: center; gap: 10px;">
-                    <button class="btn btn-primary" id="prevSongBtn" title="Previous Song">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
                     <h2>${song.title}</h2>
-                    <button class="btn btn-primary" id="nextSongBtn" title="Next Song">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
                     </div>
                     <div class="preview-actions">
                     <!-- Keep your existing action buttons here -->
@@ -3663,25 +3682,13 @@
             }
 
             // Next/Prev song buttons
-            document.getElementById('nextSongBtn')?.addEventListener('click', showNextSong);
-            document.getElementById('prevSongBtn')?.addEventListener('click', showPrevSong);
+
         
             document.getElementById('previewFavoriteBtn').addEventListener('click', (e) => {
                 toggleFavorite(song.id);
             });
             document.getElementById('previewSetlistBtn').addEventListener('click', (e) => {
-                const isInSetlistNow = song.category === 'praise'
-                    ? praiseSetlist.some(s => s.id === song.id)
-                    : worshipSetlist.some(s => s.id === song.id);
-                if (isInSetlistNow) {
-                    removeFromSetlist(song.id, song.category);
-                    updatePreviewSetlistButton(false);
-                    updateSetlistButton(song.id, false);
-                } else {
-                    addToSetlist(song.id);
-                    updatePreviewSetlistButton(true);
-                    updateSetlistButton(song.id, true);
-                }
+                toggleSongInSetlist(song);
             });
             document.getElementById('previewEditBtn').addEventListener('click', (e) => {
                 editSong(song.id);
@@ -3945,7 +3952,7 @@
             } else {
                 setlist = worshipSetlist;
             }
-            if (!setlist.some(s => s.id === id)) {
+            if (!setlist.some(s => s && s.id === id)) {
                 setlist.push(song);
                 saveSetlists();
                 showNotification(`"${song.title}" added to ${song.category} setlist`);
@@ -3972,7 +3979,7 @@
             } else {
                 setlist = worshipSetlist;
             }
-            const idx = setlist.findIndex(s => s.id === id);
+            const idx = setlist.findIndex(s => s && s.id === id);
             if (idx !== -1) {
                 setlist.splice(idx, 1);
                 saveSetlists();
@@ -4147,70 +4154,8 @@
             deleteSongModal.style.display = 'flex';
         }
 
-        function getCurrentSongList() {
-            if (deleteSection.style.display === 'block') {
-                return songs.slice().sort((a, b) => a.title.localeCompare(b.title));
-            } else if (favoritesSection.style.display === 'block') {
-                return songs.filter(song => favorites.includes(song.id));
-            } else if (setlistSection.style.display === 'block') {
-                const activeSetlist = praiseSetlistTab.classList.contains('active') ? 
-                    praiseSetlist : worshipSetlist;
-                return activeSetlist;
-            } else {
-                // Regular song list view with filters applied
-                const category = praiseTab.classList.contains('active') ? 'praise' : 'worship';
-                const keyFilterValue = keyFilter.value;
-                const genreFilterValue = genreFilter.value;
-                
-                return songs
-                    .filter(song => song.category === category)
-                    .filter(song => keyFilterValue === "" || song.key === keyFilterValue)
-                    .filter(song => {
-                        if (!genreFilterValue) return true;
-                        const genresArr = Array.isArray(song.genres) ? song.genres : (song.genre ? [song.genre] : []);
-                        return genresArr.includes(genreFilterValue);
-                    })
-                    .sort((a, b) => a.title.localeCompare(b.title));
-            }
-        }
 
-        function showNextSong() {
-            const currentSongId = parseInt(songPreviewEl.dataset.songId);
-            if (!currentSongId) return;
-            
-            const songList = getCurrentSongList();
-            if (songList.length === 0) return;
-            
-            const currentIndex = songList.findIndex(song => song.id === currentSongId);
-            const nextIndex = (currentIndex + 1) % songList.length;
-            
-            showPreview(songList[nextIndex]);
-        }
 
-        function showPrevSong() {
-            const currentSongId = parseInt(songPreviewEl.dataset.songId);
-            if (!currentSongId) return;
-            
-            const songList = getCurrentSongList();
-            if (songList.length === 0) return;
-            
-            const currentIndex = songList.findIndex(song => song.id === currentSongId);
-            const prevIndex = (currentIndex - 1 + songList.length) % songList.length;
-            
-            showPreview(songList[prevIndex]);
-        }
-
-        function handleSwipe() {
-            const swipeThreshold = 50; // Minimum swipe distance in pixels
-            
-            if (touchStartX - touchEndX > swipeThreshold) {
-                // Swipe left - next song
-                showNextSong();
-            } else if (touchEndX - touchStartX > swipeThreshold) {
-                // Swipe right - previous song
-                showPrevSong();
-            }
-        }
     
         function addEventListeners() {
             // Tab switching

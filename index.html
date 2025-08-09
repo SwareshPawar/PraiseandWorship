@@ -1540,14 +1540,66 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
 </style>
 </head>
 <body>
-    <div id="loadingOverlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(30,30,30,0.7);display:flex;align-items:center;justify-content:center;">
-      <div style="text-align:center;">
-        <div class="spinner" style="margin-bottom:16px;width:48px;height:48px;border:6px solid #eee;border-top:6px solid #3498db;border-radius:50%;animation:spin 1s linear infinite;"></div>
-        <div style="color:#fff;font-size:1.2em;">Loading songs...</div>
+    <div id="loadingOverlay">
+      <div class="loading-content">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading songs...</div>
       </div>
     </div>
     <style>
+      #loadingOverlay {
+        position: fixed;
+        top: 0; left: 0;
+        width: 100vw; height: 100vh;
+        z-index: 9999;
+        background: rgba(30,30,30,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.2s;
+      }
+      .loading-content {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .spinner {
+        margin-bottom: 18px;
+        width: 64px;
+        height: 64px;
+        border: 8px solid #eee;
+        border-top: 8px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+      }
+      .loading-text {
+        color: #fff;
+        font-size: 1.3em;
+        font-weight: 500;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        letter-spacing: 0.02em;
+      }
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      @media (max-width: 600px) {
+        #loadingOverlay {
+          padding: 0;
+        }
+        .spinner {
+          width: 44px;
+          height: 44px;
+          border-width: 6px;
+        }
+        .loading-text {
+          font-size: 1.05em;
+        }
+        .loading-content {
+          min-width: 0;
+          width: 90vw;
+        }
+      }
     </style>
     <div class="app-container">
         <button class="panel-toggle draggable" id="toggle-sidebar"><i class="fas fa-home"></i></button>
@@ -1688,6 +1740,12 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                         <option value="Hindi">Hindi</option>
                         <option value="Marathi">Marathi</option>
                         <option value="English">English</option>
+                    </select>
+                    <select id="sortSongs" class="compact-select" style="min-width:120px;">
+                        <option value="date-desc">Recently Added</option>
+                        <option value="date-asc">Oldest First</option>
+                        <option value="alpha-asc">A-Z</option>
+                        <option value="alpha-desc">Z-A</option>
                     </select>
                 </div>
 
@@ -2071,70 +2129,75 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
             document.getElementById('adminPanelBtn').style.display = (isAuthenticated && currentUser && currentUser.isAdmin) ? 'block' : 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Fetch and log backend environment info for debugging
-            try {
-                const envRes = await fetch(`${API_BASE_URL}/env`);
-                if (envRes.ok) {
-                    const envData = await envRes.json();
-                    console.log('[Backend ENV]', envData);
-                } else {
-                    console.warn('[Backend ENV] Could not fetch backend environment info');
-                }
-            } catch (e) {
-                console.warn('[Backend ENV] Error fetching backend environment info:', e);
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Show loading spinner immediately
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+
+    // Fetch and log backend environment info for debugging
+    try {
+        const envRes = await fetch(`${API_BASE_URL}/env`);
+        if (envRes.ok) {
+            const envData = await envRes.json();
+            console.log('[Backend ENV]', envData);
+        } else {
+            console.warn('[Backend ENV] Could not fetch backend environment info');
+        }
+    } catch (e) {
+        console.warn('[Backend ENV] Error fetching backend environment info:', e);
+    }
+    updateAuthUI();
+    // On page load, if logged in, fetch user data from backend
+    if (jwtToken) {
+        try {
+            // Always keep currentUser.token in sync with jwtToken
+            if (currentUser && currentUser.token !== jwtToken) {
+                currentUser.token = jwtToken;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
-            updateAuthUI();
-            // On page load, if logged in, fetch user data from backend
-            if (jwtToken) {
-                try {
-                    // Always keep currentUser.token in sync with jwtToken
-                    if (currentUser && currentUser.token !== jwtToken) {
-                        currentUser.token = jwtToken;
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    }
-                    console.log('[UserData Fetch] Fetching user data from backend with token:', jwtToken);
-                    const res = await fetch(`${API_BASE_URL}/userdata`, {
-                        headers: { 'Authorization': `Bearer ${jwtToken}` }
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        console.log('[UserData Fetch] Data received from backend:', data);
-                        favorites = data.favorites || [];
-                        praiseSetlist = data.praiseSetlist || [];
-                        worshipSetlist = data.worshipSetlist || [];
-                        renderFavorites();
-                        renderSetlist('praise');
-                        renderSetlist('worship');
-                    } else {
-                        console.warn('[UserData Fetch] Backend returned error status:', res.status);
-                    }
-                } catch (err) {
-                    console.error('Failed to load user data from backend:', err);
-                }
-            }
-            document.getElementById('loginBtn').addEventListener('click', () => {
-                document.getElementById('loginModal').style.display = 'flex';
+            console.log('[UserData Fetch] Fetching user data from backend with token:', jwtToken);
+            const res = await fetch(`${API_BASE_URL}/userdata`, {
+                headers: { 'Authorization': `Bearer ${jwtToken}` }
             });
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                jwtToken = null;
-                currentUser = null;
-                localStorage.removeItem('jwtToken');
-                localStorage.removeItem('currentUser');
-                favorites = [];
-                praiseSetlist = [];
-                worshipSetlist = [];
-                updateAuthUI();
-                // Re-render UI to reflect cleared state
-                renderSongs('praise', keyFilter.value, genreFilter.value);
-                renderSongs('worship', keyFilter.value, genreFilter.value);
+            if (res.ok) {
+                const data = await res.json();
+                console.log('[UserData Fetch] Data received from backend:', data);
+                favorites = data.favorites || [];
+                praiseSetlist = data.praiseSetlist || [];
+                worshipSetlist = data.worshipSetlist || [];
+                renderFavorites();
                 renderSetlist('praise');
                 renderSetlist('worship');
-            });
-            document.getElementById('registerBtn').addEventListener('click', () => {
-                document.getElementById('registerModal').style.display = 'flex';
-            });
-        });
+            } else {
+                console.warn('[UserData Fetch] Backend returned error status:', res.status);
+            }
+        } catch (err) {
+            console.error('Failed to load user data from backend:', err);
+        }
+    }
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        document.getElementById('loginModal').style.display = 'flex';
+    });
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        jwtToken = null;
+        currentUser = null;
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('currentUser');
+        favorites = [];
+        praiseSetlist = [];
+        worshipSetlist = [];
+        updateAuthUI();
+        // Re-render UI to reflect cleared state
+        renderSongs('praise', keyFilter.value, genreFilter.value);
+        renderSongs('worship', keyFilter.value, genreFilter.value);
+        renderSetlist('praise');
+        renderSetlist('worship');
+    });
+    document.getElementById('registerBtn').addEventListener('click', () => {
+        document.getElementById('registerModal').style.display = 'flex';
+    });
+});
 
         // Helper: fetch with JWT token for protected routes
         async function authFetch(url, options = {}) {
@@ -2494,6 +2557,17 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
         const toggleAutoScrollBtn = document.getElementById('toggleAutoScroll');
         const keepScreenOnBtn = document.getElementById('keepScreenOnBtn');
         const notificationEl = document.getElementById('notification');
+        const sortSongs = document.getElementById('sortSongs');
+
+        if (sortSongs) {
+            sortSongs.addEventListener('change', function() {
+                if (praiseTab && praiseTab.classList.contains('active')) {
+                    renderSongs('praise', keyFilter.value, genreFilter.value);
+                } else {
+                    renderSongs('worship', keyFilter.value, genreFilter.value);
+                }
+            });
+        }
     
         // Auto-scroll and chord variables
         let autoScrollInterval = null;
@@ -2530,7 +2604,10 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
 
         // Initialize the application
         async function init() {
-            await loadSongsFromBackend();
+    // Show loading spinner immediately in case not already shown
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    await loadSongsFromBackend();
             loadSettings();
             addEventListeners();
             addPanelToggles();
@@ -3125,10 +3202,28 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                         if (!genreFilterValue) return true;
                         if (!song.genres) return song.genre === genreFilterValue;
                         return song.genres.includes(genreFilterValue);
-                    })
-                    .sort((a, b) => a.title.localeCompare(b.title));
+                    });
+                // Sort logic
+                let sortValue = sortSongs ? sortSongs.value : 'date-desc';
+                songsToRender = songsToRender.slice();
+                if (sortValue === 'date-desc') {
+                    songsToRender.sort((a, b) => {
+                        let da = a.createdAt ? new Date(a.createdAt) : 0;
+                        let db = b.createdAt ? new Date(b.createdAt) : 0;
+                        return db - da;
+                    });
+                } else if (sortValue === 'date-asc') {
+                    songsToRender.sort((a, b) => {
+                        let da = a.createdAt ? new Date(a.createdAt) : 0;
+                        let db = b.createdAt ? new Date(b.createdAt) : 0;
+                        return da - db;
+                    });
+                } else if (sortValue === 'alpha-asc') {
+                    songsToRender.sort((a, b) => (a.title || '').localeCompare(b.title || '', undefined, {sensitivity:'base'}));
+                } else if (sortValue === 'alpha-desc') {
+                    songsToRender.sort((a, b) => (b.title || '').localeCompare(a.title || '', undefined, {sensitivity:'base'}));
+                }
                 container = category === 'praise' ? praiseContent : worshipContent;
-                
             } else {
                 songsToRender = categoryOrSongs;
                 container = filterOrContainer;
@@ -3586,7 +3681,7 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
             const container = category === 'praise' ? praiseSetlistSongs : worshipSetlistSongs;
             let setlist = category === 'praise' ? praiseSetlist : worshipSetlist;
             // Filter out undefined/null
-            setlist = setlist.filter(song => song && typeof song === 'object' && song.id != null);
+            setlist = setlist.filter(song => song && typeof song === 'object' && (song.id != null || song._id));
             container.innerHTML = '';
             if (setlist.length === 0) {
                 container.innerHTML = '<p>Your ' + category + ' setlist is empty.</p>';
@@ -3600,22 +3695,74 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
 
             setlist.forEach((song, index) => {
                 const li = document.createElement('li');
+                li.className = 'song-item';
                 li.style.display = 'flex';
-                li.style.justifyContent = 'space-between';
-                li.style.alignItems = 'center';
+                li.style.flexDirection = 'column';
+                li.style.justifyContent = 'flex-start';
+                li.style.alignItems = 'stretch';
                 li.style.padding = '10px';
                 li.style.marginBottom = '8px';
                 li.style.background = '#f5f7fa';
                 li.style.borderRadius = '5px';
-                // REMOVE draggable attribute
-                li.dataset.songId = song.id;
-                li.innerHTML = `
-                    <span><span class="setlist-index">${index + 1}.</span> ${song.title} (${song.key} | ${song.genre})</span>
-                    <div class="song-actions" style="margin-left:16px;">
-                        <button class="btn btn-delete setlist-remove-btn" style="min-width:70px;max-width:100px;overflow:hidden;white-space:nowrap;" onclick="removeFromSetlist(${song.id}, '${song.category}')">Remove</button>
-                    </div>
-                `;
-                // Only trigger preview if not clicking a button
+                li.style.overflow = 'hidden';
+                li.style.wordBreak = 'break-word';
+                li.dataset.songId = song.id || song._id;
+
+
+                // Title row (first row)
+                const titleRow = document.createElement('div');
+                titleRow.className = 'song-title-row';
+                titleRow.textContent = `${index + 1}. ${song.title || ''}`;
+                li.appendChild(titleRow);
+
+                // Meta + Remove row (second row)
+
+                const metaRow = document.createElement('div');
+                metaRow.className = 'song-meta-row';
+                metaRow.style.display = 'flex';
+                metaRow.style.flexDirection = 'row';
+                metaRow.style.alignItems = 'center';
+                metaRow.style.justifyContent = 'space-between';
+                metaRow.style.marginTop = '2px';
+
+                // Meta wrapper for centering
+                const metaWrapper = document.createElement('div');
+                metaWrapper.style.flex = '1';
+                metaWrapper.style.display = 'flex';
+                metaWrapper.style.justifyContent = 'center';
+                metaWrapper.style.alignItems = 'center';
+
+                const meta = document.createElement('span');
+                meta.className = 'song-meta';
+                meta.style.fontSize = '0.85em';
+                meta.style.fontWeight = 'bold';
+                meta.style.color = '#3a3a3a';
+                meta.style.background = '#e0e7ef';
+                meta.style.padding = '2px 12px';
+                meta.style.borderRadius = '12px';
+                meta.style.letterSpacing = '0.04em';
+                meta.style.boxShadow = '0 1px 3px rgba(0,0,0,0.04)';
+                meta.textContent = `${song.key || ''}`;
+                metaWrapper.appendChild(meta);
+                metaRow.appendChild(metaWrapper);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn btn-delete setlist-remove-btn';
+                removeBtn.textContent = 'Remove';
+                removeBtn.style.minWidth = '70px';
+                removeBtn.style.maxWidth = '120px';
+                removeBtn.style.overflow = 'hidden';
+                removeBtn.style.whiteSpace = 'nowrap';
+                removeBtn.style.marginLeft = '12px';
+                removeBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    window.removeFromSetlist(song.id || song._id, song.category);
+                };
+                metaRow.appendChild(removeBtn);
+
+                li.appendChild(metaRow);
+
+                // Preview on click (not on button)
                 li.addEventListener('click', (e) => {
                     if (!e.target.classList.contains('btn')) {
                         showPreview(song);
@@ -4068,7 +4215,7 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                 showNotification('Please log in to use setlists');
                 return;
             }
-            const song = songs.find(s => s.id === id);
+            const song = songs.find(s => s.id === id || s._id === id);
             if (!song) return;
             let setlist;
             if (category === 'praise') {
@@ -4076,7 +4223,7 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
             } else {
                 setlist = worshipSetlist;
             }
-            const idx = setlist.findIndex(s => s && s.id === id);
+            const idx = setlist.findIndex(s => s && (s.id === id || s._id === id));
             if (idx !== -1) {
                 setlist.splice(idx, 1);
                 saveSetlists();
@@ -4207,18 +4354,26 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                 }
             });
         }
-    
         function editSong(id) {
-            const song = songs.find(s => s.id === id);
+            // Find by id or _id
+            const song = songs.find(s => s.id == id || s._id == id);
             if (!song) return;
-            document.getElementById('editSongId').value = song.id;
+            document.getElementById('editSongId').value = song.id !== undefined ? song.id : '';
+            // Add a hidden field for _id if not present
+            let objectIdInput = document.getElementById('editSongObjectId');
+            if (!objectIdInput) {
+                objectIdInput = document.createElement('input');
+                objectIdInput.type = 'hidden';
+                objectIdInput.id = 'editSongObjectId';
+                document.getElementById('editSongForm').appendChild(objectIdInput);
+            }
+            objectIdInput.value = song._id || '';
             document.getElementById('editSongTitle').value = song.title;
             document.getElementById('editSongCategory').value = song.category;
             document.getElementById('editSongKey').value = song.key;
             document.getElementById('editSongTempo').value = song.tempo;
             document.getElementById('editSongTime').value = song.time;
             document.getElementById('editSongTaal').value = song.taal;
-            
             const genres = song.genres || (song.genre ? [song.genre] : []);
             const editSelectedGenres = document.getElementById('editSelectedGenres');
             editSelectedGenres.innerHTML = '';
@@ -4230,7 +4385,6 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                     <span class="remove-tag">×</span>
                 `;
                 editSelectedGenres.appendChild(tag);
-                
                 const options = document.querySelectorAll('#editGenreDropdown .multiselect-option');
                 options.forEach(opt => {
                     if (opt.dataset.value === genre) {
@@ -4238,7 +4392,6 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                     }
                 });
             });
-            
             document.getElementById('editSongLyrics').value = song.lyrics;
             editSongModal.style.display = 'flex';
         }
@@ -4786,9 +4939,11 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                 }
             });
     
+            // Replace your editSongForm submit handler with this:
             editSongForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const id = document.getElementById('editSongId').value;
+                const objectId = document.getElementById('editSongObjectId') ? document.getElementById('editSongObjectId').value : '';
                 const title = document.getElementById('editSongTitle').value;
                 const lyrics = document.getElementById('editSongLyrics').value;
                 if (isDuplicateSong(title, lyrics, id)) {
@@ -4801,6 +4956,7 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                     showNotification('Please select at least one genre');
                     return;
                 }
+                // Build update body (do NOT include _id)
                 const updatedSong = {
                     title: title,
                     category: document.getElementById('editSongCategory').value,
@@ -4811,18 +4967,49 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                     genre: selectedGenres,
                     lyrics: lyrics
                 };
+                // Find the song object by _id or id (for local update only)
+                let songObj = songs.find(s => (objectId && s._id == objectId) || s.id == id || s._id == id);
                 try {
-                    const response = await fetch(`${API_BASE_URL}/songs/${id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(updatedSong)
-                    });
-                    if (!response.ok) {
-                        const errData = await response.json();
-                        throw new Error(errData.error || 'Failed to update song');
+                    const debugAuthHeader = `Bearer ${currentUser.token}`;
+                    let response, newSong = null;
+                    // Try with _id first if present
+                    if (objectId) {
+                        response = await fetch(`${API_BASE_URL}/songs/${objectId}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': debugAuthHeader
+                            },
+                            body: JSON.stringify(updatedSong)
+                        });
+                        if (response.ok) {
+                            newSong = await response.json();
+                        }
                     }
-                    const newSong = await response.json();
-                    songs = songs.map(song => song._id === newSong._id ? newSong : song);
+                    // If not found or not ok, try with id (for legacy numeric id)
+                    if ((!response || response.status === 404 || !response.ok) && id) {
+                        response = await fetch(`${API_BASE_URL}/songs/${id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': debugAuthHeader
+                            },
+                            body: JSON.stringify(updatedSong)
+                        });
+                        if (response.ok) {
+                            newSong = await response.json();
+                        }
+                    }
+                    if (!response || !response.ok || !newSong) {
+                        let errMsg = 'Failed to update song';
+                        try {
+                            const errData = await response.json();
+                            errMsg = errData.error || errMsg;
+                        } catch {}
+                        throw new Error(errMsg);
+                    }
+                    // Update by _id or id
+                    songs = songs.map(song => (song._id === newSong._id || song.id === newSong.id) ? newSong : song);
                     if (deleteSection.style.display === 'block') {
                         renderDeleteSongs();
                     } else if (setlistSection.style.display === 'block') {
@@ -4832,7 +5019,7 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                     } else {
                         renderSongs('worship', keyFilter.value, genreFilter.value);
                     }
-                    if (songPreviewEl.dataset.songId == newSong._id) {
+                    if (songPreviewEl.dataset.songId == newSong._id || songPreviewEl.dataset.songId == newSong.id) {
                         showPreview(newSong);
                     }
                     showNotification('Song updated successfully!');

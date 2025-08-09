@@ -245,7 +245,7 @@ app.get('/api/songs', async (req, res) => {
   }
 });
 
-app.post('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => {
+app.post('/api/songs', localAuthMiddleware, async (req, res) => {
   try {
     if (typeof req.body.id !== 'number') {
       const last = await songsCollection.find().sort({ id: -1 }).limit(1).toArray();
@@ -265,16 +265,39 @@ app.post('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => {
   }
 });
 
-app.put('/api/songs/:id', localAuthMiddleware, requireAdmin, async (req, res) => {
+app.put('/api/songs/:id', localAuthMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    // Always update modifiedAt
     const update = { $set: { ...req.body, modifiedAt: new Date().toISOString() } };
-    const result = await songsCollection.updateOne({ id: parseInt(id) }, update);
+    let result = { matchedCount: 0 };
+    let updatedSong = null;
+
+    // Try numeric id first
+    if (!isNaN(Number(id))) {
+      result = await songsCollection.updateOne({ id: parseInt(id) }, update);
+      if (result.matchedCount > 0) {
+        updatedSong = await songsCollection.findOne({ id: parseInt(id) });
+      }
+    }
+    // If not found, try MongoDB _id
     if (result.matchedCount === 0) {
+      let objectId = null;
+      try {
+        objectId = new ObjectId(id);
+      } catch (e) {
+        // Not a valid ObjectId, ignore
+      }
+      if (objectId) {
+        result = await songsCollection.updateOne({ _id: objectId }, update);
+        if (result.matchedCount > 0) {
+          updatedSong = await songsCollection.findOne({ _id: objectId });
+        }
+      }
+    }
+    if (!updatedSong) {
       return res.status(404).json({ error: 'Song not found' });
     }
-    res.json({ message: 'Song updated' });
+    res.json(updatedSong);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

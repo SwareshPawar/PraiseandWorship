@@ -1954,10 +1954,25 @@
     </div>
     <!-- ====== SPACE FOR ADMIN ASSIGNMENT UI ====== -->
     <!-- You can add a user list and promote-to-admin button here, visible only to admins -->
+
     <script>
         // ====== Local Auth Config ======
         let jwtToken = localStorage.getItem('jwtToken') || null;
-        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        let currentUser = undefined;
+        try {
+            const userStr = localStorage.getItem('currentUser');
+            if (userStr) {
+                currentUser = JSON.parse(userStr);
+                // If token is missing, add it from jwtToken/localStorage
+                if (!currentUser.token) {
+                    currentUser.token = jwtToken || localStorage.getItem('jwtToken') || null;
+                    // Save the fixed object back to localStorage
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+            }
+        } catch (e) {
+            currentUser = undefined;
+        }
         window.currentUser = currentUser;
 
         function updateAuthUI() {
@@ -2042,7 +2057,7 @@
                                 name = payload.email.split('@')[0];
                             }
                         }
-                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id, name };
+                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id, name, token: jwtToken };
                         window.currentUser = currentUser;
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -2087,7 +2102,7 @@
                                 name = payload.email.split('@')[0];
                             }
                         }
-                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id, name };
+                        currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id, name, token: jwtToken };
                         window.currentUser = currentUser;
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -2266,8 +2281,10 @@
         // Search history
         let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
     
-        // Initialize the application
 
+        // ...currentUser is already declared and initialized at the top...
+
+        // Initialize the application
         async function init() {
             await loadSongsFromBackend();
             loadSettings();
@@ -2612,16 +2629,14 @@
 
         // Save user setlist to backend
         async function saveUserSetlist(type, setlist) {
-            // Always reload latest token
-            let jwtToken = localStorage.getItem('jwtToken') || null;
-            if (typeof currentUser === 'undefined' || !currentUser || !jwtToken) {
+            if (typeof currentUser === 'undefined' || !currentUser || !currentUser.token) {
                 console.warn('[Setlist] currentUser or token missing', currentUser);
                 return;
             }
+            const debugAuthHeader = `Bearer ${currentUser.token}`;
+            console.log('[Setlist] Saving setlist. currentUser:', currentUser);
+            console.log('[Setlist] Authorization header:', debugAuthHeader);
             try {
-                const debugAuthHeader = `Bearer ${jwtToken}`;
-                console.log('[Setlist] Saving setlist. currentUser:', currentUser);
-                console.log('[Setlist] Authorization header:', debugAuthHeader);
                 await fetch(`${API_BASE_URL}/user/setlist`, {
                     method: 'POST',
                     headers: {
@@ -2640,16 +2655,24 @@
 
         // Save user favorites to backend
         async function saveUserFavorites(favorites) {
-            // Always reload latest token
-            let jwtToken = localStorage.getItem('jwtToken') || null;
-            if (typeof currentUser === 'undefined' || !currentUser || !jwtToken) {
-                console.warn('[Favorites] currentUser or token missing', currentUser);
+            // Always get latest user from localStorage in case it changed
+            let user = currentUser;
+            try {
+                const userStr = localStorage.getItem('currentUser');
+                if (userStr) {
+                    user = JSON.parse(userStr);
+                }
+            } catch (e) {
+                user = currentUser;
+            }
+            if (typeof user === 'undefined' || !user || !user.token) {
+                console.warn('[Favorites] currentUser or token missing', user);
                 return;
             }
+            const debugAuthHeader = `Bearer ${user.token}`;
+            console.log('[Favorites] Saving favorites. currentUser:', user);
+            console.log('[Favorites] Authorization header:', debugAuthHeader);
             try {
-                const debugAuthHeader = `Bearer ${jwtToken}`;
-                console.log('[Favorites] Saving favorites. currentUser:', currentUser);
-                console.log('[Favorites] Authorization header:', debugAuthHeader);
                 await fetch(`${API_BASE_URL}/user/favorites`, {
                     method: 'POST',
                     headers: {
@@ -3157,27 +3180,19 @@
                 );
                 score += WEIGHTS.genre * details.genreMatch;
 
-                try {
-                    let jwtToken = localStorage.getItem('jwtToken') || null;
-                    if (!currentUser || !jwtToken) {
-                        console.warn('[UserData] currentUser or token missing', currentUser);
-                        return;
+                return {
+                    ...song,
+                    matchScore: Math.min(Math.round(score), 100),
+                    matchDetails: {
+                        ...details,
+                        languageScore: Math.round(details.languageScore * 100),
+                        tempoSimilarity: Math.round(details.tempoSimilarity * 100),
+                        genreMatch: Math.round(details.genreMatch * 100)
                     }
-                    const debugAuthHeader = `Bearer ${jwtToken}`;
-                    console.log('[UserData] Loading user data. currentUser:', currentUser);
-                    console.log('[UserData] Authorization header:', debugAuthHeader);
-                    const res = await fetch(`${API_BASE_URL}/userdata`, {
-                        headers: { 'Authorization': debugAuthHeader }
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        favorites = data.favorites || [];
-                        praiseSetlist = data.praiseSetlist || [];
-                        worshipSetlist = data.worshipSetlist || [];
-                    }
-                } catch (err) {
-                    console.error('Failed to load user data from backend:', err);
-                }
+                };
+            });
+
+            // Sort by priority and always return top 20, even if score is 0
             const sorted = scoredSongs.sort((a, b) => {
                 // 1. Same scale type (major/minor)
                 if (a.matchDetails.sameScaleType !== b.matchDetails.sameScaleType) {

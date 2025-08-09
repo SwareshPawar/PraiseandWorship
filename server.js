@@ -266,12 +266,20 @@ app.delete('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => 
 
 app.get('/api/userdata', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
-  const doc = await usersCollection.findOne({ _id: new ObjectId(userId) });
-  if (!doc) {
-    return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [] });
+  // Get user basic info
+  const userDoc = await usersCollection.findOne({ _id: new ObjectId(userId) });
+  if (!userDoc) {
+    return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
   }
-  // Only return relevant fields
-  const { favorites = [], praiseSetlist = [], worshipSetlist = [], name, email } = doc;
+  // Fetch favorites from Favorites collection
+  const favDoc = await favoritesCollection.findOne({ userId });
+  const favorites = favDoc?.favorites || [];
+  // Fetch setlists from Setlists collection
+  const praiseDoc = await setlistsCollection.findOne({ userId, type: 'praise' });
+  const worshipDoc = await setlistsCollection.findOne({ userId, type: 'worship' });
+  const praiseSetlist = praiseDoc?.setlist || [];
+  const worshipSetlist = worshipDoc?.setlist || [];
+  const { name, email } = userDoc;
   res.json({ favorites, praiseSetlist, worshipSetlist, name, email });
 });
 

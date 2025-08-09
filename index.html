@@ -1990,8 +1990,31 @@
             document.getElementById('adminPanelBtn').style.display = (isAuthenticated && currentUser && currentUser.isAdmin) ? 'block' : 'none';
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             updateAuthUI();
+            // On page load, if logged in, fetch user data from backend
+            if (currentUser && currentUser.token) {
+                try {
+                    console.log('[UserData Fetch] Fetching user data from backend with token:', currentUser.token);
+                    const res = await fetch(`${API_BASE_URL}/userdata`, {
+                        headers: { 'Authorization': `Bearer ${currentUser.token}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        console.log('[UserData Fetch] Data received from backend:', data);
+                        favorites = data.favorites || [];
+                        praiseSetlist = data.praiseSetlist || [];
+                        worshipSetlist = data.worshipSetlist || [];
+                        renderFavorites();
+                        renderSetlist('praise');
+                        renderSetlist('worship');
+                    } else {
+                        console.warn('[UserData Fetch] Backend returned error status:', res.status);
+                    }
+                } catch (err) {
+                    console.error('Failed to load user data from backend:', err);
+                }
+            }
             document.getElementById('loginBtn').addEventListener('click', () => {
                 document.getElementById('loginModal').style.display = 'flex';
             });
@@ -2062,14 +2085,29 @@
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();
-                        // Reload user-specific favorites and setlists on login
-                        favorites = loadUserFavorites();
-                        praiseSetlist = loadUserSetlist('praise');
-                        worshipSetlist = loadUserSetlist('worship');
+                        // Fetch user favorites and setlists from backend after login
+                        try {
+                            console.log('[UserData Fetch] Fetching user data from backend after login with token:', jwtToken);
+                            const res2 = await fetch(`${API_BASE_URL}/userdata`, {
+                                headers: { 'Authorization': `Bearer ${jwtToken}` }
+                            });
+                            if (res2.ok) {
+                                const data = await res2.json();
+                                console.log('[UserData Fetch] Data received from backend after login:', data);
+                                favorites = data.favorites || [];
+                                praiseSetlist = data.praiseSetlist || [];
+                                worshipSetlist = data.worshipSetlist || [];
+                                renderFavorites();
+                                renderSetlist('praise');
+                                renderSetlist('worship');
+                            } else {
+                                console.warn('[UserData Fetch] Backend returned error status after login:', res2.status);
+                            }
+                        } catch (err) {
+                            console.error('Failed to load user data from backend after login:', err);
+                        }
                         renderSongs('praise', keyFilter.value, genreFilter.value);
                         renderSongs('worship', keyFilter.value, genreFilter.value);
-                        renderSetlist('praise');
-                        renderSetlist('worship');
                         document.getElementById('loginModal').style.display = 'none';
                     } else {
                         alert(data.error || 'Login failed');
@@ -2107,14 +2145,29 @@
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();
-                        // Reload user-specific favorites and setlists on register
-                        favorites = loadUserFavorites();
-                        praiseSetlist = loadUserSetlist('praise');
-                        worshipSetlist = loadUserSetlist('worship');
+                        // Fetch user favorites and setlists from backend after register
+                        try {
+                            console.log('[UserData Fetch] Fetching user data from backend after register with token:', jwtToken);
+                            const res2 = await fetch(`${API_BASE_URL}/userdata`, {
+                                headers: { 'Authorization': `Bearer ${jwtToken}` }
+                            });
+                            if (res2.ok) {
+                                const data = await res2.json();
+                                console.log('[UserData Fetch] Data received from backend after register:', data);
+                                favorites = data.favorites || [];
+                                praiseSetlist = data.praiseSetlist || [];
+                                worshipSetlist = data.worshipSetlist || [];
+                                renderFavorites();
+                                renderSetlist('praise');
+                                renderSetlist('worship');
+                            } else {
+                                console.warn('[UserData Fetch] Backend returned error status after register:', res2.status);
+                            }
+                        } catch (err) {
+                            console.error('Failed to load user data from backend after register:', err);
+                        }
                         renderSongs('praise', keyFilter.value, genreFilter.value);
                         renderSongs('worship', keyFilter.value, genreFilter.value);
-                        renderSetlist('praise');
-                        renderSetlist('worship');
                         document.getElementById('registerModal').style.display = 'none';
                     } else {
                         alert(data.error || 'Registration failed');

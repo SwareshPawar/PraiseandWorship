@@ -1654,7 +1654,7 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                 <li><a href="#" id="showSetlist">Setlist</a></li>
                 <!-- <li><a href="#" id="showDelete">Delete Songs</a></li> -->
                 <li><a href="#" id="showFavorites">Favorites</a></li>
-                <li><a href="SONGSADMINCHURCHCHORDS.html"><i class="fas fa-cogs"></i> Admin Portal</a></li>
+                <li><a href="#" id="openAddSongModal"><i class="fa fa-plus"></i> Add New Song</a></li>
             </ul>
             <div class="sidebar-footer">
                 <div class="song-count">
@@ -1671,26 +1671,10 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                     <i class="fas fa-file-export"></i> Download HTML with Songs
                 </button>
                 <div class="sidebar-folder">
-                    <div class="folder-toggle" id="toggleSongTools">
-                        <i class="fas fa-folder-open"></i> Song Tools
-                        <i class="fas fa-caret-down folder-caret"></i>
-                    </div>
                     <div class="folder-content" id="songToolsContent">
                         <button class="sidebar-btn" id="openAddSongModal">
                             <i class="fa fa-plus"></i> Add New Song
-                        </button>
-                        <button class="sidebar-btn" id="downloadSongsBtn">
-                            <i class="fas fa-download"></i> Download Songs
-                        </button>
-                        <button class="sidebar-btn" id="uploadSongsBtn">
-                            <i class="fas fa-upload"></i> Upload Reset Songs
-                        </button>
-                        <button class="sidebar-btn" id="mergeSongsBtn">
-                            <i class="fas fa-compress-arrows-alt"></i> Upload Merge Songs
-                        </button>
-                        <button class="sidebar-btn btn-delete" id="deleteAllSongsBtn">
-                            <i class="fas fa-trash-alt"></i> Delete All Songs
-                        </button>
+                        </button>                    
                         <button class="sidebar-btn btn-delete" id="resetAppBtn">
                             <i class="fas fa-redo"></i> Reset Application
                         </button>
@@ -2829,9 +2813,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const deleteSongModal = document.getElementById('deleteSongModal');
         const deleteSongForm = document.getElementById('deleteSongForm');
         const cancelDeleteSong = document.getElementById('cancelDeleteSong');
-        const downloadBtn = document.getElementById('downloadSongsBtn');
-        const uploadBtn = document.getElementById('uploadSongsBtn');
-        const deleteAllSongsBtn = document.getElementById('deleteAllSongsBtn');
         const confirmDeleteAllModal = document.getElementById('confirmDeleteAllModal');
         const cancelDeleteAll = document.getElementById('cancelDeleteAll');
         const confirmDeleteAll = document.getElementById('confirmDeleteAll');
@@ -2840,7 +2821,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const toggleSidebarBtn = document.getElementById('toggle-sidebar');
         const toggleSongsBtn = document.getElementById('toggle-songs');
         const toggleAllPanelsBtn = document.getElementById('toggle-all-panels');
-        const mergeBtn = document.getElementById('mergeSongsBtn');
         const toggleAutoScrollBtn = document.getElementById('toggleAutoScroll');
         const keepScreenOnBtn = document.getElementById('keepScreenOnBtn');
         const notificationEl = document.getElementById('notification');
@@ -3276,8 +3256,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             const debugAuthHeader = `Bearer ${user.token}`;
-            console.log('[Setlist] Saving setlist. currentUser:', user);
-            console.log('[Setlist] Authorization header:', debugAuthHeader);
             try {
                 // Filter out null/undefined songs before mapping ids
                 const filteredSetlist = setlist.filter(song => song && (song.id != null || song._id != null));
@@ -3625,10 +3603,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         function resetApplicationState(fullReset = true) {
             // Clear all data from memory
-            songs = [];
-            praiseSetlist = [];
-            worshipSetlist = [];
-            favorites = [];
             searchHistory = [];
             navigationHistory = [];
             currentHistoryPosition = -1;
@@ -4974,7 +4948,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             showNotification('Session expired. Please log in again.');
                             return;
                         }
-                        console.log('[Add Song] currentUser:', window.currentUser);
                         const debugAuthHeader = `Bearer ${jwtToken}`;
                         console.log('[Add Song] Authorization header:', debugAuthHeader);
                         const songData = {
@@ -5364,21 +5337,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Keep screen on button
             keepScreenOnBtn.addEventListener('click', toggleScreenWakeLock);
     
-            // Bulk operations
-            deleteAllSongsBtn.addEventListener('click', () => {
-                confirmDeleteAllModal.style.display = 'flex';
-            });
-    
-            mergeBtn.addEventListener('click', () => {
-                const fileInput = document.createElement('input');
-                fileInput.type = 'file';
-                fileInput.accept = '.json';
-                fileInput.style.display = 'none';
-                fileInput.addEventListener('change', handleMergeUpload);
-                document.body.appendChild(fileInput);
-                fileInput.click();
-                document.body.removeChild(fileInput);
-            });
+
     
             cancelDeleteAll.addEventListener('click', () => {
                 confirmDeleteAllModal.style.display = 'none';
@@ -5511,18 +5470,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             });
     
-            // Download/upload
-            downloadBtn.addEventListener('click', downloadSongs);
-            uploadBtn.addEventListener('click', () => {
-                const fileInput = document.createElement('input');
-                fileInput.type = 'file';
-                fileInput.accept = '.json';
-                fileInput.style.display = 'none';
-                fileInput.addEventListener('change', handleFileUpload);
-                document.body.appendChild(fileInput);
-                fileInput.click();
-                document.body.removeChild(fileInput);
-            });
     
             // HTML download
             document.getElementById('downloadHtmlWithSongsBtn').addEventListener('click', () => {
@@ -5573,13 +5520,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 document.getElementById("settingsModal").style.display = "none";
             });
     
-            // Folder toggle
-            document.getElementById('toggleSongTools').addEventListener('click', () => {
-                const folder = document.getElementById('songToolsContent');
-                const toggle = document.getElementById('toggleSongTools');
-                folder.classList.toggle('show');
-                toggle.classList.toggle('active');
-            });
     
             // Suggested songs
             document.getElementById('toggleSuggestedSongs').addEventListener('click', toggleSuggestedSongsDrawer);

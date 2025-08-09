@@ -147,10 +147,11 @@ app.get('/api/user/favorites', localAuthMiddleware, async (req, res) => {
 // Save favorites in a separate collection
 app.post('/api/user/favorites', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
+  const userName = req.user.name || req.user.email || '';
   const { favorites } = req.body;
   await favoritesCollection.updateOne(
     { userId },
-    { $set: { favorites } },
+    { $set: { favorites, userName } },
     { upsert: true }
   );
   res.json({ message: 'Favorites updated' });
@@ -168,10 +169,11 @@ app.get('/api/user/setlist', localAuthMiddleware, async (req, res) => {
 // Save setlist in a separate collection
 app.post('/api/user/setlist', localAuthMiddleware, async (req, res) => {
   const userId = req.user.id;
+  const userName = req.user.name || req.user.email || '';
   const { type, setlist } = req.body;
   await setlistsCollection.updateOne(
     { userId, type },
-    { $set: { setlist } },
+    { $set: { setlist, userName } },
     { upsert: true }
   );
   res.json({ message: 'Setlist updated' });
@@ -212,12 +214,21 @@ app.post('/api/login', async (req, res) => {
   res.json({ token });
 });
 
-// Promote user to admin (admin only)
-app.post('/api/users/:id/promote', localAuthMiddleware, requireAdmin, async (req, res) => {
+
+// Set or unset admin status (admin only)
+app.put('/api/users/:id/admin', localAuthMiddleware, requireAdmin, async (req, res) => {
   const { id } = req.params;
-  const result = await usersCollection.updateOne({ _id: new ObjectId(id) }, { $set: { isAdmin: true } });
+  const { isAdmin } = req.body;
+  if (typeof isAdmin !== 'boolean') {
+    return res.status(400).json({ error: 'isAdmin (boolean) required' });
+  }
+  // Prevent self-demotion
+  if (req.user.id === id && isAdmin === false) {
+    return res.status(400).json({ error: 'You cannot remove your own admin status.' });
+  }
+  const result = await usersCollection.updateOne({ _id: new ObjectId(id) }, { $set: { isAdmin } });
   if (result.matchedCount === 0) return res.status(404).json({ error: 'User not found' });
-  res.json({ message: 'User promoted to admin' });
+  res.json({ message: `User admin status set to ${isAdmin}` });
 });
 
 // List users (admin only)
@@ -240,6 +251,12 @@ app.post('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => {
       const last = await songsCollection.find().sort({ id: -1 }).limit(1).toArray();
       req.body.id = last.length ? last[0].id + 1 : 1;
     }
+    // Add createdAt, modifiedAt, and contributor fields
+    const now = new Date().toISOString();
+    req.body.createdAt = now;
+    req.body.modifiedAt = now;
+    req.body.date = req.body.date || now; // for backward compatibility
+    req.body.contributor = req.body.contributor || (req.user && req.user.name ? req.user.name : (req.user && req.user.email ? req.user.email : 'Unknown'));
     const result = await songsCollection.insertOne(req.body);
     const insertedSong = await songsCollection.findOne({ _id: result.insertedId });
     res.status(201).json(insertedSong);
@@ -251,7 +268,8 @@ app.post('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => {
 app.put('/api/songs/:id', localAuthMiddleware, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const update = { $set: req.body };
+    // Always update modifiedAt
+    const update = { $set: { ...req.body, modifiedAt: new Date().toISOString() } };
     const result = await songsCollection.updateOne({ id: parseInt(id) }, update);
     if (result.matchedCount === 0) {
       return res.status(404).json({ error: 'Song not found' });

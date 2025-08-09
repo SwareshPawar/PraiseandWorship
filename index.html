@@ -1540,6 +1540,15 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
 </style>
 </head>
 <body>
+    <div id="loadingOverlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(30,30,30,0.7);display:flex;align-items:center;justify-content:center;">
+      <div style="text-align:center;">
+        <div class="spinner" style="margin-bottom:16px;width:48px;height:48px;border:6px solid #eee;border-top:6px solid #3498db;border-radius:50%;animation:spin 1s linear infinite;"></div>
+        <div style="color:#fff;font-size:1.2em;">Loading songs...</div>
+      </div>
+    </div>
+    <style>
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
     <div class="app-container">
         <button class="panel-toggle draggable" id="toggle-sidebar"><i class="fas fa-home"></i></button>
         <button class="panel-toggle draggable" id="toggle-songs"><i class="fas fa-list"></i></button>
@@ -2271,7 +2280,88 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
         setupAuthModals();
 
         // Admin panel button (for admin assignment UI)
-        // Add your admin assignment UI logic here, e.g., list users and promote to admin
+        // Admin Panel Modal and Logic
+        // Add modal HTML for admin panel
+        const adminPanelModal = document.createElement('div');
+        adminPanelModal.id = 'adminPanelModal';
+        adminPanelModal.className = 'modal';
+        adminPanelModal.style.display = 'none';
+        adminPanelModal.innerHTML = `
+          <div class="modal-content" style="min-width:350px;max-width:600px;">
+            <span class="close-modal" id="closeAdminPanelModal" aria-label="Close">×</span>
+            <h3>Admin Panel: User Management</h3>
+            <div id="adminUsersList">Loading users...</div>
+          </div>
+        `;
+        document.body.appendChild(adminPanelModal);
+
+        // Show modal on Admin Panel button click
+        document.getElementById('adminPanelBtn').addEventListener('click', async () => {
+          adminPanelModal.style.display = 'flex';
+          await loadAndRenderUsers();
+        });
+
+        // Close modal
+        document.getElementById('closeAdminPanelModal').onclick = () => {
+          adminPanelModal.style.display = 'none';
+        };
+
+        // Fetch and render users
+        async function loadAndRenderUsers() {
+          const usersListDiv = document.getElementById('adminUsersList');
+          usersListDiv.innerHTML = 'Loading users...';
+          try {
+            const res = await authFetch(`${API_BASE_URL}/users`);
+            if (!res.ok) throw new Error('Failed to fetch users');
+            const users = await res.json();
+            if (!Array.isArray(users) || users.length === 0) {
+              usersListDiv.innerHTML = '<p>No users found.</p>';
+              return;
+            }
+            let html = `<table style="width:100%;border-collapse:collapse;">
+              <tr><th>Name</th><th>Email</th><th>Admin</th><th>Action</th></tr>`;
+            users.forEach(user => {
+              html += `<tr style="border-bottom:1px solid #eee;">
+                <td>${user.name || ''}</td>
+                <td>${user.email}</td>
+                <td>${user.isAdmin ? '<span style=\'color:green;font-weight:bold;\'>Yes</span>' : 'No'}</td>
+                <td>
+                  ${user.isAdmin
+                    ? (user.email === currentUser.email ? '<span style="color:#888;">(You)</span>' : `<button class="btn btn-delete" data-userid="${user._id || user.id}" data-admin="false">Remove Admin</button>`)
+                    : `<button class="btn btn-primary" data-userid="${user._id || user.id}" data-admin="true">Make Admin</button>`}
+                </td>
+              </tr>`;
+            });
+            html += '</table>';
+            usersListDiv.innerHTML = html;
+
+            // Add event listeners for admin toggle buttons
+            usersListDiv.querySelectorAll('button[data-userid]').forEach(btn => {
+              btn.onclick = async function() {
+                const userId = this.getAttribute('data-userid');
+                const makeAdmin = this.getAttribute('data-admin') === 'true';
+                this.disabled = true;
+                this.textContent = 'Updating...';
+                try {
+                  const res2 = await authFetch(`${API_BASE_URL}/users/${userId}/admin`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isAdmin: makeAdmin })
+                  });
+                  if (!res2.ok) throw new Error('Failed to update admin status');
+                  showNotification('User admin status updated');
+                  await loadAndRenderUsers();
+                } catch (e) {
+                  showNotification('Error updating admin status', 4000);
+                  this.disabled = false;
+                  this.textContent = makeAdmin ? 'Make Admin' : 'Remove Admin';
+                }
+              };
+            });
+          } catch (e) {
+            usersListDiv.innerHTML = '<p style="color:red;">Error loading users.</p>';
+          }
+        }
         // Initialize songs and setlists
         let isDarkMode = localStorage.getItem('darkMode') === 'true';
         let socket = null;
@@ -2319,13 +2409,16 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
 
         // Fetch all songs from backend
         async function loadSongsFromBackend() {
+            // Show loading overlay
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) loadingOverlay.style.display = 'flex';
             try {
                 const response = await fetch(`${API_BASE_URL}/songs`);
                 if (!response.ok) throw new Error('Failed to fetch songs');
                 const data = await response.json();
                 // Map _id to id for frontend compatibility
                 songs = data.map(song => ({ ...song, id: song._id || song.id }));
-                        console.log('Loaded songs:', songs); // <-- Add this line
+                console.log('Loaded songs:', songs);
                 if (praiseTab && praiseTab.classList.contains('active')) {
                     renderSongs('praise', keyFilter.value, genreFilter.value);
                 } else {
@@ -2335,6 +2428,9 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
             } catch (err) {
                 showNotification('Error loading songs from server', 4000);
                 console.error(err);
+            } finally {
+                // Hide loading overlay
+                if (loadingOverlay) loadingOverlay.style.display = 'none';
             }
         }
     
@@ -3626,7 +3722,6 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                     <h2>${song.title}</h2>
                     </div>
                     <div class="preview-actions">
-                    <!-- Keep your existing action buttons here -->
                     ${isFavorite ? `
                         <button class="favorite-btn favorited" id="previewFavoriteBtn" data-song-id="${song.id}">
                         <i class="fas fa-heart"></i>
@@ -3644,10 +3739,14 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                     </button>
                     ${(currentUser && currentUser.isAdmin) ? `<button class="btn btn-delete" id="previewDeleteBtn"><i class="fas fa-trash"></i> Delete</button>` : ''}
                     </div>
+                    <div class="preview-meta" style="font-size:0.85em; color:var(--song-meta-color); margin-top:6px; margin-bottom:2px;">
+                        ${song.contributor ? `<span><i class='fas fa-user'></i> ${song.contributor}</span> &nbsp;` : ''}
+                        ${song.createdAt ? `<span><i class='fas fa-calendar-plus'></i> Added: ${new Date(song.createdAt).toLocaleString()}</span> &nbsp;` : ''}
+                        ${song.modifiedAt && song.modifiedAt !== song.createdAt ? `<span><i class='fas fa-edit'></i> Modified: ${new Date(song.modifiedAt).toLocaleString()}</span>` : ''}
+                    </div>
                 </div>
 
                 <div class="song-meta">
-                    <!-- Keep your existing meta data here -->
                     <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
                     ${song.tempo ? `<p><strong>Tempo:</strong> ${song.tempo}</p>` : ''}
                     ${song.time ? `<p><strong>Time Signature:</strong> ${song.time}</p>` : ''}
@@ -3657,7 +3756,6 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                 </div>
 
                 <div class="transpose-controls">
-                    <!-- Keep your transpose controls here -->
                     <button class="btn btn-primary" id="transpose-down">-</button>
                     <span>Transpose: <span id="transpose-level">0</span></span>
                     <button class="btn btn-primary" id="transpose-up">+</button>
@@ -3666,7 +3764,6 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
 
                 <div class="song-lyrics">${formatLyricsWithChords(song.lyrics, 0)}</div>
 
-                <!-- Add these new swipe indicators -->
                 <div class="swipe-indicator prev">←</div>
                 <div class="swipe-indicator next">→</div>
                 </div>
@@ -4434,14 +4531,12 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                     form.onsubmit = null;
                     form.addEventListener('submit', async function handleAddSongSubmit(e) {
                         e.preventDefault();
-                        // Defensive: log currentUser and form state even if missing
                         if (!window.currentUser) {
                             console.warn('[Global] currentUser is missing at submit time');
                         }
                         if (!form) {
                             console.warn('[Global] newSongForm missing at submit time');
                         }
-                        // Always reload jwtToken from localStorage
                         let jwtToken = localStorage.getItem('jwtToken') || null;
                         const title = document.getElementById('songTitle')?.value;
                         const lyrics = document.getElementById('songLyrics')?.value;
@@ -4455,13 +4550,11 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                             showNotification('Please select at least one genre');
                             return;
                         }
-                        // Token check
                         if (!window.currentUser || !jwtToken) {
                             console.warn('[Global] currentUser or token missing at submit time', window.currentUser);
                             showNotification('Session expired. Please log in again.');
                             return;
                         }
-                        // Debug logs for troubleshooting
                         console.log('[Add Song] currentUser:', window.currentUser);
                         const debugAuthHeader = `Bearer ${jwtToken}`;
                         console.log('[Add Song] Authorization header:', debugAuthHeader);
@@ -4473,7 +4566,9 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
                             time: document.getElementById('songTime')?.value,
                             taal: document.getElementById('songTaal')?.value,
                             genre: selectedGenres,
-                            lyrics: lyrics
+                            lyrics: lyrics,
+                            date: new Date().toISOString(),
+                            contributor: window.currentUser?.name || window.currentUser?.email || 'Unknown'
                         };
                         try {
                             const response = await fetch(`${API_BASE_URL}/songs`, {

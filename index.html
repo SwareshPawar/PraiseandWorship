@@ -248,36 +248,54 @@
             font-size: 0.8rem;
         }
 
+
         .preview-header {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 15px;
-    gap: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            gap: 10px;
         }
 
         .preview-actions {
-    display: flex;
-    gap: 4px;
-    margin: 5px 0 0 0;
-    flex-wrap: wrap;
-    width: 100%;
-    justify-content: flex-start;
+            display: flex;
+            flex-direction: row;
+            gap: 4px;
+            margin: 5px 0 0 0;
+            flex-wrap: nowrap !important;
+            width: 100%;
+            justify-content: flex-start;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .preview-actions > * {
+            flex-shrink: 0;
         }
 
         @media (max-width: 768px) {
-    .preview-header {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .preview-actions {
-        justify-content: flex-start;
-        align-items: flex-start;
-        display: flex;
-        gap: 5px;
-        width: 100%;
-        margin-top: 0;
-    }
+            .preview-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .preview-actions {
+                justify-content: flex-start;
+                align-items: flex-start;
+                display: flex;
+                gap: 5px;
+                width: 100%;
+                margin-top: 0;
+                flex-wrap: nowrap !important;
+                overflow-x: auto;
+                overflow-y: hidden;
+                scrollbar-width: thin;
+                -webkit-overflow-scrolling: touch;
+            }
+            .preview-actions > * {
+                flex-shrink: 0;
+            }
         }
 
         /* Suggested Songs Drawer */
@@ -2058,6 +2076,20 @@ body.dark-mode .setlist-sortable li .song-actions .setlist-remove-btn {
     <script id="embeddedSongs" type="application/json">
         []
     </script>
+    <style>
+    /* Prevent horizontal scroll on .songs-section for mobile devices */
+    @media (max-width: 768px) {
+      .songs-section {
+        overflow-x: hidden !important;
+        max-width: 100vw;
+        width: 50vw;
+        box-sizing: border-box;
+      }
+      body, html {
+        overflow-x: hidden !important;
+      }
+    }
+    </style>
 
     <!-- Auth0 SPA JS -->
     <script src="https://cdn.auth0.com/js/auth0-spa-js/1.20/auth0-spa-js.production.js"></script>
@@ -2150,19 +2182,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateAuthUI();
     // On page load, if logged in, fetch user data from backend
     if (jwtToken) {
+        // Show welcome notification on refresh if logged in
+        if (currentUser && (currentUser.name || currentUser.email)) {
+            showNotification(`Welcome, ${currentUser.name || currentUser.email}!`, 3000);
+        }
         try {
             // Always keep currentUser.token in sync with jwtToken
             if (currentUser && currentUser.token !== jwtToken) {
                 currentUser.token = jwtToken;
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
-            console.log('[UserData Fetch] Fetching user data from backend with token:', jwtToken);
             const res = await fetch(`${API_BASE_URL}/userdata`, {
                 headers: { 'Authorization': `Bearer ${jwtToken}` }
             });
             if (res.ok) {
                 const data = await res.json();
-                console.log('[UserData Fetch] Data received from backend:', data);
                 favorites = data.favorites || [];
                 praiseSetlist = data.praiseSetlist || [];
                 worshipSetlist = data.worshipSetlist || [];
@@ -2197,6 +2231,231 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('registerBtn').addEventListener('click', () => {
         document.getElementById('registerModal').style.display = 'flex';
     });
+    // Enable swipe navigation for next/previous song on mobile in preview section
+    function enableMobileSwipeNavigation() {
+        if (window.innerWidth > 768) return; // Only on mobile
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let isScrolling = false;
+        const threshold = 50; // Minimum px for swipe
+        const songPreviewEl = document.getElementById('songPreview');
+        if (!songPreviewEl) return;
+        songPreviewEl.addEventListener('touchstart', function(e) {
+            if (!songPreviewEl.dataset.songId) return;
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+            isScrolling = false;
+        }, { passive: true });
+        songPreviewEl.addEventListener('touchmove', function(e) {
+            if (!songPreviewEl.dataset.songId) return;
+            const diffX = e.touches[0].clientX - touchStartX;
+            const diffY = e.touches[0].clientY - touchStartY;
+            if (Math.abs(diffY) > 10) {
+                isScrolling = true;
+            }
+        }, { passive: true });
+        songPreviewEl.addEventListener('touchend', function(e) {
+            if (!songPreviewEl.dataset.songId || isScrolling) return;
+            const diffX = e.changedTouches[0].clientX - touchStartX;
+            if (diffX < -threshold) {
+                animateSongSwipe('left');
+                setTimeout(() => {
+                  showNextSong();
+                }, 150);
+            } else if (diffX > threshold) {
+                animateSongSwipe('right');
+                setTimeout(() => {
+                  showPrevSong();
+                }, 150);
+            }
+        }, { passive: true });
+    }
+    // Animate swipe feedback on song preview
+    function animateSongSwipe(direction) {
+      const el = document.getElementById('songPreview');
+      if (!el) return;
+      el.classList.remove('swipe-left', 'swipe-right', 'swipe-active');
+      void el.offsetWidth; // force reflow
+      el.classList.add('swipe-active');
+      if (direction === 'left') el.classList.add('swipe-left');
+      if (direction === 'right') el.classList.add('swipe-right');
+      setTimeout(() => {
+        el.classList.remove('swipe-left', 'swipe-right', 'swipe-active');
+      }, 350);
+    }
+
+    // Find the index of the currently previewed song
+    function getCurrentPreviewSongIndex() {
+      const songId = document.getElementById('songPreview').dataset.songId;
+      if (!songId || !Array.isArray(songs)) return -1;
+      return songs.findIndex(s => (s._id || s.id) == songId);
+    }
+
+    // Show next song in the list (swipe: no actions)
+    function showNextSong() {
+      const idx = getCurrentPreviewSongIndex();
+      if (idx === -1 || idx >= songs.length - 1) return;
+      const nextSong = songs[idx + 1];
+      if (nextSong) previewSongNoActions(nextSong);
+    }
+
+    // Show previous song in the list (swipe: no actions)
+    function showPrevSong() {
+      const idx = getCurrentPreviewSongIndex();
+      if (idx <= 0) return;
+      const prevSong = songs[idx - 1];
+      if (prevSong) previewSongNoActions(prevSong);
+    }
+
+    // Ensure previewSong is defined globally to show all song details and actions (for click)
+    if (typeof window.previewSong !== 'function') {
+      window.previewSong = function(song) {
+        const el = document.getElementById('songPreview');
+        if (!el || !song) return;
+        // Compose meta info
+        let meta = '';
+        if (song.key || song.tempo || song.time || song.taal || song.genre) {
+          meta += '<div class="song-meta">';
+          if (song.key) meta += `<span><b>Key:</b> ${song.key}</span> `;
+          if (song.tempo) meta += `<span><b>Tempo:</b> ${song.tempo}</span> `;
+          if (song.time) meta += `<span><b>Time:</b> ${song.time}</span> `;
+          if (song.taal) meta += `<span><b>Taal:</b> ${song.taal}</span> `;
+          if (song.genre && Array.isArray(song.genre)) meta += `<span><b>Genre:</b> ${song.genre.join(', ')}</span> `;
+          meta += '</div>';
+        }
+        // Contributor and dates
+        let meta2 = '';
+        if (song.contributor || song.createdAt || song.modifiedAt || song.date) {
+          meta2 += '<div class="song-meta" style="font-size:0.9em;color:#888;margin-top:2px;">';
+          if (song.contributor) meta2 += `<span><b>By:</b> ${song.contributor}</span> `;
+          if (song.date) meta2 += `<span><b>Date:</b> ${song.date}</span> `;
+          if (song.createdAt) meta2 += `<span><b>Created:</b> ${formatDate(song.createdAt)}</span> `;
+          if (song.modifiedAt) meta2 += `<span><b>Modified:</b> ${formatDate(song.modifiedAt)}</span> `;
+          meta2 += '</div>';
+        }
+
+        // Preview actions (Add to Setlist, Edit, Delete, Favorite)
+        let actions = '';
+        actions += '<div class="preview-actions">';
+        // Add to Setlist button
+        actions += `<button class="btn btn-primary" id="addToSetlistBtn">Add to Setlist</button>`;
+        // Edit button (show only if logged in)
+        if (window.jwtToken) {
+          actions += `<button class="btn btn-edit" id="editSongBtn">Edit</button>`;
+        }
+        // Delete button (always show, but disable if not logged in)
+        actions += `<button class="btn btn-delete" id="deleteSongBtn"${window.jwtToken ? '' : ' disabled title=\"Login to delete\"'}>Delete</button>`;
+        // Favorite button
+        const isFav = Array.isArray(window.favorites) && (window.favorites.includes(song._id || song.id));
+        actions += `<button class="btn btn-favorite favorite-btn${isFav ? ' favorited' : ''}" id="favoriteSongBtn"><i class="fa${isFav ? 's' : 'r'} fa-heart"></i></button>`;
+        actions += '</div>';
+
+        // Layout: match normal preview (header, meta, actions, lyrics)
+        el.innerHTML = `
+          <div class="preview-header">
+            <h2>${song.title || 'Untitled Song'}</h2>
+            ${meta}
+            ${meta2}
+            ${actions}
+          </div>
+          <div class="song-lyrics">${song.lyrics ? song.lyrics.replace(/\n/g, '<br>') : ''}</div>
+        `;
+        el.dataset.songId = song._id || song.id || '';
+
+        // Attach event listeners for preview actions (always re-attach after rendering)
+        setTimeout(() => {
+          function getCurrentPreviewSong() {
+            const songPreviewEl = document.getElementById('songPreview');
+            if (!songPreviewEl) return null;
+            const songId = songPreviewEl.dataset.songId;
+            if (!songId || !Array.isArray(songs)) return null;
+            return songs.find(s => (s._id || s.id) == songId) || null;
+          }
+          const addToSetlistBtn = document.getElementById('addToSetlistBtn');
+          if (addToSetlistBtn) {
+            addToSetlistBtn.onclick = function() {
+              const currentSong = getCurrentPreviewSong();
+              if (typeof toggleSetlistSong === 'function' && currentSong) toggleSetlistSong(currentSong);
+            };
+          }
+          const editSongBtn = document.getElementById('editSongBtn');
+          if (editSongBtn) {
+            editSongBtn.onclick = function() {
+              const currentSong = getCurrentPreviewSong();
+              if (typeof openEditSongModal === 'function' && currentSong) openEditSongModal(currentSong);
+            };
+          }
+          const deleteSongBtn = document.getElementById('deleteSongBtn');
+          if (deleteSongBtn) {
+            deleteSongBtn.onclick = function() {
+              const currentSong = getCurrentPreviewSong();
+              if (typeof openDeleteSongModal === 'function' && currentSong) openDeleteSongModal(currentSong);
+            };
+          }
+          const favoriteSongBtn = document.getElementById('favoriteSongBtn');
+          if (favoriteSongBtn) {
+            favoriteSongBtn.onclick = function() {
+              const currentSong = getCurrentPreviewSong();
+              if (
+                typeof toggleFavorite === 'function' &&
+                currentSong &&
+                typeof currentSong === 'object' &&
+                (typeof currentSong.title === 'string' || typeof currentSong.title === 'number') &&
+                (typeof currentSong._id !== 'undefined' || typeof currentSong.id !== 'undefined')
+              ) {
+                toggleFavorite(currentSong);
+              }
+            };
+          }
+        }, 0);
+      };
+    }
+
+    // Define previewSongNoActions for swipe: show only song info, no buttons
+    if (typeof window.previewSongNoActions !== 'function') {
+      window.previewSongNoActions = function(song) {
+        const el = document.getElementById('songPreview');
+        if (!el || !song) return;
+        let meta = '';
+        if (song.key || song.tempo || song.time || song.taal || song.genre) {
+          meta += '<div class="song-meta">';
+          if (song.key) meta += `<span><b>Key:</b> ${song.key}</span> `;
+          if (song.tempo) meta += `<span><b>Tempo:</b> ${song.tempo}</span> `;
+          if (song.time) meta += `<span><b>Time:</b> ${song.time}</span> `;
+          if (song.taal) meta += `<span><b>Taal:</b> ${song.taal}</span> `;
+          if (song.genre && Array.isArray(song.genre)) meta += `<span><b>Genre:</b> ${song.genre.join(', ')}</span> `;
+          meta += '</div>';
+        }
+        let meta2 = '';
+        if (song.contributor || song.createdAt || song.modifiedAt || song.date) {
+          meta2 += '<div class="song-meta" style="font-size:0.9em;color:#888;margin-top:2px;">';
+          if (song.contributor) meta2 += `<span><b>By:</b> ${song.contributor}</span> `;
+          if (song.date) meta2 += `<span><b>Date:</b> ${song.date}</span> `;
+          if (song.createdAt) meta2 += `<span><b>Created:</b> ${formatDate(song.createdAt)}</span> `;
+          if (song.modifiedAt) meta2 += `<span><b>Modified:</b> ${formatDate(song.modifiedAt)}</span> `;
+          meta2 += '</div>';
+        }
+        el.innerHTML = `
+          <div class="preview-header">
+            <h2>${song.title || 'Untitled Song'}</h2>
+            ${meta}
+            ${meta2}
+          </div>
+          <div class="song-lyrics">${song.lyrics ? song.lyrics.replace(/\n/g, '<br>') : ''}</div>
+        `;
+        el.dataset.songId = song._id || song.id || '';
+      };
+    }
+    // Helper to format ISO date
+    function formatDate(dt) {
+      if (!dt) return '';
+      try {
+        const d = new Date(dt);
+        if (isNaN(d.getTime())) return dt;
+        return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
+      } catch { return dt; }
+    }
+    enableMobileSwipeNavigation();
 });
 
         // Helper: fetch with JWT token for protected routes
@@ -2246,6 +2505,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();
+                        // Show welcome notification on login
+                        showNotification(`Welcome, ${name || payload.email}!`, 3000);
                         // Fetch user favorites and setlists from backend after login
                         try {
                             console.log('[UserData Fetch] Fetching user data from backend after login with token:', jwtToken);
@@ -2481,7 +2742,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const data = await response.json();
                 // Map _id to id for frontend compatibility
                 songs = data.map(song => ({ ...song, id: song._id || song.id }));
-                console.log('Loaded songs:', songs);
                 if (praiseTab && praiseTab.classList.contains('active')) {
                     renderSongs('praise', keyFilter.value, genreFilter.value);
                 } else {
@@ -4581,64 +4841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
             
-            let touchStartX = 0;
-            let isScrolling = false;
 
-            
-            songPreviewEl.addEventListener('touchstart', (e) => {
-                touchStartX = e.touches[0].clientX;
-                touchStartY = e.touches[0].clientY; // Track Y position too
-                isScrolling = false;
-            }, { passive: true });
-
-            songPreviewEl.addEventListener('touchstart', () => {
-            document.querySelector('.song-slide').classList.remove('swipe-active', 'swipe-left');
-            });
-
-            songPreviewEl.addEventListener('touchmove', (e) => {
-            const slide = document.querySelector('.song-slide');
-            const diffX = e.touches[0].clientX - touchStartX;
-            
-            if (Math.abs(diffX) > 20) {
-                slide.classList.add(diffX > 0 ? 'swiping-right' : 'swiping-left');
-                slide.classList.add('swipe-active');
-                if (diffX < 0) slide.classList.add('swipe-left');
-            }
-            });
-
-            songPreviewEl.addEventListener('touchmove', (e) => {
-                if (!songPreviewEl.dataset.songId) return;
-                
-                const touchX = e.touches[0].clientX;
-                const touchY = e.touches[0].clientY; // Get current Y position
-                const diffX = touchX - touchStartX;
-                const diffY = touchY - touchStartY; // Calculate vertical movement
-                
-                // Check if the user is scrolling vertically (not swiping)
-                if (Math.abs(diffY) > 10) {
-                    isScrolling = true;
-                    return; // Exit if vertical scroll detected
-                }
-                
-                // Only prevent default for horizontal swipes
-                if (Math.abs(diffX) > 5) {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-
-            songPreviewEl.addEventListener('touchend', (e) => {
-                if (!songPreviewEl.dataset.songId || isScrolling) return;
-                
-                const touchEndX = e.changedTouches[0].clientX;
-                const diffX = touchEndX - touchStartX;
-                const swipeThreshold = 50;
-                
-                if (diffX < -swipeThreshold) {
-                    showNextSong(); // Swipe left
-                } else if (diffX > swipeThreshold) {
-                    showPrevSong(); // Swipe right
-                }
-            }, { passive: true });
 
 
             // Keyboard navigation

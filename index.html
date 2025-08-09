@@ -2042,6 +2042,7 @@
                             }
                         }
                         currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id, name };
+                        window.currentUser = currentUser;
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();
@@ -2086,6 +2087,7 @@
                             }
                         }
                         currentUser = { email: payload.email, isAdmin: payload.isAdmin, id: payload.id, name };
+                        window.currentUser = currentUser;
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();

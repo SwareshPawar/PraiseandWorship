@@ -1991,13 +1991,30 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
+            // Fetch and log backend environment info for debugging
+            try {
+                const envRes = await fetch(`${API_BASE_URL}/env`);
+                if (envRes.ok) {
+                    const envData = await envRes.json();
+                    console.log('[Backend ENV]', envData);
+                } else {
+                    console.warn('[Backend ENV] Could not fetch backend environment info');
+                }
+            } catch (e) {
+                console.warn('[Backend ENV] Error fetching backend environment info:', e);
+            }
             updateAuthUI();
             // On page load, if logged in, fetch user data from backend
-            if (currentUser && currentUser.token) {
+            if (jwtToken) {
                 try {
-                    console.log('[UserData Fetch] Fetching user data from backend with token:', currentUser.token);
+                    // Always keep currentUser.token in sync with jwtToken
+                    if (currentUser && currentUser.token !== jwtToken) {
+                        currentUser.token = jwtToken;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    }
+                    console.log('[UserData Fetch] Fetching user data from backend with token:', jwtToken);
                     const res = await fetch(`${API_BASE_URL}/userdata`, {
-                        headers: { 'Authorization': `Bearer ${currentUser.token}` }
+                        headers: { 'Authorization': `Bearer ${jwtToken}` }
                     });
                     if (res.ok) {
                         const data = await res.json();

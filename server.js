@@ -1,3 +1,4 @@
+// ...existing code...
 // Temporary basic auth middleware for admin actions
 function basicAuth(req, res, next) {
   const auth = req.headers['authorization'];
@@ -24,6 +25,34 @@ let favoritesCollection;
 let setlistsCollection;
 
 const app = express();
+
+// CORS middleware should be set before any routes
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://127.0.0.1:5501',
+    'http://localhost:5501',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'https://praiseandworship.onrender.com',
+    'https://swareshpawar.github.io'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}));
+
+// Debug endpoint: return backend environment info (safe for frontend debugging)
+app.get('/api/env', (req, res) => {
+  const PORT = process.env.PORT || 3001;
+  res.json({
+    mongodbUri: process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/:\/\/.*:(.*?)@/, '://***:***@') : undefined, // hide password
+    port: PORT,
+    backendUrl: `http://localhost:${PORT}`,
+    nodeEnv: process.env.NODE_ENV || 'development',
+    deployed: process.env.RENDER === 'true' || false
+  });
+});
 let db;
 let songsCollection;
 
@@ -92,6 +121,9 @@ async function main() {
   favoritesCollection = db.collection('Favorites');
   setlistsCollection = db.collection('Setlists');
   console.log('Connected to MongoDB');
+  console.log('[ENV] MONGODB_URI:', process.env.MONGODB_URI);
+  console.log('[ENV] JWT_SECRET:', process.env.JWT_SECRET ? '(set)' : '(not set)');
+  console.log('[ENV] PORT:', process.env.PORT);
 }
 
 function requireAdmin(req, res, next) {
@@ -264,23 +296,54 @@ app.delete('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => 
   }
 });
 
-app.get('/api/userdata', localAuthMiddleware, async (req, res) => {
-  const userId = req.user.id;
-  // Get user basic info
-  const userDoc = await usersCollection.findOne({ _id: new ObjectId(userId) });
-  if (!userDoc) {
-    return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
+app.get('/api/userdata', async (req, res, next) => {
+  // In development, allow unauthenticated access, but if a valid JWT is provided, fetch real user data
+  const isDev = (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV);
+  const authHeader = req.headers['authorization'];
+  let userId;
+  if (isDev && authHeader && authHeader.startsWith('Bearer ')) {
+    // Try to verify token and fetch real user data
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      userId = decoded.id;
+      const userDoc = await usersCollection.findOne({ _id: new ObjectId(userId) });
+      if (!userDoc) {
+        return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
+      }
+      const favDoc = await favoritesCollection.findOne({ userId });
+      const favorites = favDoc?.favorites || [];
+      const praiseDoc = await setlistsCollection.findOne({ userId, type: 'praise' });
+      const worshipDoc = await setlistsCollection.findOne({ userId, type: 'worship' });
+      const praiseSetlist = praiseDoc?.setlist || [];
+      const worshipSetlist = worshipDoc?.setlist || [];
+      const { name, email } = userDoc;
+      return res.json({ favorites, praiseSetlist, worshipSetlist, name, email });
+    } catch (err) {
+      // Invalid token, fall through to empty data
+    }
   }
-  // Fetch favorites from Favorites collection
-  const favDoc = await favoritesCollection.findOne({ userId });
-  const favorites = favDoc?.favorites || [];
-  // Fetch setlists from Setlists collection
-  const praiseDoc = await setlistsCollection.findOne({ userId, type: 'praise' });
-  const worshipDoc = await setlistsCollection.findOne({ userId, type: 'worship' });
-  const praiseSetlist = praiseDoc?.setlist || [];
-  const worshipSetlist = worshipDoc?.setlist || [];
-  const { name, email } = userDoc;
-  res.json({ favorites, praiseSetlist, worshipSetlist, name, email });
+  if (isDev) {
+    // No valid token, return empty data for local testing
+    return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
+  } else {
+    // In production, require authentication
+    localAuthMiddleware(req, res, async () => {
+      userId = req.user.id;
+      const userDoc = await usersCollection.findOne({ _id: new ObjectId(userId) });
+      if (!userDoc) {
+        return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
+      }
+      const favDoc = await favoritesCollection.findOne({ userId });
+      const favorites = favDoc?.favorites || [];
+      const praiseDoc = await setlistsCollection.findOne({ userId, type: 'praise' });
+      const worshipDoc = await setlistsCollection.findOne({ userId, type: 'worship' });
+      const praiseSetlist = praiseDoc?.setlist || [];
+      const worshipSetlist = worshipDoc?.setlist || [];
+      const { name, email } = userDoc;
+      res.json({ favorites, praiseSetlist, worshipSetlist, name, email });
+    });
+  }
 });
 
 app.put('/api/userdata', localAuthMiddleware, async (req, res) => {
@@ -308,6 +371,8 @@ app.get('/make-me-admin', async (req, res) => {
 });
 main().then(() => {
   const PORT = process.env.PORT || 3001;
+  const serverUrl = `http://localhost:${PORT}`;
+  console.log(`[ENV] Backend server URL: ${serverUrl}`);
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }).catch((err) => {
   console.error('Error starting server:', err);

@@ -4364,6 +4364,8 @@
                         if (!form) {
                             console.warn('[Global] newSongForm missing at submit time');
                         }
+                        // Always reload jwtToken from localStorage
+                        let jwtToken = localStorage.getItem('jwtToken') || null;
                         const title = document.getElementById('songTitle')?.value;
                         const lyrics = document.getElementById('songLyrics')?.value;
                         if (typeof isDuplicateSong === 'function' && isDuplicateSong(title, lyrics)) {
@@ -4377,14 +4379,14 @@
                             return;
                         }
                         // Token check
-                        if (!window.currentUser || !window.currentUser.token) {
+                        if (!window.currentUser || !jwtToken) {
                             console.warn('[Global] currentUser or token missing at submit time', window.currentUser);
                             showNotification('Session expired. Please log in again.');
                             return;
                         }
                         // Debug logs for troubleshooting
                         console.log('[Add Song] currentUser:', window.currentUser);
-                        const debugAuthHeader = `Bearer ${window.currentUser.token}`;
+                        const debugAuthHeader = `Bearer ${jwtToken}`;
                         console.log('[Add Song] Authorization header:', debugAuthHeader);
                         const songData = {
                             title: title,

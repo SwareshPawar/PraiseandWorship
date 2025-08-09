@@ -26,7 +26,7 @@
 .setlist-sortable li .song-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 8px;   
     overflow-x: visible;
     min-width: 110px;
     justify-content: flex-end;
@@ -2197,9 +2197,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             if (res.ok) {
                 const data = await res.json();
-                favorites = data.favorites || [];
-                praiseSetlist = data.praiseSetlist || [];
-                worshipSetlist = data.worshipSetlist || [];
+                if (typeof data.favorites !== 'undefined') {
+                    favorites = data.favorites;
+                }
+                if (typeof data.praiseSetlist !== 'undefined') {
+                    praiseSetlist = data.praiseSetlist;
+                }
+                if (typeof data.worshipSetlist !== 'undefined') {
+                    worshipSetlist = data.worshipSetlist;
+                }
                 renderFavorites();
                 renderSetlist('praise');
                 renderSetlist('worship');
@@ -2218,6 +2224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentUser = null;
         localStorage.removeItem('jwtToken');
         localStorage.removeItem('currentUser');
+        // Clear local data, but don't save to backend as user is logging out
         favorites = [];
         praiseSetlist = [];
         worshipSetlist = [];
@@ -2516,9 +2523,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                             if (res2.ok) {
                                 const data = await res2.json();
                                 console.log('[UserData Fetch] Data received from backend after login:', data);
-                                favorites = data.favorites || [];
-                                praiseSetlist = data.praiseSetlist || [];
-                                worshipSetlist = data.worshipSetlist || [];
+                                if (typeof data.favorites !== 'undefined') {
+                                    favorites = data.favorites;
+                                }
+                                if (typeof data.praiseSetlist !== 'undefined') {
+                                    praiseSetlist = data.praiseSetlist;
+                                }
+                                if (typeof data.worshipSetlist !== 'undefined') {
+                                    worshipSetlist = data.worshipSetlist;
+                                }
                                 renderFavorites();
                                 renderSetlist('praise');
                                 renderSetlist('worship');
@@ -2576,9 +2589,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                             if (res2.ok) {
                                 const data = await res2.json();
                                 console.log('[UserData Fetch] Data received from backend after register:', data);
-                                favorites = data.favorites || [];
-                                praiseSetlist = data.praiseSetlist || [];
-                                worshipSetlist = data.worshipSetlist || [];
+                                if (typeof data.favorites !== 'undefined') {
+                                    favorites = data.favorites;
+                                }
+                                if (typeof data.praiseSetlist !== 'undefined') {
+                                    praiseSetlist = data.praiseSetlist;
+                                }
+                                if (typeof data.worshipSetlist !== 'undefined') {
+                                    worshipSetlist = data.worshipSetlist;
+                                }
                                 renderFavorites();
                                 renderSetlist('praise');
                                 renderSetlist('worship');
@@ -2881,10 +2900,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                     if (res.ok) {
                         const data = await res.json();
-                        favorites = data.favorites || [];
+                        if (typeof data.favorites !== 'undefined') {
+                            favorites = data.favorites;
+                        }
                         // Map setlist IDs to full song objects
-                        praiseSetlist = (data.praiseSetlist || []).map(id => songs.find(s => s.id == id)).filter(Boolean);
-                        worshipSetlist = (data.worshipSetlist || []).map(id => songs.find(s => s.id == id)).filter(Boolean);
+                        if (typeof data.praiseSetlist !== 'undefined') {
+                            praiseSetlist = (data.praiseSetlist || []).map(id => songs.find(s => s.id == id)).filter(Boolean);
+                        }
+                        if (typeof data.worshipSetlist !== 'undefined') {
+                            worshipSetlist = (data.worshipSetlist || []).map(id => songs.find(s => s.id == id)).filter(Boolean);
+                        }
                     }
                 } catch (err) {
                     console.error('Failed to load user data from backend:', err);
@@ -3230,17 +3255,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Save user setlist to backend
         async function saveUserSetlist(type, setlist) {
-            if (typeof currentUser === 'undefined' || !currentUser || !currentUser.token) {
-                console.warn('[Setlist] currentUser or token missing', currentUser);
+            let user = currentUser;
+            try {
+                const userStr = localStorage.getItem('currentUser');
+                if (userStr) user = JSON.parse(userStr);
+            } catch (e) {
+                user = currentUser;
+            }
+
+            if (typeof user === 'undefined' || !user || !user.token) {
+                console.warn('[Setlist] currentUser or token missing', user);
                 return;
             }
-            const debugAuthHeader = `Bearer ${currentUser.token}`;
-            console.log('[Setlist] Saving setlist. currentUser:', currentUser);
+            const debugAuthHeader = `Bearer ${user.token}`;
+            console.log('[Setlist] Saving setlist. currentUser:', user);
             console.log('[Setlist] Authorization header:', debugAuthHeader);
             try {
                 // Filter out null/undefined songs before mapping ids
-                const filteredSetlist = setlist.filter(song => song && song.id != null);
-                await fetch(`${API_BASE_URL}/user/setlist`, {
+                const filteredSetlist = setlist.filter(song => song && (song.id != null || song._id != null));
+                const res = await fetch(`${API_BASE_URL}/user/setlist`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3248,11 +3281,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     },
                     body: JSON.stringify({
                         type, // 'praise' or 'worship'
-                        setlist: filteredSetlist.map(song => song.id)
+                        setlist: filteredSetlist.map(song => song.id || song._id)
                     })
                 });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    console.error('Failed to save setlist, server responded with:', res.status, errData);
+                    showNotification(`Error saving setlist: ${errData.error || 'Unauthorized'}`, 4000);
+                }
             } catch (err) {
                 console.error('Failed to save setlist:', err);
+                showNotification('Error saving setlist to backend', 4000);
             }
         }
 
@@ -3316,9 +3355,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const data = JSON.parse(e.target.result);
                     if (data.songs && Array.isArray(data.songs)) {
                         songs = data.songs;
-                        praiseSetlist = data.praiseSetlist || [];
-                        worshipSetlist = data.worshipSetlist || [];
-                        favorites = data.favorites || [];
+                        // Only overwrite setlists and favorites if they exist in the uploaded file
+                        if (typeof data.praiseSetlist !== 'undefined') {
+                            praiseSetlist = data.praiseSetlist;
+                        }
+                        if (typeof data.worshipSetlist !== 'undefined') {
+                            worshipSetlist = data.worshipSetlist;
+                        }
+                        if (typeof data.favorites !== 'undefined') {
+                            favorites = data.favorites;
+                        }
                         saveSongs();
                         saveSetlists();
                         saveFavorites();
@@ -3556,7 +3602,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        function resetApplicationState() {
+        function resetApplicationState(fullReset = true) {
             // Clear all data from memory
             songs = [];
             praiseSetlist = [];
@@ -3566,21 +3612,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             navigationHistory = [];
             currentHistoryPosition = -1;
             
-            // Clear all local storage
-            localStorage.removeItem('songs');
-            localStorage.removeItem('praiseSetlist');
-            localStorage.removeItem('worshipSetlist');
-            localStorage.removeItem('favorites');
-            localStorage.removeItem('searchHistory');
-            localStorage.removeItem('darkMode');
-            localStorage.removeItem('sidebarHeader');
-            localStorage.removeItem('setlistText');
-            localStorage.removeItem('sidebarWidth');
-            localStorage.removeItem('songsPanelWidth');
-            localStorage.removeItem('previewMargin');
-            localStorage.removeItem('autoScrollSpeed');
-            localStorage.removeItem('sessionResetOption');
-            localStorage.removeItem('memoryOptimization');
+            if (fullReset) {
+                // Clear all local storage
+                localStorage.clear();
+            } else {
+                // Clear only song-related data
+                localStorage.removeItem('songs');
+                localStorage.removeItem('praiseSetlist');
+                localStorage.removeItem('worshipSetlist');
+                localStorage.removeItem('favorites');
+                localStorage.removeItem('searchHistory');
+            }
             
             // Reset UI
             songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics">No song is selected</div>';

@@ -1,4 +1,49 @@
-// ...existing code...
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+
+const app = express();
+
+// --- Middleware Configuration ---
+const corsOptions = {
+  origin: [
+    'http://localhost:3000',
+    'http://127.0.0.1:5501',
+    'http://localhost:5501',
+    'http://localhost:5500',
+    'http://127.0.0.1:5500',
+    'https://praiseandworship.onrender.com',
+    'https://swareshpawar.github.io'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(express.static('public'));
+
+// --- Constants and Global Variables ---
+const PORT = process.env.PORT || 3001;
+const uri = process.env.MONGODB_URI || 'mongodb+srv://genericuser:Swar%40123@cluster0.ovya99h.mongodb.net/PraiseAndWorship?retryWrites=true&w=majority';
+const JWT_SECRET = process.env.JWT_SECRET || 'changeme_secret';
+
+const client = new MongoClient(uri, {
+  serverApi: {
+    version: ServerApiVersion.v1,
+    strict: true,
+    deprecationErrors: true,
+  },
+});
+
+let db, songsCollection, usersCollection, favoritesCollection, setlistsCollection;
+
+// --- Authentication Middleware ---
+
 // Temporary basic auth middleware for admin actions
 function basicAuth(req, res, next) {
   const auth = req.headers['authorization'];
@@ -14,76 +59,6 @@ function basicAuth(req, res, next) {
   res.set('WWW-Authenticate', 'Basic realm="Admin Area"');
   return res.status(401).send('Invalid credentials.');
 }
-
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
-let favoritesCollection;
-let setlistsCollection;
-
-const app = express();
-
-// CORS middleware should be set before any routes
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://127.0.0.1:5501',
-    'http://localhost:5501',
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-    'https://praiseandworship.onrender.com',
-    'https://swareshpawar.github.io'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-}));
-
-// Debug endpoint: return backend environment info (safe for frontend debugging)
-app.get('/api/env', (req, res) => {
-  const PORT = process.env.PORT || 3001;
-  res.json({
-    mongodbUri: process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/:\/\/.*:(.*?)@/, '://***:***@') : undefined, // hide password
-    port: PORT,
-    backendUrl: `http://localhost:${PORT}`,
-    nodeEnv: process.env.NODE_ENV || 'development',
-    deployed: process.env.RENDER === 'true' || false
-  });
-});
-let db;
-let songsCollection;
-
-const uri = process.env.MONGODB_URI || 'mongodb+srv://genericuser:Swar%40123@cluster0.ovya99h.mongodb.net/PraiseAndWorship?retryWrites=true&w=majority';
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  },
-});
-
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://127.0.0.1:5501',
-    'http://localhost:5501',
-    'http://localhost:5500',
-    'http://127.0.0.1:5500',
-    'https://praiseandworship.onrender.com',
-    'https://swareshpawar.github.io'
-  ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-app.use(express.json());
-app.use(express.static('public'));
-
-
-const JWT_SECRET = process.env.JWT_SECRET || 'changeme_secret';
-let usersCollection;
 
 function generateToken(user) {
   return jwt.sign({
@@ -112,20 +87,6 @@ function localAuthMiddleware(req, res, next) {
   }
 }
 
-
-async function main() {
-  await client.connect();
-  db = client.db('PraiseAndWorship');
-  songsCollection = db.collection('PraiseAndWorships');
-  usersCollection = db.collection('Users');
-  favoritesCollection = db.collection('Favorites');
-  setlistsCollection = db.collection('Setlists');
-  console.log('Connected to MongoDB');
-  console.log('[ENV] MONGODB_URI:', process.env.MONGODB_URI);
-  console.log('[ENV] JWT_SECRET:', process.env.JWT_SECRET ? '(set)' : '(not set)');
-  console.log('[ENV] PORT:', process.env.PORT);
-}
-
 function requireAdmin(req, res, next) {
   if (req.user && req.user.isAdmin) {
     return next();
@@ -133,52 +94,20 @@ function requireAdmin(req, res, next) {
   return res.status(403).json({ error: 'Admin access required' });
 }
 
-// ===== Local Auth Endpoints =====
-// --- User Favorites and Setlist API ---
-// GET user favorites
-// GET user favorites from separate collection
-app.get('/api/user/favorites', localAuthMiddleware, async (req, res) => {
-  const userId = req.user.id;
-  const doc = await favoritesCollection.findOne({ userId });
-  res.json(doc?.favorites || []);
+// ===== API Endpoints =====
+
+// --- Debugging and Environment ---
+app.get('/api/env', (req, res) => {
+  res.json({
+    mongodbUri: process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/:\/\/.*:(.*?)@/, '://***:***@') : '(not set)',
+    port: PORT,
+    backendUrl: `http://localhost:${PORT}`,
+    nodeEnv: process.env.NODE_ENV || 'development',
+    deployed: process.env.RENDER === 'true' || false
+  });
 });
 
-// POST user favorites
-// Save favorites in a separate collection
-app.post('/api/user/favorites', localAuthMiddleware, async (req, res) => {
-  const userId = req.user.id;
-  const userName = req.user.name || req.user.email || '';
-  const { favorites } = req.body;
-  await favoritesCollection.updateOne(
-    { userId },
-    { $set: { favorites, userName } },
-    { upsert: true }
-  );
-  res.json({ message: 'Favorites updated' });
-});
-
-// GET user setlist (type=praise|worship)
-// GET user setlist from separate collection
-app.get('/api/user/setlist', localAuthMiddleware, async (req, res) => {
-  const userId = req.user.id;
-  const type = req.query.type === 'worship' ? 'worship' : 'praise';
-  const doc = await setlistsCollection.findOne({ userId, type });
-  res.json(doc?.setlist || []);
-});
-
-// Save setlist in a separate collection
-app.post('/api/user/setlist', localAuthMiddleware, async (req, res) => {
-  const userId = req.user.id;
-  const userName = req.user.name || req.user.email || '';
-  const { type, setlist } = req.body;
-  await setlistsCollection.updateOne(
-    { userId, type },
-    { $set: { setlist, userName } },
-    { upsert: true }
-  );
-  res.json({ message: 'Setlist updated' });
-});
-// Register
+// --- User Registration and Login ---
 app.post('/api/register', async (req, res) => {
   const { email, password, name } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
@@ -196,7 +125,6 @@ app.post('/api/register', async (req, res) => {
   res.json({ token });
 });
 
-// Login
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
   const user = await usersCollection.findOne({ email });
@@ -214,15 +142,110 @@ app.post('/api/login', async (req, res) => {
   res.json({ token });
 });
 
+// --- User Data (Favorites and Setlists) ---
+app.get('/api/user/favorites', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const doc = await favoritesCollection.findOne({ userId });
+  res.json(doc?.favorites || []);
+});
 
-// Set or unset admin status (admin only)
+app.post('/api/user/favorites', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const userName = req.user.name || req.user.email || '';
+  const { favorites } = req.body;
+  await favoritesCollection.updateOne(
+    { userId },
+    { $set: { favorites, userName } },
+    { upsert: true }
+  );
+  res.json({ message: 'Favorites updated' });
+});
+
+app.get('/api/user/setlist', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const type = req.query.type === 'worship' ? 'worship' : 'praise';
+  const doc = await setlistsCollection.findOne({ userId, type });
+  res.json(doc?.setlist || []);
+});
+
+app.post('/api/user/setlist', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const userName = req.user.name || req.user.email || '';
+  const { type, setlist } = req.body;
+  await setlistsCollection.updateOne(
+    { userId, type },
+    { $set: { setlist, userName } },
+    { upsert: true }
+  );
+  res.json({ message: 'Setlist updated' });
+});
+
+// --- Legacy User Data Endpoints ---
+app.get('/api/userdata', async (req, res) => {
+  const isDev = (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV);
+  const authHeader = req.headers['authorization'];
+
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, JWT_SECRET);
+      const userId = decoded.id;
+      const userDoc = await usersCollection.findOne({ _id: new ObjectId(userId) });
+      if (!userDoc) {
+        return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
+      }
+      const favDoc = await favoritesCollection.findOne({ userId });
+      const praiseDoc = await setlistsCollection.findOne({ userId, type: 'praise' });
+      const worshipDoc = await setlistsCollection.findOne({ userId, type: 'worship' });
+      const { name, email } = userDoc;
+      return res.json({
+        favorites: favDoc?.favorites || [],
+        praiseSetlist: praiseDoc?.setlist || [],
+        worshipSetlist: worshipDoc?.setlist || [],
+        name,
+        email
+      });
+    } catch (err) {
+      // Invalid token, fall through to dev behavior or require auth
+    }
+  }
+
+  if (isDev) {
+    return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
+  } else {
+    // In production, if we reach here, it means no valid token was provided.
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+});
+
+app.put('/api/userdata', localAuthMiddleware, async (req, res) => {
+  const userId = req.user.id;
+  const { favorites, praiseSetlist, worshipSetlist, name, email } = req.body;
+  // Update user's name/email in the main users collection
+  await usersCollection.updateOne(
+    { _id: new ObjectId(userId) },
+    { $set: { name, email } }
+  );
+  // Update favorites and setlists in their respective collections
+  await favoritesCollection.updateOne({ userId }, { $set: { favorites } }, { upsert: true });
+  await setlistsCollection.updateOne({ userId, type: 'praise' }, { $set: { setlist: praiseSetlist } }, { upsert: true });
+  await setlistsCollection.updateOne({ userId, type: 'worship' }, { $set: { setlist: worshipSetlist } }, { upsert: true });
+  res.json({ message: 'User data updated' });
+});
+
+
+// --- Admin User Management ---
+app.get('/api/users', localAuthMiddleware, requireAdmin, async (req, res) => {
+  const users = await usersCollection.find({}, { projection: { password: 0 } }).toArray();
+  res.json(users);
+});
+
 app.put('/api/users/:id/admin', localAuthMiddleware, requireAdmin, async (req, res) => {
   const { id } = req.params;
   const { isAdmin } = req.body;
   if (typeof isAdmin !== 'boolean') {
     return res.status(400).json({ error: 'isAdmin (boolean) required' });
   }
-  // Prevent self-demotion
   if (req.user.id === id && isAdmin === false) {
     return res.status(400).json({ error: 'You cannot remove your own admin status.' });
   }
@@ -231,11 +254,7 @@ app.put('/api/users/:id/admin', localAuthMiddleware, requireAdmin, async (req, r
   res.json({ message: `User admin status set to ${isAdmin}` });
 });
 
-// List users (admin only)
-app.get('/api/users', localAuthMiddleware, requireAdmin, async (req, res) => {
-  const users = await usersCollection.find({}, { projection: { password: 0 } }).toArray();
-  res.json(users);
-});
+// --- Songs API ---
 app.get('/api/songs', async (req, res) => {
   try {
     const songs = await songsCollection.find({}).toArray();
@@ -251,11 +270,10 @@ app.post('/api/songs', localAuthMiddleware, async (req, res) => {
       const last = await songsCollection.find().sort({ id: -1 }).limit(1).toArray();
       req.body.id = last.length ? last[0].id + 1 : 1;
     }
-    // Add createdAt, modifiedAt, and contributor fields
     const now = new Date().toISOString();
     req.body.createdAt = now;
     req.body.modifiedAt = now;
-    req.body.date = req.body.date || now; // for backward compatibility
+    req.body.date = req.body.date || now;
     req.body.contributor = req.body.contributor || (req.user && req.user.name ? req.user.name : (req.user && req.user.email ? req.user.email : 'Unknown'));
     const result = await songsCollection.insertOne(req.body);
     const insertedSong = await songsCollection.findOne({ _id: result.insertedId });
@@ -272,21 +290,17 @@ app.put('/api/songs/:id', localAuthMiddleware, async (req, res) => {
     let result = { matchedCount: 0 };
     let updatedSong = null;
 
-    // Try numeric id first
     if (!isNaN(Number(id))) {
       result = await songsCollection.updateOne({ id: parseInt(id) }, update);
       if (result.matchedCount > 0) {
         updatedSong = await songsCollection.findOne({ id: parseInt(id) });
       }
     }
-    // If not found, try MongoDB _id
     if (result.matchedCount === 0) {
       let objectId = null;
       try {
         objectId = new ObjectId(id);
-      } catch (e) {
-        // Not a valid ObjectId, ignore
-      }
+      } catch (e) { /* Not a valid ObjectId, ignore */ }
       if (objectId) {
         result = await songsCollection.updateOne({ _id: objectId }, update);
         if (result.matchedCount > 0) {
@@ -307,17 +321,13 @@ app.delete('/api/songs/:id', localAuthMiddleware, requireAdmin, async (req, res)
   try {
     const { id } = req.params;
     let result = { deletedCount: 0 };
-    // Try to delete by numeric id first
     if (!isNaN(Number(id))) {
       result = await songsCollection.deleteOne({ id: parseInt(id) });
     }
-    // If not found, try by MongoDB _id
     if (result.deletedCount === 0) {
       try {
         result = await songsCollection.deleteOne({ _id: new ObjectId(id) });
-      } catch (e) {
-        // Not a valid ObjectId, ignore
-      }
+      } catch (e) { /* Not a valid ObjectId, ignore */ }
     }
     if (result.deletedCount === 0) {
       return res.status(404).json({ error: 'Song not found' });
@@ -337,71 +347,7 @@ app.delete('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => 
   }
 });
 
-app.get('/api/userdata', async (req, res, next) => {
-  // In development, allow unauthenticated access, but if a valid JWT is provided, fetch real user data
-  const isDev = (process.env.NODE_ENV === 'development' || !process.env.NODE_ENV);
-  const authHeader = req.headers['authorization'];
-  let userId;
-  if (isDev && authHeader && authHeader.startsWith('Bearer ')) {
-    // Try to verify token and fetch real user data
-    const token = authHeader.split(' ')[1];
-    try {
-      const decoded = jwt.verify(token, JWT_SECRET);
-      userId = decoded.id;
-      const userDoc = await usersCollection.findOne({ _id: new ObjectId(userId) });
-      if (!userDoc) {
-        return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
-      }
-      const favDoc = await favoritesCollection.findOne({ userId });
-      const favorites = favDoc?.favorites || [];
-      const praiseDoc = await setlistsCollection.findOne({ userId, type: 'praise' });
-      const worshipDoc = await setlistsCollection.findOne({ userId, type: 'worship' });
-      const praiseSetlist = praiseDoc?.setlist || [];
-      const worshipSetlist = worshipDoc?.setlist || [];
-      const { name, email } = userDoc;
-      return res.json({ favorites, praiseSetlist, worshipSetlist, name, email });
-    } catch (err) {
-      // Invalid token, fall through to empty data
-    }
-  }
-  if (isDev) {
-    // No valid token, return empty data for local testing
-    return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
-  } else {
-    // In production, require authentication
-    localAuthMiddleware(req, res, async () => {
-      userId = req.user.id;
-      const userDoc = await usersCollection.findOne({ _id: new ObjectId(userId) });
-      if (!userDoc) {
-        return res.json({ favorites: [], praiseSetlist: [], worshipSetlist: [], name: '', email: '' });
-      }
-      const favDoc = await favoritesCollection.findOne({ userId });
-      const favorites = favDoc?.favorites || [];
-      const praiseDoc = await setlistsCollection.findOne({ userId, type: 'praise' });
-      const worshipDoc = await setlistsCollection.findOne({ userId, type: 'worship' });
-      const praiseSetlist = praiseDoc?.setlist || [];
-      const worshipSetlist = worshipDoc?.setlist || [];
-      const { name, email } = userDoc;
-      res.json({ favorites, praiseSetlist, worshipSetlist, name, email });
-    });
-  }
-});
-
-app.put('/api/userdata', localAuthMiddleware, async (req, res) => {
-  const userId = req.user.id;
-  const { favorites, praiseSetlist, worshipSetlist, name, email } = req.body;
-  await usersCollection.updateOne(
-    { _id: new ObjectId(userId) },
-    { $set: { favorites, praiseSetlist, worshipSetlist, name, email } },
-    { upsert: true }
-  );
-  res.json({ message: 'User data updated' });
-});
-
-// ====== SPACE FOR ADMIN ASSIGNMENT ======
-// To assign admin, use the /api/users/:id/promote endpoint as an admin user.
-
-// --- TEMPORARY: Promote Swaresh to admin via GET /make-me-admin (for setup only) ---
+// --- Temporary Admin Promotion ---
 app.get('/make-me-admin', async (req, res) => {
   const email = 'swareshpawar@gmail.com';
   const result = await usersCollection.updateOne({ email }, { $set: { isAdmin: true } });
@@ -410,11 +356,30 @@ app.get('/make-me-admin', async (req, res) => {
   }
   res.json({ message: `${email} promoted to admin` });
 });
-main().then(() => {
-  const PORT = process.env.PORT || 3001;
-  const serverUrl = `http://localhost:${PORT}`;
-  console.log(`[ENV] Backend server URL: ${serverUrl}`);
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}).catch((err) => {
-  console.error('Error starting server:', err);
-});
+
+// --- Main Application Logic ---
+async function main() {
+  try {
+    await client.connect();
+    console.log('Connected to MongoDB');
+    db = client.db('PraiseAndWorship');
+    songsCollection = db.collection('PraiseAndWorships');
+    usersCollection = db.collection('Users');
+    favoritesCollection = db.collection('Favorites');
+    setlistsCollection = db.collection('Setlists');
+
+    console.log('[ENV] MONGODB_URI:', process.env.MONGODB_URI ? '(set)' : '(not set)');
+    console.log('[ENV] JWT_SECRET:', process.env.JWT_SECRET ? '(set)' : '(not set)');
+    console.log('[ENV] PORT:', process.env.PORT);
+
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log(`[ENV] Backend server URL: http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('Error starting server:', err);
+    process.exit(1);
+  }
+}
+
+main();

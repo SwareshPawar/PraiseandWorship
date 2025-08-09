@@ -2612,13 +2612,21 @@
 
         // Save user setlist to backend
         async function saveUserSetlist(type, setlist) {
-            if (typeof currentUser === 'undefined' || !currentUser || !currentUser.token) return;
+            // Always reload latest token
+            let jwtToken = localStorage.getItem('jwtToken') || null;
+            if (typeof currentUser === 'undefined' || !currentUser || !jwtToken) {
+                console.warn('[Setlist] currentUser or token missing', currentUser);
+                return;
+            }
             try {
+                const debugAuthHeader = `Bearer ${jwtToken}`;
+                console.log('[Setlist] Saving setlist. currentUser:', currentUser);
+                console.log('[Setlist] Authorization header:', debugAuthHeader);
                 await fetch(`${API_BASE_URL}/user/setlist`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentUser.token}`
+                        'Authorization': debugAuthHeader
                     },
                     body: JSON.stringify({
                         type, // 'praise' or 'worship'
@@ -2632,13 +2640,21 @@
 
         // Save user favorites to backend
         async function saveUserFavorites(favorites) {
-            if (typeof currentUser === 'undefined' || !currentUser || !currentUser.token) return;
+            // Always reload latest token
+            let jwtToken = localStorage.getItem('jwtToken') || null;
+            if (typeof currentUser === 'undefined' || !currentUser || !jwtToken) {
+                console.warn('[Favorites] currentUser or token missing', currentUser);
+                return;
+            }
             try {
+                const debugAuthHeader = `Bearer ${jwtToken}`;
+                console.log('[Favorites] Saving favorites. currentUser:', currentUser);
+                console.log('[Favorites] Authorization header:', debugAuthHeader);
                 await fetch(`${API_BASE_URL}/user/favorites`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentUser.token}`
+                        'Authorization': debugAuthHeader
                     },
                     body: JSON.stringify({ favorites })
                 });
@@ -3141,19 +3157,27 @@
                 );
                 score += WEIGHTS.genre * details.genreMatch;
 
-                return {
-                    ...song,
-                    matchScore: Math.min(Math.round(score), 100),
-                    matchDetails: {
-                        ...details,
-                        languageScore: Math.round(details.languageScore * 100),
-                        tempoSimilarity: Math.round(details.tempoSimilarity * 100),
-                        genreMatch: Math.round(details.genreMatch * 100)
+                try {
+                    let jwtToken = localStorage.getItem('jwtToken') || null;
+                    if (!currentUser || !jwtToken) {
+                        console.warn('[UserData] currentUser or token missing', currentUser);
+                        return;
                     }
-                };
-            });
-
-            // Sort by priority and always return top 20, even if score is 0
+                    const debugAuthHeader = `Bearer ${jwtToken}`;
+                    console.log('[UserData] Loading user data. currentUser:', currentUser);
+                    console.log('[UserData] Authorization header:', debugAuthHeader);
+                    const res = await fetch(`${API_BASE_URL}/userdata`, {
+                        headers: { 'Authorization': debugAuthHeader }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        favorites = data.favorites || [];
+                        praiseSetlist = data.praiseSetlist || [];
+                        worshipSetlist = data.worshipSetlist || [];
+                    }
+                } catch (err) {
+                    console.error('Failed to load user data from backend:', err);
+                }
             const sorted = scoredSongs.sort((a, b) => {
                 // 1. Same scale type (major/minor)
                 if (a.matchDetails.sameScaleType !== b.matchDetails.sameScaleType) {

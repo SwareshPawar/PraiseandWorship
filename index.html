@@ -2195,16 +2195,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             const res = await fetch(`${API_BASE_URL}/userdata`, {
                 headers: { 'Authorization': `Bearer ${jwtToken}` }
             });
+            if (res.status === 401) {
+                logoutUser('Session expired. Please log in again.');
+                return;
+            }
             if (res.ok) {
                 const data = await res.json();
                 if (typeof data.favorites !== 'undefined') {
                     favorites = data.favorites;
                 }
                 if (typeof data.praiseSetlist !== 'undefined') {
-                    praiseSetlist = data.praiseSetlist;
+                    praiseSetlist = (data.praiseSetlist || []).map(id => songs.find(s => s.id == id || s._id == id)).filter(Boolean);
                 }
                 if (typeof data.worshipSetlist !== 'undefined') {
-                    worshipSetlist = data.worshipSetlist;
+                    worshipSetlist = (data.worshipSetlist || []).map(id => songs.find(s => s.id == id || s._id == id)).filter(Boolean);
                 }
                 renderFavorites();
                 renderSetlist('praise');
@@ -2219,7 +2223,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('loginBtn').addEventListener('click', () => {
         document.getElementById('loginModal').style.display = 'flex';
     });
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    function logoutUser(message = 'You have been logged out.') {
         jwtToken = null;
         currentUser = null;
         localStorage.removeItem('jwtToken');
@@ -2234,6 +2238,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderSongs('worship', keyFilter.value, genreFilter.value);
         renderSetlist('praise');
         renderSetlist('worship');
+        showNotification(message, 4000);
+    }
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        logoutUser();
     });
     document.getElementById('registerBtn').addEventListener('click', () => {
         document.getElementById('registerModal').style.display = 'flex';
@@ -3285,6 +3293,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     })
                 });
                 if (!res.ok) {
+                    if (res.status === 401) {
+                        logoutUser('Session expired. Please log in again.');
+                        return;
+                    }
                     const errData = await res.json();
                     console.error('Failed to save setlist, server responded with:', res.status, errData);
                     showNotification(`Error saving setlist: ${errData.error || 'Unauthorized'}`, 4000);
@@ -3315,7 +3327,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log('[Favorites] Saving favorites. currentUser:', user);
             console.log('[Favorites] Authorization header:', debugAuthHeader);
             try {
-                await fetch(`${API_BASE_URL}/user/favorites`, {
+                const res = await fetch(`${API_BASE_URL}/user/favorites`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -3323,6 +3335,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     },
                     body: JSON.stringify({ favorites })
                 });
+                if (!res.ok) {
+                    if (res.status === 401) {
+                        logoutUser('Session expired. Please log in again.');
+                        return;
+                    }
+                    const errData = await res.json();
+                    console.error('Failed to save favorites, server responded with:', res.status, errData);
+                    showNotification(`Error saving favorites: ${errData.error || 'Unauthorized'}`, 4000);
+                }
             } catch (err) {
                 console.error('Failed to save favorites:', err);
             }

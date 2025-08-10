@@ -4542,6 +4542,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
 
+            // Use DocumentFragment for efficient DOM updates
+            const fragment = document.createDocumentFragment();
+
             suggestedSongs.forEach(song => {
                 const div = document.createElement('div');
                 div.className = 'suggested-song-item';
@@ -4558,10 +4561,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `;
                 div.addEventListener('click', () => {
                     showPreview(song);
-                    closeSuggestedSongsDrawer();
                 });
-                suggestedSongsContent.appendChild(div);
+                fragment.appendChild(div);
             });
+
+            // Append all elements at once
+            suggestedSongsContent.appendChild(fragment);
         }
     
         function toggleSuggestedSongsDrawer() {

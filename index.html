@@ -4745,145 +4745,123 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     
             function showPreview(song, fromHistory = false) {
-            // Update history if this is a new navigation (not from back/forward)
-            if (!fromHistory && !isNavigatingHistory && !currentModal) {
-                if (currentHistoryPosition < navigationHistory.length - 1) {
-                    navigationHistory = navigationHistory.slice(0, currentHistoryPosition + 1);
+                // Only update if song is different
+                if (songPreviewEl.dataset.songId == song.id && songPreviewEl.innerHTML) return;
+                // Update history if this is a new navigation (not from back/forward)
+                if (!fromHistory && !isNavigatingHistory && !currentModal) {
+                    if (currentHistoryPosition < navigationHistory.length - 1) {
+                        navigationHistory = navigationHistory.slice(0, currentHistoryPosition + 1);
+                    }
+                    navigationHistory.push(song.id);
+                    currentHistoryPosition = navigationHistory.length - 1;
+                    history.pushState({ 
+                        songId: song.id, 
+                        position: currentHistoryPosition 
+                    }, '', `#song-${song.id}`);
                 }
-                
-                navigationHistory.push(song.id);
-                currentHistoryPosition = navigationHistory.length - 1;
-                
-                history.pushState({ 
-                    songId: song.id, 
-                    position: currentHistoryPosition 
-                }, '', `#song-${song.id}`);
-            }
-
-            // Clear the preview and reset state
-            songPreviewEl.innerHTML = '';
-            songPreviewEl.dataset.songId = song.id;
-            songPreviewEl.dataset.originalLyrics = song.lyrics;
-            songPreviewEl.dataset.originalKey = song.key;
-    
-             // Check if song is in setlist/favorites
-            // Defensive: ensure setlists and favorites are arrays
-            const praiseSet = Array.isArray(praiseSetlist) ? praiseSetlist : [];
-            const worshipSet = Array.isArray(worshipSetlist) ? worshipSetlist : [];
-            const favs = Array.isArray(favorites) ? favorites : [];
-            const isInSetlist = song.category === 'praise' 
-                ? praiseSet.some(s => s && s.id === song.id)
-                : worshipSet.some(s => s && s.id === song.id);
-            const isFavorite = favs.includes(song.id);
-    
-            // Build the preview HTML
-            songPreviewEl.innerHTML = `
-            <div class="song-preview-container">
-                <div class="song-slide">
-                <div class="preview-header">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                    <h2>${song.title}</h2>
-                    </div>
-                    <div class="preview-actions">
-                    ${isFavorite ? `
-                        <button class="favorite-btn favorited" id="previewFavoriteBtn" data-song-id="${song.id}">
-                        <i class="fas fa-heart"></i>
+                // Clear the preview and reset state
+                songPreviewEl.innerHTML = '';
+                songPreviewEl.dataset.songId = song.id;
+                songPreviewEl.dataset.originalLyrics = song.lyrics;
+                songPreviewEl.dataset.originalKey = song.key;
+                // Check if song is in setlist/favorites
+                const praiseSet = Array.isArray(praiseSetlist) ? praiseSetlist : [];
+                const worshipSet = Array.isArray(worshipSetlist) ? worshipSetlist : [];
+                const favs = Array.isArray(favorites) ? favorites : [];
+                const isInSetlist = song.category === 'praise' 
+                    ? praiseSet.some(s => s && s.id === song.id)
+                    : worshipSet.some(s => s && s.id === song.id);
+                const isFavorite = favs.includes(song.id);
+                // Build the preview HTML (batch update)
+                let previewHTML = `
+                <div class="song-preview-container">
+                    <div class="song-slide">
+                    <div class="preview-header">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                        <h2>${song.title}</h2>
+                        </div>
+                        <div class="preview-actions">
+                        ${isFavorite ? `
+                            <button class="favorite-btn favorited" id="previewFavoriteBtn" data-song-id="${song.id}">
+                            <i class="fas fa-heart"></i>
+                            </button>
+                        ` : `
+                            <button class="favorite-btn" id="previewFavoriteBtn" data-song-id="${song.id}">
+                            <i class="fas fa-heart"></i>
+                            </button>
+                        `}
+                        <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'}" id="previewSetlistBtn">
+                            ${isInSetlist ? 'Remove from Setlist' : 'Add to Setlist'}
                         </button>
-                    ` : `
-                        <button class="favorite-btn" id="previewFavoriteBtn" data-song-id="${song.id}">
-                        <i class="fas fa-heart"></i>
+                        <button class="btn btn-edit" id="previewEditBtn">
+                            <i class="fas fa-edit"></i> Edit
                         </button>
-                    `}
-                    <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'}" id="previewSetlistBtn">
-                        ${isInSetlist ? 'Remove from Setlist' : 'Add to Setlist'}
-                    </button>
-                    <button class="btn btn-edit" id="previewEditBtn">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    ${(currentUser && currentUser.isAdmin) ? `<button class="btn btn-delete" id="previewDeleteBtn"><i class="fas fa-trash"></i> Delete</button>` : ''}
+                        ${(currentUser && currentUser.isAdmin) ? `<button class="btn btn-delete" id="previewDeleteBtn"><i class="fas fa-trash"></i> Delete</button>` : ''}
+                        </div>
+                        <div class="preview-meta" style="font-size:0.85em; color:var(--song-meta-color); margin-top:6px; margin-bottom:2px;">
+                            ${song.contributor ? `<span><i class='fas fa-user'></i> ${song.contributor}</span> &nbsp;` : ''}
+                            ${song.modifiedAt && song.modifiedAt !== song.createdAt
+                                ? `<span><i class='fas fa-edit'></i> Updated: ${new Date(song.modifiedAt).toLocaleString()}</span>`
+                                : (song.createdAt ? `<span><i class='fas fa-calendar-plus'></i> Created: ${new Date(song.createdAt).toLocaleString()}</span>` : '')}
+                        </div>
                     </div>
-                    <div class="preview-meta" style="font-size:0.85em; color:var(--song-meta-color); margin-top:6px; margin-bottom:2px;">
-                        ${song.contributor ? `<span><i class='fas fa-user'></i> ${song.contributor}</span> &nbsp;` : ''}
-                        ${song.modifiedAt && song.modifiedAt !== song.createdAt
-                            ? `<span><i class='fas fa-edit'></i> Updated: ${new Date(song.modifiedAt).toLocaleString()}</span>`
-                            : (song.createdAt ? `<span><i class='fas fa-calendar-plus'></i> Created: ${new Date(song.createdAt).toLocaleString()}</span>` : '')}
+                    <div class="song-meta">
+                        <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
+                        ${song.tempo ? `<p><strong>Tempo:</strong> ${song.tempo}</p>` : ''}
+                        ${song.time ? `<p><strong>Time Signature:</strong> ${song.time}</p>` : ''}
+                        ${song.taal ? `<p><strong>Taal:</strong> ${song.taal}</p>` : ''}
+                        ${song.genres ? `<p><strong>Genres:</strong> ${song.genres.join(', ')}</p>` : 
+                        song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
+                    </div>
+                    <div class="transpose-controls">
+                        <button class="btn btn-primary" id="transpose-down">-</button>
+                        <span>Transpose: <span id="transpose-level">0</span></span>
+                        <button class="btn btn-primary" id="transpose-up">+</button>
+                        <button id="transposeReset" class="btn btn-primary">Reset</button>
+                    </div>
+                    <div class="song-lyrics">${formatLyricsWithChords(song.lyrics, 0)}</div>
+                    <div class="swipe-indicator prev">←</div>
+                    <div class="swipe-indicator next">→</div>
                     </div>
                 </div>
-
-                <div class="song-meta">
-                    <p><strong>Key:</strong> <span id="current-key">${song.key}</span></p>
-                    ${song.tempo ? `<p><strong>Tempo:</strong> ${song.tempo}</p>` : ''}
-                    ${song.time ? `<p><strong>Time Signature:</strong> ${song.time}</p>` : ''}
-                    ${song.taal ? `<p><strong>Taal:</strong> ${song.taal}</p>` : ''}
-                    ${song.genres ? `<p><strong>Genres:</strong> ${song.genres.join(', ')}</p>` : 
-                    song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
-                </div>
-
-                <div class="transpose-controls">
-                    <button class="btn btn-primary" id="transpose-down">-</button>
-                    <span>Transpose: <span id="transpose-level">0</span></span>
-                    <button class="btn btn-primary" id="transpose-up">+</button>
-                    <button id="transposeReset" class="btn btn-primary">Reset</button>
-                </div>
-
-                <div class="song-lyrics">${formatLyricsWithChords(song.lyrics, 0)}</div>
-
-                <div class="swipe-indicator prev">←</div>
-                <div class="swipe-indicator next">→</div>
-                </div>
-            </div>
-            `;
-            
-            // Attach all event listeners
-            attachPreviewEventListeners(song);
-            
-            // Reset navigation flag if this was a history navigation
-            if (isNavigatingHistory) {
-                setTimeout(() => { isNavigatingHistory = false; }, 100);
-            }
-
-            // Next/Prev song buttons
-
-        
-            document.getElementById('previewFavoriteBtn').addEventListener('click', (e) => {
-                toggleFavorite(song.id);
-            });
-            document.getElementById('previewSetlistBtn').addEventListener('click', (e) => {
-                toggleSongInSetlist(song);
-            });
-            document.getElementById('previewEditBtn').addEventListener('click', (e) => {
-                editSong(song.id);
-            });
-            // Delete button event (admin only)
-            if (document.getElementById('previewDeleteBtn')) {
-                document.getElementById('previewDeleteBtn').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openDeleteSongModal(song.id);
+                `;
+                songPreviewEl.innerHTML = previewHTML;
+                // Attach all event listeners
+                attachPreviewEventListeners(song);
+                // Reset navigation flag if this was a history navigation
+                if (isNavigatingHistory) {
+                    setTimeout(() => { isNavigatingHistory = false; }, 100);
+                }
+                // Next/Prev song buttons
+                document.getElementById('previewFavoriteBtn').addEventListener('click', (e) => {
+                    toggleFavorite(song.id);
                 });
+                document.getElementById('previewSetlistBtn').addEventListener('click', (e) => {
+                    toggleSongInSetlist(song);
+                });
+                document.getElementById('previewEditBtn').addEventListener('click', (e) => {
+                    editSong(song.id);
+                });
+                if (document.getElementById('previewDeleteBtn')) {
+                    document.getElementById('previewDeleteBtn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openDeleteSongModal(song.id);
+                    });
+                }
+                document.getElementById('transpose-up').addEventListener('click', (e) => {
+                    const currentLevel = parseInt(document.getElementById('transpose-level').textContent) || 0;
+                    updatePreviewWithTransposition(currentLevel);
+                    e.stopPropagation();
+                });
+                document.getElementById('transpose-down').addEventListener('click', () => {
+                    const currentLevel = parseInt(document.getElementById('transpose-level').textContent) || 0;
+                    updatePreviewWithTransposition(currentLevel);
+                });
+                setupAutoScroll();
+                applyLyricsBackground(song.category === 'praise');
+                // Defer heavy suggestions update
+                setTimeout(() => { showSuggestedSongs(); }, 0);
             }
-            
-            document.getElementById('transpose-up').addEventListener('click', (e) => {
-                console.log('Transpose up clicked');
-                const currentLevel = parseInt(document.getElementById('transpose-level').textContent) || 0;
-                console.log('Current level:', currentLevel, 'New level:', currentLevel + 1);
-                updatePreviewWithTransposition(currentLevel);
-                e.stopPropagation(); // Prevent event bubbling
-            });
-
-            document.getElementById('transpose-down').addEventListener('click', () => {
-                const currentLevel = parseInt(document.getElementById('transpose-level').textContent) || 0;
-                updatePreviewWithTransposition(currentLevel); // Only -1
-            });
-            setupAutoScroll();
-            applyLyricsBackground(song.category === 'praise');
-            
-            if (suggestedSongsDrawerOpen) {
-                showSuggestedSongs();
-            } else {
-                // Always update suggestions content, so if user opens drawer after changing song, it's ready
-                showSuggestedSongs();
-            }
-        }
     
         function cleanUpLyrics(lyrics) {
             return lyrics.replace(/\n{3,}/g, '\n\n');
@@ -4892,7 +4870,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         function formatLyricsWithChords(lyrics, transposeLevel) {
             const lines = lyrics.split('\n');
             let output = [];
-    
+
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
 
@@ -4901,25 +4879,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                     continue;
                 }
 
-                // If the line is a chord line (e.g. [D][A][G]...)
+                // If the line is a chord line (e.g., [D][A][G]...)
                 if (isChordLine(line)) {
-                    // Show the line as a chord line, but only wrap actual chords in spans
-                    let processedLine = line.replace(/\[([A-G][#b]?(?:maj|min|m|dim|aug|sus2|sus4|m7|maj7|7|m9|maj9|9|m11|maj11|11|add9|add11|6|13)?(?:\/[A-G][#b]?)?)\]/gi,
-                        (match, chord) => {
-                            return `<span class="chord" data-original="${chord}">${transposeChord(chord, transposeLevel)}</span>`;
+                    // Transpose and wrap chords in spans
+                    let processedLine = line.replace(/([A-G][#b]?(?:maj|min|m|dim|aug|sus2|sus4|m7|maj7|7|m9|maj9|9|m11|maj11|11|add9|add11|6|13)?(?:\/[A-G][#b]?)?)/gi,
+                        (match) => {
+                            return `<span class="chord" data-original="${match}">${transposeChord(match, transposeLevel)}</span>`;
                         }
                     );
                     output.push(`<div class="chord-line">${processedLine}</div>`);
                 }
-                // If the line has inline chords (e.g. lyrics with [D] in between words)
+                // If the line has inline chords (e.g., lyrics with [D] in between words)
                 else if (hasInlineChords(line)) {
-                    // Only wrap chords in spans, and show visible square brackets
+                    // Transpose and wrap inline chords in spans
                     let processedLine = line.replace(/\[([A-G][#b]?(?:maj|min|m|dim|aug|sus2|sus4|m7|maj7|7|m9|maj9|9|m11|maj11|11|add9|add11|6|13)?(?:\/[A-G][#b]?)?)\]/gi,
                         (match, chord) => {
-                            return `[<span class=\"chord\" data-original=\"${chord}\">${transposeChord(chord, transposeLevel)}</span>]`;
+                            return `[<span class="chord" data-original="${chord}">${transposeChord(chord, transposeLevel)}</span>]`;
                         }
                     );
-                    output.push(`<div class=\"lyric-line\">${processedLine}</div>`);
+                    output.push(`<div class="lyric-line">${processedLine}</div>`);
                 }
                 else {
                     output.push(`<div class="lyric-line">${line}</div>`);
@@ -4987,15 +4965,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             return newBaseNote + quality;
         }
-    
+            
         function updatePreviewWithTransposition(level) {
             if (!songPreviewEl.dataset.songId) return;
+
+            // Clamp the transposition level between -12 and 12
             level = Math.max(-12, Math.min(12, level));
-            const lyrics = songPreviewEl.dataset.originalLyrics;
+
+            // Update the transposition level display
             document.getElementById('transpose-level').textContent = level;
+
+            // Retrieve the original lyrics and key from the dataset
+            const lyrics = songPreviewEl.dataset.originalLyrics;
             const originalKey = songPreviewEl.dataset.originalKey;
-            document.getElementById('current-key').textContent = level === 0 ? originalKey : transposeChord(originalKey, level);
-    
+
+            // Update the displayed key based on the transposition level
+            const transposedKey = level === 0 ? originalKey : transposeChord(originalKey, level);
+            document.getElementById('current-key').textContent = transposedKey;
+
+            // Update the lyrics with transposed chords
             const lyricsContainer = document.querySelector('.song-lyrics');
             if (lyricsContainer) {
                 lyricsContainer.innerHTML = formatLyricsWithChords(lyrics, level);

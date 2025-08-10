@@ -9,16 +9,14 @@
             /* ===== Setlist Item Styles ===== */
         .setlist-item {
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 8px 12px;
-            margin-bottom: 6px;
+            flex-direction: column;
+            padding: 10px;
+            margin-bottom: 8px;
             background: var(--song-item-bg);
             border: 1px solid var(--song-item-border);
             border-radius: 6px;
             transition: background 0.2s, border-color 0.2s;
-            gap: 10px;
-            cursor: grab;
+            cursor: pointer;
         }
 
         .setlist-item:hover {
@@ -27,18 +25,25 @@
             border-color: var(--accent-color);
         }
 
+        .setlist-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
         .setlist-item-info {
             flex-grow: 1;
             display: flex;
             align-items: center;
             gap: 10px;
-            overflow: hidden; /* Prevents long titles from breaking layout */
+            overflow: hidden;
         }
 
         .setlist-item-index {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--song-meta-color);
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .setlist-item-title {
@@ -46,9 +51,28 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 0.95rem;
-            flex-grow: 1; /* Allow it to take up available space */
-            min-width: 0;   /* Prevent it from overflowing its container */
+            font-size: 1rem;
+        }
+
+        .setlist-item-meta {
+            font-size: 0.8rem; /* Smaller font size */
+            color: var(--song-meta-color);
+            margin-top: 2px;
+            padding-top: 2px;
+            border-top: 1px solid var(--song-item-border);
+            width: 100%;
+            display: flex;
+            justify-content: space-between; /* Pushes meta info and button apart */
+            align-items: center; /* Vertically aligns them */
+            gap: 15px;
+            flex-wrap: nowrap;
+        }
+
+        .setlist-item-meta-info {
+            display: flex;
+            gap: 5px;
+            flex-wrap: nowrap;
+            flex-direction: row;
         }
 
         .setlist-item-actions .btn {
@@ -60,36 +84,26 @@
             background: var(--dark-light-bg);
             border-color: #4a5568;
         }
+
         body.dark-mode .setlist-item:hover {
             background: var(--dark-secondary);
         }
 
-                .setlist-remove-btn {
-        min-width: 90px;
-        max-width: 140px;
-        font-size: 1rem;
-        padding: 8px 14px;
-        margin-left: 12px;
-        border-radius: 4px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-        white-space: nowrap;
-        overflow: visible;
-        text-overflow: ellipsis;
-        display: inline-block;
-            }
-
-        /* This styles the container for the buttons inside a setlist item */
+        .setlist-remove-btn {
+            background: var(--delete-color);
+            color: white;
+            min-width: auto;
+            padding: 5px 10px;
+        }
+        
+        .setlist-remove-btn:hover {
+            background: #b32d37;
+        }
+        
         .setlist-sortable .setlist-item .setlist-item-actions {
             display: flex;
-            gap: 8px;   
+            gap: 8px;
             justify-content: flex-end;
-        }
-
-        /* This correctly applies the hover effect to the entire setlist item */
-        .setlist-sortable .setlist-item:hover {
-            background: var(--sidebar-item-hover-bg);
-            color: var(--sidebar-text-hover);
-            border-color: var(--accent-color);
         }
         /* Ensure dark mode auth buttons override sidebar-btn styles */
         .dark-mode .sidebar-btn.auth-btn {
@@ -2140,7 +2154,11 @@
     <!-- You can add a user list and promote-to-admin button here, visible only to admins -->
 
     <script>
-        // ====== Local Auth Config ======
+    // Always define API_BASE_URL at the top (remove all other declarations)
+    var API_BASE_URL = window.location.origin.includes('localhost') ? 'http://localhost:3001/api' : '/api';
+    // ====== Local Auth Config ======
+    // Notification element (ensure defined before showNotification, remove all other declarations)
+    var notificationEl = document.getElementById('notification');
         let jwtToken = localStorage.getItem('jwtToken') || null;
         let currentUser = undefined;
         try {
@@ -2536,35 +2554,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                         updateAuthUI();
                         // Show welcome notification on login
                         showNotification(`Welcome, ${name || payload.email}!`, 3000);
-                        // Fetch user favorites and setlists from backend after login
+                        // FULL RELOAD: fetch all songs, then user data, then render everything
+                        await loadSongsFromBackend();
                         try {
-                            console.log('[UserData Fetch] Fetching user data from backend after login with token:', jwtToken);
                             const res2 = await fetch(`${API_BASE_URL}/userdata`, {
                                 headers: { 'Authorization': `Bearer ${jwtToken}` }
                             });
                             if (res2.ok) {
                                 const data = await res2.json();
-                                console.log('[UserData Fetch] Data received from backend after login:', data);
                                 if (typeof data.favorites !== 'undefined') {
                                     favorites = data.favorites;
                                 }
                                 if (typeof data.praiseSetlist !== 'undefined') {
-                                    praiseSetlist = data.praiseSetlist;
+                                    praiseSetlist = (data.praiseSetlist || []).map(id => songs.find(s => s.id == id || s._id == id)).filter(Boolean);
                                 }
                                 if (typeof data.worshipSetlist !== 'undefined') {
-                                    worshipSetlist = data.worshipSetlist;
+                                    worshipSetlist = (data.worshipSetlist || []).map(id => songs.find(s => s.id == id || s._id == id)).filter(Boolean);
                                 }
-                                renderFavorites();
-                                renderSetlist('praise');
-                                renderSetlist('worship');
-                            } else {
-                                console.warn('[UserData Fetch] Backend returned error status after login:', res2.status);
                             }
                         } catch (err) {
                             console.error('Failed to load user data from backend after login:', err);
                         }
+                        renderFavorites();
+                        renderSetlist('praise');
+                        renderSetlist('worship');
                         renderSongs('praise', keyFilter.value, genreFilter.value);
                         renderSongs('worship', keyFilter.value, genreFilter.value);
+                        if (typeof showSetlistEl !== 'undefined' && showSetlistEl) {
+                            showSetlistEl.click();
+                        }
                         document.getElementById('loginModal').style.display = 'none';
                     } else {
                         alert(data.error || 'Login failed');
@@ -2590,7 +2608,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const payload = JSON.parse(atob(jwtToken.split('.')[1]));
                         let name = payload.name;
                         if (!name) {
-                            // Use the name from the registration form if available
                             if (document.getElementById('registerName')) {
                                 name = document.getElementById('registerName').value;
                             } else {
@@ -2602,35 +2619,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                         localStorage.setItem('jwtToken', jwtToken);
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
                         updateAuthUI();
-                        // Fetch user favorites and setlists from backend after register
+                        // FULL RELOAD: fetch all songs, then user data, then render everything
+                        await loadSongsFromBackend();
                         try {
-                            console.log('[UserData Fetch] Fetching user data from backend after register with token:', jwtToken);
                             const res2 = await fetch(`${API_BASE_URL}/userdata`, {
                                 headers: { 'Authorization': `Bearer ${jwtToken}` }
                             });
                             if (res2.ok) {
                                 const data = await res2.json();
-                                console.log('[UserData Fetch] Data received from backend after register:', data);
                                 if (typeof data.favorites !== 'undefined') {
                                     favorites = data.favorites;
                                 }
                                 if (typeof data.praiseSetlist !== 'undefined') {
-                                    praiseSetlist = data.praiseSetlist;
+                                    praiseSetlist = (data.praiseSetlist || []).map(id => songs.find(s => s.id == id || s._id == id)).filter(Boolean);
                                 }
                                 if (typeof data.worshipSetlist !== 'undefined') {
-                                    worshipSetlist = data.worshipSetlist;
+                                    worshipSetlist = (data.worshipSetlist || []).map(id => songs.find(s => s.id == id || s._id == id)).filter(Boolean);
                                 }
-                                renderFavorites();
-                                renderSetlist('praise');
-                                renderSetlist('worship');
-                            } else {
-                                console.warn('[UserData Fetch] Backend returned error status after register:', res2.status);
                             }
                         } catch (err) {
                             console.error('Failed to load user data from backend after register:', err);
                         }
+                        renderFavorites();
+                        renderSetlist('praise');
+                        renderSetlist('worship');
                         renderSongs('praise', keyFilter.value, genreFilter.value);
                         renderSongs('worship', keyFilter.value, genreFilter.value);
+                        if (typeof showSetlistEl !== 'undefined' && showSetlistEl) {
+                            showSetlistEl.click();
+                        }
                         document.getElementById('registerModal').style.display = 'none';
                     } else {
                         alert(data.error || 'Registration failed');
@@ -2651,13 +2668,78 @@ document.addEventListener('DOMContentLoaded', async () => {
         adminPanelModal.id = 'adminPanelModal';
         adminPanelModal.className = 'modal';
         adminPanelModal.style.display = 'none';
-        adminPanelModal.innerHTML = `
-          <div class="modal-content" style="min-width:350px;max-width:600px;">
-            <span class="close-modal" id="closeAdminPanelModal" aria-label="Close">×</span>
-            <h3>Admin Panel: User Management</h3>
-            <div id="adminUsersList">Loading users...</div>
-          </div>
-        `;
+                adminPanelModal.innerHTML = `
+                    <div class="modal-content" style="min-width:350px;max-width:600px;">
+                        <span class="close-modal" id="closeAdminPanelModal" aria-label="Close">×</span>
+                        <h3>Admin Panel: User Management</h3>
+                        <div id="adminUsersList">Loading users...</div>
+                        <hr style="margin:18px 0;">
+                        <h3>Suggested Songs Weights</h3>
+                        <form id="suggestedWeightsForm">
+                            <div id="suggestedWeightsFields" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;"></div>
+                            <button type="submit" class="btn btn-primary" style="margin-top:10px;">Save Weights</button>
+                            <span id="suggestedWeightsStatus" style="margin-left:10px;font-size:0.95em;"></span>
+                        </form>
+                    </div>
+                `;
+                // Suggested Songs Weights UI
+
+                        async function loadAndRenderSuggestedWeights() {
+                            const fieldsDiv = document.getElementById('suggestedWeightsFields');
+                            const statusSpan = document.getElementById('suggestedWeightsStatus');
+                            fieldsDiv.innerHTML = 'Loading...';
+                            statusSpan.textContent = '';
+                            try {
+                                const res = await authFetch(`${API_BASE_URL}/suggested-songs-weights`);
+                                const weights = await res.json();
+                                fieldsDiv.innerHTML = '';
+                                const keys = ['language','scale','timeSignature','taal','tempo','genre'];
+                                keys.forEach(key => {
+                                    const val = typeof weights[key] === 'number' ? weights[key] : '';
+                                    fieldsDiv.innerHTML += `
+                                        <label for="weight_${key}">${key.charAt(0).toUpperCase()+key.slice(1)}:</label>
+                                        <input type="number" id="weight_${key}" name="${key}" min="0" max="100" step="5" value="${val}" style="width:70px;">
+                                    `;
+                                });
+                                // Only set onsubmit after form is in DOM
+                                const form = document.getElementById('suggestedWeightsForm');
+                                if (form) {
+                                    form.onsubmit = async function(e) {
+                                        e.preventDefault();
+                                        statusSpan.textContent = '';
+                                        const data = {};
+                                        keys.forEach(key => {
+                                            const val = parseInt(document.getElementById('weight_'+key).value,10);
+                                            data[key] = isNaN(val) ? 0 : val;
+                                        });
+                                        try {
+                                            const res = await authFetch(`${API_BASE_URL}/suggested-songs-weights`, {
+                                                method: 'PUT',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify(data)
+                                            });
+                                            if (res.ok) {
+                                                statusSpan.textContent = 'Saved!';
+                                                statusSpan.style.color = 'green';
+                                            } else {
+                                                statusSpan.textContent = 'Failed to save';
+                                                statusSpan.style.color = 'red';
+                                            }
+                                        } catch (e) {
+                                            statusSpan.textContent = 'Error saving';
+                                            statusSpan.style.color = 'red';
+                                        }
+                                    };
+                                }
+                            } catch (e) {
+                                fieldsDiv.innerHTML = '<span style="color:red;">Failed to load weights</span>';
+                            }
+                        }
+
+                // When admin panel opens, load weights UI too
+                document.getElementById('adminPanelBtn').addEventListener('click', async () => {
+                    await loadAndRenderSuggestedWeights();
+                });
         document.body.appendChild(adminPanelModal);
 
         // Show modal on Admin Panel button click
@@ -2853,7 +2935,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const toggleAllPanelsBtn = document.getElementById('toggle-all-panels');
         const toggleAutoScrollBtn = document.getElementById('toggleAutoScroll');
         const keepScreenOnBtn = document.getElementById('keepScreenOnBtn');
-        const notificationEl = document.getElementById('notification');
+    // ...existing code...
         const sortSongs = document.getElementById('sortSongs');
 
         if (sortSongs) {
@@ -2885,7 +2967,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentModal = null;
 
         // Set API_BASE_URL based on environment (local vs production)
-        let API_BASE_URL;
+    // ...existing code...
         if (location.hostname === '127.0.0.1' || location.hostname === 'localhost') {
             API_BASE_URL = 'http://localhost:3001/api'; // Local backend
         } else {
@@ -3706,14 +3788,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             const LANGUAGE_TAGS = ['English', 'Marathi', 'Spanish', 'Hindi', 'French', 'Tamil', 'Telugu', 'Punjabi', 'Bengali'];
 
             // Define scoring weights (total = 100)
-            const WEIGHTS = {
-                language: 10,        // Language match from genres
-                scale: 30,           // Scale match (major/minor and harmonic relationships)
-                timeSignature: 30,   // Time Signature match
-                taal: 10,            // Taal match
-                tempo: 0,            // Tempo similarity
-                genre: 15             // Non-language genre matches
+            // Load weights from backend if available (sync, fallback to defaults)
+            let WEIGHTS = {
+                language: 10,
+                scale: 30,
+                timeSignature: 30,
+                taal: 10,
+                tempo: 0,
+                genre: 15
             };
+            try {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', `${API_BASE_URL}/suggested-songs-weights`, false); // sync
+                xhr.send(null);
+                if (xhr.status === 200) {
+                    const w = JSON.parse(xhr.responseText);
+                    if (typeof w === 'object') WEIGHTS = { ...WEIGHTS, ...w };
+                }
+            } catch (e) {}
 
             // Time signature compatible pairs
             const TIME_SIGNATURE_COMPATIBILITY = {
@@ -4024,10 +4116,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             setlist.forEach((song, index) => {
                 const li = document.createElement('li');
-                li.className = 'setlist-item'; // Use the new class
+                li.className = 'setlist-item';
                 li.dataset.songId = song.id || song._id;
 
-                // Info section (index and title)
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'setlist-item-header';
+
                 const infoDiv = document.createElement('div');
                 infoDiv.className = 'setlist-item-info';
                 infoDiv.innerHTML = `
@@ -4035,11 +4129,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <span class="setlist-item-title">${song.title || ''}</span>
                 `;
 
-                // Actions section (remove button)
+                headerDiv.appendChild(infoDiv);
+
+                const metaDiv = document.createElement('div');
+                metaDiv.className = 'setlist-item-meta';
+                
+                const metaInfoDiv = document.createElement('div');
+                metaInfoDiv.className = 'setlist-item-meta-info';
+                metaInfoDiv.innerHTML = `
+                    <span><strong>Key:</strong> ${song.key || 'N/A'}</span>
+                    <span><strong>Tempo:</strong> ${song.tempo || 'N/A'}</span>
+                    <span><strong>Time:</strong> ${song.time || 'N/A'}</span>
+                `;
+
                 const actionsDiv = document.createElement('div');
                 actionsDiv.className = 'setlist-item-actions';
                 const removeBtn = document.createElement('button');
-                removeBtn.className = 'btn btn-delete setlist-remove-btn';
+                removeBtn.className = 'btn setlist-remove-btn';
                 removeBtn.innerHTML = '<i class="fas fa-times"></i>';
                 removeBtn.title = 'Remove from setlist';
                 removeBtn.onclick = (e) => {
@@ -4048,13 +4154,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 };
                 actionsDiv.appendChild(removeBtn);
 
-                // Click to preview song
+                metaDiv.appendChild(metaInfoDiv);
+                metaDiv.appendChild(actionsDiv);
+
+                li.appendChild(headerDiv);
+                li.appendChild(metaDiv);
+
                 li.addEventListener('click', () => {
                     showPreview(song);
                 });
 
-                li.appendChild(infoDiv);
-                li.appendChild(actionsDiv);
                 ul.appendChild(li);
             });
 
@@ -4264,48 +4373,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
-    
+
                 if (line.trim() === '') {
                     output.push(`<div class="lyric-line">${line}</div>`);
                     continue;
                 }
-    
+
+                // If the line is a chord line (e.g. [D][A][G]...)
                 if (isChordLine(line)) {
-                    let processedLine = line.replace(
-                        /([A-G][#b]?(?:maj|min|m|dim|aug|sus2|sus4|m7|maj7|7|m9|maj9|9|m11|maj11|11|add9|add11|6|13)?(?:\/[A-G][#b]?)?)/gi,
-                        (chord) => {
-                            if (!chord.trim()) return chord;
-                            if (chord.includes('/')) {
-                                const [baseChord, bassNote] = chord.split('/');
-                                const transposedBase = transposeChord(baseChord.trim(), transposeLevel);
-                                const transposedBass = bassNote ? transposeChord(bassNote.trim(), transposeLevel) : '';
-                                return `<span class="chord" data-original="${chord.trim()}">${transposedBase + (transposedBass ? '/' + transposedBass : '')}</span>`;
-                            }
-                            return `<span class="chord" data-original="${chord.trim()}">${transposeChord(chord.trim(), transposeLevel)}</span>`;
+                    // Show the line as a chord line, but only wrap actual chords in spans
+                    let processedLine = line.replace(/\[([A-G][#b]?(?:maj|min|m|dim|aug|sus2|sus4|m7|maj7|7|m9|maj9|9|m11|maj11|11|add9|add11|6|13)?(?:\/[A-G][#b]?)?)\]/gi,
+                        (match, chord) => {
+                            return `<span class="chord" data-original="${chord}">${transposeChord(chord, transposeLevel)}</span>`;
                         }
                     );
                     output.push(`<div class="chord-line">${processedLine}</div>`);
                 }
+                // If the line has inline chords (e.g. lyrics with [D] in between words)
                 else if (hasInlineChords(line)) {
-                    let processedLine = line.replace(
-                         /([A-G][#b]?(?:maj|min|m|dim|aug|sus2|sus4|m7|maj7|7|m9|maj9|9|m11|maj11|11|add9|add11|6|13)?(?:\/[A-G][#b]?)?)/gi,
+                    // Only wrap chords in spans, and show visible square brackets
+                    let processedLine = line.replace(/\[([A-G][#b]?(?:maj|min|m|dim|aug|sus2|sus4|m7|maj7|7|m9|maj9|9|m11|maj11|11|add9|add11|6|13)?(?:\/[A-G][#b]?)?)\]/gi,
                         (match, chord) => {
-                            if (chord.includes('/')) {
-                                const [baseChord, bassNote] = chord.split('/');
-                                const transposedBase = transposeChord(baseChord, transposeLevel);
-                                const transposedBass = bassNote ? transposeChord(bassNote, transposeLevel) : '';
-                                return `[<span class="chord" data-original="${chord}">${transposedBase}${transposedBass ? '/' + transposedBass : ''}</span>]`;
-                            }
-                            return `[<span class="chord" data-original="${chord}">${transposeChord(chord, transposeLevel)}</span>]`;
+                            return `[<span class=\"chord\" data-original=\"${chord}\">${transposeChord(chord, transposeLevel)}</span>]`;
                         }
                     );
-                    output.push(`<div class="lyric-line">${processedLine}</div>`);
+                    output.push(`<div class=\"lyric-line\">${processedLine}</div>`);
                 }
                 else {
                     output.push(`<div class="lyric-line">${line}</div>`);
                 }
             }
-    
+
             return output.join('');
         }
     

@@ -97,6 +97,50 @@ function requireAdmin(req, res, next) {
 // ===== API Endpoints =====
 
 // --- Debugging and Environment ---
+// --- Suggested Songs Weights Placeholder ---
+// In-memory storage for suggested songs weights (replace with DB in production)
+
+app.get('/api/suggested-songs-weights', (req, res) => {
+  // Read weights from MongoDB
+  suggestedWeightsCollection.findOne({})
+    .then(doc => {
+      if (doc) {
+        const { _id, ...weights } = doc;
+        res.json(weights);
+      } else {
+        res.json({
+          language: 0,
+          scale: 0,
+          timeSignature: 0,
+          taal: 0,
+          tempo: 0,
+          genre: 0
+        });
+      }
+    })
+    .catch(() => {
+      res.status(500).json({ error: 'Failed to load weights' });
+    });
+});
+
+app.put('/api/suggested-songs-weights', (req, res) => {
+  const keys = ['language','scale','timeSignature','taal','tempo','genre'];
+  const update = {};
+  keys.forEach(key => {
+    if (typeof req.body[key] === 'number') {
+      update[key] = req.body[key];
+    }
+  });
+  suggestedWeightsCollection.updateOne({}, { $set: update }, { upsert: true })
+    .then(() => suggestedWeightsCollection.findOne({}))
+    .then(doc => {
+      const { _id, ...weights } = doc;
+      res.json({ success: true, weights });
+    })
+    .catch(() => {
+      res.status(500).json({ error: 'Failed to save weights' });
+    });
+});
 app.get('/api/env', (req, res) => {
   res.json({
     mongodbUri: process.env.MONGODB_URI ? process.env.MONGODB_URI.replace(/:\/\/.*:(.*?)@/, '://***:***@') : '(not set)',
@@ -367,6 +411,7 @@ async function main() {
     usersCollection = db.collection('Users');
     favoritesCollection = db.collection('Favorites');
     setlistsCollection = db.collection('Setlists');
+  suggestedWeightsCollection = db.collection('SuggestedWeights');
 
     console.log('[ENV] MONGODB_URI:', process.env.MONGODB_URI ? '(set)' : '(not set)');
     console.log('[ENV] JWT_SECRET:', process.env.JWT_SECRET ? '(set)' : '(not set)');

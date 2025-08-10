@@ -2617,6 +2617,26 @@
             document.getElementById('adminPanelBtn').style.display = (isAuthenticated && currentUser && currentUser.isAdmin) ? 'block' : 'none';
         }
 
+        document.addEventListener('DOMContentLoaded', async () => {
+        if (!sessionStorage.getItem('SUGGESTED_SONGS_WEIGHTS')) {
+            try {
+                const response = await fetch(`${API_BASE_URL}/suggested-songs-weights`);
+                if (response.ok) {
+                    const weights = await response.json();
+                    if (typeof weights === 'object') {
+                        sessionStorage.setItem('SUGGESTED_SONGS_WEIGHTS', JSON.stringify(weights));
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch suggested songs weights:', error);
+            }
+        }
+    });
+
+    function updateSuggestedSongsWeights(newWeights) {
+    sessionStorage.setItem('SUGGESTED_SONGS_WEIGHTS', JSON.stringify(newWeights));
+}
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Show loading spinner immediately
@@ -4307,26 +4327,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // Define known language tags
             const LANGUAGE_TAGS = ['English', 'Marathi', 'Spanish', 'Hindi', 'French', 'Tamil', 'Telugu', 'Punjabi', 'Bengali'];
-
-            // Define scoring weights (total = 100)
-            // Load weights from backend if available (sync, fallback to defaults)
-            let WEIGHTS = {
-                language: 10,
-                scale: 30,
-                timeSignature: 30,
-                taal: 10,
-                tempo: 0,
-                genre: 15
-            };
-            try {
-                const xhr = new XMLHttpRequest();
-                xhr.open('GET', `${API_BASE_URL}/suggested-songs-weights`, false); // sync
-                xhr.send(null);
-                if (xhr.status === 200) {
-                    const w = JSON.parse(xhr.responseText);
-                    if (typeof w === 'object') WEIGHTS = { ...WEIGHTS, ...w };
-                }
-            } catch (e) {}
+            const WEIGHTS = JSON.parse(sessionStorage.getItem('SUGGESTED_SONGS_WEIGHTS')) || {
+                    language: 10,
+                    scale: 30,
+                    timeSignature: 30,
+                    taal: 10,
+                    tempo: 0,
+                    genre: 15
+                };
 
             // Time signature compatible pairs
             const TIME_SIGNATURE_COMPATIBILITY = {

@@ -654,13 +654,13 @@
             flex-grow: 1;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 5px;
         }
 
         @media (max-width: 768px) {
             .preview-header {
                 flex-direction: column;
-                gap: 10px;
+                gap: 5px;
             }
             
             .preview-header > div:first-child {
@@ -752,7 +752,7 @@
             flex-direction: column;
             align-items: flex-start;
             margin-bottom: 15px;
-            gap: 10px;
+            gap: 5px;
         }
 
         .preview-actions {
@@ -1202,7 +1202,7 @@
         .filters-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 5px;
         }
 
         .compact-input,
@@ -1244,8 +1244,8 @@
         .transpose-controls {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin: 15px 0;
+            gap: 5px;
+            margin: 5   px 0;
         }
 
         .transpose-controls .btn {
@@ -1304,7 +1304,7 @@
 
         .song-lyrics {
             white-space: pre-wrap;
-            margin-top: 20px;
+            margin-top: 10px;
             line-height: 1.6;
             background: var(--lyrics-bg-color);
             color: var(--lyrics-text-color);
@@ -1464,7 +1464,7 @@
             }
 
         .setlist-content {
-            background: white;
+            background: var(--light-bg);
             padding: 4px;
             border-radius: 4px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -3910,8 +3910,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             const debugAuthHeader = `Bearer ${user.token}`;
-            console.log('[Favorites] Saving favorites. currentUser:', user);
-            console.log('[Favorites] Authorization header:', debugAuthHeader);
             try {
                 const res = await fetch(`${API_BASE_URL}/user/favorites`, {
                     method: 'POST',
@@ -4168,7 +4166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <i class="fas fa-heart"></i>
                     </button>
                 </div>
-                <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre} | ${song.category}</div>
+                <div class="song-meta">${song.key} | ${song.tempo} | ${song.time}</div>
                 <div class="song-actions">
                     <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'} toggle-setlist">
                         ${isInSetlist ? 'Remove' : 'Add'}
@@ -4577,7 +4575,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     div.className = 'song-item';
                     div.innerHTML = `
                         <div class="song-title">${song.title}</div>
-                        <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre} | ${song.category}</div>
+                        <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.category}</div>
                         <div class="song-actions">
                             <button class="btn btn-delete delete-song">Delete</button>
                         </div>
@@ -4779,8 +4777,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     </div>
                     <div class="preview-meta" style="font-size:0.85em; color:var(--song-meta-color); margin-top:6px; margin-bottom:2px;">
                         ${song.contributor ? `<span><i class='fas fa-user'></i> ${song.contributor}</span> &nbsp;` : ''}
-                        ${song.createdAt ? `<span><i class='fas fa-calendar-plus'></i> Added: ${new Date(song.createdAt).toLocaleString()}</span> &nbsp;` : ''}
-                        ${song.modifiedAt && song.modifiedAt !== song.createdAt ? `<span><i class='fas fa-edit'></i> Modified: ${new Date(song.modifiedAt).toLocaleString()}</span>` : ''}
+                        ${song.modifiedAt && song.modifiedAt !== song.createdAt
+                            ? `<span><i class='fas fa-edit'></i> Updated: ${new Date(song.modifiedAt).toLocaleString()}</span>`
+                            : (song.createdAt ? `<span><i class='fas fa-calendar-plus'></i> Created: ${new Date(song.createdAt).toLocaleString()}</span>` : '')}
                     </div>
                 </div>
 

@@ -114,7 +114,7 @@ app.get('/api/suggested-songs-weights', (req, res) => {
           timeSignature: 0,
           taal: 0,
           tempo: 0,
-          genre: 0
+          genres: 0
         });
       }
     })
@@ -124,7 +124,7 @@ app.get('/api/suggested-songs-weights', (req, res) => {
 });
 
 app.put('/api/suggested-songs-weights', (req, res) => {
-  const keys = ['language','scale','timeSignature','taal','tempo','genre'];
+  const keys = ['language','scale','timeSignature','taal','tempo','genres'];
   const update = {};
   keys.forEach(key => {
     if (typeof req.body[key] === 'number') {

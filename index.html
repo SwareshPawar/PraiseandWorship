@@ -1,6 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <style>
+    @media (max-width: 600px) {
+        .modal-content {
+            min-width: 0;
+            max-width: 98vw;
+            height: 80vh;
+            font-size: 0.92em;
+        }
+        .admin-tabs {
+            font-size: 0.98em;
+        }
+        .admin-tab {
+            padding: 7px 10px;
+            font-size: 0.98em;
+        }
+        .admin-users-table th, .admin-users-table td,
+        .admin-weights-table th, .admin-weights-table td {
+            padding: 6px 6px;
+            font-size: 0.95em;
+        }
+        .admin-weights-table input[type=number] {
+            width: 48px;
+            font-size: 0.95em;
+            padding: 3px 4px;
+        }
+        .weights-title {
+            font-size: 1.05em;
+        }
+        .weights-save-btn, .admin-weights-table .weights-save-btn {
+            font-size: 0.98em;
+            padding: 6px 10px;
+        }
+        .weights-total-bar-bg {
+            height: 12px;
+            width: 80px;
+        }
+        .weights-total-value {
+            font-size: 0.95em;
+        }
+    }
+    </style>
+    <style>
+    /* Admin Panel Modal Scrollable Content */
+    .modal-content {
+        width: 100%;
+        max-width: 600px;
+        min-width: 350px;
+        height: 70vh;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        background: var(--song-item-bg);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .admin-tabs {
+        flex-shrink: 0;
+    }
+    .admin-tab-content {
+        flex: 1 1 auto;
+        overflow-y: auto;
+        min-height: 0;
+        padding-bottom: 8px;
+    }
+    </style>
+    <style>
+    /* Admin Panel Weights Table for Consistency */
+    .admin-weights-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--song-item-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        margin-bottom: 18px;
+    }
+    .admin-weights-table th, .admin-weights-table td {
+        padding: 10px 12px;
+        text-align: left;
+    }
+    .admin-weights-table th {
+        background: #f5f7fa;
+        color: var(--primary-color);
+        font-weight: 700;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    .admin-weights-table tr {
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .admin-weights-table tr:last-child {
+        border-bottom: none;
+    }
+    .admin-weights-table td {
+        font-size: 1em;
+    }
+    .admin-weights-table input[type=number] {
+        width: 70px;
+        padding: 5px 8px;
+        border-radius: 5px;
+        border: 1px solid #cfd8dc;
+        font-size: 1em;
+        background: var(--light-bg);
+        color: var(--text-color);
+        transition: border 0.2s;
+    }
+    .admin-weights-table input[type=number]:focus {
+        border: 1.5px solid var(--accent-color);
+        outline: none;
+    }
+    .admin-weights-table .weights-total-row td {
+        font-weight: 600;
+        color: var(--primary-color);
+        background: none;
+        border-top: 2px solid #e0e0e0;
+        vertical-align: middle;
+    }
+    .admin-weights-table .weights-total-row td:first-child {
+        text-align: left;
+        padding-right: 0;
+    }
+    .admin-weights-table .weights-total-row td:last-child {
+        text-align: left;
+        padding-left: 0;
+    }
+    .admin-weights-table .weights-total-bar-bg {
+        background: #e0e0e0;
+        border-radius: 8px;
+        height: 16px;
+        overflow: hidden;
+        position: relative;
+        width: 120px;
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0 8px;
+    }
+    .admin-weights-table .weights-total-bar {
+        height: 100%;
+        background: #4fc3f7;
+        border-radius: 8px;
+        transition: width 0.3s, background 0.3s;
+    }
+    .admin-weights-table .weights-total-value {
+        font-weight: 600;
+        font-size: 1.05em;
+        min-width: 38px;
+        text-align: right;
+        display: inline-block;
+        margin-left: 6px;
+    }
+    .admin-weights-table .weights-save-btn {
+        font-size: 1em;
+        padding: 7px 18px;
+        border-radius: 6px;
+        background: var(--accent-color);
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        transition: background 0.2s;
+        margin-top: 8px;
+    }
+    .admin-weights-table .weights-save-btn:hover {
+        background: var(--primary-color);
+    }
+    .admin-weights-table .weights-status {
+        margin-left: 12px;
+        font-size: 0.98em;
+        font-weight: 500;
+    }
+    body.dark-mode .admin-weights-table {
+        background: #232b3a;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    }
+    body.dark-mode .admin-weights-table th {
+        background: #2d3748;
+        color: #4fc3f7;
+        border-bottom: 2px solid #3a4252;
+    }
+    body.dark-mode .admin-weights-table td {
+        color: #e2e8f0;
+    }
+    </style>
+    <style>
+    /* Admin Panel Tabs */
+    .admin-tabs {
+        display: flex;
+        border-bottom: 2px solid #e0e0e0;
+        margin-bottom: 18px;
+        gap: 0;
+    }
+    .admin-tab {
+        padding: 10px 24px;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        font-size: 1.08em;
+        font-weight: 600;
+        color: var(--primary-color);
+        cursor: pointer;
+        transition: border 0.2s, color 0.2s;
+        outline: none;
+    }
+    .admin-tab.active {
+        border-bottom: 3px solid var(--accent-color);
+        color: var(--accent-color);
+        background: #f5f7fa;
+    }
+    .admin-tab:not(.active):hover {
+        color: var(--secondary-color);
+    }
+    .admin-tab-content { display: none; }
+    .admin-tab-content.active { display: block; }
+    /* User Management Table */
+    .admin-users-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--song-item-bg);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+        margin-bottom: 18px;
+    }
+    .admin-users-table th, .admin-users-table td {
+        padding: 10px 12px;
+        text-align: left;
+    }
+    .admin-users-table th {
+        background: #f5f7fa;
+        color: var(--primary-color);
+        font-weight: 700;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    .admin-users-table tr {
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .admin-users-table tr:last-child {
+        border-bottom: none;
+    }
+    .admin-users-table td {
+        font-size: 1em;
+    }
+    .admin-users-table .btn {
+        font-size: 0.98em;
+        padding: 5px 14px;
+        border-radius: 5px;
+        margin: 0 2px;
+    }
+    .admin-users-table .btn-delete {
+        background: #e63946;
+        color: #fff;
+        border: none;
+    }
+    .admin-users-table .btn-primary {
+        background: var(--accent-color);
+        color: #fff;
+        border: none;
+    }
+    .admin-users-table .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    .admin-users-table .admin-yes {
+        color: #2ecc40;
+        font-weight: bold;
+    }
+    .admin-users-table .admin-no {
+        color: #888;
+    }
+    .admin-users-table .admin-self {
+        color: #888;
+        font-style: italic;
+    }
+    body.dark-mode .admin-users-table {
+        background: #232b3a;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    }
+    body.dark-mode .admin-users-table th {
+        background: #2d3748;
+        color: #4fc3f7;
+        border-bottom: 2px solid #3a4252;
+    }
+    body.dark-mode .admin-users-table td {
+        color: #e2e8f0;
+    }
+    </style>
+    <!-- Admin Panel Weights Card Styles -->
+    <style>
+    .weights-card {
+        background: var(--song-item-bg);
+        border-radius: 12px;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        padding: 24px 20px 18px 20px;
+        margin-bottom: 18px;
+        max-width: 420px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .weights-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 18px;
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .weights-fields {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .weights-field-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .weights-label {
+        flex: 1 1 120px;
+        font-weight: 500;
+        color: var(--text-color);
+        text-align: right;
+    }
+    .weights-input {
+        width: 80px;
+        padding: 6px 8px;
+        border-radius: 6px;
+        border: 1px solid #cfd8dc;
+        font-size: 1rem;
+        background: var(--light-bg);
+        color: var(--text-color);
+        transition: border 0.2s;
+    }
+    .weights-input:focus {
+        border: 1.5px solid var(--accent-color);
+        outline: none;
+    }
+    .weights-total-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+    .weights-total-label {
+        font-weight: 600;
+        color: var(--text-color);
+    }
+    .weights-total-bar-bg {
+        flex: 1 1 120px;
+        background: #e0e0e0;
+        border-radius: 8px;
+        height: 16px;
+        overflow: hidden;
+        position: relative;
+    }
+    .weights-total-bar {
+        height: 100%;
+        background: #4fc3f7;
+        border-radius: 8px;
+        transition: width 0.3s, background 0.3s;
+    }
+    .weights-total-value {
+        font-weight: 600;
+        font-size: 1.05em;
+        min-width: 38px;
+        text-align: right;
+    }
+    .weights-save-btn {
+        margin-top: 8px;
+        font-size: 1.08em;
+        padding: 7px 18px;
+        border-radius: 6px;
+        background: var(--accent-color);
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        transition: background 0.2s;
+    }
+    .weights-save-btn:hover {
+        background: var(--primary-color);
+    }
+    .weights-status {
+        margin-left: 12px;
+        font-size: 0.98em;
+        font-weight: 500;
+    }
+    @media (max-width: 600px) {
+        .weights-card {
+            padding: 14px 6px 10px 6px;
+            max-width: 98vw;
+        }
+        .weights-fields {
+            gap: 8px;
+        }
+        .weights-label {
+            font-size: 0.98em;
+        }
+        .weights-input {
+            width: 60px;
+            font-size: 0.98em;
+        }
+        .weights-total-bar-bg {
+            height: 12px;
+        }
+    }
+    body.dark-mode .weights-card {
+        background: #505085;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+    }
+    body.dark-mode .weights-label,
+    body.dark-mode .weights-total-label {
+        color: #e2e8f0;
+    }
+    body.dark-mode .weights-input {
+        background: #2d3748;
+        color: #e2e8f0;
+        border: 1px solid #4a5568;
+    }
+    body.dark-mode .weights-total-bar-bg {
+        background: #3a4252;
+    }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Praise & Worship Songs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
@@ -2669,20 +3093,62 @@ document.addEventListener('DOMContentLoaded', async () => {
         adminPanelModal.className = 'modal';
         adminPanelModal.style.display = 'none';
                 adminPanelModal.innerHTML = `
-                    <div class="modal-content" style="min-width:350px;max-width:600px;">
+                    <div class="modal-content">
                         <span class="close-modal" id="closeAdminPanelModal" aria-label="Close">×</span>
-                        <h3>Admin Panel: User Management</h3>
-                        <div id="adminUsersList">Loading users...</div>
-                        <hr style="margin:18px 0;">
-                        <h3>Suggested Songs Weights</h3>
-                        <form id="suggestedWeightsForm">
-                            <div id="suggestedWeightsFields" style="display:grid;grid-template-columns:1fr 1fr;gap:10px 20px;"></div>
-                            <button type="submit" class="btn btn-primary" style="margin-top:10px;">Save Weights</button>
-                            <span id="suggestedWeightsStatus" style="margin-left:10px;font-size:0.95em;"></span>
-                        </form>
+                        <div class="admin-tabs">
+                            <button class="admin-tab active" id="adminTabUsers" type="button"><i class="fas fa-users"></i> User Management</button>
+                            <button class="admin-tab" id="adminTabWeights" type="button"><i class="fas fa-balance-scale"></i> Suggested Songs Weights</button>
+                        </div>
+                        <div id="adminTabContentUsers" class="admin-tab-content active">
+                            <h3 style="margin-bottom:12px;">User Management</h3>
+                            <div id="adminUsersList">Loading users...</div>
+                        </div>
+                        <div id="adminTabContentWeights" class="admin-tab-content">
+                            <h3 class="weights-title" style="margin-bottom:12px;"><i class="fas fa-balance-scale"></i> Suggested Songs Weights</h3>
+                            <form id="suggestedWeightsForm">
+                                <table class="admin-weights-table">
+                                    <thead>
+                                        <tr><th>Parameter</th><th style="width:120px;">Weight</th></tr>
+                                    </thead>
+                                    <tbody id="suggestedWeightsFields"></tbody>
+                                    <tr class="weights-total-row">
+                                        <td>Total</td>
+                                        <td style="display:flex;align-items:center;gap:10px;padding:8px 0;">
+                                            <div class="weights-total-bar-bg" style="margin:0;">
+                                                <div id="weightsTotalBar" class="weights-total-bar"></div>
+                                            </div>
+                                            <span id="weightsTotalValue" class="weights-total-value">0%</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <button type="submit" class="weights-save-btn"><i class="fas fa-save"></i> Save Weights</button>
+                                <span id="suggestedWeightsStatus" class="weights-status"></span>
+                            </form>
+                        </div>
                     </div>
                 `;
                 // Suggested Songs Weights UI
+
+                        // Update the total weights bar and value in the admin panel
+                        function updateWeightsTotal() {
+                            const keys = ['language','scale','timeSignature','taal','tempo','genre'];
+                            let total = 0;
+                            keys.forEach(key => {
+                                const el = document.getElementById('weight_'+key);
+                                const val = el ? parseInt(el.value,10) : 0;
+                                total += isNaN(val) ? 0 : val;
+                            });
+                            const bar = document.getElementById('weightsTotalBar');
+                            const value = document.getElementById('weightsTotalValue');
+                            if (bar) {
+                                bar.style.width = Math.min(total,100) + '%';
+                                bar.style.background = total === 100 ? '#4fc3f7' : (total > 100 ? '#e63946' : '#f7b731');
+                            }
+                            if (value) {
+                                value.textContent = total + '%';
+                                value.style.color = total === 100 ? '#4fc3f7' : (total > 100 ? '#e63946' : '#f7b731');
+                            }
+                        }
 
                         async function loadAndRenderSuggestedWeights() {
                             const fieldsDiv = document.getElementById('suggestedWeightsFields');
@@ -2697,10 +3163,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 keys.forEach(key => {
                                     const val = typeof weights[key] === 'number' ? weights[key] : '';
                                     fieldsDiv.innerHTML += `
-                                        <label for="weight_${key}">${key.charAt(0).toUpperCase()+key.slice(1)}:</label>
-                                        <input type="number" id="weight_${key}" name="${key}" min="0" max="100" step="5" value="${val}" style="width:70px;">
+                                        <tr>
+                                            <td>${key.charAt(0).toUpperCase()+key.slice(1)}</td>
+                                            <td><input type="number" id="weight_${key}" name="${key}" min="0" max="100" step="5" value="${val}"></td>
+                                        </tr>
                                     `;
                                 });
+                                // Add total update logic
+                                keys.forEach(key => {
+                                    const el = document.getElementById('weight_'+key);
+                                    if (el) el.addEventListener('input', updateWeightsTotal);
+                                });
+                                updateWeightsTotal();   
                                 // Only set onsubmit after form is in DOM
                                 const form = document.getElementById('suggestedWeightsForm');
                                 if (form) {
@@ -2765,22 +3239,42 @@ document.addEventListener('DOMContentLoaded', async () => {
               usersListDiv.innerHTML = '<p>No users found.</p>';
               return;
             }
-            let html = `<table style="width:100%;border-collapse:collapse;">
-              <tr><th>Name</th><th>Email</th><th>Admin</th><th>Action</th></tr>`;
-            users.forEach(user => {
-              html += `<tr style="border-bottom:1px solid #eee;">
-                <td>${user.name || ''}</td>
-                <td>${user.email}</td>
-                <td>${user.isAdmin ? '<span style=\'color:green;font-weight:bold;\'>Yes</span>' : 'No'}</td>
-                <td>
-                  ${user.isAdmin
-                    ? (user.email === currentUser.email ? '<span style="color:#888;">(You)</span>' : `<button class="btn btn-delete" data-userid="${user._id || user.id}" data-admin="false">Remove Admin</button>`)
-                    : `<button class="btn btn-primary" data-userid="${user._id || user.id}" data-admin="true">Make Admin</button>`}
-                </td>
-              </tr>`;
-            });
-            html += '</table>';
-            usersListDiv.innerHTML = html;
+                        let html = `<table class="admin-users-table">
+                            <tr><th>Name</th><th>Email</th><th>Admin</th><th>Action</th></tr>`;
+                        users.forEach(user => {
+                            html += `<tr>
+                                <td>${user.name || ''}</td>
+                                <td>${user.email}</td>
+                                <td>${user.isAdmin ? '<span class="admin-yes">Yes</span>' : '<span class="admin-no">No</span>'}</td>
+                                <td>`;
+                            if (user.isAdmin) {
+                                if (user.email === currentUser.email) {
+                                    html += '<span class="admin-self">(You)</span>';
+                                } else {
+                                    html += `<button class="btn btn-delete" data-userid="${user._id || user.id}" data-admin="false">Remove Admin</button>`;
+                                }
+                            } else {
+                                html += `<button class="btn btn-primary" data-userid="${user._id || user.id}" data-admin="true">Make Admin</button>`;
+                            }
+                            html += `</td></tr>`;
+                        });
+                        html += '</table>';
+                        usersListDiv.innerHTML = html;
+        // Admin panel tab switching logic
+        document.getElementById('adminTabUsers').onclick = function() {
+            document.getElementById('adminTabUsers').classList.add('active');
+            document.getElementById('adminTabWeights').classList.remove('active');
+            document.getElementById('adminTabContentUsers').classList.add('active');
+            document.getElementById('adminTabContentWeights').classList.remove('active');
+        };
+        document.getElementById('adminTabWeights').onclick = function() {
+            document.getElementById('adminTabUsers').classList.remove('active');
+            document.getElementById('adminTabWeights').classList.add('active');
+            document.getElementById('adminTabContentUsers').classList.remove('active');
+            document.getElementById('adminTabContentWeights').classList.add('active');
+            // Lazy load weights UI if needed
+            loadAndRenderSuggestedWeights();
+        };
 
             // Add event listeners for admin toggle buttons
             usersListDiv.querySelectorAll('button[data-userid]').forEach(btn => {
@@ -3158,6 +3652,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             
             autoScrollSpeed = parseInt(savedAutoScrollSpeed);
         }
+
+        
     
         function saveSettings() {
             const newHeader = document.getElementById("sidebarHeaderInput").value;

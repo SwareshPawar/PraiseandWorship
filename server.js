@@ -25,11 +25,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(__dirname));
 
 // --- Constants and Global Variables ---
 const PORT = process.env.PORT || 3001;
-const uri = process.env.MONGODB_URI || 'mongodb+srv://genericuser:Swar%40123@cluster0.ovya99h.mongodb.net/PraiseAndWorship?retryWrites=true&w=majority';
+const uri = process.env.MONGODB_URI;
 const JWT_SECRET = process.env.JWT_SECRET || 'changeme_secret';
 
 const client = new MongoClient(uri, {

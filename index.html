@@ -5925,7 +5925,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
     
             // Preview scrolling
-            songPreviewEl.addEventListener('wheel', handleUserScroll);
+            songPreviewEl.addEventListener('wheel', handleUserScroll, { passive: true });
             songPreviewEl.addEventListener('touchmove', handleUserScroll, { passive: true });
             
             // Auto-scroll controls

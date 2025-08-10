@@ -3353,20 +3353,42 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Show loading overlay
             const loadingOverlay = document.getElementById('loadingOverlay');
             if (loadingOverlay) loadingOverlay.style.display = 'flex';
+            // Try to load from localStorage cache first
+            let cacheUsed = false;
+            try {
+                const cached = localStorage.getItem('songsCache');
+                if (cached) {
+                    songs = JSON.parse(cached);
+                    cacheUsed = true;
+                    if (praiseTab && praiseTab.classList.contains('active')) {
+                        renderSongs('praise', keyFilter.value, genreFilter.value);
+                    } else {
+                        renderSongs('worship', keyFilter.value, genreFilter.value);
+                    }
+                    updateSongCount();
+                }
+            } catch (e) { /* ignore cache errors */ }
+            // Always fetch latest in background
             try {
                 const response = await fetch(`${API_BASE_URL}/songs`);
                 if (!response.ok) throw new Error('Failed to fetch songs');
                 const data = await response.json();
                 // Map _id to id for frontend compatibility
-                songs = data.map(song => ({ ...song, id: song._id || song.id }));
-                if (praiseTab && praiseTab.classList.contains('active')) {
-                    renderSongs('praise', keyFilter.value, genreFilter.value);
-                } else {
-                    renderSongs('worship', keyFilter.value, genreFilter.value);
+                const freshSongs = data.map(song => ({ ...song, id: song._id || song.id }));
+                songs = freshSongs;
+                localStorage.setItem('songsCache', JSON.stringify(freshSongs));
+                if (!cacheUsed) {
+                    if (praiseTab && praiseTab.classList.contains('active')) {
+                        renderSongs('praise', keyFilter.value, genreFilter.value);
+                    } else {
+                        renderSongs('worship', keyFilter.value, genreFilter.value);
+                    }
+                    updateSongCount();
                 }
-                updateSongCount();
             } catch (err) {
-                showNotification('Error loading songs from server', 4000);
+                if (!cacheUsed) {
+                    showNotification('Error loading songs from server', 4000);
+                }
                 console.error(err);
             } finally {
                 // Hide loading overlay
@@ -4139,11 +4161,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 songsToRender = categoryOrSongs;
                 container = filterOrContainer;
             }
+            // Use DocumentFragment for batch DOM update
             container.innerHTML = '';
             if (songsToRender.length === 0) {
                 container.innerHTML = '<p>No songs found.</p>';
                 return;
             }
+            const frag = document.createDocumentFragment();
             songsToRender.forEach(song => {
                 const div = document.createElement('div');
                 div.className = 'song-item';
@@ -4175,7 +4199,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ${showDelete ? `<button class="btn btn-delete delete-song"><i class="fas fa-trash"></i> Delete</button>` : ''}
                 </div>
             `;
-               
                 div.querySelector('.favorite-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
                     toggleFavorite(song.id);
@@ -4196,15 +4219,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                 }
                 div.addEventListener('click', () => {
-                    showPreview(song);
+                    // Only update preview if not already showing
+                    if (songPreviewEl.dataset.songId != song.id) {
+                        showPreview(song);
+                    }
                     if (window.innerWidth <= 768) {
                         document.querySelector('.songs-section').classList.add('hidden');
                         document.querySelector('.sidebar').classList.add('hidden');
                         document.querySelector('.preview-section').classList.add('full-width');
                     }
                 });
-                container.appendChild(div);
+                frag.appendChild(div);
             });
+            container.appendChild(frag);
         }
 
         function resetApplicationState(fullReset = true) {
@@ -5911,7 +5938,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
             // Preview scrolling
             songPreviewEl.addEventListener('wheel', handleUserScroll);
-            songPreviewEl.addEventListener('touchmove', handleUserScroll);
+            songPreviewEl.addEventListener('touchmove', handleUserScroll, { passive: true });
             
             // Auto-scroll controls
             toggleAutoScrollBtn.addEventListener('click', toggleAutoScroll);

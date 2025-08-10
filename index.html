@@ -1,7 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
     <style>
+    /* Auth Modal Styles */
+    .auth-modal-content {
+        background: #f8fafc;
+        padding: 2.5rem 2.5rem 2rem 2.5rem;
+        border-radius: 18px;
+        width: 100%;
+        max-width: 370px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: slideUp 0.3s ease;
+    }
+    .auth-modal-header {
+        display: flex;
+        align-items: center;
+        gap: 0.7em;
+        margin-bottom: 1.2em;
+    }
+    .auth-modal-header i {
+        font-size: 2.1em;
+        color: #3b82f6;
+    }
+    .auth-form {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 1.1em;
+    }
+    .input-group {
+        width: 100%;
+    }
+    .auth-form input[type="text"],
+    .auth-form input[type="email"],
+    .auth-form input[type="password"] {
+        width: 100%;
+        padding: 0.8em 1em;
+        border-radius: 7px;
+        border: 1.5px solid #d1d5db;
+        font-size: 1em;
+        background: #fff;
+        transition: border 0.2s, box-shadow 0.2s;
+        margin-bottom: 0.1em;
+    }
+    .auth-form input:focus {
+        border: 1.5px solid #3b82f6;
+        outline: none;
+        box-shadow: 0 0 0 2px #3b82f633;
+    }
+    .auth-btn-main {
+        background: #3b82f6;
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        padding: 0.8em 0;
+        font-size: 1.1em;
+        font-weight: 600;
+        margin-top: 0.5em;
+        cursor: pointer;
+        transition: background 0.2s;
+        box-shadow: 0 2px 8px rgba(59,130,246,0.08);
+    }
+    .auth-btn-main:hover {
+        background: #2563eb;
+    }
+
+    /* Delete Modal Styles */
+    .delete-modal-content {
+        background: #fff0f1;
+        padding: 2.2rem 2.2rem 1.7rem 2.2rem;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 8px 32px rgba(230,57,70,0.13);
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        animation: slideUp 0.3s ease;
+        border: 2px solid #e63946;
+    }
+    .delete-modal-header {
+        display: flex;
+        align-items: center;
+        gap: 0.7em;
+        margin-bottom: 1.1em;
+    }
+    .delete-modal-header i {
+        font-size: 2em;
+        color: #e63946;
+    }
+    .delete-modal-content h3 {
+        color: #e63946;
+        margin: 0;
+    }
+    .delete-modal-actions {
+        display: flex;
+        gap: 12px;
+        margin-top: 1.2em;
+        width: 100%;
+        justify-content: center;
+    }
+    .delete-modal-content p {
+        color: #b91c1c;
+        font-size: 1.08em;
+        margin-bottom: 0.5em;
+        text-align: center;
+    }
     @media (max-width: 600px) {
         .modal-content {
             min-width: 0;
@@ -2448,13 +2558,16 @@
     </div>
 
     <div class="modal" id="deleteSongModal">
-        <div class="modal-content">
+        <div class="delete-modal-content">
             <span class="close-modal" aria-label="Close">×</span>
-            <h3>Confirm Deletion</h3>
+            <div class="delete-modal-header">
+              <i class="fa fa-exclamation-triangle"></i>
+              <h3>Confirm Deletion</h3>
+            </div>
             <form id="deleteSongForm" class="delete-song-form">
                 <input type="hidden" id="deleteSongId">
-                <p id="deleteSongMessage">Are you sure you want to delete "<span id="deleteSongTitle"></span>"?</p>
-                <div style="display: flex; gap: 10px;">
+                <p id="deleteSongMessage"><strong>Are you sure you want to delete</strong> "<span id="deleteSongTitle"></span>"?</p>
+                <div class="delete-modal-actions">
                     <button type="button" class="btn btn-cancel" id="cancelDeleteSong">Cancel</button>
                     <button type="submit" class="btn btn-delete">Delete</button>
                 </div>
@@ -2463,12 +2576,15 @@
     </div>
 
     <div class="modal" id="confirmDeleteAllModal">
-        <div class="modal-content">
+        <div class="delete-modal-content">
             <span class="close-modal" aria-label="Close">×</span>
-            <h3>Confirm Delete All Songs</h3>
+            <div class="delete-modal-header">
+              <i class="fa fa-exclamation-triangle"></i>
+              <h3>Confirm Delete All Songs</h3>
+            </div>
             <div class="delete-song-form">
-                <p>Are you sure you want to delete ALL songs? This cannot be undone.</p>
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <p><strong>Are you sure you want to delete ALL songs?</strong> This cannot be undone.</p>
+                <div class="delete-modal-actions">
                     <button class="btn btn-cancel" id="cancelDeleteAll">Cancel</button>
                     <button class="btn btn-delete" id="confirmDeleteAll">Delete All</button>
                 </div>
@@ -2552,27 +2668,43 @@
     </div>
     <!-- Local Auth Modals -->
     <div id="loginModal" class="modal" style="display:none; align-items:center; justify-content:center;">
-      <div class="modal-content">
-        <span id="closeLoginModal" class="close-modal">&times;</span>
-        <h2>Login</h2>
-        <form id="loginForm">
-          <input type="email" id="loginEmail" placeholder="Email" required autocomplete="username"><br>
-          <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password"><br>
-          <button type="submit">Login</button>
-        </form>
-      </div>
+            <div class="auth-modal-content">
+                <span id="closeLoginModal" class="close-modal">&times;</span>
+                <div class="auth-modal-header">
+                    <i class="fa fa-sign-in-alt"></i>
+                    <h2>Login</h2>
+                </div>
+                <form id="loginForm" class="auth-form">
+                    <div class="input-group">
+                        <input type="email" id="loginEmail" placeholder="Email" required autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="auth-btn-main">Login</button>
+                </form>
+            </div>
     </div>
     <div id="registerModal" class="modal" style="display:none; align-items:center; justify-content:center;">
-      <div class="modal-content">
-        <span id="closeRegisterModal" class="close-modal">&times;</span>
-        <h2>Register</h2>
-        <form id="registerForm">
-          <input type="text" id="registerName" placeholder="Name" required><br>
-          <input type="email" id="registerEmail" placeholder="Email" required autocomplete="username"><br>
-          <input type="password" id="registerPassword" placeholder="Password" required autocomplete="new-password"><br>
-          <button type="submit">Register</button>
-        </form>
-      </div>
+            <div class="auth-modal-content">
+                <span id="closeRegisterModal" class="close-modal">&times;</span>
+                <div class="auth-modal-header">
+                    <i class="fa fa-user-plus"></i>
+                    <h2>Register</h2>
+                </div>
+                <form id="registerForm" class="auth-form">
+                    <div class="input-group">
+                        <input type="text" id="registerName" placeholder="Name" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="registerEmail" placeholder="Email" required autocomplete="username">
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="registerPassword" placeholder="Password" required autocomplete="new-password">
+                    </div>
+                    <button type="submit" class="auth-btn-main">Register</button>
+                </form>
+            </div>
     </div>
     <!-- ====== SPACE FOR ADMIN ASSIGNMENT UI ====== -->
     <!-- You can add a user list and promote-to-admin button here, visible only to admins -->

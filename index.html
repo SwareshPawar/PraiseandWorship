@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
     <style>
     /* Auth Modal Styles */
@@ -2319,8 +2320,22 @@
                     <span>Dark Mode</span>
                 </div>
                 <button class="sidebar-btn" id="downloadHtmlWithSongsBtn">
-                    <i class="fas fa-file-export"></i> Download HTML with Songs
-                </button>
+                                        <i class="fas fa-file-export"></i> Import/Export Songs
+                                </button>
+                                <div id="importExportMenu" style="display:none; position:absolute; right:20px; background:#fff; border:1px solid #ddd; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); z-index:1001; min-width:180px;">
+                                    <button class="sidebar-btn" id="exportSongsExcelBtn" style="width:100%; text-align:left; border-bottom:1px solid #eee;">Export as Excel</button>
+                                    <label style="width:100%; display:block; margin:0;">
+                                        <span style="display:block; padding:10px 18px; cursor:pointer; color:#2563eb;">Import from Excel<input type="file" id="importSongsExcelInput" accept=".xlsx,.xls" style="display:none;"></span>
+                                    </label>
+                                    <button class="sidebar-btn" id="exportSongsCSVBtn" style="width:100%; text-align:left; border-bottom:1px solid #eee;">Export as CSV</button>
+                                    <button class="sidebar-btn" id="exportSongsJSONBtn" style="width:100%; text-align:left; border-bottom:1px solid #eee;">Export as JSON</button>
+                                    <label style="width:100%; display:block; margin:0;">
+                                        <span style="display:block; padding:10px 18px; cursor:pointer; color:#2563eb;">Import from CSV<input type="file" id="importSongsCSVInput" accept=".csv" style="display:none;"></span>
+                                    </label>
+                                    <label style="width:100%; display:block; margin:0;">
+                                        <span style="display:block; padding:10px 18px; cursor:pointer; color:#2563eb;">Import from JSON<input type="file" id="importSongsJSONInput" accept=".json" style="display:none;"></span>
+                                    </label>
+                                </div>
                 <div class="sidebar-folder">
                     <div class="folder-content" id="songToolsContent">
                         <button class="sidebar-btn" id="openAddSongModal">
@@ -3011,13 +3026,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!el || !song) return;
         // Compose meta info
         let meta = '';
-        if (song.key || song.tempo || song.time || song.taal || song.genre) {
+        if (song.key || song.tempo || song.time || song.taal || song.genres) {
           meta += '<div class="song-meta">';
           if (song.key) meta += `<span><b>Key:</b> ${song.key}</span> `;
           if (song.tempo) meta += `<span><b>Tempo:</b> ${song.tempo}</span> `;
           if (song.time) meta += `<span><b>Time:</b> ${song.time}</span> `;
           if (song.taal) meta += `<span><b>Taal:</b> ${song.taal}</span> `;
-          if (song.genre && Array.isArray(song.genre)) meta += `<span><b>Genre:</b> ${song.genre.join(', ')}</span> `;
+          if (song.genres && Array.isArray(song.genres)) meta += `<span><b>Genre:</b> ${song.genres.join(', ')}</span> `;
           meta += '</div>';
         }
         // Contributor and dates
@@ -3114,13 +3129,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const el = document.getElementById('songPreview');
         if (!el || !song) return;
         let meta = '';
-        if (song.key || song.tempo || song.time || song.taal || song.genre) {
+        if (song.key || song.tempo || song.time || song.taal || song.genres) {
           meta += '<div class="song-meta">';
           if (song.key) meta += `<span><b>Key:</b> ${song.key}</span> `;
           if (song.tempo) meta += `<span><b>Tempo:</b> ${song.tempo}</span> `;
           if (song.time) meta += `<span><b>Time:</b> ${song.time}</span> `;
           if (song.taal) meta += `<span><b>Taal:</b> ${song.taal}</span> `;
-          if (song.genre && Array.isArray(song.genre)) meta += `<span><b>Genre:</b> ${song.genre.join(', ')}</span> `;
+          if (song.genres && Array.isArray(song.genres)) meta += `<span><b>Genre:</b> ${song.genres.join(', ')}</span> `;
           meta += '</div>';
         }
         let meta2 = '';
@@ -3357,7 +3372,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         // Update the total weights bar and value in the admin panel
                         function updateWeightsTotal() {
-                            const keys = ['language','scale','timeSignature','taal','tempo','genre'];
+                            const keys = ['language','scale','timeSignature','taal','tempo','genres'];
                             let total = 0;
                             keys.forEach(key => {
                                 const el = document.getElementById('weight_'+key);
@@ -3385,7 +3400,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 const res = await authFetch(`${API_BASE_URL}/suggested-songs-weights`);
                                 const weights = await res.json();
                                 fieldsDiv.innerHTML = '';
-                                const keys = ['language','scale','timeSignature','taal','tempo','genre'];
+                                const keys = ['language','scale','timeSignature','taal','tempo','genres'];
                                 keys.forEach(key => {
                                     const val = typeof weights[key] === 'number' ? weights[key] : '';
                                     fieldsDiv.innerHTML += `
@@ -4359,7 +4374,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     .filter(song => keyFilterValue === "" || song.key === keyFilterValue)
                     .filter(song => {
                         if (!genreFilterValue) return true;
-                        if (!song.genres) return song.genre === genreFilterValue;
+                        if (!song.genres) return false;
                         return song.genres.includes(genreFilterValue);
                     });
                 // Sort logic
@@ -4406,7 +4421,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ? praiseSet.some(s => s && s.id === song.id)
                     : worshipSet.some(s => s && s.id === song.id);
                 const isFavorite = favs.includes(song.id);
-                const displayGenres = song.genres ? song.genres.join(', ') : song.genre || '';
+                const displayGenres = song.genres ? song.genres.join(', ') : '';
                 // Only show delete button if user is admin
                 const showDelete = currentUser && currentUser.isAdmin;
                 div.innerHTML = `
@@ -4539,7 +4554,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     timeSignature: 30,
                     taal: 10,
                     tempo: 0,
-                    genre: 15
+                    genres: 15
                 };
 
             // Time signature compatible pairs
@@ -4599,10 +4614,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
 
             const getLanguagesFromGenres = genres => 
-                (Array.isArray(genres) ? genres : (genres ? [genres] : [])).filter(genre => LANGUAGE_TAGS.includes(genre));
+                (Array.isArray(genres) ? genres : (genres ? [genres] : [])).filter(genres => LANGUAGE_TAGS.includes(genres));
             
             const getNonLanguageGenres = genres => 
-                (Array.isArray(genres) ? genres : (genres ? [genres] : [])).filter(genre => !LANGUAGE_TAGS.includes(genre));
+                (Array.isArray(genres) ? genres : (genres ? [genres] : [])).filter(genres => !LANGUAGE_TAGS.includes(genres));
 
             const getLanguageMatchScore = (genres1, genres2) => {
                 const langs1 = getLanguagesFromGenres(genres1);
@@ -4635,11 +4650,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // 1. Language match
                 details.languageScore = getLanguageMatchScore(
-                    currentSong.genres || (currentSong.genre ? [currentSong.genre] : []),
-                    song.genres || (song.genre ? [song.genre] : [])
+                    currentSong.genres || [],
+                    song.genres || []
                 );
                 score += WEIGHTS.language * details.languageScore;
-                details.languages = getLanguagesFromGenres(song.genres || (song.genre ? [song.genre] : []));
+                details.languages = getLanguagesFromGenres(song.genres || []);
 
                 // 2. Scale relationships
                 if (currentSong.key && song.key) {
@@ -4682,10 +4697,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 // 6. Non-language genres
                 details.genreMatch = getGenreMatchScore(
-                    currentSong.genres || (currentSong.genre ? [currentSong.genre] : []),
-                    song.genres || (song.genre ? [song.genre] : [])
+                    currentSong.genres || (currentSong.genres ? [currentSong.genres] : []),
+                    song.genres || (song.genres ? [song.genres] : [])
                 );
-                score += WEIGHTS.genre * details.genreMatch;
+                score += WEIGHTS.genres * details.genreMatch;
 
                 return {
                     ...song,
@@ -4768,8 +4783,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     <div class="suggested-song-title">${song.title}</div>
                     <div class="suggested-song-meta">
                         Key: ${song.key} | Tempo: ${song.tempo} | Time: ${song.time} | Taal: ${song.taal}
-                        ${song.genres ? `<br>Genres: ${song.genres.join(', ')}` : 
-                        song.genre ? `<br>Genre: ${song.genre}` : ''}
+                        ${song.genres ? `<br>Genres: ${song.genres.join(', ')}` : ''}
                     </div>
                     <div class="suggested-song-match">Match Score: ${song.matchScore}%</div>
                 `;
@@ -5029,8 +5043,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ${song.tempo ? `<p><strong>Tempo:</strong> ${song.tempo}</p>` : ''}
                         ${song.time ? `<p><strong>Time Signature:</strong> ${song.time}</p>` : ''}
                         ${song.taal ? `<p><strong>Taal:</strong> ${song.taal}</p>` : ''}
-                        ${song.genres ? `<p><strong>Genres:</strong> ${song.genres.join(', ')}</p>` : 
-                        song.genre ? `<p><strong>Genre:</strong> ${song.genre}</p>` : ''}
+                        ${song.genres ? `<p><strong>Genres:</strong> ${song.genres.join(', ')}</p>` : ''}
                     </div>
                     <div class="transpose-controls">
                         <button class="btn btn-primary" id="transpose-down">-</button>
@@ -5487,20 +5500,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('editSongTempo').value = song.tempo;
             document.getElementById('editSongTime').value = song.time;
             document.getElementById('editSongTaal').value = song.taal;
-            const genres = song.genres || (song.genre ? [song.genre] : []);
+            const genres = song.genres || (song.genres ? [song.genres] : []);
             const editSelectedGenres = document.getElementById('editSelectedGenres');
             editSelectedGenres.innerHTML = '';
-            genres.forEach(genre => {
+            genres.forEach(genres => {
                 const tag = document.createElement('div');
                 tag.className = 'multiselect-tag';
                 tag.innerHTML = `
-                    ${genre}
+                    ${genres}
                     <span class="remove-tag">×</span>
                 `;
                 editSelectedGenres.appendChild(tag);
                 const options = document.querySelectorAll('#editGenreDropdown .multiselect-option');
                 options.forEach(opt => {
-                    if (opt.dataset.value === genre) {
+                    if (opt.dataset.value === genres) {
                         opt.classList.add('selected');
                     }
                 });
@@ -5756,7 +5769,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const selectedGenres = Array.from(document.querySelectorAll('#genreDropdown .multiselect-option.selected'))
                             .map(opt => opt.dataset.value);
                         if (selectedGenres.length === 0) {
-                            showNotification('Please select at least one genre');
+                            showNotification('Please select at least one genres');
                             return;
                         }
                         if (!window.currentUser || !jwtToken) {
@@ -5773,7 +5786,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             tempo: document.getElementById('songTempo')?.value,
                             time: document.getElementById('songTime')?.value,
                             taal: document.getElementById('songTaal')?.value,
-                            genre: selectedGenres,
+                            genres: selectedGenres,
                             lyrics: lyrics,
                             date: new Date().toISOString(),
                             contributor: window.currentUser?.name || window.currentUser?.email || 'Unknown'
@@ -5828,7 +5841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
             });
     
-            // Multi-select genre functionality
+            // Multi-select genres functionality
             document.getElementById('songGenre').addEventListener('click', (e) => {
                 e.preventDefault();
                 document.getElementById('genreDropdown').classList.toggle('show');
@@ -5925,7 +5938,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const selectedGenres = Array.from(document.querySelectorAll('#genreDropdown .multiselect-option.selected'))
                             .map(opt => opt.dataset.value);
                         if (selectedGenres.length === 0) {
-                            showNotification('Please select at least one genre');
+                            showNotification('Please select at least one genres');
                             return;
                         }
                         // Token check
@@ -5945,7 +5958,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             tempo: document.getElementById('songTempo')?.value,
                             time: document.getElementById('songTime')?.value,
                             taal: document.getElementById('songTaal')?.value,
-                            genre: selectedGenres,
+                            genres: selectedGenres,
                             lyrics: lyrics
                         };
                         try {
@@ -6008,7 +6021,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const selectedGenres = Array.from(document.querySelectorAll('#editGenreDropdown .multiselect-option.selected'))
                     .map(opt => opt.dataset.value);
                 if (selectedGenres.length === 0) {
-                    showNotification('Please select at least one genre');
+                    showNotification('Please select at least one genres');
                     return;
                 }
                 // Build update body (do NOT include _id)
@@ -6019,7 +6032,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     tempo: document.getElementById('editSongTempo').value,
                     time: document.getElementById('editSongTime').value,
                     taal: document.getElementById('editSongTaal').value,
-                    genre: selectedGenres,
+                    genres: selectedGenres,
                     lyrics: lyrics
                 };
                 // Find the song object by _id or id (for local update only)
@@ -6204,7 +6217,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         song.title.toLowerCase().includes(query) ||
                         (song.lyrics && song.lyrics.toLowerCase().includes(query)) ||
                         (song.taal && song.taal.toLowerCase().includes(query)) ||
-                        (song.genre && song.genre.toLowerCase().includes(query)) ||
+                        (song.genres && song.genres.toLowerCase().includes(query)) ||
                         (song.genres && song.genres.some(g => g.toLowerCase().includes(query)))
                     );
                 });
@@ -6238,7 +6251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
                     resultItem.innerHTML = `
                         <div class="search-result-title">${highlightedTitle}</div>
-                        <div class="search-result-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genre || ''}</div>
+                        <div class="search-result-meta">${song.key} | ${song.tempo} | ${song.time} | ${song.genres || ''}</div>
                         ${lyricsSnippet ? `<div class="search-result-snippet">${lyricsSnippet}</div>` : ''}
                     `;
     
@@ -6289,32 +6302,128 @@ document.addEventListener('DOMContentLoaded', async () => {
     
             // HTML download
             document.getElementById('downloadHtmlWithSongsBtn').addEventListener('click', () => {
-                try {
-                    const clone = document.documentElement.cloneNode(true);
-                    const embedded = clone.querySelector('#embeddedSongs');
-                    if (embedded) {
-                        embedded.textContent = JSON.stringify(songs, null, 2);
-                    } else {
-                        const script = document.createElement('script');
-                        script.id = 'embeddedSongs';
-                        script.type = 'application/json';
-                        script.textContent = JSON.stringify(songs, null, 2);
-                        clone.querySelector('body').appendChild(script);
-                    }
-    
-                    const fullHtml = '<!DOCTYPE html>\n' + clone.outerHTML;
-                    const blob = new Blob([fullHtml], { type: 'text/html' });
-                    const a = document.createElement('a');
-                    a.href = URL.createObjectURL(blob);
-                    a.download = 'PraiseWorship_Songs_Updated.html';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    showNotification('HTML file downloaded with all songs');
-                } catch (err) {
-                    showNotification('Failed to generate updated HTML: ' + err.message);
+                const menu = document.getElementById('importExportMenu');
+                menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // Hide menu when clicking outside
+            document.addEventListener('click', (e) => {
+                const menu = document.getElementById('importExportMenu');
+                const btn = document.getElementById('downloadHtmlWithSongsBtn');
+                if (menu.style.display === 'block' && !menu.contains(e.target) && e.target !== btn) {
+                    menu.style.display = 'none';
                 }
+            });
+
+            // Export as CSV
+            document.getElementById('exportSongsCSVBtn').addEventListener('click', () => {
+                if (!Array.isArray(songs) || !songs.length) return showNotification('No songs to export');
+                const keys = Object.keys(songs[0]);
+                const csv = [keys.join(',')].concat(songs.map(song => keys.map(k => '"' + String(song[k]).replace(/"/g, '""') + '"').join(','))).join('\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'songs.csv';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showNotification('Songs exported as CSV');
+            });
+
+            // Export as JSON
+            document.getElementById('exportSongsJSONBtn').addEventListener('click', () => {
+                if (!Array.isArray(songs) || !songs.length) return showNotification('No songs to export');
+                const blob = new Blob([JSON.stringify(songs, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'songs.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                showNotification('Songs exported as JSON');
+            });
+
+            // Import from CSV
+            document.getElementById('importSongsCSVInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const text = evt.target.result;
+                    const [header, ...rows] = text.split(/\r?\n/).filter(Boolean);
+                    const keys = header.split(',');
+                    const imported = rows.map(row => {
+                        const values = row.match(/("[^"]*"|[^,]+)/g).map(v => v.replace(/^"|"$/g, '').replace(/""/g, '"'));
+                        const obj = {};
+                        keys.forEach((k, i) => obj[k] = values[i]);
+                        return obj;
+                    });
+                    if (imported.length) {
+                        window.songs = imported;
+                        showNotification('Songs imported from CSV!');
+                        location.reload();
+                    } else {
+                        showNotification('No valid songs found in CSV');
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            // Import from JSON
+            document.getElementById('importSongsJSONInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    try {
+                        const imported = JSON.parse(evt.target.result);
+                        if (Array.isArray(imported) && imported.length) {
+                            window.songs = imported;
+                            showNotification('Songs imported from JSON!');
+                            location.reload();
+                        } else {
+                            showNotification('No valid songs found in JSON');
+                        }
+                    } catch (err) {
+                        showNotification('Invalid JSON file');
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            // Export as Excel
+            document.getElementById('exportSongsExcelBtn').addEventListener('click', () => {
+                if (!Array.isArray(songs) || !songs.length) return showNotification('No songs to export');
+                const ws = XLSX.utils.json_to_sheet(songs);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Songs');
+                XLSX.writeFile(wb, 'songs.xlsx');
+                showNotification('Songs exported as Excel');
+            });
+
+            // Import from Excel
+            document.getElementById('importSongsExcelInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    try {
+                        const data = new Uint8Array(evt.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0];
+                        const imported = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+                        if (Array.isArray(imported) && imported.length) {
+                            window.songs = imported;
+                            showNotification('Songs imported from Excel!');
+                            location.reload();
+                        } else {
+                            showNotification('No valid songs found in Excel');
+                        }
+                    } catch (err) {
+                        showNotification('Invalid Excel file');
+                    }
+                };
+                reader.readAsArrayBuffer(file);
             });
     
             // Settings

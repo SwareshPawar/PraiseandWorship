@@ -378,6 +378,80 @@
         font-weight: bold;
     }
     .admin-users-table .admin-no {
+        /* --- Mobile Admin Panel Improvements --- */
+        @media (max-width: 700px) {
+            .admin-tabs {
+                flex-direction: column;
+                gap: 8px;
+                font-size: 1.1em;
+            }
+            .admin-tab {
+                width: 100%;
+                text-align: left;
+                padding: 14px 18px;
+                font-size: 1.1em;
+                border-radius: 8px 8px 0 0;
+                margin-bottom: 2px;
+            }
+            .admin-tab.active {
+                background: #e0e7ef;
+                color: #2563eb;
+            }
+            .admin-tab-content {
+                padding: 0 0 12px 0;
+            }
+            .admin-users-table, .admin-weights-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                background: none;
+                box-shadow: none;
+            }
+            .admin-users-table thead, .admin-weights-table thead {
+                display: none;
+            }
+            .admin-users-table tr, .admin-weights-table tr {
+                display: block;
+                margin-bottom: 16px;
+                background: #f8fafc;
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+                padding: 12px 10px 8px 10px;
+            }
+            .admin-users-table td, .admin-weights-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 0;
+                border: none;
+                font-size: 1em;
+            }
+            .admin-users-table td:before, .admin-weights-table td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #64748b;
+                flex: 1 1 50%;
+                margin-right: 10px;
+                min-width: 90px;
+            }
+            .admin-users-table .btn, .admin-weights-table .btn {
+                font-size: 1.05em;
+                padding: 10px 18px;
+                border-radius: 7px;
+                margin: 0 2px;
+            }
+            .admin-users-table .btn-delete, .admin-weights-table .btn-delete {
+                background: #e63946;
+                color: #fff;
+            }
+            .admin-users-table .btn-primary, .admin-weights-table .btn-primary {
+                background: #2563eb;
+                color: #fff;
+            }
+            .admin-users-table tr:last-child, .admin-weights-table tr:last-child {
+                margin-bottom: 0;
+            }
+        }
         color: #888;
     }
     .admin-users-table .admin-self {

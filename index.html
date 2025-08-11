@@ -4335,9 +4335,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     
         function isDuplicateSong(title, lyrics, currentId = null) {
             return songs.some(song => {
-                if (currentId && song.id === currentId) return false;
-                return song.title.toLowerCase() === title.toLowerCase() && 
-                       song.lyrics.toLowerCase() === lyrics.toLowerCase();
+                if (currentId) {
+                    // Compare both id and _id as strings for robustness
+                    if (String(song.id) === String(currentId) || String(song._id) === String(currentId)) return false;
+                }
+                // Block if title matches (case-insensitive), regardless of lyrics
+                return song.title.toLowerCase() === title.toLowerCase();
             });
         }
     
@@ -6303,7 +6306,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         song.title.toLowerCase().includes(query) ||
                         (song.lyrics && song.lyrics.toLowerCase().includes(query)) ||
                         (song.taal && song.taal.toLowerCase().includes(query)) ||
-                        (song.genres && song.genres.toLowerCase().includes(query)) ||
                         (song.genres && song.genres.some(g => g.toLowerCase().includes(query)))
                     );
                 });

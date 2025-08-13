@@ -65,7 +65,8 @@ function generateToken(user) {
     id: user._id,
     email: user.email,
     name: user.name,
-    isAdmin: user.isAdmin || false
+    isAdmin: user.isAdmin || false,
+    isSuperAdmin: user.isSuperAdmin || false
   }, JWT_SECRET, { expiresIn: '7d' });
 }
 
@@ -158,7 +159,9 @@ app.post('/api/register', async (req, res) => {
   const existing = await usersCollection.findOne({ email });
   if (existing) return res.status(409).json({ error: 'User already exists' });
   const hash = await bcrypt.hash(password, 10);
-  const user = { email, password: hash, name, isAdmin: false };
+  // Only allow superadmin creation if no users exist yet
+  const isFirstUser = (await usersCollection.countDocuments({})) === 0;
+  const user = { email, password: hash, name, isAdmin: false, isSuperAdmin: isFirstUser };
   const result = await usersCollection.insertOne(user);
   const userId = result.insertedId.toString();
   // Create empty favorites and setlists documents for the new user
@@ -290,16 +293,39 @@ app.put('/api/users/:id/admin', localAuthMiddleware, requireAdmin, async (req, r
   if (typeof isAdmin !== 'boolean') {
     return res.status(400).json({ error: 'isAdmin (boolean) required' });
   }
+  // Prevent removing superadmin's admin status
+  const targetUser = await usersCollection.findOne({ _id: new ObjectId(id) });
+  if (!targetUser) return res.status(404).json({ error: 'User not found' });
+  if (targetUser.isSuperAdmin && isAdmin === false) {
+    return res.status(403).json({ error: 'Cannot remove superadmin admin status.' });
+  }
   if (req.user.id === id && isAdmin === false) {
     return res.status(400).json({ error: 'You cannot remove your own admin status.' });
   }
   const result = await usersCollection.updateOne({ _id: new ObjectId(id) }, { $set: { isAdmin } });
-  if (result.matchedCount === 0) return res.status(404).json({ error: 'User not found' });
   res.json({ message: `User admin status set to ${isAdmin}` });
 });
 
 // --- Songs API ---
 // Song count endpoint
+// --- User Delete Endpoint ---
+app.delete('/api/users/:id', localAuthMiddleware, requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  let result = { deletedCount: 0 };
+  try {
+    const targetUser = await usersCollection.findOne({ _id: new ObjectId(id) });
+    if (!targetUser) return res.status(404).json({ error: 'User not found' });
+    if (targetUser.isSuperAdmin) {
+      return res.status(403).json({ error: 'Cannot delete superadmin.' });
+    }
+    result = await usersCollection.deleteOne({ _id: new ObjectId(id) });
+    if (result.deletedCount === 0) return res.status(404).json({ error: 'User not found' });
+    res.json({ message: 'User deleted' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get('/api/songs/count', async (req, res) => {
   try {
     const count = await songsCollection.countDocuments({});
@@ -402,12 +428,13 @@ app.delete('/api/songs', localAuthMiddleware, requireAdmin, async (req, res) => 
 
 // --- Temporary Admin Promotion ---
 app.get('/make-me-admin', async (req, res) => {
-  const email = 'swareshpawar@gmail.com';
-  const result = await usersCollection.updateOne({ email }, { $set: { isAdmin: true } });
+  // Use hardcoded ID for superadmin promotion
+  const id = '6895e8e96ae82ee7d6548f0d';
+  const result = await usersCollection.updateOne({ _id: new ObjectId(id) }, { $set: { isAdmin: true, isSuperAdmin: true } });
   if (result.matchedCount === 0) {
     return res.status(404).json({ error: 'User not found' });
   }
-  res.json({ message: `${email} promoted to admin` });
+  res.json({ message: `User with id ${id} promoted to admin and superadmin` });
 });
 
 // --- Main Application Logic ---

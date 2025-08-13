@@ -282,6 +282,36 @@ app.put('/api/userdata', localAuthMiddleware, async (req, res) => {
 
 
 // --- Admin User Management ---
+// Superadmin password reset endpoint
+app.post('/api/users/:id/reset-password', localAuthMiddleware, requireAdmin, async (req, res) => {
+  const { id } = req.params;
+  const { newPassword } = req.body;
+  if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
+    return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+  }
+  // Only superadmin can reset passwords
+  const superadmin = await usersCollection.findOne({ _id: new ObjectId(req.user.id) });
+  if (!superadmin || !superadmin.isSuperAdmin) {
+    return res.status(403).json({ error: 'Only superadmin can reset passwords.' });
+  }
+  // Try to find user by _id, id, or email
+  let userDoc = null;
+  try {
+    userDoc = await usersCollection.findOne({ _id: new ObjectId(id) });
+  } catch (e) {}
+  if (!userDoc) {
+    userDoc = await usersCollection.findOne({ id: isNaN(Number(id)) ? id : Number(id) });
+  }
+  if (!userDoc) {
+    userDoc = await usersCollection.findOne({ email: id });
+  }
+  if (!userDoc) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  const hash = await bcrypt.hash(newPassword, 10);
+  const result = await usersCollection.updateOne({ _id: userDoc._id }, { $set: { password: hash } });
+  res.json({ message: 'Password reset successful.' });
+});
 app.get('/api/users', localAuthMiddleware, requireAdmin, async (req, res) => {
   const users = await usersCollection.find({}, { projection: { password: 0 } }).toArray();
   res.json(users);

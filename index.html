@@ -2624,41 +2624,46 @@
     </div>
     <!-- Local Auth Modals -->
     <div id="loginModal" class="modal" style="display:none; align-items:center; justify-content:center;">
-            <div class="auth-modal-content">
-                <span id="closeLoginModal" class="close-modal">&times;</span>
-                <div class="auth-modal-header">
-                    <i class="fa fa-sign-in-alt"></i>
-                    <h2>Login</h2>
+            <div class="auth-modal-content" style="background: linear-gradient(135deg, #e0e7ef 0%, #f8fafc 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.18); border-radius: 18px; padding: 2.5rem 2.5rem 2rem 2.5rem; max-width: 370px; position:relative;">
+                <span id="closeLoginModal" class="close-modal" style="position:absolute; top:18px; right:22px; font-size:2em; color:#4a6fa5; background:none; border:none; cursor:pointer; z-index:10;">&times;</span>
+                <div class="auth-modal-header" style="text-align:center; margin-bottom:1.5em;">
+                    <i class="fa fa-sign-in-alt" style="font-size:2em; color:#4fc3f7;"></i>
+                    <h2 style="margin:0.5em 0 0 0; color:#4a6fa5; font-weight:700;">Login</h2>
                 </div>
-                <form id="loginForm" class="auth-form">
-                    <div class="input-group">
-                        <input type="email" id="loginEmail" placeholder="Email" required autocomplete="username">
+                <form id="loginForm" class="auth-form" style="display:flex; flex-direction:column; gap:1.2em;">
+                    <div class="input-group" style="display:flex; flex-direction:column;">
+                        <label for="loginEmail" style="font-weight:500; color:#166088; margin-bottom:0.3em;">Email</label>
+                        <input type="email" id="loginEmail" placeholder="Email" required autocomplete="username" style="padding:0.7em 1em; border-radius:7px; border:1px solid #cfd8dc; font-size:1em;">
                     </div>
-                    <div class="input-group">
-                        <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password">
+                    <div class="input-group" style="display:flex; flex-direction:column;">
+                        <label for="loginPassword" style="font-weight:500; color:#166088; margin-bottom:0.3em;">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Password" required autocomplete="current-password" style="padding:0.7em 1em; border-radius:7px; border:1px solid #cfd8dc; font-size:1em;">
                     </div>
-                    <button type="submit" class="auth-btn-main">Login</button>
+                    <button type="submit" class="auth-btn-main" style="background:#4fc3f7; color:#fff; font-weight:600; border:none; border-radius:7px; padding:0.8em 0; font-size:1.08em; box-shadow:0 1px 4px rgba(0,0,0,0.08); transition:background 0.2s;">Login</button>
                 </form>
             </div>
     </div>
     <div id="registerModal" class="modal" style="display:none; align-items:center; justify-content:center;">
-            <div class="auth-modal-content">
-                <span id="closeRegisterModal" class="close-modal">&times;</span>
-                <div class="auth-modal-header">
-                    <i class="fa fa-user-plus"></i>
-                    <h2>Register</h2>
+            <div class="auth-modal-content" style="background: linear-gradient(135deg, #e0e7ef 0%, #f8fafc 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.18); border-radius: 18px; padding: 2.5rem 2.5rem 2rem 2.5rem; max-width: 370px; position:relative;">
+                <span id="closeRegisterModal" class="close-modal" style="position:absolute; top:18px; right:22px; font-size:2em; color:#4a6fa5; background:none; border:none; cursor:pointer; z-index:10;">&times;</span>
+                <div class="auth-modal-header" style="text-align:center; margin-bottom:1.5em;">
+                    <i class="fa fa-user-plus" style="font-size:2em; color:#4fc3f7;"></i>
+                    <h2 style="margin:0.5em 0 0 0; color:#4a6fa5; font-weight:700;">Register</h2>
                 </div>
-                <form id="registerForm" class="auth-form">
-                    <div class="input-group">
-                        <input type="text" id="registerName" placeholder="Name" required>
+                <form id="registerForm" class="auth-form" style="display:flex; flex-direction:column; gap:1.2em;">
+                    <div class="input-group" style="display:flex; flex-direction:column;">
+                        <label for="registerName" style="font-weight:500; color:#166088; margin-bottom:0.3em;">Name</label>
+                        <input type="text" id="registerName" placeholder="Name" required style="padding:0.7em 1em; border-radius:7px; border:1px solid #cfd8dc; font-size:1em;">
                     </div>
-                    <div class="input-group">
-                        <input type="email" id="registerEmail" placeholder="Email" required autocomplete="username">
+                    <div class="input-group" style="display:flex; flex-direction:column;">
+                        <label for="registerEmail" style="font-weight:500; color:#166088; margin-bottom:0.3em;">Email</label>
+                        <input type="email" id="registerEmail" placeholder="Email" required autocomplete="username" style="padding:0.7em 1em; border-radius:7px; border:1px solid #cfd8dc; font-size:1em;">
                     </div>
-                    <div class="input-group">
-                        <input type="password" id="registerPassword" placeholder="Password" required autocomplete="new-password">
+                    <div class="input-group" style="display:flex; flex-direction:column;">
+                        <label for="registerPassword" style="font-weight:500; color:#166088; margin-bottom:0.3em;">Password</label>
+                        <input type="password" id="registerPassword" placeholder="Password" required autocomplete="new-password" style="padding:0.7em 1em; border-radius:7px; border:1px solid #cfd8dc; font-size:1em;">
                     </div>
-                    <button type="submit" class="auth-btn-main">Register</button>
+                    <button type="submit" class="auth-btn-main" style="background:#4fc3f7; color:#fff; font-weight:600; border:none; border-radius:7px; padding:0.8em 0; font-size:1.08em; box-shadow:0 1px 4px rgba(0,0,0,0.08); transition:background 0.2s;">Register</button>
                 </form>
             </div>
     </div>
@@ -2794,6 +2799,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('loginBtn').addEventListener('click', () => {
         document.getElementById('loginModal').style.display = 'flex';
     });
+    document.getElementById('closeLoginModal').addEventListener('click', () => {
+        document.getElementById('loginModal').style.display = 'none';
+    });
+    document.getElementById('closeRegisterModal').addEventListener('click', () => {
+        document.getElementById('registerModal').style.display = 'none';
+    });
 
     // After successful login, fetch favorites and setlists from backend
     async function fetchUserDataAfterLogin(token) {
@@ -2851,7 +2862,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         logoutUser();
     });
     document.getElementById('registerBtn').addEventListener('click', () => {
-        document.getElementById('registerModal').style.display = 'flex';
+    document.getElementById('registerModal').style.display = 'flex';
     });
     // Enable swipe navigation for next/previous song on mobile in preview section
     function enableMobileSwipeNavigation() {
@@ -3249,6 +3260,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <div class="admin-tabs">
                             <button class="admin-tab active" id="adminTabUsers" type="button"><i class="fas fa-users"></i> User Management</button>
                             <button class="admin-tab" id="adminTabWeights" type="button"><i class="fas fa-balance-scale"></i> Suggested Songs Weights</button>
+                            <button class="admin-tab" id="adminTabSuperadmin" type="button"><i class="fas fa-key"></i> Superadmin</button>
                         </div>
                         <div id="adminTabContentUsers" class="admin-tab-content active">
                             <h3 style="margin-bottom:12px;">User Management</h3>
@@ -3275,6 +3287,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 <button type="submit" class="weights-save-btn"><i class="fas fa-save"></i> Save Weights</button>
                                 <span id="suggestedWeightsStatus" class="weights-status"></span>
                             </form>
+                        </div>
+                        <div id="adminTabContentSuperadmin" class="admin-tab-content">
+                            <h3><i class="fas fa-key"></i> Superadmin Password Reset</h3>
+                            <div id="superadminResetList">Loading users...</div>
                         </div>
                     </div>
                 `;
@@ -3415,21 +3431,68 @@ document.addEventListener('DOMContentLoaded', async () => {
                         });
                         html += '</table>';
                         usersListDiv.innerHTML = html;
+
+                        // Also render superadmin password reset tab
+                        let resetHtml = `<table class="admin-users-table">
+                            <tr><th>Name</th><th>Email</th><th>Reset Password</th></tr>`;
+                        users.forEach(user => {
+                            resetHtml += `<tr>
+                                <td>${user.name || ''}</td>
+                                <td>${user.email}</td>
+                                <td><button class="btn btn-primary btn-reset-password" data-userid="${user._id || user.id}">Reset to 'qwerty123'</button></td>
+                            </tr>`;
+                        });
+                        resetHtml += '</table>';
+                        document.getElementById('superadminResetList').innerHTML = resetHtml;
         // Admin panel tab switching logic
         document.getElementById('adminTabUsers').onclick = function() {
             document.getElementById('adminTabUsers').classList.add('active');
             document.getElementById('adminTabWeights').classList.remove('active');
+            document.getElementById('adminTabSuperadmin').classList.remove('active');
             document.getElementById('adminTabContentUsers').classList.add('active');
             document.getElementById('adminTabContentWeights').classList.remove('active');
+            document.getElementById('adminTabContentSuperadmin').classList.remove('active');
         };
         document.getElementById('adminTabWeights').onclick = function() {
             document.getElementById('adminTabUsers').classList.remove('active');
             document.getElementById('adminTabWeights').classList.add('active');
+            document.getElementById('adminTabSuperadmin').classList.remove('active');
             document.getElementById('adminTabContentUsers').classList.remove('active');
             document.getElementById('adminTabContentWeights').classList.add('active');
+            document.getElementById('adminTabContentSuperadmin').classList.remove('active');
             // Lazy load weights UI if needed
             loadAndRenderSuggestedWeights();
         };
+        document.getElementById('adminTabSuperadmin').onclick = function() {
+            document.getElementById('adminTabUsers').classList.remove('active');
+            document.getElementById('adminTabWeights').classList.remove('active');
+            document.getElementById('adminTabSuperadmin').classList.add('active');
+            document.getElementById('adminTabContentUsers').classList.remove('active');
+            document.getElementById('adminTabContentWeights').classList.remove('active');
+            document.getElementById('adminTabContentSuperadmin').classList.add('active');
+        };
+            // Add event listeners for password reset buttons
+            document.querySelectorAll('.btn-reset-password').forEach(btn => {
+                btn.onclick = async function() {
+                    const userId = this.getAttribute('data-userid');
+                    this.disabled = true;
+                    this.textContent = 'Resetting...';
+                    try {
+                        const res = await authFetch(`${API_BASE_URL}/users/${userId}/reset-password`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ newPassword: 'qwerty123' })
+                        });
+                        if (!res.ok) throw new Error('Failed to reset password');
+                        showNotification('Password reset to qwerty123');
+                        this.textContent = 'Reset to qwerty123';
+                    } catch (e) {
+                        showNotification('Error resetting password', 4000);
+                        this.disabled = false;
+                        this.textContent = 'Reset to qwerty123';
+                    }
+                };
+            });
 
             // Add event listeners for admin toggle buttons
             usersListDiv.querySelectorAll('button[data-userid]').forEach(btn => {

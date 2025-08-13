@@ -299,6 +299,15 @@ app.put('/api/users/:id/admin', localAuthMiddleware, requireAdmin, async (req, r
 });
 
 // --- Songs API ---
+// Song count endpoint
+app.get('/api/songs/count', async (req, res) => {
+  try {
+    const count = await songsCollection.countDocuments({});
+    res.json({ count });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch song count' });
+  }
+});
 app.get('/api/songs', async (req, res) => {
   try {
     const songs = await songsCollection.find({}).toArray();

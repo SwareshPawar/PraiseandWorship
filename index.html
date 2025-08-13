@@ -3689,9 +3689,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     
         function updateSongCount() {
+            // Local count
             document.getElementById('totalSongs').textContent = songs.length;
             document.getElementById('praiseCount').textContent = songs.filter(s => s.category === 'praise').length;
             document.getElementById('worshipCount').textContent = songs.filter(s => s.category === 'worship').length;
+
+            // Server count
+            fetch(`${API_BASE_URL}/songs/count`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && typeof data.count === 'number') {
+                        document.getElementById('totalSongs').setAttribute('title', `Server count: ${data.count}`);
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('totalSongs').removeAttribute('title');
+                });
         }
     
 // (Removed: now loaded per user above)
@@ -5543,14 +5556,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         function setupWindowCloseConfirmation() {
             window.addEventListener('beforeunload', (e) => {
-                const hasUnsavedSetlists = NewSetlist.length > 0 || OldSetlist.length > 0;
-                const isEditing = isAnyModalOpen;
-                
-                if (hasUnsavedSetlists || isEditing) {
+                let unsavedItems = [];
+                if (NewSetlist.length > 0) unsavedItems.push('New setlist changes');
+                if (OldSetlist.length > 0) unsavedItems.push('Old setlist changes');
+                if (isAnyModalOpen) unsavedItems.push('Editing in progress');
+
+                if (unsavedItems.length > 0) {
                     e.preventDefault();
-                    e.returnValue = 'You have unsaved changes. Are you sure you want to leave?';
+                    e.returnValue = 'You have unsaved changes: ' + unsavedItems.join(', ') + '. Are you sure you want to leave?';
                     return e.returnValue;
                 }
+                // If nothing unsaved, allow exit without prompt
             });
         }
 
@@ -5831,10 +5847,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Song modals
             openAddSongModal.addEventListener('click', () => {
                 addSongModal.style.display = 'flex';
-                document.getElementById('selectedGenres').innerHTML = '';
-                document.querySelectorAll('#genreDropdown .multiselect-option').forEach(opt => {
-                    opt.classList.remove('selected');
-                });
+                // Do NOT clear selected genres here; preserve previous selection
                 // Attach submit handler to newSongForm every time modal is opened
                 const form = document.getElementById('newSongForm');
                 if (form) {
@@ -5914,8 +5927,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                             updateSongCount();
                             showNotification('Song added successfully!');
                             addSongModal.style.display = 'none';
+                            // Preserve selected genres after reset
+                            const preservedGenres = Array.from(document.querySelectorAll('#genreDropdown .multiselect-option.selected')).map(opt => opt.dataset.value);
                             form.reset();
-                            document.getElementById('selectedGenres').innerHTML = '';
+                            // Restore preserved genres
+                            document.querySelectorAll('#genreDropdown .multiselect-option').forEach(opt => {
+                                if (preservedGenres.includes(opt.dataset.value)) {
+                                    opt.classList.add('selected');
+                                } else {
+                                    opt.classList.remove('selected');
+                                }
+                            });
+                            updateSelectedGenres('selectedGenres', 'genreDropdown');
                         } catch (err) {
                             showNotification('Error adding song: ' + err.message, 4000);
                             console.error(err);
@@ -5945,24 +5968,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!e.target.closest('.multiselect-container')) {
                     document.getElementById('genreDropdown').classList.remove('show');
                     document.getElementById('editGenreDropdown').classList.remove('show');
-                }
-            });
-            // Handle session reset based on settings
-            window.addEventListener('beforeunload', (e) => {
-                const resetOption = localStorage.getItem("sessionResetOption") || "manual";
-                
-                if (resetOption === "onClose") {
-                    resetApplicationState();
-                }
-                
-                // Existing beforeunload logic...
-            });
-
-            window.addEventListener('load', () => {
-                const resetOption = localStorage.getItem("sessionResetOption") || "manual";
-                
-                if (resetOption === "onRefresh") {
-                    resetApplicationState();
                 }
             });
             

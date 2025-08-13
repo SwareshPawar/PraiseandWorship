@@ -3588,7 +3588,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
         }
         // Initialize songs and setlists
-        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+        let isDarkMode = (localStorage.getItem('darkMode') === null) ? true : localStorage.getItem('darkMode') === 'true';
+        if (localStorage.getItem('darkMode') === null) localStorage.setItem('darkMode', 'true');
         let socket = null;
         let songs = [];
         // User-specific favorites and setlists

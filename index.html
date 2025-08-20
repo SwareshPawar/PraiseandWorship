@@ -172,7 +172,12 @@
                 <select id="songTaal" required></select>
                 <label for="songGenre">Genre:</label>
                 <div class="multiselect-container">
-                    <input type="text" id="songGenre" class="compact-input" placeholder="Select genres..." readonly>
+                    <div style="position:relative;display:flex;align-items:center;">
+                        <input type="text" id="songGenre" class="compact-input" placeholder="Select genres..." readonly style="padding-right:32px;">
+                        <button type="button" id="clearGenresBtn" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;padding:0;cursor:pointer;outline:none;">
+                            <i class="fas fa-times-circle" style="font-size:1.2em;color:#1976d2;"></i>
+                        </button>
+                    </div>
                     <div class="multiselect-dropdown" id="genreDropdown"></div>
                     <div class="multiselect-selected" id="selectedGenres"></div>
                 </div>
@@ -206,7 +211,12 @@
                 <select id="editSongTaal" required></select>
                 <label for="editSongGenre">Genre:</label>
                 <div class="multiselect-container">
-                    <input type="text" id="editSongGenre" class="compact-input" placeholder="Select genres..." readonly>
+                    <div style="position:relative;display:flex;align-items:center;">
+                        <input type="text" id="editSongGenre" class="compact-input" placeholder="Select genres..." readonly style="padding-right:32px;">
+                        <button type="button" id="clearEditGenresBtn" style="position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;padding:0;cursor:pointer;outline:none;">
+                            <i class="fas fa-times-circle" style="font-size:1.2em;color:#1976d2;"></i>
+                        </button>
+                    </div>
                     <div class="multiselect-dropdown" id="editGenreDropdown"></div>
                     <div class="multiselect-selected" id="editSelectedGenres"></div>
                 </div>

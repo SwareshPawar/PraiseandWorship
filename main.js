@@ -94,6 +94,24 @@
                 populateSelect('keyFilter', KEY_FILTER_OPTIONS, true);
                 populateSelect('genreFilter', GENRE_FILTER_OPTIONS, true);
                 populateSelect('sortSongs', SORT_SONGS_OPTIONS, true);
+
+                // Add clear genres button logic for Add Song
+                const clearGenresBtn = document.getElementById('clearGenresBtn');
+                if (clearGenresBtn) {
+                    clearGenresBtn.addEventListener('click', function() {
+                        document.querySelectorAll('#genreDropdown .multiselect-option.selected').forEach(opt => opt.classList.remove('selected'));
+                        updateSelectedGenres('selectedGenres', 'genreDropdown');
+                    });
+                }
+
+                // Add clear genres button logic for Edit Song
+                const clearEditGenresBtn = document.getElementById('clearEditGenresBtn');
+                if (clearEditGenresBtn) {
+                    clearEditGenresBtn.addEventListener('click', function() {
+                        document.querySelectorAll('#editGenreDropdown .multiselect-option.selected').forEach(opt => opt.classList.remove('selected'));
+                        document.getElementById('editSelectedGenres').innerHTML = '';
+                    });
+                }
         });
     // Always define API_BASE_URL at the top (remove all other declarations)
     var API_BASE_URL = window.location.origin.includes('localhost') ? 'http://localhost:3001/api' : '/api';
@@ -2989,6 +3007,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                         opt.classList.add('selected');
                     }
                 });
+                // Attach remove-tag handler
+                tag.querySelector('.remove-tag').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // Remove selected from dropdown
+                    options.forEach(opt => {
+                        if (opt.dataset.value === genres) {
+                            opt.classList.remove('selected');
+                        }
+                    });
+                    // Remove tag from selected genres
+                    tag.remove();
+                });
             });
             document.getElementById('editSongLyrics').value = song.lyrics;
             editSongModal.style.display = 'flex';
@@ -3048,11 +3078,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 editSongTempoInput.value = '';
             }
-            clearTimeout(editTapTimeout);
-            editTapTimeout = setTimeout(() => {
-                editTapTimes = [];
-                editSongTempoInput.value = '';
-            }, 2000);
         });
     }
     
@@ -3526,7 +3551,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const objectId = document.getElementById('editSongObjectId') ? document.getElementById('editSongObjectId').value : '';
                 const title = document.getElementById('editSongTitle').value;
                 const lyrics = document.getElementById('editSongLyrics').value;
-                if (isDuplicateSong(title, lyrics, id)) {
+                const currentId = objectId || id;
+                if (isDuplicateSong(title, lyrics, currentId)) {
                     showNotification('A song with this title and lyrics already exists!');
                     return;
                 }

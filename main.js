@@ -3626,6 +3626,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     showNotification('Song updated successfully!');
                     editSongModal.style.display = 'none';
                     editSongForm.reset();
+                    document.querySelectorAll('#editGenreDropdown .multiselect-option.selected').forEach(opt => opt.classList.remove('selected'));
+                    updateSelectedGenres('editSelectedGenres', 'editGenreDropdown');
                 } catch (err) {
                     showNotification('Error updating song: ' + err.message, 4000);
                     console.error(err);

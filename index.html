@@ -2230,58 +2230,9 @@
                         <span id="clearSearch" class="clear-search-btn" style="display: none;">×</span>
                         <div id="searchHistoryDropdown" class="search-history-dropdown"></div>
                     </div>
-                    <select id="keyFilter" class="compact-select">
-                        <option value="">All Keys</option>
-                        <option value="C">C Major</option>
-                        <option value="C#">C# Major</option>
-                        <option value="D">D Major</option>
-                        <option value="D#">D# Major</option>
-                        <option value="E">E Major</option>
-                        <option value="F">F Major</option>
-                        <option value="F#">F# Major</option>
-                        <option value="G">G Major</option>
-                        <option value="G#">G# Major</option>
-                        <option value="A">A Major</option>
-                        <option value="A#">A# Major</option>
-                        <option value="B">B Major</option>
-                        <option value="Cm">Cm</option>
-                        <option value="C#m">C#m</option>
-                        <option value="Dm">Dm</option>
-                        <option value="D#m">D#m</option>
-                        <option value="Em">Em</option>
-                        <option value="Fm">Fm</option>
-                        <option value="F#m">F#m</option>
-                        <option value="Gm">Gm</option>
-                        <option value="G#m">G#m</option>
-                        <option value="Am">Am</option>
-                        <option value="A#m">A#m</option>
-                        <option value="Bm">Bm</option>
-                    </select>
-                    <select id="genreFilter" class="compact-select">
-                        <option value="">All Genres</option>
-                        <option value="Praise">Praise</option>
-                        <option value="Worship">Worship</option>
-                        <option value="Christmas">Christmas</option>
-                        <option value="Easter">Easter</option>
-                        <option value="Dance">Dance</option>
-                        <option value="Action">Action</option>
-                        <option value="Love">Love</option>
-                        <option value="Forgiveness">Forgiveness</option>
-                        <option value="Holy Spirit">Holy Spirit</option>
-                        <option value="Hymns">Hymns</option>
-                        <option value="Qawalli">Qawalli</option>
-                        <option value="Miracle">Miracle</option>
-                        <option value="Thanksgiving">Thanksgiving</option>
-                        <option value="Hindi">Hindi</option>
-                        <option value="Marathi">Marathi</option>
-                        <option value="English">English</option>
-                    </select>
-                    <select id="sortSongs" class="compact-select" style="min-width:120px;">
-                        <option value="date-desc">Recently Added</option>
-                        <option value="date-asc">Oldest First</option>
-                        <option value="alpha-asc">A-Z</option>
-                        <option value="alpha-desc">Z-A</option>
-                    </select>
+                    <select id="keyFilter" class="compact-select"></select>
+                    <select id="genreFilter" class="compact-select"></select>
+                    <select id="sortSongs" class="compact-select" style="min-width:120px;"></select>
                 </div>
 
                 <div class="search-results" id="searchResults">
@@ -2328,85 +2279,19 @@
                 <label for="songTitle">Title:</label>
                 <input type="text" id="songTitle" required>
                 <label for="songCategory">Category:</label>
-                <select id="songCategory" required>
-                    <option value="praise">Praise</option>
-                    <option value="worship">Worship</option>
-                </select>
+                <select id="songCategory" required></select>
                 <label for="songKey">Key:</label>
-                <select id="songKey" required>
-                    <option value="C">C</option>
-                    <option value="C#">C#</option>
-                    <option value="D">D</option>
-                    <option value="D#">D#</option>
-                    <option value="E">E</option>
-                    <option value="F">F</option>
-                    <option value="F#">F#</option>
-                    <option value="G">G</option>
-                    <option value="G#">G#</option>
-                    <option value="A">A</option>
-                    <option value="A#">A#</option>
-                    <option value="B">B</option>
-                    <option value="Cm">Cm</option>
-                    <option value="C#m">C#m</option>
-                    <option value="Dm">Dm</option>
-                    <option value="D#m">D#m</option>
-                    <option value="Em">Em</option>
-                    <option value="Fm">Fm</option>
-                    <option value="F#m">F#m</option>
-                    <option value="Gm">Gm</option>
-                    <option value="G#m">G#m</option>
-                    <option value="Am">Am</option>
-                    <option value="A#m">A#m</option>
-                    <option value="Bm">Bm</option>
-                </select>
+                <select id="songKey" required></select>
                 <label for="songTempo">Tempo (BPM):</label>
                 <input type="text" id="songTempo" placeholder="e.g., 80 BPM" >
                 <label for="songTime">Time Signature:</label>
-                <select id="songTime" >
-                    <option value="4/4">4/4</option>
-                    <option value="3/4">3/4</option>
-                    <option value="2/4">2/4</option>
-                    <option value="6/8">6/8</option>
-                    <option value="5/4">5/4</option>
-                    <option value="7/8">7/8</option>
-                </select>
+                <select id="songTime" ></select>
                 <label for="songTaal">Taal:</label>
-                <select id="songTaal" required>
-                    <option value="Keherwa">Keherwa</option>
-                    <option value="Keherwa Slow">Keherwa Slow</option>
-                    <option value="Dadra">Dadra</option>
-                    <option value="Dadra Slow">Dadra Slow</option>
-                    <option value="Rupak">Rupak</option>
-                    <option value="EkTaal">EkTaal</option>
-                    <option value="JhapTaal">JhapTaal</option>
-                    <option value="TeenTaal">TeenTaal</option>
-                    <option value="Deepchandi">Deepchandi</option>
-                    <option value="Garba">Garba</option>
-                    <option value="Western">Western</option>
-                    <option value="Waltz">Waltz</option>
-                </select>
+                <select id="songTaal" required></select>
                 <label for="songGenre">Genre:</label>
                 <div class="multiselect-container">
                     <input type="text" id="songGenre" class="compact-input" placeholder="Select genres..." readonly>
-                    <div class="multiselect-dropdown" id="genreDropdown">
-                        <div class="multiselect-option" data-value="Praise">Praise</div>
-                        <div class="multiselect-option" data-value="Worship">Worship</div>
-                        <div class="multiselect-option" data-value="Christmas">Christmas</div>
-                        <div class="multiselect-option" data-value="Easter">Easter</div>
-                        <div class="multiselect-option" data-value="Good Friday">Good Friday</div>
-                        <div class="multiselect-option" data-value="Dance">Dance</div>
-                        <div class="multiselect-option" data-value="Action">Action</div>
-                        <div class="multiselect-option" data-value="Love">Love</div>
-                        <div class="multiselect-option" data-value="Forgiveness">Forgiveness</div>
-                        <div class="multiselect-option" data-value="Holy Spirit">Holy Spirit</div>
-                        <div class="multiselect-option" data-value="Hymns">Hymns</div>
-                        <div class="multiselect-option" data-value="Qawalli">Qawalli</div>
-                        <div class="multiselect-option" data-value="Miracle">Miracle</div>
-                        <div class="multiselect-option" data-value="Thanksgiving">Thanksgiving</div>
-                        <div class="multiselect-option" data-value="Hindi">Hindi</div>
-                        <div class="multiselect-option" data-value="Marathi">Marathi</div>
-                        <div class="multiselect-option" data-value="English">English</div>
-                    </div>
+                    <div class="multiselect-dropdown" id="genreDropdown"></div>
                     <div class="multiselect-selected" id="selectedGenres"></div>
                 </div>
                 <label for="songLyrics">Lyrics:</label>
@@ -2425,85 +2310,19 @@
                 <label for="editSongTitle">Title:</label>
                 <input type="text" id="editSongTitle" required>
                 <label for="editSongCategory">Category:</label>
-                <select id="editSongCategory" required>
-                    <option value="praise">Praise</option>
-                    <option value="worship">Worship</option>
-                </select>
+                <select id="editSongCategory" required></select>
                 <label for="editSongKey">Key:</label>
-                <select id="editSongKey" required>
-                    <option value="C">C Major</option>
-                    <option value="C#">C# Major</option>
-                    <option value="D">D Major</option>
-                    <option value="D#">D# Major</option>
-                    <option value="E">E Major</option>
-                    <option value="F">F Major</option>
-                    <option value="F#">F# Major</option>
-                    <option value="G">G Major</option>
-                    <option value="G#">G# Major</option>
-                    <option value="A">A Major</option>
-                    <option value="A#">A# Major</option>
-                    <option value="B">B Major</option>
-                    <option value="Cm">Cm</option>
-                    <option value="C#m">C#m</option>
-                    <option value="Dm">Dm</option>
-                    <option value="D#m">D#m</option>
-                    <option value="Em">Em</option>
-                    <option value="Fm">Fm</option>
-                    <option value="F#m">F#m</option>
-                    <option value="Gm">Gm</option>
-                    <option value="G#m">G#m</option>
-                    <option value="Am">Am</option>
-                    <option value="A#m">A#m</option>
-                    <option value="Bm">Bm</option>
-                </select>
+                <select id="editSongKey" required></select>
                 <label for="editSongTempo">Tempo (BPM):</label>
                 <input type="text" id="editSongTempo" placeholder="e.g., 80 BPM">
                 <label for="editSongTime">Time Signature:</label>
-                <select id="editSongTime" required>
-                    <option value="4/4">4/4</option>
-                    <option value="3/4">3/4</option>
-                    <option value="2/4">2/4</option>
-                    <option value="6/8">6/8</option>
-                    <option value="5/4">5/4</option>
-                    <option value="7/8">7/8</option>
-                </select>
+                <select id="editSongTime" required></select>
                 <label for="editSongTaal">Taal:</label>
-                <select id="editSongTaal" required>
-                    <option value="Keherwa">Keherwa</option>
-                    <option value="Keherwa Slow">Keherwa Slow</option>
-                    <option value="Dadra">Dadra</option>
-                    <option value="Dadra Slow">Dadra Slow</option>
-                    <option value="Rupak">Rupak</option>
-                    <option value="EkTaal">EkTaal</option>
-                    <option value="JhapTaal">JhapTaal</option>
-                    <option value="TeenTaal">TeenTaal</option>
-                    <option value="Deepchandi">Deepchandi</option>
-                    <option value="Garba">Garba</option>
-                    <option value="Western">Western</option>
-                    <option value="Waltz">Waltz</option>
-                </select>
+                <select id="editSongTaal" required></select>
                 <label for="editSongGenre">Genre:</label>
                 <div class="multiselect-container">
                     <input type="text" id="editSongGenre" class="compact-input" placeholder="Select genres..." readonly>
-                    <div class="multiselect-dropdown" id="editGenreDropdown">
-                        <div class="multiselect-option" data-value="Praise">Praise</div>
-                        <div class="multiselect-option" data-value="Worship">Worship</div>
-                        <div class="multiselect-option" data-value="Christmas">Christmas</div>
-                        <div class="multiselect-option" data-value="Easter">Easter</div>
-                        <div class="multiselect-option" data-value="Good Friday">Good Friday</div>
-                        <div class="multiselect-option" data-value="Dance">Dance</div>
-                        <div class="multiselect-option" data-value="Action">Action</div>
-                        <div class="multiselect-option" data-value="Love">Love</div>
-                        <div class="multiselect-option" data-value="Forgiveness">Forgiveness</div>
-                        <div class="multiselect-option" data-value="Holy Spirit">Holy Spirit</div>
-                        <div class="multiselect-option" data-value="Hymns">Hymns</div>
-                        <div class="multiselect-option" data-value="Qawalli">Qawalli</div>
-                        <div class="multiselect-option" data-value="Miracle">Miracle</div>
-                        <div class="multiselect-option" data-value="Thanksgiving">Thanksgiving</div>
-                        <div class="multiselect-option" data-value="Hindi">Hindi</div>
-                        <div class="multiselect-option" data-value="Marathi">Marathi</div>
-                        <div class="multiselect-option" data-value="English">English</div>
-                    </div>
+                    <div class="multiselect-dropdown" id="editGenreDropdown"></div>
                     <div class="multiselect-selected" id="editSelectedGenres"></div>
                 </div>
                 <label for="editSongLyrics">Lyrics:</label>
@@ -2670,7 +2489,104 @@
     <!-- ====== SPACE FOR ADMIN ASSIGNMENT UI ====== -->
     <!-- You can add a user list and promote-to-admin button here, visible only to admins -->
 
-    <script>
+        <script>
+            // Dynamic options for select fields
+            const GENRE_OPTIONS = [
+                'Praise', 'Worship', 'Christmas', 'Easter', 'Good Friday', 'Dance', 'Action',
+                'Love', 'Forgiveness', 'Holy Spirit', 'Hymns', 'Qawalli', 'Miracle',
+                'Thanksgiving', 'Hindi', 'Marathi', 'English','Desi'
+            ];
+
+            function populateMultiselectDropdown(dropdownId, options) {
+                const dropdown = document.getElementById(dropdownId);
+                dropdown.innerHTML = '';
+                options.forEach(opt => {
+                    const div = document.createElement('div');
+                    div.className = 'multiselect-option';
+                    div.setAttribute('data-value', opt);
+                    div.textContent = opt;
+                    dropdown.appendChild(div);
+                });
+            }
+        const CATEGORY_OPTIONS = [
+            { value: 'praise', label: 'Praise' },
+            { value: 'worship', label: 'Worship' }
+        ];
+        const KEY_OPTIONS = [
+            'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
+            'Cm', 'C#m', 'Dm', 'D#m', 'Em', 'Fm', 'F#m', 'Gm', 'G#m', 'Am', 'A#m', 'Bm'
+        ];
+        const TIME_OPTIONS = ['4/4', '3/4', '2/4', '6/8', '5/4', '7/8'];
+        const TAAL_OPTIONS = [
+            'Keherwa', 'Keherwa Slow', 'Dadra', 'Dadra Slow', 'Rupak', 'EkTaal',
+            'JhapTaal', 'TeenTaal', 'Deepchandi', 'Garba', 'Western', 'Waltz','Rock'
+        ];
+
+        function populateSelect(selectId, options, useLabel = false) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = '';
+            options.forEach(opt => {
+                if (typeof opt === 'string') {
+                    select.innerHTML += `<option value="${opt}">${opt}</option>`;
+                } else {
+                    select.innerHTML += `<option value="${opt.value}">${useLabel ? opt.label : opt.value}</option>`;
+                }
+            });
+        }
+
+        const KEY_FILTER_OPTIONS = [
+            { value: '', label: 'All Keys' },
+            { value: 'C', label: 'C Major' },
+            { value: 'C#', label: 'C# Major' },
+            { value: 'D', label: 'D Major' },
+            { value: 'D#', label: 'D# Major' },
+            { value: 'E', label: 'E Major' },
+            { value: 'F', label: 'F Major' },
+            { value: 'F#', label: 'F# Major' },
+            { value: 'G', label: 'G Major' },
+            { value: 'G#', label: 'G# Major' },
+            { value: 'A', label: 'A Major' },
+            { value: 'A#', label: 'A# Major' },
+            { value: 'B', label: 'B Major' },
+            { value: 'Cm', label: 'Cm' },
+            { value: 'C#m', label: 'C#m' },
+            { value: 'Dm', label: 'Dm' },
+            { value: 'D#m', label: 'D#m' },
+            { value: 'Em', label: 'Em' },
+            { value: 'Fm', label: 'Fm' },
+            { value: 'F#m', label: 'F#m' },
+            { value: 'Gm', label: 'Gm' },
+            { value: 'G#m', label: 'G#m' },
+            { value: 'Am', label: 'Am' },
+            { value: 'A#m', label: 'A#m' },
+            { value: 'Bm', label: 'Bm' }
+        ];
+        const GENRE_FILTER_OPTIONS = [
+            { value: '', label: 'All Genres' },
+            ...GENRE_OPTIONS.map(g => ({ value: g, label: g }))
+        ];
+        const SORT_SONGS_OPTIONS = [
+            { value: 'date-desc', label: 'Recently Added' },
+            { value: 'date-asc', label: 'Oldest First' },
+            { value: 'alpha-asc', label: 'A-Z' },
+            { value: 'alpha-desc', label: 'Z-A' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
+                populateSelect('songCategory', CATEGORY_OPTIONS, true);
+                populateSelect('editSongCategory', CATEGORY_OPTIONS, true);
+                populateSelect('songKey', KEY_OPTIONS);
+                populateSelect('editSongKey', KEY_OPTIONS);
+                populateSelect('songTime', TIME_OPTIONS);
+                populateSelect('editSongTime', TIME_OPTIONS);
+                populateSelect('songTaal', TAAL_OPTIONS);
+                populateSelect('editSongTaal', TAAL_OPTIONS);
+                populateMultiselectDropdown('genreDropdown', GENRE_OPTIONS);
+                populateMultiselectDropdown('editGenreDropdown', GENRE_OPTIONS);
+                populateSelect('keyFilter', KEY_FILTER_OPTIONS, true);
+                populateSelect('genreFilter', GENRE_FILTER_OPTIONS, true);
+                populateSelect('sortSongs', SORT_SONGS_OPTIONS, true);
+        });
     // Always define API_BASE_URL at the top (remove all other declarations)
     var API_BASE_URL = window.location.origin.includes('localhost') ? 'http://localhost:3001/api' : '/api';
     // ====== Local Auth Config ======

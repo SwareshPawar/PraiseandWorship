@@ -2764,8 +2764,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const res = await fetch(`${API_BASE_URL}/userdata`, {
                 headers: { 'Authorization': `Bearer ${jwtToken}` }
             });
+            // If session expired, do not log out user, just show notification
             if (res.status === 401) {
-                logoutUser('Session expired. Please log in again.');
+                showNotification('Session expired. Please log in again.', 4000);
                 return;
             }
             if (res.ok) {
@@ -2841,26 +2842,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         return result;
     };
-    function logoutUser(message = 'You have been logged out.') {
-        jwtToken = null;
-        currentUser = null;
-        localStorage.removeItem('jwtToken');
-        localStorage.removeItem('currentUser');
-        // Clear local data, but don't save to backend as user is logging out
-        favorites = [];
-        praiseSetlist = [];
-        worshipSetlist = [];
-        updateAuthUI();
-        // Re-render UI to reflect cleared state
-        renderSongs('praise', keyFilter.value, genreFilter.value);
-        renderSongs('worship', keyFilter.value, genreFilter.value);
-        renderSetlist('praise');
-        renderSetlist('worship');
-        showNotification(message, 4000);
-    }
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-        logoutUser();
-    });
+    // Removed logoutUser function and logout button event listener to keep user logged in unless JWT expires
     document.getElementById('registerBtn').addEventListener('click', () => {
     document.getElementById('registerModal').style.display = 'flex';
     });
@@ -4156,7 +4138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 if (!res.ok) {
                     if (res.status === 401) {
-                        logoutUser('Session expired. Please log in again.');
+                        showNotification('Session expired. Please log in again.', 4000);
                         return;
                     }
                     const errData = await res.json();
@@ -4197,7 +4179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 if (!res.ok) {
                     if (res.status === 401) {
-                        logoutUser('Session expired. Please log in again.');
+                        showNotification('Session expired. Please log in again.', 4000);
                         return;
                     }
                     const errData = await res.json();
@@ -4447,7 +4429,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <i class="fas fa-heart"></i>
                     </button>
                 </div>
-                <div class="song-meta">${song.key} | ${song.tempo} | ${song.time}</div>
+                    <div class="song-meta">${song.key} | ${song.tempo} | ${song.time} | ${displayGenres}</div>
+                </div>
                 <div class="song-actions">
                     <button class="btn ${isInSetlist ? 'btn-delete' : 'btn-primary'} toggle-setlist">
                         ${isInSetlist ? 'Remove' : 'Add'}
@@ -5861,7 +5844,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             });
                             if (response.status === 401) {
                                 showNotification('Session expired or invalid. Please log in again.');
-                                logoutUser && logoutUser();
                                 return;
                             }
                             if (!response.ok) {
@@ -6023,7 +6005,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                             });
                             if (response.status === 401) {
                                 showNotification('Session expired or invalid. Please log in again.');
-                                logoutUser && logoutUser();
                                 return;
                             }
                             if (!response.ok) {

@@ -67,7 +67,7 @@ function generateToken(user) {
     name: user.name,
     isAdmin: user.isAdmin || false,
     isSuperAdmin: user.isSuperAdmin || false
-  }, JWT_SECRET, { expiresIn: '7d' });
+  }, JWT_SECRET, { expiresIn: '30d' });
 }
 
 function localAuthMiddleware(req, res, next) {

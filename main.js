@@ -2990,33 +2990,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('editSongTempo').value = song.tempo;
             document.getElementById('editSongTime').value = song.time;
             document.getElementById('editSongTaal').value = song.taal;
-            const genres = song.genres || (song.genres ? [song.genres] : []);
+            const genres = Array.isArray(song.genres) ? song.genres : (song.genres ? [song.genres] : []);
             const editSelectedGenres = document.getElementById('editSelectedGenres');
+            // Deselect all genres first
+            document.querySelectorAll('#editGenreDropdown .multiselect-option.selected').forEach(opt => opt.classList.remove('selected'));
             editSelectedGenres.innerHTML = '';
-            genres.forEach(genres => {
+            genres.forEach(genre => {
+                // Select only present genres
+                const option = Array.from(document.querySelectorAll('#editGenreDropdown .multiselect-option')).find(opt => opt.dataset.value === genre);
+                if (option) option.classList.add('selected');
+                // Add tag
                 const tag = document.createElement('div');
                 tag.className = 'multiselect-tag';
                 tag.innerHTML = `
-                    ${genres}
+                    ${genre}
                     <span class="remove-tag">×</span>
                 `;
                 editSelectedGenres.appendChild(tag);
-                const options = document.querySelectorAll('#editGenreDropdown .multiselect-option');
-                options.forEach(opt => {
-                    if (opt.dataset.value === genres) {
-                        opt.classList.add('selected');
-                    }
-                });
                 // Attach remove-tag handler
                 tag.querySelector('.remove-tag').addEventListener('click', (e) => {
                     e.stopPropagation();
-                    // Remove selected from dropdown
-                    options.forEach(opt => {
-                        if (opt.dataset.value === genres) {
-                            opt.classList.remove('selected');
-                        }
-                    });
-                    // Remove tag from selected genres
+                    if (option) option.classList.remove('selected');
                     tag.remove();
                 });
             });
@@ -3309,7 +3303,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         let jwtToken = localStorage.getItem('jwtToken') || null;
                         const title = document.getElementById('songTitle')?.value;
                         const lyrics = document.getElementById('songLyrics')?.value;
-                        if (typeof isDuplicateSong === 'function' && isDuplicateSong(title, lyrics)) {
+                        // For add, check all songs (no id)
+                        if (typeof isDuplicateSong === 'function' && isDuplicateSong(title, lyrics, null)) {
                             showNotification('A song with this title and lyrics already exists!');
                             return;
                         }
@@ -3469,7 +3464,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         }
                         const title = document.getElementById('songTitle')?.value;
                         const lyrics = document.getElementById('songLyrics')?.value;
-                        if (typeof isDuplicateSong === 'function' && isDuplicateSong(title, lyrics)) {
+                        if (typeof isDuplicateSong === 'function' && isDuplicateSong(title, lyrics, null)) {
                             showNotification('A song with this title and lyrics already exists!');
                             return;
                         }
@@ -3552,7 +3547,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const title = document.getElementById('editSongTitle').value;
                 const lyrics = document.getElementById('editSongLyrics').value;
                 const currentId = objectId || id;
-                if (isDuplicateSong(title, lyrics, currentId)) {
+                if (typeof isDuplicateSong === 'function' && isDuplicateSong(title, lyrics, currentId)) {
                     showNotification('A song with this title and lyrics already exists!');
                     return;
                 }

@@ -195,8 +195,11 @@
                 <select id="editSongCategory" required></select>
                 <label for="editSongKey">Key:</label>
                 <select id="editSongKey" required></select>
-                <label for="editSongTempo">Tempo (BPM):</label>
-                <input type="text" id="editSongTempo" placeholder="e.g., 80 BPM">
+                <label for="editSongTempo">Tempo (BPM):<button type="button" id="editTapTempoBtn" class="btn btn-primary" style="min-width:90px;">Tap Tempo</button></label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="text" id="editSongTempo" placeholder="e.g., 80 BPM" style="flex:1;">
+                    <span id="editBpmDisplay" style="min-width:60px; font-weight:600; color:#4fc3f7;"></span>
+                </div
                 <label for="editSongTime">Time Signature:</label>
                 <select id="editSongTime" required></select>
                 <label for="editSongTaal">Taal:</label>

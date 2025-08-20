@@ -3012,7 +3012,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         tapTempoBtn.addEventListener('click', function() {
             const now = Date.now();
             tapTimes.push(now);
-            // Remove taps older than 2 seconds
             tapTimes = tapTimes.filter(t => now - t < 2000);
             if (tapTimes.length > 1) {
                 const intervals = [];
@@ -3025,6 +3024,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 songTempoInput.value = '';
             }
+        });
+    }
+
+    // Tap Tempo logic for Edit Song Modal
+    const editTapTempoBtn = document.getElementById('editTapTempoBtn');
+    const editSongTempoInput = document.getElementById('editSongTempo');
+    let editTapTimes = [];
+    let editTapTimeout;
+
+    if (editTapTempoBtn && editSongTempoInput) {
+        editTapTempoBtn.addEventListener('click', function() {
+            const now = Date.now();
+            editTapTimes.push(now);
+            editTapTimes = editTapTimes.filter(t => now - t < 2000);
+            if (editTapTimes.length > 1) {
+                const intervals = [];
+                for (let i = 1; i < editTapTimes.length; i++) {
+                    intervals.push(editTapTimes[i] - editTapTimes[i - 1]);
+                }
+                const bpm = Math.round(60000 / (intervals.reduce((a, b) => a + b, 0) / intervals.length));
+                editSongTempoInput.value = bpm;
+            } else {
+                editSongTempoInput.value = '';
+            }
+            clearTimeout(editTapTimeout);
+            editTapTimeout = setTimeout(() => {
+                editTapTimes = [];
+                editSongTempoInput.value = '';
+            }, 2000);
         });
     }
     

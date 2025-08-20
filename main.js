@@ -1,5 +1,4 @@
-
-            // Dynamic options for select fields
+// Dynamic options for select fields
             const GENRE_OPTIONS = [
                 'Praise', 'Worship', 'Christmas', 'Easter', 'Good Friday', 'Dance', 'Action',
                 'Love', 'Forgiveness', 'Holy Spirit', 'Hymns', 'Qawalli', 'Miracle',
@@ -1111,7 +1110,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const toggleAllPanelsBtn = document.getElementById('toggle-all-panels');
         const toggleAutoScrollBtn = document.getElementById('toggleAutoScroll');
         const keepScreenOnBtn = document.getElementById('keepScreenOnBtn');
-    // ...existing code...
         const sortSongs = document.getElementById('sortSongs');
 
         if (sortSongs) {
@@ -3004,7 +3002,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             deleteSongModal.style.display = 'flex';
         }
 
+        // Tap Tempo logic for Add Song Modal
+    const tapTempoBtn = document.getElementById('tapTempoBtn');
+    const songTempoInput = document.getElementById('songTempo');
+    let tapTimes = [];
+    let tapTimeout;
 
+    if (tapTempoBtn && songTempoInput) {
+        tapTempoBtn.addEventListener('click', function() {
+            const now = Date.now();
+            tapTimes.push(now);
+            // Remove taps older than 2 seconds
+            tapTimes = tapTimes.filter(t => now - t < 2000);
+            if (tapTimes.length > 1) {
+                const intervals = [];
+                for (let i = 1; i < tapTimes.length; i++) {
+                    intervals.push(tapTimes[i] - tapTimes[i - 1]);
+                }
+                const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+                const bpm = Math.round(60000 / avgInterval);
+                songTempoInput.value = bpm; // Show BPM directly in input
+            } else {
+                songTempoInput.value = '';
+            }
+        });
+    }
+    
 
     
         function addEventListeners() {

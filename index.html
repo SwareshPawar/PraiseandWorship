@@ -161,8 +161,11 @@
                 <select id="songCategory" required></select>
                 <label for="songKey">Key:</label>
                 <select id="songKey" required></select>
-                <label for="songTempo">Tempo (BPM):</label>
-                <input type="text" id="songTempo" placeholder="e.g., 80 BPM" >
+                <label for="songTempo">Tempo (BPM):<button type="button" id="tapTempoBtn" class="btn btn-primary" style="min-width:90px;">Tap Tempo</button></label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="text" id="songTempo" placeholder="e.g., 80 BPM" style="flex:1;">
+                    <span id="bpmDisplay" style="min-width:60px; font-weight:600; color:#4fc3f7;"></span>
+                </div>
                 <label for="songTime">Time Signature:</label>
                 <select id="songTime" ></select>
                 <label for="songTaal">Taal:</label>

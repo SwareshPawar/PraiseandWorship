@@ -3085,10 +3085,13 @@ async function loadAndRenderUsers() {
                         body: JSON.stringify({ isAdmin: makeAdmin })
                     });
                     
-                    if (!res2.ok) throw new Error('Failed to update admin status');
-                    
-                    showNotification('User admin status updated');
-                    await loadAndRenderUsers();
+                    if (res2.ok) {
+                        showNotification('User admin status updated');
+                        await loadAndRenderUsers();
+                    } else {
+                        const errData = await res2.json();
+                        showNotification(`Error: ${errData.error || 'Unauthorized'}`, 4000);
+                    }
                 } catch (e) {
                     showNotification('Error updating admin status', 4000);
                     this.disabled = false;
@@ -4303,7 +4306,12 @@ document.addEventListener('DOMContentLoaded', function() {
     populateSelect('keyFilter', KEY_FILTER_OPTIONS, true);
     populateSelect('genreFilter', GENRE_FILTER_OPTIONS, true);
     populateSelect('sortSongs', SORT_SONGS_OPTIONS, true);
-    
+
+    // Make panel toggles draggable
+    makeToggleDraggable('toggle-sidebar');
+    makeToggleDraggable('toggle-songs');
+    makeToggleDraggable('toggle-all-panels');
+
     // Initialize the application
     init().catch(err => {
         console.error('Initialization failed:', err);

@@ -1994,12 +1994,12 @@
             }
 
             .sidebar {
-                width: 50%;
+                width: var(--sidebar-width);
                 max-width: none;
             }
 
             .songs-section {
-                width: 50%;
+                width: var(--sidebar-width);
                 max-width: none;
                 left: 0;
             }
@@ -2114,12 +2114,12 @@
       }
 
           @media (max-width: 768px) {
-      .songs-section {
-        overflow-x: hidden !important;
-        max-width: 100vw;
-        width: 50vw;
-        box-sizing: border-box;
-      }
+            .songs-section {
+                overflow-x: hidden !important;
+                max-width: 100vw;
+                width: var(--songs-panel-width);
+                box-sizing: border-box;
+            }
       body, html {
         overflow-x: hidden !important;
       }

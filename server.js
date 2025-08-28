@@ -481,6 +481,12 @@ async function main() {
     console.log('[ENV] JWT_SECRET:', process.env.JWT_SECRET ? '(set)' : '(not set)');
     console.log('[ENV] PORT:', process.env.PORT);
 
+    // Create recommended indexes
+    await usersCollection.createIndex({ email: 1 }, { unique: true });
+    await favoritesCollection.createIndex({ userId: 1 });
+    await setlistsCollection.createIndex({ userId: 1, type: 1 });
+    await songsCollection.createIndex({ id: 1 });
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`[ENV] Backend server URL: http://localhost:${PORT}`);

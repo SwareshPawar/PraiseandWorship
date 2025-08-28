@@ -1,3 +1,4 @@
+
 // ====== GLOBAL CONSTANTS AND CONFIGURATION ======
 const GENRE_OPTIONS = [
     'Praise', 'Worship', 'Christmas', 'Easter', 'Good Friday', 'Dance', 'Action',
@@ -323,6 +324,20 @@ function updateSelectedGenres(containerId, dropdownId) {
 }
 
 // ====== AUTHENTICATION FUNCTIONS ======
+// Simulate session expiry for testing
+function simulateSessionExpiry(seconds = 10) {
+    showNotification(`Session will expire in ${seconds} seconds (testing mode)`, 3000);
+    setTimeout(() => {
+        localStorage.removeItem('jwtToken');
+        jwtToken = null;
+        updateAuthUI();
+        showNotification('Session expired (simulated for testing).', 4000);
+        const loginModal = document.getElementById('loginModal');
+        if (loginModal && loginModal.style.display !== 'flex') {
+            loginModal.style.display = 'flex';
+        }
+    }, seconds * 1000);
+}
 function updateAuthUI() {
     if (!document.getElementById('loginBtn') || !document.getElementById('registerBtn') || 
         !document.getElementById('logoutBtn') || !document.getElementById('sidebarAuthGreeting') ||
@@ -743,9 +758,15 @@ async function saveUserSetlist(type, setlist) {
         if (!res.ok) {
             if (res.status === 401) {
                 showNotification('Session expired. Please log in again.', 4000);
+                // Only kick out to sign in if not already open
+                setTimeout(() => {
+                    const loginModal = document.getElementById('loginModal');
+                    if (loginModal && loginModal.style.display !== 'flex') {
+                        loginModal.style.display = 'flex';
+                    }
+                }, 500);
                 return;
             }
-            
             const errData = await res.json();
             console.error('Failed to save setlist, server responded with:', res.status, errData);
             showNotification(`Error saving setlist: ${errData.error || 'Unauthorized'}`, 4000);
@@ -788,9 +809,14 @@ async function saveUserFavorites(favorites) {
         if (!res.ok) {
             if (res.status === 401) {
                 showNotification('Session expired. Please log in again.', 4000);
+                setTimeout(() => {
+                    const loginModal = document.getElementById('loginModal');
+                    if (loginModal && loginModal.style.display !== 'flex') {
+                        loginModal.style.display = 'flex';
+                    }
+                }, 500);
                 return;
             }
-            
             const errData = await res.json();
             console.error('Failed to save favorites, server responded with:', res.status, errData);
             showNotification(`Error saving favorites: ${errData.error || 'Unauthorized'}`, 4000);
@@ -4339,3 +4365,23 @@ window.previewSongNoActions = previewSongNoActions;
 window.updateSuggestedSongsWeights = function(newWeights) {
     sessionStorage.setItem('SUGGESTED_SONGS_WEIGHTS', JSON.stringify(newWeights));
 };
+
+    // Settings modal logic
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => {
+            document.getElementById('sidebarHeaderInput').value = document.querySelector('.sidebar-header h2').textContent;
+            document.getElementById('setlistTextInput').value = showSetlistEl.textContent;
+            document.getElementById('settingsModal').style.display = 'flex';
+        });
+    }
+
+    const settingsForm = document.getElementById('settingsForm');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            saveSettings();
+            showNotification('Settings saved successfully');
+            document.getElementById('settingsModal').style.display = 'none';
+        });
+    }

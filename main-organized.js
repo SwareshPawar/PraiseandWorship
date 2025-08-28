@@ -2388,47 +2388,28 @@ function loadSettings() {
 }
 
 function saveSettings() {
-    const sidebarHeaderInput = document.getElementById("sidebarHeaderInput");
-    const setlistTextInput = document.getElementById("setlistTextInput");
     const sidebarWidthInput = document.getElementById("sidebarWidthInput");
     const songsPanelWidthInput = document.getElementById("songsPanelWidthInput");
     const previewMarginInput = document.getElementById("previewMarginInput");
     const autoScrollSpeedInput = document.getElementById("autoScrollSpeedInput");
-    const sessionResetOptionInput = document.getElementById("sessionResetOption");
-    
-    if (!sidebarHeaderInput || !setlistTextInput || !sidebarWidthInput || 
-        !songsPanelWidthInput || !previewMarginInput || !autoScrollSpeedInput ||
-        !sessionResetOptionInput) {
+
+    if (!sidebarWidthInput || !songsPanelWidthInput || !previewMarginInput || !autoScrollSpeedInput) {
         return;
     }
-    
-    const newHeader = sidebarHeaderInput.value;
-    const newSetlist = setlistTextInput.value;
+
     const sidebarWidth = sidebarWidthInput.value;
     const songsPanelWidth = songsPanelWidthInput.value;
     const previewMargin = previewMarginInput.value;
     const newAutoScrollSpeed = autoScrollSpeedInput.value;
-    const sessionResetOption = sessionResetOptionInput.value;
-
-    if (document.querySelector(".sidebar-header h2")) {
-        document.querySelector(".sidebar-header h2").textContent = newHeader;
-    }
-    
-    if (showSetlistEl) {
-        showSetlistEl.textContent = newSetlist;
-    }
 
     document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}%`);
     document.documentElement.style.setProperty('--songs-panel-width', `${songsPanelWidth}%`);
     document.documentElement.style.setProperty('--preview-margin-left', `${previewMargin}px`);
 
-    localStorage.setItem("sidebarHeader", newHeader);
-    localStorage.setItem("setlistText", newSetlist);
     localStorage.setItem("sidebarWidth", sidebarWidth);
     localStorage.setItem("songsPanelWidth", songsPanelWidth);
     localStorage.setItem("previewMargin", previewMargin);
     localStorage.setItem("autoScrollSpeed", newAutoScrollSpeed);
-    localStorage.setItem("sessionResetOption", sessionResetOption);
 
     autoScrollSpeed = parseInt(newAutoScrollSpeed);
 
@@ -4370,9 +4351,10 @@ window.updateSuggestedSongsWeights = function(newWeights) {
     const settingsBtn = document.getElementById('settingsBtn');
     if (settingsBtn) {
         settingsBtn.addEventListener('click', () => {
-            document.getElementById('sidebarHeaderInput').value = document.querySelector('.sidebar-header h2').textContent;
-            document.getElementById('setlistTextInput').value = showSetlistEl.textContent;
-            document.getElementById('settingsModal').style.display = 'flex';
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+                settingsModal.style.display = 'flex';
+            }
         });
     }
 

@@ -2363,9 +2363,19 @@ function loadSettings() {
 
     const sessionResetOption = localStorage.getItem("sessionResetOption") || "manual";
 
-    const sidebarWidth = localStorage.getItem("sidebarWidth") || "20";
-    const songsPanelWidth = localStorage.getItem("songsPanelWidth") || "20";
-    const previewMargin = localStorage.getItem("previewMargin") || "40";
+    // Responsive defaults
+    let sidebarWidth, songsPanelWidth, previewMargin;
+    if (window.innerWidth <= 600) {
+        // Mobile
+        sidebarWidth = localStorage.getItem("sidebarWidth") || "60";
+        songsPanelWidth = localStorage.getItem("songsPanelWidth") || "60";
+        previewMargin = localStorage.getItem("previewMargin") || "15";
+    } else {
+        // Desktop
+        sidebarWidth = localStorage.getItem("sidebarWidth") || "25";
+        songsPanelWidth = localStorage.getItem("songsPanelWidth") || "25";
+        previewMargin = localStorage.getItem("previewMargin") || "15";
+    }
     const savedAutoScrollSpeed = localStorage.getItem("autoScrollSpeed") || "1500";
 
     document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}%`);

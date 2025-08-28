@@ -4299,7 +4299,7 @@ async function init() {
 
 // Start the application
 document.addEventListener('DOMContentLoaded', function() {
-    // Populate dropdowns
+    // All initialization in one place
     populateSelect('songCategory', CATEGORY_OPTIONS, true);
     populateSelect('editSongCategory', CATEGORY_OPTIONS, true);
     populateSelect('songKey', KEY_OPTIONS);
@@ -4314,10 +4314,30 @@ document.addEventListener('DOMContentLoaded', function() {
     populateSelect('genreFilter', GENRE_FILTER_OPTIONS, true);
     populateSelect('sortSongs', SORT_SONGS_OPTIONS, true);
 
-    // Make panel toggles draggable
     makeToggleDraggable('toggle-sidebar');
     makeToggleDraggable('toggle-songs');
     makeToggleDraggable('toggle-all-panels');
+
+    // Settings modal logic
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => {
+            const settingsModal = document.getElementById('settingsModal');
+            if (settingsModal) {
+                settingsModal.style.display = 'flex';
+            }
+        });
+    }
+
+    const settingsForm = document.getElementById('settingsForm');
+    if (settingsForm) {
+        settingsForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            saveSettings();
+            showNotification('Settings saved successfully');
+            document.getElementById('settingsModal').style.display = 'none';
+        });
+    }
 
     // Initialize the application
     init().catch(err => {

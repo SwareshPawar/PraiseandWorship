@@ -1097,78 +1097,78 @@
     --admin-panel-width: 60%; /* Change this value to adjust admin panel width */
     --admin-panel-height: 80%; /* Change this value to adjust admin panel height */
     
-    /* Core Theme Colors - Balanced Worship Theme */
-    --primary-color: #2c3e50;      /* Deep slate blue - for primary text */
-    --secondary-color: #41729f;    /* Midnight Blue - for key accents */
-    --accent-color: #e74c3c;       /* Warm red - for action buttons */
-    --accent-color-rgb: 231, 76, 60;
-    --light-bg: #f8f9fa;          /* Clean white background */
-    --text-color: #2c3e50;        /* Deep slate - main text color */
+    /* Core Theme Colors - Serene Sky Worship Theme */
+    --primary-color: #1a365d;      /* Deep ocean blue - strong, trustworthy */
+    --secondary-color: #2b6cb0;    /* Medium blue - calm, reliable */
+    --accent-color: #ed8936;       /* Warm sunset orange - inviting, energetic */
+    --accent-color-rgb: 237, 137, 54;
+    --light-bg: #f7fafc;          /* Pure light - clean, peaceful */
+    --text-color: #1a365d;        /* Deep ocean blue - excellent readability */
     
-    /* UI State Colors */
-    --delete-color: #e74c3c;
-    --favorite-color: #f39c12;
-    --success-color: #27ae60;
-    --error-color: #e74c3c;
-    --warning-color: #f39c12;
-    --info-color: #41729f;
+    /* UI State Colors - Harmonious & Clear */
+    --delete-color: #e53e3e;
+    --favorite-color: #d69e2e;
+    --success-color: #38a169;
+    --error-color: #e53e3e;
+    --warning-color: #d69e2e;
+    --info-color: #3182ce;
     
-    /* Action Button Colors */
-    --btn-danger-bg: #e74c3c;
-    --btn-danger-hover: #c0392b;
-    --btn-warning-bg: #f39c12;
-    --btn-warning-hover: #e67e22;
-    --btn-secondary-bg: #41729f;
-    --btn-secondary-hover: #2980b9;
-    --btn-text-light: white;
+    /* Action Button Colors - Clear & Confident */
+    --btn-danger-bg: #e53e3e;
+    --btn-danger-hover: #c53030;
+    --btn-warning-bg: #d69e2e;
+    --btn-warning-hover: #b7791f;
+    --btn-secondary-bg: #2b6cb0;
+    --btn-secondary-hover: #2c5282;
+    --btn-text-light: #ffffff;
     
-    /* Loading & Spinner Colors */
-    --spinner-track: #ecf0f1;
+    /* Loading & Spinner Colors - Clean & Clear */
+    --spinner-track: #e2e8f0;
     --spinner-active: var(--secondary-color);
-    --loading-text: #2c3e50;
-    --loading-overlay: rgba(44, 62, 80, 0.1);
-    --swipe-feedback: rgba(65, 114, 159, 0.05);
+    --loading-text: #1a365d;
+    --loading-overlay: rgba(26, 54, 93, 0.05);
+    --swipe-feedback: rgba(43, 108, 176, 0.08);
     
-    /* Notification & Modal Colors */
-    --notification-bg: rgba(44, 62, 80, 0.95);
-    --modal-overlay: rgba(52, 73, 94, 0.4);
+    /* Notification & Modal Colors - Professional & Clear */
+    --notification-bg: rgba(26, 54, 93, 0.95);
+    --modal-overlay: rgba(43, 108, 176, 0.2);
     --form-bg: #ffffff;
-    --form-shadow: rgba(0, 0, 0, 0.1);
-    --modal-title-color: #2c3e50;
-    --modal-close-color: #7f8c8d;
+    --form-shadow: rgba(26, 54, 93, 0.08);
+    --modal-title-color: #1a365d;
+    --modal-close-color: #718096;
     
-    /* Sidebar Theme */
-    --sidebar-text-color: #2c3e50;
-    --sidebar-item-bg: #ecf0f1;
-    --sidebar-item-hover-bg: #41729f;
+    /* Sidebar Theme - Clean & Professional */
+    --sidebar-text-color: #1a365d;
+    --sidebar-item-bg: #edf2f7;
+    --sidebar-item-hover-bg: #2b6cb0;
     --sidebar-text-hover: #ffffff;
     
-    /* Song Item Theme */
+    /* Song Item Theme - Crisp & Clear */
     --song-item-bg: #ffffff;
-    --song-item-text: #2c3e50;
-    --song-item-border: #bdc3c7;
-    --song-meta-color: #7f8c8d;
-    --song-item-text-bg: #e8f4f8;
-    --song-item-shadow: rgba(0, 0, 0, 0.08);
+    --song-item-text: #1a365d;
+    --song-item-border: #e2e8f0;
+    --song-meta-color: #718096;
+    --song-item-text-bg: #f7fafc;
+    --song-item-shadow: rgba(26, 54, 93, 0.06);
     
-    /* Lyrics Theme */
+    /* Lyrics Theme - Clear & Inspiring */
     --lyrics-bg-color: #ffffff;
-    --lyrics-text-color: #2c3e50;
-    --title-color: #2c3e50;
-    --chord-color: #e74c3c;
+    --lyrics-text-color: #1a365d;
+    --title-color: #1a365d;
+    --chord-color: #ed8936;
     
-    /* Input & Form Colors */
+    /* Input & Form Colors - Professional & Accessible */
     --input-bg: #ffffff;
-    --input-border: #bdc3c7;
-    --input-focus: rgba(65, 114, 159, 0.3);
-    --input-text: #2c3e50;
-    --input-highlight-bg: #e8f4f8;
-    --input-focus-bg: #f8f9fa;
-    --input-highlight-text: #2c3e50;
+    --input-border: #e2e8f0;
+    --input-focus: rgba(43, 108, 176, 0.2);
+    --input-text: #1a365d;
+    --input-highlight-bg: #f7fafc;
+    --input-focus-bg: #edf2f7;
+    --input-highlight-text: #1a365d;
     
     /* Legacy Variables for Compatibility */
-    --light-accent: #41729f;
-    --light-bg-highlight: #2c3e50;
+    --light-accent: #2b6cb0;
+    --light-bg-highlight: #1a365d;
 }
 
         * {
@@ -1187,78 +1187,78 @@
         }
 
             body.dark-mode {
-                /* Core Theme Colors - Balanced Dark Worship Theme */
-                --primary-color: #ecf0f1;      /* Light gray - for primary text */
-                --secondary-color: #41729f;    /* Midnight Blue - accent color */
-                --accent-color: #e67e22;       /* Warm orange - for action buttons */
-                --accent-color-rgb: 230, 126, 34;
-                --light-bg: #2c3e50;          /* Dark slate background */
-                --text-color: #ecf0f1;        /* Light gray - main text color */
+                /* Core Theme Colors - Sophisticated Night Theme */
+                --primary-color: #e2e8f0;      /* Soft white - gentle and readable */
+                --secondary-color: #63b3ed;    /* Soft sky blue - calming in dark */
+                --accent-color: #fbb040;       /* Warm amber - cozy and inviting */
+                --accent-color-rgb: 251, 176, 64;
+                --light-bg: #1a202c;          /* Deep navy - sophisticated and restful */
+                --text-color: #e2e8f0;        /* Soft white - comfortable for long reading */
                 
-                /* UI State Colors */
-                --delete-color: #e67e22;
-                --favorite-color: #f1c40f;
-                --success-color: #2ecc71;
-                --error-color: #e74c3c;
-                --warning-color: #f39c12;
-                --info-color: #41729f;
+                /* UI State Colors - Warm Dark Variants */
+                --delete-color: #fc8181;
+                --favorite-color: #fbb040;
+                --success-color: #68d391;
+                --error-color: #fc8181;
+                --warning-color: #fbb040;
+                --info-color: #63b3ed;
                 
-                /* Action Button Colors (darker variants for dark mode) */
-                --btn-danger-bg: #e74c3c;
-                --btn-danger-hover: #c0392b;
-                --btn-warning-bg: #f39c12;
-                --btn-warning-hover: #e67e22;
-                --btn-secondary-bg: #41729f;
-                --btn-secondary-hover: #2980b9;
-                --btn-text-light: white;
+                /* Action Button Colors - Confident Dark Variants */
+                --btn-danger-bg: #fc8181;
+                --btn-danger-hover: #e53e3e;
+                --btn-warning-bg: #fbb040;
+                --btn-warning-hover: #ed8936;
+                --btn-secondary-bg: #63b3ed;
+                --btn-secondary-hover: #4299e1;
+                --btn-text-light: #1a202c;
                 
-                /* Loading & Spinner Colors */
-                --spinner-track: #34495e;
-                --spinner-active: #41729f;
-                --loading-text: #ecf0f1;
-                --loading-overlay: rgba(44, 62, 80, 0.9);
-                --swipe-feedback: rgba(236, 240, 241, 0.1);
+                /* Loading & Spinner Colors - Smooth Dark */
+                --spinner-track: #2d3748;
+                --spinner-active: #63b3ed;
+                --loading-text: #e2e8f0;
+                --loading-overlay: rgba(26, 32, 44, 0.9);
+                --swipe-feedback: rgba(226, 232, 240, 0.1);
                 
-                /* Notification & Modal Colors */
-                --notification-bg: rgba(44, 62, 80, 0.95);
-                --modal-overlay: rgba(52, 73, 94, 0.8);
-                --form-bg: #34495e;
+                /* Notification & Modal Colors - Clean Dark */
+                --notification-bg: rgba(26, 32, 44, 0.95);
+                --modal-overlay: rgba(45, 55, 72, 0.6);
+                --form-bg: #2d3748;
                 --form-shadow: rgba(0, 0, 0, 0.3);
-                --modal-title-color: #ecf0f1;
-                --modal-close-color: #bdc3c7;
+                --modal-title-color: #e2e8f0;
+                --modal-close-color: #cbd5e0;
                 
-                /* Sidebar Theme */
-                --sidebar-text-color: #ecf0f1;
-                --sidebar-item-bg: #34495e;
-                --sidebar-item-hover-bg: #41729f;
-                --sidebar-text-hover: #ffffff;
+                /* Sidebar Theme - Sophisticated Dark */
+                --sidebar-text-color: #e2e8f0;
+                --sidebar-item-bg: #2d3748;
+                --sidebar-item-hover-bg: #63b3ed;
+                --sidebar-text-hover: #1a202c;
                 
-                /* Song Item Theme */
-                --song-item-bg: #34495e;
-                --song-item-text: #ecf0f1;
-                --song-item-border: #7f8c8d;
-                --song-meta-color: #bdc3c7;
-                --song-item-text-bg: #2c3e50;
-                --song-item-shadow: rgba(0, 0, 0, 0.3);
+                /* Song Item Theme - Elegant Dark */
+                --song-item-bg: #2d3748;
+                --song-item-text: #e2e8f0;
+                --song-item-border: #4a5568;
+                --song-meta-color: #a0aec0;
+                --song-item-text-bg: #1a202c;
+                --song-item-shadow: rgba(0, 0, 0, 0.2);
                 
-                /* Lyrics Theme */
-                --lyrics-bg-color: #34495e;
-                --lyrics-text-color: #ecf0f1;
-                --title-color: #ecf0f1;
-                --chord-color: #e67e22;
+                /* Lyrics Theme - Warm & Readable Dark */
+                --lyrics-bg-color: #2d3748;
+                --lyrics-text-color: #e2e8f0;
+                --title-color: #f7fafc;
+                --chord-color: #fbb040;
                 
-                /* Input & Form Colors */
-                --input-bg: #34495e;
-                --input-border: #7f8c8d;
-                --input-focus: rgba(65, 114, 159, 0.4);
-                --input-text: #ecf0f1;
-                --input-highlight-bg: #2c3e50;
-                --input-focus-bg: #2c3e50;
-                --input-highlight-text: #ecf0f1;
+                /* Input & Form Colors - Professional Dark */
+                --input-bg: #2d3748;
+                --input-border: #4a5568;
+                --input-focus: rgba(99, 179, 237, 0.3);
+                --input-text: #e2e8f0;
+                --input-highlight-bg: #1a202c;
+                --input-focus-bg: #1a202c;
+                --input-highlight-text: #e2e8f0;
                 
                 /* Legacy Variables for Dark Mode */
-                --dark-accent: #41729f;
-                --dark-light-bg: #34495e;
+                --dark-accent: #63b3ed;
+                --dark-light-bg: #2d3748;
             }
 
         /* Add these styles to your existing CSS */
@@ -1325,14 +1325,14 @@
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 9999;
-    background: linear-gradient(135deg, var(--secondary-color, #41729f), var(--accent-color, #e74c3c));
-    color: #fff;
+    background: linear-gradient(135deg, var(--secondary-color, #2b6cb0), var(--accent-color, #ed8936));
+    color: #ffffff;
     border: none;
     border-radius: 24px;
     padding: 16px 32px;
     font-size: 1.15rem;
     font-weight: 600;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 16px rgba(26, 54, 93, 0.3);
     cursor: pointer;
     transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
     letter-spacing: 0.03em;
@@ -1340,14 +1340,14 @@
 }
 
 #installAppBtn:hover, #installAppBtn:focus {
-    background: linear-gradient(135deg, var(--accent-color, #e74c3c), var(--secondary-color, #41729f));
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    background: linear-gradient(135deg, var(--accent-color, #ed8936), var(--secondary-color, #2b6cb0));
+    box-shadow: 0 8px 24px rgba(237, 137, 54, 0.4);
     transform: translate(-50%, -52%) scale(1.04);
 }
 
 body.dark-mode #installAppBtn {
-    background: linear-gradient(135deg, #41729f, #e67e22);
-    color: #23231A;
+    background: linear-gradient(135deg, #63b3ed, #fbb040);
+    color: #1a202c;
 }
 
 @media (max-width: 600px) {

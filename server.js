@@ -16,7 +16,8 @@ const client = new MongoClient(uri, {
   },
 });
 
-app.use(cors({
+// CORS configuration for Vercel serverless
+const corsOptions = {
   origin: [
     'http://localhost:3000',
     'http://127.0.0.1:5500', // Live Server
@@ -30,10 +31,41 @@ app.use(cors({
     'https://praiseand-worship-bznmhyhlc-swareshs-projects.vercel.app',
     /https:\/\/praiseand-worship-.*\.vercel\.app$/ // Match all Vercel deployment URLs
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
-}));
+};
+
+app.use(cors(corsOptions));
+
+// Manual CORS handler for OPTIONS requests
+app.options('*', (req, res) => {
+  const origin = req.headers.origin;
+  if (corsOptions.origin.includes(origin) || corsOptions.origin.some(o => o instanceof RegExp && o.test(origin))) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.status(200).end();
+});
+
+// Add CORS headers to all responses
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (corsOptions.origin.includes(origin) || corsOptions.origin.some(o => o instanceof RegExp && o.test(origin))) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  next();
+});
+
 app.use(express.json());
 app.use(express.static('.'));
 

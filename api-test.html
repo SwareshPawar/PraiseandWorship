@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Connection Test</title>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    <div id="results"></div>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function log(message) {
+            console.log(message);
+            resultsDiv.innerHTML += '<p>' + message + '</p>';
+        }
+        
+        async function testAPIConnection() {
+            const API_BASE_URL = 'http://localhost:3001';
+            
+            log(`Testing connection to: ${API_BASE_URL}`);
+            log(`Current window location: ${window.location.href}`);
+            log(`Current origin: ${window.location.origin}`);
+            
+            try {
+                log('Testing /api/global-setlists endpoint...');
+                const response = await fetch(`${API_BASE_URL}/api/global-setlists`);
+                log(`Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`Success! Received ${Array.isArray(data) ? data.length : 'non-array'} global setlists`);
+                } else {
+                    log(`Error: ${response.status} - ${response.statusText}`);
+                }
+            } catch (error) {
+                log(`Fetch error: ${error.message}`);
+                log(`Error type: ${error.constructor.name}`);
+            }
+            
+            try {
+                log('Testing /api/songs endpoint...');
+                const response = await fetch(`${API_BASE_URL}/api/songs`);
+                log(`Response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`Success! Received ${Array.isArray(data) ? data.length : 'non-array'} songs`);
+                } else {
+                    log(`Error: ${response.status} - ${response.statusText}`);
+                }
+            } catch (error) {
+                log(`Fetch error: ${error.message}`);
+                log(`Error type: ${error.constructor.name}`);
+            }
+        }
+        
+        // Run test when page loads
+        testAPIConnection();
+    </script>
+</body>
+</html>

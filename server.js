@@ -923,7 +923,20 @@ if (process.env.NODE_ENV !== 'production') {
     try {
       await connectToDatabase();
       const PORT = process.env.PORT || 3001;
-      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+      
+      const server = app.listen(PORT, '0.0.0.0', () => {
+        console.log(`Server running on port ${PORT}`);
+        console.log(`Server address: ${JSON.stringify(server.address())}`);
+        console.log('Server is ready to accept connections');
+      });
+      
+      server.on('error', (err) => {
+        console.error('Server listen error:', err);
+        if (err.code === 'EADDRINUSE') {
+          console.error(`Port ${PORT} is already in use. Please close other servers or use a different port.`);
+        }
+      });
+      
     } catch (err) {
       console.error('Failed to start server:', err);
       process.exit(1);

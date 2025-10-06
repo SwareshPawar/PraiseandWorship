@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #loginForm { margin: 20px 0; padding: 20px; border: 1px solid #ccc; border-radius: 4px; }
+        input { padding: 8px; margin: 5px; width: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Production API Test</h1>
+    
+    <div id="results"></div>
+    
+    <h2>API Tests</h2>
+    <button onclick="testProductionAPI()">Test Production API</button>
+    <button onclick="testLocalAPI()">Test Local API</button>
+    
+    <h2>Dummy Login Test</h2>
+    <div id="loginForm">
+        <h3>Test Login (will use dummy credentials)</h3>
+        <input type="email" id="email" placeholder="Email" value="test@example.com">
+        <input type="password" id="password" placeholder="Password" value="testpassword">
+        <br>
+        <button onclick="testLogin('production')">Test Production Login</button>
+        <button onclick="testLogin('local')">Test Local Login</button>
+    </div>
+    
+    <script>
+        const resultsDiv = document.getElementById('results');
+        
+        function log(message, type = 'info') {
+            console.log(message);
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            resultsDiv.appendChild(div);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        async function testAPI(baseUrl, label) {
+            log(`Testing ${label} API at: ${baseUrl}`, 'info');
+            
+            const endpoints = [
+                '/api/global-setlists',
+                '/api/songs',
+                '/api/recommendation-weights'
+            ];
+            
+            for (const endpoint of endpoints) {
+                try {
+                    log(`Testing ${endpoint}...`);
+                    const response = await fetch(`${baseUrl}${endpoint}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        log(`✅ ${endpoint}: ${response.status} - ${Array.isArray(data) ? data.length + ' items' : 'OK'}`, 'success');
+                    } else {
+                        log(`❌ ${endpoint}: ${response.status} - ${response.statusText}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ ${endpoint}: ${error.message}`, 'error');
+                }
+            }
+        }
+        
+        async function testProductionAPI() {
+            await testAPI('https://praiseand-worship.vercel.app', 'Production');
+        }
+        
+        async function testLocalAPI() {
+            await testAPI('http://localhost:3001', 'Local');
+        }
+        
+        async function testLogin(env) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const baseUrl = env === 'production' 
+                ? 'https://praiseand-worship.vercel.app' 
+                : 'http://localhost:3001';
+                
+            log(`Testing ${env} login with ${email}`, 'info');
+            
+            try {
+                const response = await fetch(`${baseUrl}/api/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+                
+                log(`Login response status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Login successful! Token received: ${data.token ? 'YES' : 'NO'}`, 'success');
+                    
+                    // Test authenticated request
+                    if (data.token) {
+                        try {
+                            const userDataResponse = await fetch(`${baseUrl}/api/userdata`, {
+                                headers: {
+                                    'Authorization': `Bearer ${data.token}`
+                                }
+                            });
+                            
+                            if (userDataResponse.ok) {
+                                const userData = await userDataResponse.json();
+                                log(`✅ User data retrieved: ${userData.email}`, 'success');
+                            } else {
+                                log(`❌ User data failed: ${userDataResponse.status}`, 'error');
+                            }
+                        } catch (error) {
+                            log(`❌ User data error: ${error.message}`, 'error');
+                        }
+                    }
+                } else {
+                    const errorText = await response.text();
+                    log(`❌ Login failed: ${response.status} - ${errorText}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Login error: ${error.message}`, 'error');
+            }
+        }
+        
+        // Auto-test production API on load
+        window.onload = function() {
+            log('Page loaded. Testing production API...', 'info');
+            testProductionAPI();
+        };
+    </script>
+</body>
+</html>

@@ -80,6 +80,15 @@ app.use((req, res, next) => {
 app.use(express.json());
 // Removed express.static('.') as it causes path-to-regexp errors and we use public directory for static files
 
+// Simple test endpoint for Vercel deployment debugging
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    message: 'API is working!', 
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Request logging middleware
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Origin: ${req.headers.origin || 'none'}`);
@@ -939,7 +948,9 @@ if (process.env.NODE_ENV !== 'production') {
       
     } catch (err) {
       console.error('Failed to start server:', err);
-      process.exit(1);
+      if (process.env.NODE_ENV !== 'production') {
+        process.exit(1);
+      }
     }
   }
   startLocalServer();

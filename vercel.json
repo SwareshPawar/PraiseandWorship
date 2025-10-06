@@ -1,25 +1,23 @@
 {
   "version": 2,
-  "functions": {
-    "api/songs.js": {
-      "maxDuration": 30
+  "builds": [
+    {
+      "src": "api/**/*.js",
+      "use": "@vercel/node"
     },
-    "api/index.js": {
-      "maxDuration": 30
+    {
+      "src": "**",
+      "use": "@vercel/static"
     }
-  },
-  "rewrites": [
+  ],
+  "routes": [
     {
-      "source": "/api/songs",
-      "destination": "/api/songs.js"
+      "src": "/api/(.*)",
+      "dest": "/api/$1.js"
     },
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
 }

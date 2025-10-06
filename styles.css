@@ -1097,78 +1097,78 @@
     --admin-panel-width: 60%; /* Change this value to adjust admin panel width */
     --admin-panel-height: 80%; /* Change this value to adjust admin panel height */
     
-    /* Core Theme Colors - Serene Sky Worship Theme */
-    --primary-color: #1a365d;      /* Deep ocean blue - strong, trustworthy */
-    --secondary-color: #2b6cb0;    /* Medium blue - calm, reliable */
-    --accent-color: #ed8936;       /* Warm sunset orange - inviting, energetic */
-    --accent-color-rgb: 237, 137, 54;
-    --light-bg: #f7fafc;          /* Pure light - clean, peaceful */
-    --text-color: #1a365d;        /* Deep ocean blue - excellent readability */
+    /* Core Theme Colors - Serene Ocean Worship Theme */
+    --primary-color: #05445e;      /* Navy Blue - deep, trustworthy, spiritual */
+    --secondary-color: #189ab4;    /* Blue Grotto - vibrant, inspiring */
+    --accent-color: #4c928b;       /* Blue Green - refreshing, peaceful accent */
+    --accent-color-rgb: 117, 230, 218;
+    --light-bg: #d4f1f4;          /* Baby Blue - soft, calming background */
+    --text-color: #05445e;        /* Navy Blue - excellent readability */
     
-    /* UI State Colors - Harmonious & Clear */
-    --delete-color: #e53e3e;
-    --favorite-color: #d69e2e;
-    --success-color: #38a169;
-    --error-color: #e53e3e;
-    --warning-color: #d69e2e;
-    --info-color: #3182ce;
+    /* UI State Colors - Ocean Harmony */
+    --delete-color: #189ab4;
+    --favorite-color: #75e6da;
+    --success-color: #75e6da;
+    --error-color: #05445e;
+    --warning-color: #189ab4;
+    --info-color: #189ab4;
     
-    /* Action Button Colors - Clear & Confident */
-    --btn-danger-bg: #e53e3e;
-    --btn-danger-hover: #c53030;
-    --btn-warning-bg: #d69e2e;
-    --btn-warning-hover: #b7791f;
-    --btn-secondary-bg: #2b6cb0;
-    --btn-secondary-hover: #2c5282;
+    /* Action Button Colors - Ocean Inspired */
+    --btn-danger-bg: #05445e;
+    --btn-danger-hover: #032e3f;
+    --btn-warning-bg: #189ab4;
+    --btn-warning-hover: #137a8a;
+    --btn-secondary-bg: #189ab4;
+    --btn-secondary-hover: #137a8a;
     --btn-text-light: #ffffff;
     
-    /* Loading & Spinner Colors - Clean & Clear */
-    --spinner-track: #e2e8f0;
+    /* Loading & Spinner Colors - Ocean Breeze */
+    --spinner-track: #d4f1f4;
     --spinner-active: var(--secondary-color);
-    --loading-text: #1a365d;
-    --loading-overlay: rgba(26, 54, 93, 0.05);
-    --swipe-feedback: rgba(43, 108, 176, 0.08);
+    --loading-text: #05445e;
+    --loading-overlay: rgba(5, 68, 94, 0.05);
+    --swipe-feedback: rgba(24, 154, 180, 0.08);
     
-    /* Notification & Modal Colors - Professional & Clear */
-    --notification-bg: rgba(26, 54, 93, 0.95);
-    --modal-overlay: rgba(43, 108, 176, 0.2);
+    /* Notification & Modal Colors - Ocean Depth */
+    --notification-bg: rgba(5, 68, 94, 0.95);
+    --modal-overlay: rgba(24, 154, 180, 0.2);
     --form-bg: #ffffff;
-    --form-shadow: rgba(26, 54, 93, 0.08);
-    --modal-title-color: #1a365d;
-    --modal-close-color: #718096;
+    --form-shadow: rgba(5, 68, 94, 0.08);
+    --modal-title-color: #05445e;
+    --modal-close-color: #189ab4;
     
-    /* Sidebar Theme - Clean & Professional */
-    --sidebar-text-color: #1a365d;
-    --sidebar-item-bg: #edf2f7;
-    --sidebar-item-hover-bg: #2b6cb0;
-    --sidebar-text-hover: #ffffff;
+    /* Sidebar Theme - Ocean Serenity */
+    --sidebar-text-color: #05445e;
+    --sidebar-item-bg: #ffffff;
+    --sidebar-item-hover-bg: #189ab4;
+    --sidebar-text-hover: #cccbcb;
     
-    /* Song Item Theme - Crisp & Clear */
+    /* Song Item Theme - Ocean Breeze */
     --song-item-bg: #ffffff;
-    --song-item-text: #1a365d;
-    --song-item-border: #e2e8f0;
-    --song-meta-color: #718096;
-    --song-item-text-bg: #f7fafc;
-    --song-item-shadow: rgba(26, 54, 93, 0.06);
+    --song-item-text: #05445e;
+    --song-item-border: #d4f1f4;
+    --song-meta-color: #0d6172;
+    --song-item-text-bg: #d4f1f4;
+    --song-item-shadow: rgba(5, 68, 94, 0.06);
     
-    /* Lyrics Theme - Clear & Inspiring */
+    /* Lyrics Theme - Ocean Worship */
     --lyrics-bg-color: #ffffff;
-    --lyrics-text-color: #1a365d;
-    --title-color: #1a365d;
-    --chord-color: #ed8936;
+    --lyrics-text-color: #05445e;
+    --title-color: #05445e;
+    --chord-color: #75e6da;
     
-    /* Input & Form Colors - Professional & Accessible */
+    /* Input & Form Colors - Ocean Clarity */
     --input-bg: #ffffff;
-    --input-border: #e2e8f0;
-    --input-focus: rgba(43, 108, 176, 0.2);
-    --input-text: #1a365d;
-    --input-highlight-bg: #f7fafc;
-    --input-focus-bg: #edf2f7;
-    --input-highlight-text: #1a365d;
+    --input-border: #d4f1f4;
+    --input-focus: rgba(24, 154, 180, 0.2);
+    --input-text: #05445e;
+    --input-highlight-bg: #d4f1f4;
+    --input-focus-bg: #d4f1f4;
+    --input-highlight-text: #05445e;
     
     /* Legacy Variables for Compatibility */
-    --light-accent: #2b6cb0;
-    --light-bg-highlight: #1a365d;
+    --light-accent: #189ab4;
+    --light-bg-highlight: #05445e;
 }
 
         * {
@@ -1187,78 +1187,78 @@
         }
 
             body.dark-mode {
-                /* Core Theme Colors - Sophisticated Night Theme */
-                --primary-color: #e2e8f0;      /* Soft white - gentle and readable */
-                --secondary-color: #63b3ed;    /* Soft sky blue - calming in dark */
-                --accent-color: #fbb040;       /* Warm amber - cozy and inviting */
-                --accent-color-rgb: 251, 176, 64;
-                --light-bg: #1a202c;          /* Deep navy - sophisticated and restful */
-                --text-color: #e2e8f0;        /* Soft white - comfortable for long reading */
+                /* Core Theme Colors - Deep Ocean Night Theme */
+                --primary-color: #d4f1f4;      /* Baby Blue - soft, gentle text */
+                --secondary-color: #75e6da;    /* Blue Green - calming accent */
+                --accent-color: #189ab4;       /* Blue Grotto - vibrant highlights */
+                --accent-color-rgb: 24, 154, 180;
+                --light-bg: #032e3f;          /* Deep Navy - sophisticated dark ocean */
+                --text-color: #d4f1f4;        /* Baby Blue - comfortable reading */
                 
-                /* UI State Colors - Warm Dark Variants */
-                --delete-color: #fc8181;
-                --favorite-color: #fbb040;
-                --success-color: #68d391;
-                --error-color: #fc8181;
-                --warning-color: #fbb040;
-                --info-color: #63b3ed;
+                /* UI State Colors - Ocean Night Variants */
+                --delete-color: #189ab4;
+                --favorite-color: #75e6da;
+                --success-color: #75e6da;
+                --error-color: #189ab4;
+                --warning-color: #75e6da;
+                --info-color: #189ab4;
                 
-                /* Action Button Colors - Confident Dark Variants */
-                --btn-danger-bg: #fc8181;
-                --btn-danger-hover: #e53e3e;
-                --btn-warning-bg: #fbb040;
-                --btn-warning-hover: #ed8936;
-                --btn-secondary-bg: #63b3ed;
-                --btn-secondary-hover: #4299e1;
-                --btn-text-light: #1a202c;
+                /* Action Button Colors - Ocean Dark Variants */
+                --btn-danger-bg: #189ab4;
+                --btn-danger-hover: #137a8a;
+                --btn-warning-bg: #75e6da;
+                --btn-warning-hover: #5dd4c7;
+                --btn-secondary-bg: #75e6da;
+                --btn-secondary-hover: #5dd4c7;
+                --btn-text-light: #032e3f;
                 
-                /* Loading & Spinner Colors - Smooth Dark */
-                --spinner-track: #2d3748;
-                --spinner-active: #63b3ed;
-                --loading-text: #e2e8f0;
-                --loading-overlay: rgba(26, 32, 44, 0.9);
-                --swipe-feedback: rgba(226, 232, 240, 0.1);
+                /* Loading & Spinner Colors - Ocean Night */
+                --spinner-track: #05445e;
+                --spinner-active: #75e6da;
+                --loading-text: #d4f1f4;
+                --loading-overlay: rgba(3, 46, 63, 0.9);
+                --swipe-feedback: rgba(212, 241, 244, 0.1);
                 
-                /* Notification & Modal Colors - Clean Dark */
-                --notification-bg: rgba(26, 32, 44, 0.95);
-                --modal-overlay: rgba(45, 55, 72, 0.6);
-                --form-bg: #2d3748;
+                /* Notification & Modal Colors - Ocean Depths */
+                --notification-bg: rgba(3, 62, 80, 0.95);
+                --modal-overlay: rgba(5, 68, 94, 0.6);
+                --form-bg: #05445e;
                 --form-shadow: rgba(0, 0, 0, 0.3);
-                --modal-title-color: #e2e8f0;
-                --modal-close-color: #cbd5e0;
+                --modal-title-color: #d4f1f4;
+                --modal-close-color: #75e6da;
                 
-                /* Sidebar Theme - Sophisticated Dark */
-                --sidebar-text-color: #e2e8f0;
-                --sidebar-item-bg: #2d3748;
-                --sidebar-item-hover-bg: #63b3ed;
-                --sidebar-text-hover: #1a202c;
+                /* Sidebar Theme - Ocean Night */
+                --sidebar-text-color: #d4f1f4;
+                --sidebar-item-bg: #05445e;
+                --sidebar-item-hover-bg: #75e6da;
+                --sidebar-text-hover: #033e50;
                 
-                /* Song Item Theme - Elegant Dark */
-                --song-item-bg: #2d3748;
-                --song-item-text: #e2e8f0;
-                --song-item-border: #4a5568;
-                --song-meta-color: #a0aec0;
-                --song-item-text-bg: #1a202c;
+                /* Song Item Theme - Ocean Night */
+                --song-item-bg: #05445e;
+                --song-item-text: #d4f1f4;
+                --song-item-border: #189ab4;
+                --song-meta-color: #b8e6e1;
+                --song-item-text-bg: #033e50;
                 --song-item-shadow: rgba(0, 0, 0, 0.2);
                 
-                /* Lyrics Theme - Warm & Readable Dark */
-                --lyrics-bg-color: #2d3748;
-                --lyrics-text-color: #e2e8f0;
-                --title-color: #f7fafc;
-                --chord-color: #fbb040;
+                /* Lyrics Theme - Ocean Serenity Dark */
+                --lyrics-bg-color: #05445e;
+                --lyrics-text-color: #d4f1f4;
+                --title-color: #f8fcfd;
+                --chord-color: #75e6da;
                 
-                /* Input & Form Colors - Professional Dark */
-                --input-bg: #2d3748;
-                --input-border: #4a5568;
-                --input-focus: rgba(99, 179, 237, 0.3);
-                --input-text: #e2e8f0;
-                --input-highlight-bg: #1a202c;
-                --input-focus-bg: #1a202c;
-                --input-highlight-text: #e2e8f0;
+                /* Input & Form Colors - Ocean Depths */
+                --input-bg: #05445e;
+                --input-border: #189ab4;
+                --input-focus: rgba(117, 230, 218, 0.3);
+                --input-text: #d4f1f4;
+                --input-highlight-bg: #033e50;
+                --input-focus-bg: #033e50;
+                --input-highlight-text: #d4f1f4;
                 
                 /* Legacy Variables for Dark Mode */
-                --dark-accent: #63b3ed;
-                --dark-light-bg: #2d3748;
+                --dark-accent: #75e6da;
+                --dark-light-bg: #05445e;
             }
 
         /* Add these styles to your existing CSS */
@@ -1346,8 +1346,8 @@
 }
 
 body.dark-mode #installAppBtn {
-    background: linear-gradient(135deg, #63b3ed, #fbb040);
-    color: #1a202c;
+    background: linear-gradient(135deg, #189ab4, #75e6da);
+    color: #033e50;
 }
 
 @media (max-width: 600px) {

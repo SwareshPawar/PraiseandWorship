@@ -7447,11 +7447,11 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             // Determine if this is a global setlist or personal setlist
             let apiEndpoint;
-    //         const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    // ? 'http://localhost:3001' 
-    // : 'https://praiseand-worship.vercel.app'; // or your actual backend URL
+            const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    ? 'http://localhost:3001' 
+    : 'https://praiseand-worship.vercel.app'; // or your actual backend URL
 
-const API_BASE_URL = 'praiseand-worship-swareshs-projects.vercel.app';
+
 
             if (setlistId.startsWith('global_')) {
                 apiEndpoint = `${API_BASE_URL}/api/global-setlists/add-song`;

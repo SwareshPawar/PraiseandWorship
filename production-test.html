@@ -75,7 +75,8 @@
         }
         
         async function testProductionAPI() {
-            await testAPI('https://praiseand-worship.vercel.app', 'Production');
+            await testAPI('https://praiseandworship.onrender.com', 'Production (Render)');
+            await testAPI('https://praiseand-worship.vercel.app', 'Production (Vercel Fallback)');
         }
         
         async function testLocalAPI() {

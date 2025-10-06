@@ -23,7 +23,8 @@ app.use(cors({
     'http://localhost:5501',
     'https://praiseand-worship.vercel.app',
     'https://swareshpawar.github.io', // GitHub Pages
-    /^https:\/\/.*\.onrender\.com$/ // All Render domains
+    'https://praiseandworship.onrender.com', // Primary Render deployment
+    /^https:\/\/.*\.onrender\.com$/ // All Render domains (fallback)
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -108,6 +109,16 @@ function authMiddleware(req, res, next) {
   req.user = payload;
   next();
 }
+
+// Health check endpoint for deployment detection
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'healthy', 
+    service: 'Praise & Worship API',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
 
 // Get recommendation weights config
 app.get('/api/recommendation-weights', async (req, res) => {

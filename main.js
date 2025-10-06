@@ -202,14 +202,11 @@ const CHORD_TYPES = [
 
         // Dynamic API base URL for local/dev/prod
         const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-
             ? 'http://localhost:3001'
-            : 'https://praiseand-worship.vercel.app'; // Production deployment
+            : 'https://praiseandworship.onrender.com'; // Primary production deployment (Render)
+            // Fallback: 'https://praiseand-worship.vercel.app'
 
             console.log('API_BASE_URL:', API_BASE_URL);
-        
-        
-        // const API_BASE_URL = 'https://praiseand-worship.vercel.app';
 
 // --- CHORD REGEXES: always use CHORD_TYPES ---
 const CHORDS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B"];

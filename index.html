@@ -260,8 +260,8 @@ async function saveRecommendationWeightsToBackend(weights) {
                 <div class="sidebar-footer">
                     <div class="song-count">
                         <div>Total Songs: <span id="totalSongs">0</span></div>
-                        <div>New: <span id="NewCount">0</span></div>
-                        <div>Old: <span id="OldCount">0</span></div>
+                        <div>Praise: <span id="PraiseCount">0</span></div>
+                        <div>Worship: <span id="WorshipCount">0</span></div>
                     </div>
 
                     <button class="theme-toggle" id="themeToggle" style="width:100%;margin-top:10px;" title="Switch Theme - Toggle between light and dark mode for better reading" aria-label="Toggle Theme">
@@ -360,12 +360,12 @@ async function saveRecommendationWeightsToBackend(weights) {
                     </div>
                 </div>
                 <div class="setlist-tabs">
-                    <div class="setlist-tab active" id="NewSetlistTab" title="New Songs in Setlist - View contemporary songs in this setlist" aria-label="New Setlist Songs Tab">New</div>
-                    <div class="setlist-tab" id="OldSetlistTab" title="Old Songs in Setlist - View classic songs in this setlist" aria-label="Old Setlist Songs Tab">Old</div>
+                    <div class="setlist-tab active" id="PraiseSetlistTab" title="Praise Songs in Setlist - View praise songs in this setlist" aria-label="Praise Setlist Songs Tab">Praise</div>
+                    <div class="setlist-tab" id="WorshipSetlistTab" title="Worship Songs in Setlist - View worship songs in this setlist" aria-label="Worship Setlist Songs Tab">Worship</div>
                 </div>
                 <div class="setlist-content">
-                    <div id="NewSetlistSongs"></div>
-                    <div id="OldSetlistSongs" style="display: none;"></div>
+                    <div id="PraiseSetlistSongs"></div>
+                    <div id="WorshipSetlistSongs" style="display: none;"></div>
                 </div>
             </div>
             <div class="delete-section" id="deleteSection" style="display: none;">
@@ -693,21 +693,21 @@ async function saveRecommendationWeightsToBackend(weights) {
                     <div class="selected-songs-summary">
                         <h4>Selected Songs: <span id="globalSelectedCount">0</span></h4>
                         
-                        <!-- Tabs for Selected Old/New Songs -->
+                        <!-- Tabs for Selected Worship/Praise Songs -->
                         <div class="modal-song-tabs">
-                            <div class="modal-tab active" id="globalSelectedOldTab">Old Songs (<span id="globalSelectedOldCount">0</span>)</div>
-                            <div class="modal-tab" id="globalSelectedNewTab">New Songs (<span id="globalSelectedNewCount">0</span>)</div>
+                            <div class="modal-tab active" id="globalSelectedWorshipTab">Worship Songs (<span id="globalSelectedWorshipCount">0</span>)</div>
+                            <div class="modal-tab" id="globalSelectedPraiseTab">Praise Songs (<span id="globalSelectedPraiseCount">0</span>)</div>
                         </div>
                         
                         <div class="selected-songs-container">
-                            <!-- Selected Old Songs Tab Content -->
-                            <div class="modal-tab-content active" id="globalSelectedOldContent">
-                                <div id="globalSelectedOldSongsList" class="selected-songs-list modal-scrollable-summary"></div>
+                            <!-- Selected Worship Songs Tab Content -->
+                            <div class="modal-tab-content active" id="globalSelectedWorshipContent">
+                                <div id="globalSelectedWorshipSongsList" class="selected-songs-list modal-scrollable-summary"></div>
                             </div>
                             
-                            <!-- Selected New Songs Tab Content -->
-                            <div class="modal-tab-content" id="globalSelectedNewContent">
-                                <div id="globalSelectedNewSongsList" class="selected-songs-list modal-scrollable-summary"></div>
+                            <!-- Selected Praise Songs Tab Content -->
+                            <div class="modal-tab-content" id="globalSelectedPraiseContent">
+                                <div id="globalSelectedPraiseSongsList" class="selected-songs-list modal-scrollable-summary"></div>
                             </div>
                         </div>
                     </div>
@@ -739,31 +739,31 @@ async function saveRecommendationWeightsToBackend(weights) {
                         </div>
                     </div>
                     
-                    <!-- Tabs for Old/New Songs -->
+                    <!-- Tabs for Worship/Praise Songs -->
                     <div class="modal-song-tabs">
-                        <div class="modal-tab active" id="globalOldSongsTab">Old Songs</div>
-                        <div class="modal-tab" id="globalNewSongsTab">New Songs</div>
+                        <div class="modal-tab active" id="globalWorshipSongsTab">Worship Songs</div>
+                        <div class="modal-tab" id="globalPraiseSongsTab">Praise Songs</div>
                     </div>
                     
                     <div class="song-selection-container">
-                        <!-- Old Songs Tab Content -->
-                        <div class="modal-tab-content active" id="globalOldSongsContent">
+                        <!-- Worship Songs Tab Content -->
+                        <div class="modal-tab-content active" id="globalWorshipSongsContent">
                             <div class="song-category-header">
                                 <label class="select-all-label">
-                                    <input type="checkbox" id="globalSelectAllOldSongs"> Select All Old Songs (<span id="globalOldSongsCount">0</span>)
+                                    <input type="checkbox" id="globalSelectAllWorshipSongs"> Select All Worship Songs (<span id="globalWorshipSongsCount">0</span>)
                                 </label>
                             </div>
-                            <div id="globalOldSongSelectionList" class="song-selection-list modal-scrollable"></div>
+                            <div id="globalWorshipSongSelectionList" class="song-selection-list modal-scrollable"></div>
                         </div>
                         
-                        <!-- New Songs Tab Content -->
-                        <div class="modal-tab-content" id="globalNewSongsContent">
+                        <!-- Praise Songs Tab Content -->
+                        <div class="modal-tab-content" id="globalPraiseSongsContent">
                             <div class="song-category-header">
                                 <label class="select-all-label">
-                                    <input type="checkbox" id="globalSelectAllNewSongs"> Select All New Songs (<span id="globalNewSongsCount">0</span>)
+                                    <input type="checkbox" id="globalSelectAllPraiseSongs"> Select All Praise Songs (<span id="globalPraiseSongsCount">0</span>)
                                 </label>
                             </div>
-                            <div id="globalNewSongSelectionList" class="song-selection-list modal-scrollable"></div>
+                            <div id="globalPraiseSongSelectionList" class="song-selection-list modal-scrollable"></div>
                         </div>
                     </div>
                 </div>
@@ -803,21 +803,21 @@ async function saveRecommendationWeightsToBackend(weights) {
                 <!-- Selected Songs Tab Content -->
                 <div class="setlist-main-tab-content active" id="selectedSongsContent">
                     <div class="selected-songs-summary">
-                        <!-- Tabs for Selected Old/New Songs -->
+                        <!-- Tabs for Selected Worship/Praise Songs -->
                         <div class="modal-song-tabs">
-                            <div class="modal-tab active" id="mySelectedOldTab">Old Songs (<span id="mySelectedOldCount">0</span>)</div>
-                            <div class="modal-tab" id="mySelectedNewTab">New Songs (<span id="mySelectedNewCount">0</span>)</div>
+                            <div class="modal-tab active" id="mySelectedWorshipTab">Worship Songs (<span id="mySelectedWorshipCount">0</span>)</div>
+                            <div class="modal-tab" id="mySelectedPraiseTab">Praise Songs (<span id="mySelectedPraiseCount">0</span>)</div>
                         </div>
                         
                         <div class="selected-songs-container">
-                            <!-- Selected Old Songs Tab Content -->
-                            <div class="modal-tab-content active" id="mySelectedOldContent">
-                                <div id="mySelectedOldSongsList" class="selected-songs-list modal-scrollable-summary"></div>
+                            <!-- Selected Worship Songs Tab Content -->
+                            <div class="modal-tab-content active" id="mySelectedWorshipContent">
+                                <div id="mySelectedWorshipSongsList" class="selected-songs-list modal-scrollable-summary"></div>
                             </div>
                             
-                            <!-- Selected New Songs Tab Content -->
-                            <div class="modal-tab-content" id="mySelectedNewContent">
-                                <div id="mySelectedNewSongsList" class="selected-songs-list modal-scrollable-summary"></div>
+                            <!-- Selected Praise Songs Tab Content -->
+                            <div class="modal-tab-content" id="mySelectedPraiseContent">
+                                <div id="mySelectedPraiseSongsList" class="selected-songs-list modal-scrollable-summary"></div>
                             </div>
                         </div>
                     </div>
@@ -847,31 +847,31 @@ async function saveRecommendationWeightsToBackend(weights) {
                             </div>
                         </div>
                         
-                        <!-- Tabs for Old/New Songs -->
+                        <!-- Tabs for Worship/Praise Songs -->
                         <div class="modal-song-tabs">
-                            <div class="modal-tab active" id="myOldSongsTab">Old Songs</div>
-                            <div class="modal-tab" id="myNewSongsTab">New Songs</div>
+                            <div class="modal-tab active" id="myWorshipSongsTab">Worship Songs</div>
+                            <div class="modal-tab" id="myPraiseSongsTab">Praise Songs</div>
                         </div>
                         
                         <div class="song-selection-container">
-                            <!-- Old Songs Tab Content -->
-                            <div class="modal-tab-content active" id="myOldSongsContent">
+                            <!-- Worship Songs Tab Content -->
+                            <div class="modal-tab-content active" id="myWorshipSongsContent">
                                 <div class="song-category-header">
                                     <label class="select-all-label">
-                                        <input type="checkbox" id="mySelectAllOldSongs"> Select All Old Songs (<span id="myOldSongsCount">0</span>)
+                                        <input type="checkbox" id="mySelectAllWorshipSongs"> Select All Worship Songs (<span id="myWorshipSongsCount">0</span>)
                                     </label>
                                 </div>
-                                <div id="myOldSongSelectionList" class="song-selection-list modal-scrollable"></div>
+                                <div id="myWorshipSongSelectionList" class="song-selection-list modal-scrollable"></div>
                             </div>
                             
-                            <!-- New Songs Tab Content -->
-                            <div class="modal-tab-content" id="myNewSongsContent">
+                            <!-- Praise Songs Tab Content -->
+                            <div class="modal-tab-content" id="myPraiseSongsContent">
                                 <div class="song-category-header">
                                     <label class="select-all-label">
-                                        <input type="checkbox" id="mySelectAllNewSongs"> Select All New Songs (<span id="myNewSongsCount">0</span>)
+                                        <input type="checkbox" id="mySelectAllPraiseSongs"> Select All Praise Songs (<span id="myPraiseSongsCount">0</span>)
                                     </label>
                                 </div>
-                                <div id="myNewSongSelectionList" class="song-selection-list modal-scrollable"></div>
+                                <div id="myPraiseSongSelectionList" class="song-selection-list modal-scrollable"></div>
                             </div>
                         </div>
                     </div>
@@ -899,12 +899,12 @@ async function saveRecommendationWeightsToBackend(weights) {
             </div>
             <p id="setlistViewDescription"></p>
             <div class="setlist-tabs">
-                <div class="setlist-tab active" id="setlistNewTab" title="New Songs in Setlist - View contemporary songs" aria-label="New Songs Tab">New</div>
-                <div class="setlist-tab" id="setlistOldTab" title="Old Songs in Setlist - View classic songs" aria-label="Old Songs Tab">Old</div>
+                <div class="setlist-tab active" id="setlistPraiseTab" title="Praise Songs in Setlist - View praise songs" aria-label="Praise Songs Tab">Praise</div>
+                <div class="setlist-tab" id="setlistWorshipTab" title="Worship Songs in Setlist - View worship songs" aria-label="Worship Songs Tab">Worship</div>
             </div>
             <div class="setlist-songs-content">
-                <div id="setlistNewSongs" class="setlist-songs-view"></div>
-                <div id="setlistOldSongs" class="setlist-songs-view" style="display: none;"></div>
+                <div id="setlistPraiseSongs" class="setlist-songs-view"></div>
+                <div id="setlistWorshipSongs" class="setlist-songs-view" style="display: none;"></div>
             </div>
         </div>
     </div>

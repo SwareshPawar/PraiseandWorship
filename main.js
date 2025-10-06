@@ -602,7 +602,7 @@ async function loadSongsWithProgress(forceRefresh = false) {
             if (typeof renderSongs === 'function') {
                 try {
                     const filters = getCurrentFilterValues();
-                    renderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
+                    renderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                 } catch (err) {
                     console.warn('Error rendering cached songs:', err);
                 }
@@ -709,7 +709,7 @@ async function loadSongsWithProgress(forceRefresh = false) {
         if (typeof renderSongs === 'function') {
             try {
                 const filters = getCurrentFilterValues();
-                renderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
+                renderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                 updateProgress('renderSongs', 80);
             } catch (err) {
                 console.warn('Error rendering songs:', err);
@@ -2347,10 +2347,10 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         const showAllEl = document.getElementById('showAll');
         const showFavoritesEl = document.getElementById('showFavorites');
         const setlistSection = document.getElementById('setlistSection');
-        const NewSetlistSongs = document.getElementById('NewSetlistSongs');
-        const OldSetlistSongs = document.getElementById('OldSetlistSongs');
-        const NewSetlistTab = document.getElementById('NewSetlistTab');
-        const OldSetlistTab = document.getElementById('OldSetlistTab');
+        const PraiseSetlistSongs = document.getElementById('PraiseSetlistSongs');
+        const WorshipSetlistSongs = document.getElementById('WorshipSetlistSongs');
+        const PraiseSetlistTab = document.getElementById('PraiseSetlistTab');
+        const WorshipSetlistTab = document.getElementById('WorshipSetlistTab');
         const deleteSection = document.getElementById('deleteSection');
         const deleteContent = document.getElementById('deleteContent');
         const favoritesSection = document.getElementById('favoritesSection');
@@ -2462,13 +2462,16 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         const sortedUsers = users.sort((a, b) => {
             if (a.isAdmin && !b.isAdmin) return -1;
             if (!a.isAdmin && b.isAdmin) return 1;
-            return a.username.localeCompare(b.username); // Secondary sort by username
+            // Secondary sort by username with null safety
+            const usernameA = a.username || '';
+            const usernameB = b.username || '';
+            return usernameA.localeCompare(usernameB);
         });
         
         sortedUsers.forEach(user => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="max-width:180px;overflow-wrap:break-word;">${user.username}</td>
+                <td style="max-width:180px;overflow-wrap:break-word;">${user.username || 'Unknown User'}</td>
                 <td>${user.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}</td>
                 <td>
                     <button class="btn" ${user.isAdmin ? 'disabled' : ''} onclick="markAdmin('${user._id}')">Mark Admin</button>
@@ -3052,21 +3055,21 @@ window.viewSingleLyrics = function(songId, otherId) {
     // Initialize song selection with checkboxes for setlist creation (Old and New songs)
     function initializeSetlistSongSelection(prefix) {
         const searchInput = document.getElementById(`${prefix}SetlistSongSearch`);
-        const oldSongList = document.getElementById(`${prefix}OldSongSelectionList`);
-        const newSongList = document.getElementById(`${prefix}NewSongSelectionList`);
-        const selectAllOldCheckbox = document.getElementById(`${prefix}SelectAllOldSongs`);
-        const selectAllNewCheckbox = document.getElementById(`${prefix}SelectAllNewSongs`);
+        const worshipSongList = document.getElementById(`${prefix}WorshipSongSelectionList`);
+        const praiseSongList = document.getElementById(`${prefix}PraiseSongSelectionList`);
+        const selectAllWorshipCheckbox = document.getElementById(`${prefix}SelectAllWorshipSongs`);
+        const selectAllPraiseCheckbox = document.getElementById(`${prefix}SelectAllPraiseSongs`);
         const selectedCountSpan = document.getElementById(`${prefix}SelectedCount`);
-        const selectedOldCountSpan = document.getElementById(`${prefix}SelectedOldCount`);
-        const selectedNewCountSpan = document.getElementById(`${prefix}SelectedNewCount`);
+        const selectedWorshipCountSpan = document.getElementById(`${prefix}SelectedWorshipCount`);
+        const selectedPraiseCountSpan = document.getElementById(`${prefix}SelectedPraiseCount`);
         
-        // New tab elements
-        const oldSongsTab = document.getElementById(`${prefix}OldSongsTab`);
-        const newSongsTab = document.getElementById(`${prefix}NewSongsTab`);
-        const oldSongsContent = document.getElementById(`${prefix}OldSongsContent`);
-        const newSongsContent = document.getElementById(`${prefix}NewSongsContent`);
-        const oldSongsCount = document.getElementById(`${prefix}OldSongsCount`);
-        const newSongsCount = document.getElementById(`${prefix}NewSongsCount`);
+        // Tab elements
+        const worshipSongsTab = document.getElementById(`${prefix}WorshipSongsTab`);
+        const praiseSongsTab = document.getElementById(`${prefix}PraiseSongsTab`);
+        const worshipSongsContent = document.getElementById(`${prefix}WorshipSongsContent`);
+        const praiseSongsContent = document.getElementById(`${prefix}PraiseSongsContent`);
+        const worshipSongsCount = document.getElementById(`${prefix}WorshipSongsCount`);
+        const praiseSongsCount = document.getElementById(`${prefix}PraiseSongsCount`);
         
         // Filter elements
         const keyFilter = document.getElementById(`${prefix}KeyFilter`);
@@ -3074,15 +3077,15 @@ window.viewSingleLyrics = function(songId, otherId) {
         const moodFilter = document.getElementById(`${prefix}MoodFilter`);
         const artistFilter = document.getElementById(`${prefix}ArtistFilter`);
         
-        if (!searchInput || !oldSongList || !newSongList || !selectAllOldCheckbox || !selectAllNewCheckbox || 
-            !selectedCountSpan || !selectedOldCountSpan || !selectedNewCountSpan ||
-            !oldSongsTab || !newSongsTab || !oldSongsContent || !newSongsContent) {
+        if (!searchInput || !worshipSongList || !praiseSongList || !selectAllWorshipCheckbox || !selectAllPraiseCheckbox || 
+            !selectedCountSpan || !selectedWorshipCountSpan || !selectedPraiseCountSpan ||
+            !worshipSongsTab || !praiseSongsTab || !worshipSongsContent || !praiseSongsContent) {
             return;
         }
 
         let selectedSongs = [];
-        let filteredOldSongs = [];
-        let filteredNewSongs = [];
+        let filteredWorshipSongs = [];
+        let filteredPraiseSongs = [];
         let currentFilters = {
             search: '',
             key: '',
@@ -3187,20 +3190,20 @@ window.viewSingleLyrics = function(songId, otherId) {
             });
         }
 
-        // Separate songs into old and new based on the `category` property
+        // Separate songs into worship and praise based on the `category` property
         function categorizeSongs() {
-            const oldSongs = songs.filter(song => song.category === 'Old');
-            const newSongs = songs.filter(song => song.category === 'New');
+            const worshipSongs = songs.filter(song => song.category === 'Worship');
+            const praiseSongs = songs.filter(song => song.category === 'Praise');
             
             // Apply filters
-            filteredOldSongs = applyFilters(oldSongs);
-            filteredNewSongs = applyFilters(newSongs);
+            filteredWorshipSongs = applyFilters(worshipSongs);
+            filteredPraiseSongs = applyFilters(praiseSongs);
             
             // Update counts
-            if (oldSongsCount) oldSongsCount.textContent = filteredOldSongs.length;
-            if (newSongsCount) newSongsCount.textContent = filteredNewSongs.length;
+            if (oldSongsCount) oldSongsCount.textContent = filteredWorshipSongs.length;
+            if (newSongsCount) newSongsCount.textContent = filteredPraiseSongs.length;
             
-            return { oldSongs: filteredOldSongs, newSongs: filteredNewSongs };
+            return { worshipSongs: filteredWorshipSongs, praiseSongs: filteredPraiseSongs };
         }
 
         // Filter and display songs based on current filters
@@ -3210,10 +3213,10 @@ window.viewSingleLyrics = function(songId, otherId) {
             updateSelectAllStates();
         }
 
-        // Render both old and new song lists
+        // Render both worship and praise song lists
         function renderSongLists() {
-            renderSongList(oldSongList, filteredOldSongs, 'old');
-            renderSongList(newSongList, filteredNewSongs, 'new');
+            renderSongList(oldSongList, filteredWorshipSongs, 'worship');
+            renderSongList(newSongList, filteredPraiseSongs, 'praise');
         }
 
         // Render a specific song list with checkboxes
@@ -3269,26 +3272,26 @@ window.viewSingleLyrics = function(songId, otherId) {
         // Update the selected songs display
         function updateSelectedSongsDisplay() {
             // Get already categorized songs without re-filtering
-            const selectedOldSongs = selectedSongs.filter(id => {
+            const selectedWorshipSongs = selectedSongs.filter(id => {
                 const song = songs.find(s => s.id === id);
-                return song && song.category === 'Old';
+                return song && song.category === 'Worship';
             });
-            const selectedNewSongs = selectedSongs.filter(id => {
+            const selectedPraiseSongs = selectedSongs.filter(id => {
                 const song = songs.find(s => s.id === id);
-                return song && song.category === 'New';
+                return song && song.category === 'Praise';
             });
             
             selectedCountSpan.textContent = selectedSongs.length;
-            selectedOldCountSpan.textContent = selectedOldSongs.length;
-            selectedNewCountSpan.textContent = selectedNewSongs.length;
+            selectedWorshipCountSpan.textContent = selectedWorshipSongs.length;
+            selectedPraiseCountSpan.textContent = selectedPraiseSongs.length;
             
             // Get the separate tab containers
-            const selectedOldSongsList = document.getElementById(`${prefix}SelectedOldSongsList`);
-            const selectedNewSongsList = document.getElementById(`${prefix}SelectedNewSongsList`);
+            const selectedWorshipSongsList = document.getElementById(`${prefix}SelectedWorshipSongsList`);
+            const selectedPraiseSongsList = document.getElementById(`${prefix}SelectedPraiseSongsList`);
             
             // Clear both containers
-            if (selectedOldSongsList) selectedOldSongsList.innerHTML = '';
-            if (selectedNewSongsList) selectedNewSongsList.innerHTML = '';
+            if (selectedWorshipSongsList) selectedWorshipSongsList.innerHTML = '';
+            if (selectedPraiseSongsList) selectedPraiseSongsList.innerHTML = '';
             
             // Helper to render a resequencable list
             function renderResequencableList(songIds, container, category) {
@@ -3309,7 +3312,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                         `;
                         // Arrow button logic
                         selectedItem.querySelector('.move-up-btn').onclick = function() {
-                            const arr = category === 'Old' ? selectedOldSongs : selectedNewSongs;
+                            const arr = category === 'Worship' ? selectedWorshipSongs : selectedPraiseSongs;
                             if (idx > 0) {
                                 const temp = arr[idx - 1];
                                 arr[idx - 1] = arr[idx];
@@ -3325,7 +3328,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                             }
                         };
                         selectedItem.querySelector('.move-down-btn').onclick = function() {
-                            const arr = category === 'Old' ? selectedOldSongs : selectedNewSongs;
+                            const arr = category === 'Worship' ? selectedWorshipSongs : selectedPraiseSongs;
                             if (idx < arr.length - 1) {
                                 const temp = arr[idx + 1];
                                 arr[idx + 1] = arr[idx];
@@ -3377,7 +3380,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     // Update order in category array
                     const draggedId = dragSrcEl.dataset.songId;
                     const targetId = item.dataset.songId;
-                    const arr = category === 'Old' ? selectedOldSongs : selectedNewSongs;
+                    const arr = category === 'Worship' ? selectedWorshipSongs : selectedPraiseSongs;
                     const oldIndex = arr.indexOf(draggedId);
                     const newIndex = arr.indexOf(targetId);
                     if (oldIndex > -1 && newIndex > -1) {
@@ -3391,33 +3394,33 @@ window.viewSingleLyrics = function(songId, otherId) {
                         const mainIdx = selectedSongs.indexOf(draggedId);
                         selectedSongs.splice(mainIdx, 1);
                         const targetMainIdx = selectedSongs.indexOf(targetId);
-                        selectedSongs.splice(insertAt + (category === 'Old' ? 0 : selectedOldSongs.length), 0, draggedId);
+                        selectedSongs.splice(insertAt + (category === 'Worship' ? 0 : selectedWorshipSongs.length), 0, draggedId);
                         updateSelectedSongsDisplay();
                     }
                 });
             }
 
-            // Show selected old songs in old tab
-            if (selectedOldSongs.length > 0 && selectedOldSongsList) {
-                renderResequencableList(selectedOldSongs, selectedOldSongsList, 'Old');
+            // Show selected worship songs in worship tab
+            if (selectedWorshipSongs.length > 0 && selectedWorshipSongsList) {
+                renderResequencableList(selectedWorshipSongs, selectedWorshipSongsList, 'Worship');
             }
 
-            // Show selected new songs in new tab
-            if (selectedNewSongs.length > 0 && selectedNewSongsList) {
-                renderResequencableList(selectedNewSongs, selectedNewSongsList, 'New');
+            // Show selected praise songs in praise tab
+            if (selectedPraiseSongs.length > 0 && selectedPraiseSongsList) {
+                renderResequencableList(selectedPraiseSongs, selectedPraiseSongsList, 'Praise');
             }
         }
 
         // Update select all checkbox states for both categories
         function updateSelectAllStates() {
             // Get current filtered songs without re-rendering
-            const oldSongs = songs.filter(song => song.category === 'Old');
-            const newSongs = songs.filter(song => song.category === 'New');
-            const currentFilteredOldSongs = applyFilters(oldSongs);
-            const currentFilteredNewSongs = applyFilters(newSongs);
+            const worshipSongs = songs.filter(song => song.category === 'Worship');
+            const praiseSongs = songs.filter(song => song.category === 'Praise');
+            const currentFilteredWorshipSongs = applyFilters(worshipSongs);
+            const currentFilteredPraiseSongs = applyFilters(praiseSongs);
             
-            updateSelectAllState(selectAllOldCheckbox, currentFilteredOldSongs, 'old');
-            updateSelectAllState(selectAllNewCheckbox, currentFilteredNewSongs, 'new');
+            updateSelectAllState(selectAllOldCheckbox, currentFilteredWorshipSongs, 'worship');
+            updateSelectAllState(selectAllNewCheckbox, currentFilteredPraiseSongs, 'praise');
         }
 
         // Update select all checkbox state for a specific category
@@ -3463,11 +3466,11 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         // Event listeners for select all checkboxes
         selectAllOldCheckbox.addEventListener('change', (e) => {
-            handleSelectAll(e.target, filteredOldSongs);
+            handleSelectAll(e.target, filteredWorshipSongs);
         });
 
         selectAllNewCheckbox.addEventListener('change', (e) => {
-            handleSelectAll(e.target, filteredNewSongs);
+            handleSelectAll(e.target, filteredPraiseSongs);
         });
 
         // Handle search input
@@ -3566,24 +3569,24 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
             
             // Selected songs tabs
-            const selectedOldTab = document.getElementById(`${prefix}SelectedOldTab`);
-            const selectedNewTab = document.getElementById(`${prefix}SelectedNewTab`);
-            const selectedOldContent = document.getElementById(`${prefix}SelectedOldContent`);
-            const selectedNewContent = document.getElementById(`${prefix}SelectedNewContent`);
+            const selectedWorshipTab = document.getElementById(`${prefix}SelectedWorshipTab`);
+            const selectedPraiseTab = document.getElementById(`${prefix}SelectedPraiseTab`);
+            const selectedWorshipContent = document.getElementById(`${prefix}SelectedWorshipContent`);
+            const selectedPraiseContent = document.getElementById(`${prefix}SelectedPraiseContent`);
             
-            if (selectedOldTab && selectedNewTab && selectedOldContent && selectedNewContent) {
-                selectedOldTab.addEventListener('click', () => {
-                    selectedOldTab.classList.add('active');
-                    selectedNewTab.classList.remove('active');
-                    selectedOldContent.classList.add('active');
-                    selectedNewContent.classList.remove('active');
+            if (selectedWorshipTab && selectedPraiseTab && selectedWorshipContent && selectedPraiseContent) {
+                selectedWorshipTab.addEventListener('click', () => {
+                    selectedWorshipTab.classList.add('active');
+                    selectedPraiseTab.classList.remove('active');
+                    selectedWorshipContent.classList.add('active');
+                    selectedPraiseContent.classList.remove('active');
                 });
 
-                selectedNewTab.addEventListener('click', () => {
-                    selectedNewTab.classList.add('active');
-                    selectedOldTab.classList.remove('active');
-                    selectedNewContent.classList.add('active');
-                    selectedOldContent.classList.remove('active');
+                selectedPraiseTab.addEventListener('click', () => {
+                    selectedPraiseTab.classList.add('active');
+                    selectedWorshipTab.classList.remove('active');
+                    selectedPraiseContent.classList.add('active');
+                    selectedWorshipContent.classList.remove('active');
                 });
             }
         }
@@ -3627,13 +3630,13 @@ window.viewSingleLyrics = function(songId, otherId) {
         // Event listeners for select all checkboxes
         if (selectAllOldCheckbox) {
             selectAllOldCheckbox.addEventListener('change', (e) => {
-                handleSelectAll(e.target, filteredOldSongs);
+                handleSelectAll(e.target, filteredWorshipSongs);
             });
         }
 
         if (selectAllNewCheckbox) {
             selectAllNewCheckbox.addEventListener('change', (e) => {
-                handleSelectAll(e.target, filteredNewSongs);
+                handleSelectAll(e.target, filteredPraiseSongs);
             });
         }
 
@@ -4020,14 +4023,14 @@ window.viewSingleLyrics = function(songId, otherId) {
         clearSetlistSelections();
 
         // Hide other sections and show setlist section
-        const NewContent = document.getElementById('NewContent');
-        const OldContent = document.getElementById('OldContent');
+        const PraiseContent = document.getElementById('PraiseContent');
+        const WorshipContent = document.getElementById('WorshipContent');
         const setlistSection = document.getElementById('setlistSection');
         const deleteSection = document.getElementById('deleteSection');
         const favoritesSection = document.getElementById('favoritesSection');
 
-        NewContent.classList.remove('active');
-        OldContent.classList.remove('active');
+        PraiseContent.classList.remove('active');
+        WorshipContent.classList.remove('active');
         setlistSection.style.display = 'block';
         deleteSection.style.display = 'none';
         favoritesSection.style.display = 'none';
@@ -4061,44 +4064,44 @@ window.viewSingleLyrics = function(songId, otherId) {
         }).filter(Boolean);
 
         // Group songs by category
-        const newSongs = setlistSongs.filter(song => song.category === 'New');
-        const oldSongs = setlistSongs.filter(song => song.category === 'Old');
+        const praiseSongs = setlistSongs.filter(song => song.category === 'Praise');
+        const worshipSongs = setlistSongs.filter(song => song.category === 'Worship');
 
-        // Show appropriate tab based on which has more songs, or default to New
-        const NewSetlistTab = document.getElementById('NewSetlistTab');
-        const OldSetlistTab = document.getElementById('OldSetlistTab');
-        const NewSetlistSongs = document.getElementById('NewSetlistSongs');
-        const OldSetlistSongs = document.getElementById('OldSetlistSongs');
+        // Show appropriate tab based on which has more songs, or default to Praise
+        const PraiseSetlistTab = document.getElementById('PraiseSetlistTab');
+        const WorshipSetlistTab = document.getElementById('WorshipSetlistTab');
+        const PraiseSetlistSongs = document.getElementById('PraiseSetlistSongs');
+        const WorshipSetlistSongs = document.getElementById('WorshipSetlistSongs');
 
-        if (newSongs.length > 0) {
-            NewSetlistTab.classList.add('active');
-            OldSetlistTab.classList.remove('active');
-            NewSetlistSongs.style.display = 'block';
-            OldSetlistSongs.style.display = 'none';
+        if (praiseSongs.length > 0) {
+            PraiseSetlistTab.classList.add('active');
+            WorshipSetlistTab.classList.remove('active');
+            PraiseSetlistSongs.style.display = 'block';
+            WorshipSetlistSongs.style.display = 'none';
         } else {
-            NewSetlistTab.classList.remove('active');
-            OldSetlistTab.classList.add('active');
-            NewSetlistSongs.style.display = 'none';
-            OldSetlistSongs.style.display = 'block';
+            PraiseSetlistTab.classList.remove('active');
+            WorshipSetlistTab.classList.add('active');
+            PraiseSetlistSongs.style.display = 'none';
+            WorshipSetlistSongs.style.display = 'block';
         }
 
         // Always populate both tabs (even if one is empty)
-        displaySetlistSongs(newSongs, NewSetlistSongs);
-        displaySetlistSongs(oldSongs, OldSetlistSongs);
+        displaySetlistSongs(praiseSongs, PraiseSetlistSongs);
+        displaySetlistSongs(worshipSongs, WorshipSetlistSongs);
 
         // Add tab switching functionality
-        NewSetlistTab.onclick = () => {
-            NewSetlistTab.classList.add('active');
-            OldSetlistTab.classList.remove('active');
-            NewSetlistSongs.style.display = 'block';
-            OldSetlistSongs.style.display = 'none';
+        PraiseSetlistTab.onclick = () => {
+            PraiseSetlistTab.classList.add('active');
+            WorshipSetlistTab.classList.remove('active');
+            PraiseSetlistSongs.style.display = 'block';
+            WorshipSetlistSongs.style.display = 'none';
         };
 
-        OldSetlistTab.onclick = () => {
-            OldSetlistTab.classList.add('active');
-            NewSetlistTab.classList.remove('active');
-            OldSetlistSongs.style.display = 'block';
-            NewSetlistSongs.style.display = 'none';
+        WorshipSetlistTab.onclick = () => {
+            WorshipSetlistTab.classList.add('active');
+            PraiseSetlistTab.classList.remove('active');
+            WorshipSetlistSongs.style.display = 'block';
+            PraiseSetlistSongs.style.display = 'none';
         };
 
         // Mobile view: show songs panel and hide sidebar
@@ -4141,14 +4144,14 @@ window.viewSingleLyrics = function(songId, otherId) {
         clearSetlistSelections();
 
         // Hide other sections and show setlist section
-        const NewContent = document.getElementById('NewContent');
-        const OldContent = document.getElementById('OldContent');
+        const PraiseContent = document.getElementById('PraiseContent');
+        const WorshipContent = document.getElementById('WorshipContent');
         const setlistSection = document.getElementById('setlistSection');
         const deleteSection = document.getElementById('deleteSection');
         const favoritesSection = document.getElementById('favoritesSection');
 
-        NewContent.classList.remove('active');
-        OldContent.classList.remove('active');
+        PraiseContent.classList.remove('active');
+        WorshipContent.classList.remove('active');
         setlistSection.style.display = 'block';
         deleteSection.style.display = 'none';
         favoritesSection.style.display = 'none';
@@ -4182,44 +4185,44 @@ window.viewSingleLyrics = function(songId, otherId) {
         }).filter(Boolean);
 
         // Group songs by category
-        const newSongs = setlistSongs.filter(song => song.category === 'New');
-        const oldSongs = setlistSongs.filter(song => song.category === 'Old');
+        const praiseSongs = setlistSongs.filter(song => song.category === 'Praise');
+        const worshipSongs = setlistSongs.filter(song => song.category === 'Worship');
 
-        // Show appropriate tab based on which has more songs, or default to New
-        const NewSetlistTab = document.getElementById('NewSetlistTab');
-        const OldSetlistTab = document.getElementById('OldSetlistTab');
-        const NewSetlistSongs = document.getElementById('NewSetlistSongs');
-        const OldSetlistSongs = document.getElementById('OldSetlistSongs');
+        // Show appropriate tab based on which has more songs, or default to Praise
+        const PraiseSetlistTab = document.getElementById('PraiseSetlistTab');
+        const WorshipSetlistTab = document.getElementById('WorshipSetlistTab');
+        const PraiseSetlistSongs = document.getElementById('PraiseSetlistSongs');
+        const WorshipSetlistSongs = document.getElementById('WorshipSetlistSongs');
 
-        if (newSongs.length > 0) {
-            NewSetlistTab.classList.add('active');
-            OldSetlistTab.classList.remove('active');
-            NewSetlistSongs.style.display = 'block';
-            OldSetlistSongs.style.display = 'none';
+        if (praiseSongs.length > 0) {
+            PraiseSetlistTab.classList.add('active');
+            WorshipSetlistTab.classList.remove('active');
+            PraiseSetlistSongs.style.display = 'block';
+            WorshipSetlistSongs.style.display = 'none';
         } else {
-            NewSetlistTab.classList.remove('active');
-            OldSetlistTab.classList.add('active');
-            NewSetlistSongs.style.display = 'none';
-            OldSetlistSongs.style.display = 'block';
+            PraiseSetlistTab.classList.remove('active');
+            WorshipSetlistTab.classList.add('active');
+            PraiseSetlistSongs.style.display = 'none';
+            WorshipSetlistSongs.style.display = 'block';
         }
 
         // Always populate both tabs (even if one is empty)
-        displaySetlistSongs(newSongs, NewSetlistSongs);
-        displaySetlistSongs(oldSongs, OldSetlistSongs);
+        displaySetlistSongs(praiseSongs, PraiseSetlistSongs);
+        displaySetlistSongs(worshipSongs, WorshipSetlistSongs);
 
         // Add tab switching functionality
-        NewSetlistTab.onclick = () => {
-            NewSetlistTab.classList.add('active');
-            OldSetlistTab.classList.remove('active');
-            NewSetlistSongs.style.display = 'block';
-            OldSetlistSongs.style.display = 'none';
+        PraiseSetlistTab.onclick = () => {
+            PraiseSetlistTab.classList.add('active');
+            WorshipSetlistTab.classList.remove('active');
+            PraiseSetlistSongs.style.display = 'block';
+            WorshipSetlistSongs.style.display = 'none';
         };
 
-        OldSetlistTab.onclick = () => {
-            OldSetlistTab.classList.add('active');
-            NewSetlistTab.classList.remove('active');
-            OldSetlistSongs.style.display = 'block';
-            NewSetlistSongs.style.display = 'none';
+        WorshipSetlistTab.onclick = () => {
+            WorshipSetlistTab.classList.add('active');
+            PraiseSetlistTab.classList.remove('active');
+            WorshipSetlistSongs.style.display = 'block';
+            PraiseSetlistSongs.style.display = 'none';
         };
 
         // Mobile view: show songs panel and hide sidebar
@@ -4547,46 +4550,46 @@ window.viewSingleLyrics = function(songId, otherId) {
     function renderSetlistSongs() {
         if (!currentViewingSetlist) return;
 
-        const newSongs = document.getElementById('setlistNewSongs');
-        const oldSongs = document.getElementById('setlistOldSongs');
+        const praiseSongs = document.getElementById('setlistPraiseSongs');
+        const worshipSongs = document.getElementById('setlistWorshipSongs');
 
-        const newSetlistSongs = currentViewingSetlist.songs.filter(songId => {
+        const praiseSetlistSongs = currentViewingSetlist.songs.filter(songId => {
             const song = songs.find(s => s.id === songId);
-            return song && song.category === 'New';
+            return song && song.category === 'Praise';
         });
 
-        const oldSetlistSongs = currentViewingSetlist.songs.filter(songId => {
+        const worshipSetlistSongs = currentViewingSetlist.songs.filter(songId => {
             const song = songs.find(s => s.id === songId);
-            return song && song.category === 'Old';
+            return song && song.category === 'Worship';
         });
 
-        newSongs.innerHTML = '';
-        oldSongs.innerHTML = '';
+        praiseSongs.innerHTML = '';
+        worshipSongs.innerHTML = '';
 
-        // Render New songs
-        newSetlistSongs.forEach(songId => {
-            const song = songs.find(s => s.id === songId);
-            if (song) {
-                const songEl = createSetlistSongElement(song);
-                newSongs.appendChild(songEl);
-            }
-        });
-
-        // Render Old songs
-        oldSetlistSongs.forEach(songId => {
+        // Render Praise songs
+        praiseSetlistSongs.forEach(songId => {
             const song = songs.find(s => s.id === songId);
             if (song) {
                 const songEl = createSetlistSongElement(song);
-                oldSongs.appendChild(songEl);
+                praiseSongs.appendChild(songEl);
             }
         });
 
-        if (newSetlistSongs.length === 0) {
-            newSongs.innerHTML = '<p class="no-songs">No New songs in this setlist</p>';
+        // Render Worship songs
+        worshipSetlistSongs.forEach(songId => {
+            const song = songs.find(s => s.id === songId);
+            if (song) {
+                const songEl = createSetlistSongElement(song);
+                worshipSongs.appendChild(songEl);
+            }
+        });
+
+        if (praiseSetlistSongs.length === 0) {
+            praiseSongs.innerHTML = '<p class="no-songs">No Praise songs in this setlist</p>';
         }
 
-        if (oldSetlistSongs.length === 0) {
-            oldSongs.innerHTML = '<p class="no-songs">No Old songs in this setlist</p>';
+        if (worshipSetlistSongs.length === 0) {
+            worshipSongs.innerHTML = '<p class="no-songs">No Worship songs in this setlist</p>';
         }
     }
 
@@ -5688,13 +5691,16 @@ window.viewSingleLyrics = function(songId, otherId) {
         const sortedUsers = users.sort((a, b) => {
             if (a.isAdmin && !b.isAdmin) return -1;
             if (!a.isAdmin && b.isAdmin) return 1;
-            return a.username.localeCompare(b.username); // Secondary sort by username
+            // Secondary sort by username with null safety
+            const usernameA = a.username || '';
+            const usernameB = b.username || '';
+            return usernameA.localeCompare(usernameB);
         });
         
         sortedUsers.forEach(user => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${user.username}</td>
+                <td>${user.username || 'Unknown User'}</td>
                 <td>${user.isAdmin ? '<span style=\"color:green;font-weight:bold;\">Admin</span>' : ''}</td>
                 <td>
                     <button class=\"btn\" ${user.isAdmin ? 'disabled' : ''} onclick=\"markAdmin('${user._id}')\">Mark Admin</button>
@@ -5967,8 +5973,8 @@ window.viewSingleLyrics = function(songId, otherId) {
                     updateAuthButtons();
                         // Force re-render songs to update favorite icons for both tabs
                         const filters = getCurrentFilterValues();
-                        renderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
-                        renderSongs('Old', filters.key, filters.genre, filters.mood, filters.artist);
+                        renderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
+                        renderSongs('Worship', filters.key, filters.genre, filters.mood, filters.artist);
                         // Always re-render favorites list after loading
                         if (typeof renderFavorites === 'function') {
                             renderFavorites();
@@ -6068,10 +6074,10 @@ window.viewSingleLyrics = function(songId, otherId) {
                         saveSongs();
                         queueSaveUserData();
                         
-                        if (NewTab.classList.contains('active')) {
-                            renderSongs('New', keyFilter.value, genreFilter.value);
+                        if (PraiseTab.classList.contains('active')) {
+                            renderSongs('Praise', keyFilter.value, genreFilter.value);
                         } else {
-                            renderSongs('Old', keyFilter.value, genreFilter.value);
+                            renderSongs('Worship', keyFilter.value, genreFilter.value);
                         }
                         showNotification('Songs loaded successfully!');
                     } else {
@@ -6107,12 +6113,12 @@ window.viewSingleLyrics = function(songId, otherId) {
                         saveSongs();
     
                         showNotification(`${newSongs.length} new songs merged successfully.`);
-                        if (NewTab.classList.contains('active')) {
+                        if (PraiseTab.classList.contains('active')) {
                             const filters = getCurrentFilterValues();
-                            renderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
+                            renderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                         } else {
                             const filters = getCurrentFilterValues();
-                            renderSongs('Old', filters.key, filters.genre, filters.mood, filters.artist);
+                            renderSongs('Worship', filters.key, filters.genre, filters.mood, filters.artist);
                         }
                     } else {
                         throw new Error('Invalid file format');
@@ -6358,7 +6364,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                         return (b.id || 0) - (a.id || 0);
                     });
                 }
-                container = category === 'New' ? document.getElementById('NewContent') : document.getElementById('OldContent');
+                container = category === 'Praise' ? document.getElementById('PraiseContent') : document.getElementById('WorshipContent');
             } else {
                 songsToRender = categoryOrSongs;
                 container = filterOrContainer;
@@ -6506,7 +6512,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const divListener = () => {
                     showPreview(song);
                     // Re-render songs to update active highlight
-                    const activeTab = document.getElementById('NewTab').classList.contains('active') ? 'New' : 'Old';
+                    const activeTab = document.getElementById('PraiseTab').classList.contains('active') ? 'Praise' : 'Worship';
                     renderSongs(activeTab, keyFilter.value, genreFilter.value);
                     if (window.innerWidth <= 768) {
                         document.querySelector('.songs-section').classList.add('hidden');
@@ -6545,10 +6551,10 @@ window.viewSingleLyrics = function(songId, otherId) {
             
             // Reset UI
             songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics">No song is selected</div>';
-            NewContent.innerHTML = '<p>No songs found.</p>';
-            OldContent.innerHTML = '<p>No songs found.</p>';
-            NewSetlistSongs.innerHTML = '<p>Your New setlist is empty.</p>';
-            OldSetlistSongs.innerHTML = '<p>Your Old setlist is empty.</p>';
+            PraiseContent.innerHTML = '<p>No songs found.</p>';
+            WorshipContent.innerHTML = '<p>No songs found.</p>';
+            PraiseSetlistSongs.innerHTML = '<p>Your Praise setlist is empty.</p>';
+            WorshipSetlistSongs.innerHTML = '<p>Your Worship setlist is empty.</p>';
             deleteContent.innerHTML = '<p>No songs available to delete.</p>';
             favoritesContent.innerHTML = '<p>No favorite songs yet.</p>';
             
@@ -6561,8 +6567,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             
             // Reset counters
             document.getElementById('totalSongs').textContent = '0';
-            document.getElementById('NewCount').textContent = '0';
-            document.getElementById('OldCount').textContent = '0';
+            document.getElementById('PraiseCount').textContent = '0';
+            document.getElementById('WorshipCount').textContent = '0';
             
             // Reset theme to light mode if it was dark
             if (document.body.classList.contains('dark-mode')) {
@@ -6572,7 +6578,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
             
             // Show default view
-            NewTab.click();
+            PraiseTab.click();
             showAllEl.click();
             
             showNotification('Application has been reset to initial state');
@@ -7302,7 +7308,7 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             // Setup auto-scroll if needed
             setupAutoScroll();
-            applyLyricsBackground(song.category === 'New');
+            applyLyricsBackground(song.category === 'Praise');
             
             if (suggestedSongsDrawerOpen) {
                 showSuggestedSongs();
@@ -8050,7 +8056,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 return [];
             } else {
                 // Regular song list view with filters applied
-                const category = NewTab.classList.contains('active') ? 'New' : 'Old';
+                const category = PraiseTab.classList.contains('active') ? 'Praise' : 'Worship';
                 const keyFilterValue = keyFilter.value;
                 const genreFilterValue = genreFilter.value;
                 
@@ -8198,16 +8204,16 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
 
             // Tab switching
-            NewTab.addEventListener('click', () => {
+            PraiseTab.addEventListener('click', () => {
                 setlistSection.style.display = 'none';
                 if (setlistSectionActions) setlistSectionActions.style.display = 'none';
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'none';
-                NewTab.classList.add('active');
-                OldTab.classList.remove('active');
-                NewContent.classList.add('active');
-                OldContent.classList.remove('active');
-                debouncedRenderSongs('New', keyFilter.value, genreFilter.value);
+                PraiseTab.classList.add('active');
+                WorshipTab.classList.remove('active');
+                PraiseContent.classList.add('active');
+                WorshipContent.classList.remove('active');
+                debouncedRenderSongs('Praise', keyFilter.value, genreFilter.value);
                 applyLyricsBackground(true);
                 
                 // Mobile view: show songs panel and hide sidebar
@@ -8219,16 +8225,16 @@ window.viewSingleLyrics = function(songId, otherId) {
             });
 
     
-            OldTab.addEventListener('click', () => {
+            WorshipTab.addEventListener('click', () => {
                 setlistSection.style.display = 'none';
                 if (setlistSectionActions) setlistSectionActions.style.display = 'none';
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'none';
-                OldTab.classList.add('active');
-                NewTab.classList.remove('active');
-                OldContent.classList.add('active');
-                NewContent.classList.remove('active');
-                debouncedRenderSongs('Old', keyFilter.value, genreFilter.value);
+                WorshipTab.classList.add('active');
+                PraiseTab.classList.remove('active');
+                WorshipContent.classList.add('active');
+                PraiseContent.classList.remove('active');
+                debouncedRenderSongs('Worship', keyFilter.value, genreFilter.value);
                 applyLyricsBackground(false);
                 
                 // Mobile view: show songs panel and hide sidebar
@@ -8242,37 +8248,37 @@ window.viewSingleLyrics = function(songId, otherId) {
             // Filter changes
             keyFilter.addEventListener('change', () => {
                 const filters = getCurrentFilterValues();
-                if (NewTab.classList.contains('active')) {
-                    debouncedRenderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
+                if (PraiseTab.classList.contains('active')) {
+                    debouncedRenderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                 } else {
-                    debouncedRenderSongs('Old', filters.key, filters.genre, filters.mood, filters.artist);
+                    debouncedRenderSongs('Worship', filters.key, filters.genre, filters.mood, filters.artist);
                 }
             });
 
             genreFilter.addEventListener('change', () => {
                 const filters = getCurrentFilterValues();
-                if (NewTab.classList.contains('active')) {
-                    debouncedRenderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
+                if (PraiseTab.classList.contains('active')) {
+                    debouncedRenderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                 } else {
-                    debouncedRenderSongs('Old', filters.key, filters.genre, filters.mood, filters.artist);
+                    debouncedRenderSongs('Worship', filters.key, filters.genre, filters.mood, filters.artist);
                 }
             });
 
             moodFilter.addEventListener('change', () => {
                 const filters = getCurrentFilterValues();
-                if (NewTab.classList.contains('active')) {
-                    debouncedRenderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
+                if (PraiseTab.classList.contains('active')) {
+                    debouncedRenderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                 } else {
-                    debouncedRenderSongs('Old', filters.key, filters.genre, filters.mood, filters.artist);
+                    debouncedRenderSongs('Worship', filters.key, filters.genre, filters.mood, filters.artist);
                 }
             });
 
             artistFilter.addEventListener('change', () => {
                 const filters = getCurrentFilterValues();
-                if (NewTab.classList.contains('active')) {
-                    debouncedRenderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
+                if (PraiseTab.classList.contains('active')) {
+                    debouncedRenderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                 } else {
-                    debouncedRenderSongs('Old', filters.key, filters.genre, filters.mood, filters.artist);
+                    debouncedRenderSongs('Worship', filters.key, filters.genre, filters.mood, filters.artist);
                 }
             });
 
@@ -8307,7 +8313,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                         updateAllSetlistButtonStates();
                         
                         // Re-render songs to update button states in the UI
-                        const activeTab = document.getElementById('NewTab').classList.contains('active') ? 'New' : 'Old';
+                        const activeTab = document.getElementById('PraiseTab').classList.contains('active') ? 'Praise' : 'Worship';
                         const keyFilter = document.getElementById('keyFilter');
                         const genreFilter = document.getElementById('genreFilter');
                         const moodFilter = document.getElementById('moodFilter'); 
@@ -8372,8 +8378,8 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             showAllEl.addEventListener('click', (e) => {
                 e.preventDefault();
-                NewContent.classList.add('active');
-                OldContent.classList.remove('active');
+                PraiseContent.classList.add('active');
+                WorshipContent.classList.remove('active');
                 setlistSection.style.display = 'none';
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'none';
@@ -8384,7 +8390,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     setlistHeader.textContent = 'Setlist View';
                 }
                 
-                renderSongs('New', keyFilter.value, genreFilter.value);
+                renderSongs('Praise', keyFilter.value, genreFilter.value);
                 document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
                 e.target.classList.add('active');
                 
@@ -8408,8 +8414,8 @@ window.viewSingleLyrics = function(songId, otherId) {
     
             showFavoritesEl.addEventListener('click', (e) => {
                 e.preventDefault();
-                NewContent.classList.remove('active');
-                OldContent.classList.remove('active');
+                PraiseContent.classList.remove('active');
+                WorshipContent.classList.remove('active');
                 setlistSection.style.display = 'none';
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'block';
@@ -8591,7 +8597,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                             updateSongInCache(addedSong, true);
                             
                             // Only render if we're on the same category tab as the new song
-                            const activeTab = document.getElementById('NewTab')?.classList.contains('active') ? 'New' : 'Old';
+                            const activeTab = document.getElementById('PraiseTab')?.classList.contains('active') ? 'Praise' : 'Worship';
                             if (addedSong.category === activeTab) {
                                 console.log(`✅ Rendering ${addedSong.category} tab after adding song`);
                                 debouncedRenderSongs(addedSong.category, keyFilter.value, genreFilter.value);
@@ -8674,7 +8680,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                             editSongForm.reset();
                             console.log(`💾 Updating cache with updated song data`);
                             updateSongInCache(updated, false);
-                            const activeTab = document.getElementById('NewTab')?.classList.contains('active') ? 'New' : 'Old';
+                            const activeTab = document.getElementById('PraiseTab')?.classList.contains('active') ? 'Praise' : 'Worship';
                             console.log(`🎵 Edit song complete - Updated song category: ${updated.category}, Active tab: ${activeTab}`);
                             if (updated.category === activeTab) {
                                 console.log(`✅ Rendering ${updated.category} tab after edit`);
@@ -8717,7 +8723,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 await deleteSongById(id, () => {
                     deleteSongModal.style.display = 'none';
                     // Only render if we're on the correct tab
-                    const activeTab = document.getElementById('NewTab')?.classList.contains('active') ? 'New' : 'Old';
+                    const activeTab = document.getElementById('PraiseTab')?.classList.contains('active') ? 'Praise' : 'Worship';
                     debouncedRenderSongs(activeTab, keyFilter.value, genreFilter.value);
                     if (deleteBtn) deleteBtn.disabled = false;
                 });
@@ -8749,10 +8755,10 @@ window.viewSingleLyrics = function(songId, otherId) {
                 saveSongs();
                 queueSaveUserData();
                 
-                if (NewTab.classList.contains('active')) {
-                    renderSongs('New', keyFilter.value, genreFilter.value);
+                if (PraiseTab.classList.contains('active')) {
+                    renderSongs('Praise', keyFilter.value, genreFilter.value);
                 } else {
-                    renderSongs('Old', keyFilter.value, genreFilter.value);
+                    renderSongs('Worship', keyFilter.value, genreFilter.value);
                 }
                 songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics"></div>';
                 songPreviewEl.dataset.songId = '';
@@ -8770,10 +8776,10 @@ window.viewSingleLyrics = function(songId, otherId) {
                 if (query.length === 0) {
                     searchResults.classList.remove('active');
                     const filters = getCurrentFilterValues();
-                    if (NewTab.classList.contains('active')) {
-                        renderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
+                    if (PraiseTab.classList.contains('active')) {
+                        renderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                     } else {
-                        renderSongs('Old', filters.key, filters.genre, filters.mood, filters.artist);
+                        renderSongs('Worship', filters.key, filters.genre, filters.mood, filters.artist);
                     }
                     return;
                 }
@@ -8861,10 +8867,10 @@ window.viewSingleLyrics = function(songId, otherId) {
                 clearSearchBtn.style.display = 'none';
                 document.getElementById('searchResults').classList.remove('active');
                 document.getElementById('searchHistoryDropdown').style.display = 'none';
-                if (NewTab.classList.contains('active')) {
-                    renderSongs('New', keyFilter.value, genreFilter.value);
+                if (PraiseTab.classList.contains('active')) {
+                    renderSongs('Praise', keyFilter.value, genreFilter.value);
                 } else {
-                    renderSongs('Old', keyFilter.value, genreFilter.value);
+                    renderSongs('Worship', keyFilter.value, genreFilter.value);
                 }
             });
             
@@ -9151,24 +9157,24 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
 
             // Setlist view modal tabs
-            const setlistNewTab = document.getElementById('setlistNewTab');
-            const setlistOldTab = document.getElementById('setlistOldTab');
-            const setlistNewSongs = document.getElementById('setlistNewSongs');
-            const setlistOldSongs = document.getElementById('setlistOldSongs');
+            const setlistPraiseTab = document.getElementById('setlistPraiseTab');
+            const setlistWorshipTab = document.getElementById('setlistWorshipTab');
+            const setlistPraiseSongs = document.getElementById('setlistPraiseSongs');
+            const setlistWorshipSongs = document.getElementById('setlistWorshipSongs');
 
-            if (setlistNewTab && setlistOldTab && setlistNewSongs && setlistOldSongs) {
-                setlistNewTab.addEventListener('click', () => {
-                    setlistNewTab.classList.add('active');
-                    setlistOldTab.classList.remove('active');
-                    setlistNewSongs.style.display = 'block';
-                    setlistOldSongs.style.display = 'none';
+            if (setlistPraiseTab && setlistWorshipTab && setlistPraiseSongs && setlistWorshipSongs) {
+                setlistPraiseTab.addEventListener('click', () => {
+                    setlistPraiseTab.classList.add('active');
+                    setlistWorshipTab.classList.remove('active');
+                    setlistPraiseSongs.style.display = 'block';
+                    setlistWorshipSongs.style.display = 'none';
                 });
 
-                setlistOldTab.addEventListener('click', () => {
-                    setlistOldTab.classList.add('active');
-                    setlistNewTab.classList.remove('active');
-                    setlistOldSongs.style.display = 'block';
-                    setlistNewSongs.style.display = 'none';
+                setlistWorshipTab.addEventListener('click', () => {
+                    setlistWorshipTab.classList.add('active');
+                    setlistPraiseTab.classList.remove('active');
+                    setlistWorshipSongs.style.display = 'block';
+                    setlistPraiseSongs.style.display = 'none';
                 });
             }
 

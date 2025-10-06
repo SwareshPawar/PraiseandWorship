@@ -1,14 +1,8 @@
 {
   "version": 2,
   "functions": {
-    "api/index.js": {
-      "includeFiles": ["utils/**", ".env"]
+    "api/*.js": {
+      "includeFiles": ["utils/**"]
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    }
-  ]
+  }
 }

@@ -7451,7 +7451,7 @@ window.viewSingleLyrics = function(songId, otherId) {
     // ? 'http://localhost:3001' 
     // : 'https://praiseand-worship.vercel.app'; // or your actual backend URL
 
-const API_BASE_URL = 'https://praiseand-worship.vercel.app';
+const API_BASE_URL = 'praiseand-worship-swareshs-projects.vercel.app';
 
             if (setlistId.startsWith('global_')) {
                 apiEndpoint = `${API_BASE_URL}/api/global-setlists/add-song`;

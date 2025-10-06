@@ -91,7 +91,7 @@ const CHORD_TYPES = [
         const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
             ? 'http://localhost:3001'
             : window.location.hostname === 'swareshpawar.github.io'
-                ? 'https://praiseand-worship.vercel.app' // Use primary Vercel domain for GitHub Pages
+                ? 'https://praiseand-worship-6ztj3hjdu-swareshs-projects.vercel.app' // Use latest deployment
                 : window.location.origin; // Use same origin for Vercel deployments
 
         console.log('API_BASE_URL:', API_BASE_URL);

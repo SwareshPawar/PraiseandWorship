@@ -22,7 +22,8 @@ app.use(cors({
     'http://127.0.0.1:5501',
     'http://localhost:5501',
     'https://praiseand-worship.vercel.app',
-    'https://swareshpawar.github.io' // GitHub Pages
+    'https://swareshpawar.github.io', // GitHub Pages
+    /^https:\/\/.*\.onrender\.com$/ // All Render domains
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -42,9 +43,12 @@ async function connectToDatabase() {
   try {
     console.log('Attempting to connect to MongoDB...');
     console.log('MongoDB URI available:', !!uri);
+    console.log('All environment variables:', Object.keys(process.env).filter(key => !key.includes('PATH')));
     
     if (!uri) {
-      throw new Error('MONGODB_URI environment variable is not set');
+      console.error('MONGODB_URI environment variable is not set');
+      console.error('Available env vars (filtered):', Object.keys(process.env).filter(key => key.includes('MONGO') || key.includes('JWT') || key.includes('PORT')));
+      throw new Error('MONGODB_URI environment variable is not set - please configure it in your Render dashboard');
     }
     
     await client.connect();
@@ -835,19 +839,24 @@ app.post('/api/my-setlists/remove-song', authMiddleware, async (req, res) => {
   }
 });
 
-// For local development - initialize database first
-if (process.env.NODE_ENV !== 'production') {
-  async function startLocalServer() {
-    try {
-      await connectToDatabase();
-      const PORT = process.env.PORT || 3001;
-      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-    } catch (err) {
-      console.error('Failed to start server:', err);
-      process.exit(1);
-    }
+// Start server - works for both local development and production (Render, etc.)
+async function startServer() {
+  try {
+    await connectToDatabase();
+    const PORT = process.env.PORT || 3001;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+      console.log('Environment:', process.env.NODE_ENV || 'development');
+    });
+  } catch (err) {
+    console.error('Failed to start server:', err);
+    process.exit(1);
   }
-  startLocalServer();
+}
+
+// Start server unless we're being imported (for Vercel)
+if (require.main === module) {
+  startServer();
 }
 
 // Export for Vercel

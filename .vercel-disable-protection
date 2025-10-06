@@ -1,0 +1,5 @@
+# Vercel Deployment Settings
+# This file is used to configure deployment protection
+
+# Disable deployment protection for production
+VERCEL_DEPLOYMENT_PROTECTION=false

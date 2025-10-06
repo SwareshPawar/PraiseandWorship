@@ -91,7 +91,7 @@ const CHORD_TYPES = [
         const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
             ? 'http://localhost:3001'
             : window.location.hostname === 'swareshpawar.github.io'
-                ? 'https://praiseand-worship-6ztj3hjdu-swareshs-projects.vercel.app' // Use latest deployment
+                ? 'praiseand-worship.vercel.app' // Use latest deployment
                 : window.location.origin; // Use same origin for Vercel deployments
 
         console.log('API_BASE_URL:', API_BASE_URL);
@@ -7447,10 +7447,12 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             // Determine if this is a global setlist or personal setlist
             let apiEndpoint;
-            const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-    ? 'http://localhost:3001' 
-    : 'https://oldand-new.vercel.app'; // or your actual backend URL
-            
+    //         const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+    // ? 'http://localhost:3001' 
+    // : 'https://praiseand-worship.vercel.app'; // or your actual backend URL
+
+const API_BASE_URL = 'https://praiseand-worship.vercel.app';
+
             if (setlistId.startsWith('global_')) {
                 apiEndpoint = `${API_BASE_URL}/api/global-setlists/add-song`;
             } else if (setlistId.startsWith('my_')) {

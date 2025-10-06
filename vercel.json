@@ -1,13 +1,18 @@
 {
   "version": 2,
-  "buildCommand": "echo 'No build needed for static files'",
-  "outputDirectory": "./",
   "functions": {
+    "api/songs.js": {
+      "maxDuration": 30
+    },
     "api/index.js": {
       "maxDuration": 30
     }
   },
   "rewrites": [
+    {
+      "source": "/api/songs",
+      "destination": "/api/songs.js"
+    },
     {
       "source": "/api/(.*)",
       "destination": "/api/index.js"

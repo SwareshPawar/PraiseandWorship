@@ -89,14 +89,12 @@ const CHORD_TYPES = [
 
         // Dynamic API base URL for local/dev/prod
         const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-
             ? 'http://localhost:3001'
-            : 'https://oldand-new.vercel.app'; // 'https://oldandnew.onrender.com'; || 'https://oldand-new.vercel.app';
+            : window.location.hostname === 'swareshpawar.github.io'
+                ? 'https://praiseand-worship.vercel.app' // Use primary Vercel domain for GitHub Pages
+                : window.location.origin; // Use same origin for Vercel deployments
 
-            console.log('API_BASE_URL:', API_BASE_URL);
-        
-        
-        // const API_BASE_URL = 'https://oldand-new.vercel.app';
+        console.log('API_BASE_URL:', API_BASE_URL);
 
 // --- CHORD REGEXES: always use CHORD_TYPES ---
 const CHORDS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B"];

@@ -206,6 +206,31 @@ app.patch('/api/users/:id/admin', authMiddleware, requireAdmin, async (req, res)
   }
 });
 
+// Toggle user admin status (for main.js compatibility)
+app.put('/api/users/:id/admin', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { isAdmin } = req.body;
+    
+    if (typeof isAdmin !== 'boolean') {
+      return res.status(400).json({ error: 'isAdmin must be a boolean value' });
+    }
+    
+    const result = await db.collection('Users').updateOne(
+      { _id: new (require('mongodb').ObjectId)(userId) },
+      { $set: { isAdmin, updatedAt: new Date() } }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json({ message: `User admin status updated to ${isAdmin}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Remove admin role from user
 app.patch('/api/users/:id/remove-admin', authMiddleware, requireAdmin, async (req, res) => {
   try {

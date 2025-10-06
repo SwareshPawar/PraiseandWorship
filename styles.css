@@ -1097,78 +1097,78 @@
     --admin-panel-width: 60%; /* Change this value to adjust admin panel width */
     --admin-panel-height: 80%; /* Change this value to adjust admin panel height */
     
-    /* Core Theme Colors */
-    --primary-color: #3E3F29;
-    --secondary-color: #7D8D86;
-    --accent-color: #c5b194;
-    --accent-color-rgb: 197, 177, 148;
-    --light-bg: #2d2c28;
-    --text-color: #7a7c50;
+    /* Core Theme Colors - Midnight Blue Light Theme */
+    --primary-color: #274472;      /* Dark Blue - for primary text and accents */
+    --secondary-color: #41729f;    /* Midnight Blue - for secondary elements */
+    --accent-color: #5885af;       /* Blue Gray - for highlights and buttons */
+    --accent-color-rgb: 88, 133, 175;
+    --light-bg: #c3e0e5;          /* Baby Blue - main background */
+    --text-color: #274472;        /* Dark Blue - main text color */
     
     /* UI State Colors */
-    --delete-color: #BCA88D;
-    --favorite-color: #ff0000;
-    --success-color: #28a745;
-    --error-color: #e74c3c;
-    --warning-color: #f39c12;
-    --info-color: #667eea;
+    --delete-color: #274472;
+    --favorite-color: #d63384;
+    --success-color: #198754;
+    --error-color: #dc3545;
+    --warning-color: #fd7e14;
+    --info-color: #5885af;
     
     /* Action Button Colors */
-    --btn-danger-bg: #e74c3c;
-    --btn-danger-hover: #c0392b;
-    --btn-warning-bg: #f39c12;
-    --btn-warning-hover: #e67e22;
-    --btn-secondary-bg: #95a5a6;
-    --btn-secondary-hover: #7f8c8d;
+    --btn-danger-bg: #dc3545;
+    --btn-danger-hover: #bb2d3b;
+    --btn-warning-bg: #fd7e14;
+    --btn-warning-hover: #e76f12;
+    --btn-secondary-bg: #5885af;
+    --btn-secondary-hover: #41729f;
     --btn-text-light: white;
     
     /* Loading & Spinner Colors */
-    --spinner-track: #eee;
-    --spinner-active: var(--primary-color);
-    --loading-text: #ffd700;
-    --loading-overlay: rgba(0,0,0,0.4);
-    --swipe-feedback: rgba(0,0,0,0.02);
+    --spinner-track: #b8d4e3;
+    --spinner-active: var(--secondary-color);
+    --loading-text: #274472;
+    --loading-overlay: rgba(39, 68, 114, 0.1);
+    --swipe-feedback: rgba(39, 68, 114, 0.05);
     
     /* Notification & Modal Colors */
-    --notification-bg: rgba(62, 63, 41, 0.9);
-    --modal-overlay: rgba(0,0,0,0.4);
-    --form-bg: #23231A;
-    --form-shadow: rgba(62,63,41,0.18);
-    --modal-title-color: #2c3e50;
-    --modal-close-color: #888;
+    --notification-bg: rgba(39, 68, 114, 0.95);
+    --modal-overlay: rgba(39, 68, 114, 0.3);
+    --form-bg: #ffffff;
+    --form-shadow: rgba(39, 68, 114, 0.15);
+    --modal-title-color: #274472;
+    --modal-close-color: #5885af;
     
     /* Sidebar Theme */
-    --sidebar-text-color: #3E3F29;
-    --sidebar-item-bg: #F1F0E4;
-    --sidebar-item-hover-bg: #BCA88D;
-    --sidebar-text-hover: #3E3F29;
+    --sidebar-text-color: #274472;
+    --sidebar-item-bg: #ffffff;
+    --sidebar-item-hover-bg: #5885af;
+    --sidebar-text-hover: #ffffff;
     
     /* Song Item Theme */
-    --song-item-bg: #F1F0E4;
-    --song-item-text: #3E3F29;
-    --song-item-border: #BCA88D;
-    --song-meta-color: #7D8D86;
-    --song-item-text-bg: #dfc07d;
-    --song-item-shadow: rgba(0,0,0,0.1);
+    --song-item-bg: #ffffff;
+    --song-item-text: #274472;
+    --song-item-border: #5885af;
+    --song-meta-color: #41729f;
+    --song-item-text-bg: #b8d4e3;
+    --song-item-shadow: rgba(39, 68, 114, 0.1);
     
     /* Lyrics Theme */
-    --lyrics-bg-color: #F1F0E4;
-    --lyrics-text-color: #3E3F29;
-    --title-color: #3E3F29;
-    --chord-color: #7D8D86;
+    --lyrics-bg-color: #ffffff;
+    --lyrics-text-color: #274472;
+    --title-color: #274472;
+    --chord-color: #41729f;
     
     /* Input & Form Colors */
-    --input-bg: #F1F0E4;
-    --input-border: #BCA88D;
-    --input-focus: rgba(241, 240, 228, 0.4);
-    --input-text: #3E3F29;
-    --input-highlight-bg: #f7edbd;
-    --input-focus-bg: #fffbe6;
-    --input-highlight-text: #222;
+    --input-bg: #ffffff;
+    --input-border: #5885af;
+    --input-focus: rgba(88, 133, 175, 0.2);
+    --input-text: #274472;
+    --input-highlight-bg: #b8d4e3;
+    --input-focus-bg: #f0f7fa;
+    --input-highlight-text: #274472;
     
     /* Legacy Variables for Compatibility */
-    --light-accent: #BCA88D;
-    --light-bg-highlight: #3E3F29;
+    --light-accent: #5885af;
+    --light-bg-highlight: #274472;
 }
 
         * {
@@ -1187,78 +1187,78 @@
         }
 
             body.dark-mode {
-                /* Core Theme Colors */
-                --primary-color: #23231A;
-                --secondary-color: #4A4F3A;
-                --accent-color: #BCA88D;
-                --accent-color-rgb: 188, 168, 141;
-                --light-bg: #181810;
-                --text-color: #8a7a51;
+                /* Core Theme Colors - Midnight Blue Dark Theme */
+                --primary-color: #5885af;      /* Blue Gray - lighter text in dark mode */
+                --secondary-color: #274472;    /* Dark Blue - for secondary elements */
+                --accent-color: #41729f;       /* Midnight Blue - for highlights */
+                --accent-color-rgb: 65, 114, 159;
+                --light-bg: #1a2332;          /* Very dark blue background */
+                --text-color: #c3e0e5;        /* Baby Blue - light text color */
                 
                 /* UI State Colors */
-                --delete-color: #BCA88D;
-                --favorite-color: #ff0000;
-                --success-color: #27ae60;
-                --error-color: #e74c3c;
-                --warning-color: #f39c12;
-                --info-color: #667eea;
+                --delete-color: #5885af;
+                --favorite-color: #ff6b8a;
+                --success-color: #20c997;
+                --error-color: #fd5e53;
+                --warning-color: #ffb647;
+                --info-color: #41729f;
                 
                 /* Action Button Colors (darker variants for dark mode) */
-                --btn-danger-bg: #c0392b;
-                --btn-danger-hover: #a93226;
-                --btn-warning-bg: #e67e22;
-                --btn-warning-hover: #d35400;
-                --btn-secondary-bg: #7f8c8d;
-                --btn-secondary-hover: #6c7b7d;
+                --btn-danger-bg: #fd5e53;
+                --btn-danger-hover: #e14e44;
+                --btn-warning-bg: #ffb647;
+                --btn-warning-hover: #ffa726;
+                --btn-secondary-bg: #41729f;
+                --btn-secondary-hover: #274472;
                 --btn-text-light: white;
                 
                 /* Loading & Spinner Colors */
-                --spinner-track: #4A4F3A;
-                --spinner-active: #BCA88D;
-                --loading-text: #ffd700;
-                --loading-overlay: rgba(0,0,0,0.6);
-                --swipe-feedback: rgba(0,0,0,0.05);
+                --spinner-track: #274472;
+                --spinner-active: #5885af;
+                --loading-text: #c3e0e5;
+                --loading-overlay: rgba(26, 35, 50, 0.8);
+                --swipe-feedback: rgba(195, 224, 229, 0.1);
                 
                 /* Notification & Modal Colors */
-                --notification-bg: rgba(35, 35, 26, 0.9);
-                --modal-overlay: rgba(0,0,0,0.6);
-                --form-bg: #23231A;
-                --form-shadow: rgba(35,35,26,0.3);
-                --modal-title-color: #BCA88D;
-                --modal-close-color: #ECE6D6;
+                --notification-bg: rgba(26, 35, 50, 0.95);
+                --modal-overlay: rgba(26, 35, 50, 0.7);
+                --form-bg: #213040;
+                --form-shadow: rgba(26, 35, 50, 0.4);
+                --modal-title-color: #c3e0e5;
+                --modal-close-color: #5885af;
                 
                 /* Sidebar Theme */
-                --sidebar-text-color: #ECE6D6;
-                --sidebar-item-bg: #23231A;
-                --sidebar-item-hover-bg: #4A4F3A;
-                --sidebar-text-hover: #ECE6D6;
+                --sidebar-text-color: #c3e0e5;
+                --sidebar-item-bg: #213040;
+                --sidebar-item-hover-bg: #41729f;
+                --sidebar-text-hover: #ffffff;
                 
                 /* Song Item Theme */
-                --song-item-bg: #23231A;
-                --song-item-text: #ECE6D6;
-                --song-item-border: #BCA88D;
-                --song-meta-color: #ECE6D6;
-                --song-item-text-bg: #3f3319;
-                --song-item-shadow: rgba(0,0,0,0.3);
+                --song-item-bg: #213040;
+                --song-item-text: #c3e0e5;
+                --song-item-border: #41729f;
+                --song-meta-color: #5885af;
+                --song-item-text-bg: #274472;
+                --song-item-shadow: rgba(0, 0, 0, 0.4);
                 
                 /* Lyrics Theme */
-                --lyrics-bg-color: #181810;
-                --lyrics-text-color: #ECE6D6;
-                --title-color: #BCA88D;
-                --chord-color: #7D8D86;
+                --lyrics-bg-color: #213040;
+                --lyrics-text-color: #c3e0e5;
+                --title-color: #5885af;
+                --chord-color: #41729f;
                 
                 /* Input & Form Colors */
-                --input-bg: #23231A;
-                --input-border: #4A4F3A;
-                --input-focus: rgba(74, 79, 58, 0.4);
-                --input-text: #ECE6D6;
-                --input-highlight-bg: #3f3319;
-                --input-focus-bg: #4A4F3A;
-                --input-highlight-text: #ECE6D6;
+                --input-bg: #213040;
+                --input-border: #41729f;
+                --input-focus: rgba(65, 114, 159, 0.3);
+                --input-text: #c3e0e5;
+                --input-highlight-bg: #274472;
+                --input-focus-bg: #2a3a4d;
+                --input-highlight-text: #c3e0e5;
                 
                 /* Legacy Variables for Dark Mode */
-                --dark-accent: #646e6a;
-                --dark-light-bg: #4f4e4d;
+                --dark-accent: #41729f;
+                --dark-light-bg: #274472;
             }
 
         /* Add these styles to your existing CSS */
@@ -1325,14 +1325,14 @@
     top: 50%;
     transform: translate(-50%, -50%);
     z-index: 9999;
-    background: linear-gradient(90deg, var(--accent-color, #667eea), var(--primary-color, #764ba2));
+    background: linear-gradient(90deg, var(--accent-color, #5885af), var(--primary-color, #274472));
     color: #fff;
     border: none;
     border-radius: 24px;
     padding: 16px 32px;
     font-size: 1.15rem;
     font-weight: 600;
-    box-shadow: 0 4px 16px rgba(62,63,41,0.18);
+    box-shadow: 0 4px 16px rgba(39, 68, 114, 0.25);
     cursor: pointer;
     transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
     letter-spacing: 0.03em;
@@ -1340,14 +1340,14 @@
 }
 
 #installAppBtn:hover, #installAppBtn:focus {
-    background: linear-gradient(90deg, var(--primary-color, #764ba2), var(--accent-color, #667eea));
-    box-shadow: 0 8px 24px rgba(62,63,41,0.22);
+    background: linear-gradient(90deg, var(--primary-color, #274472), var(--accent-color, #5885af));
+    box-shadow: 0 8px 24px rgba(39, 68, 114, 0.35);
     transform: translate(-50%, -52%) scale(1.04);
-    color: #ffd700;
+    color: #c3e0e5;
 }
 
 body.dark-mode #installAppBtn {
-    background: linear-gradient(90deg, #BCA88D, #23231A);
+    background: linear-gradient(90deg, #5885af, #41729f);
     color: #23231A;
 }
 

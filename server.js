@@ -16,21 +16,32 @@ const client = new MongoClient(uri, {
   },
 });
 
-// CORS configuration for Vercel serverless
+// CORS configuration for Vercel serverless  
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://127.0.0.1:5500',
+  'http://localhost:5500',
+  'http://127.0.0.1:5501',
+  'http://localhost:5501',
+  'https://oldandnew.onrender.com',
+  'https://swareshpawar.github.io/PraiseandWorship/',
+  'https://swareshpawar.github.io',
+  'https://praiseand-worship.vercel.app',
+  'https://praiseand-worship-bznmhyhlc-swareshs-projects.vercel.app'
+];
+
 const corsOptions = {
-  origin: [
-    'http://localhost:3000',
-    'http://127.0.0.1:5500', // Live Server
-    'http://localhost:5500',  // Live Server
-    'http://127.0.0.1:5501',
-    'http://localhost:5501',
-    'https://oldandnew.onrender.com',
-    'https://swareshpawar.github.io/PraiseandWorship/',
-    'https://swareshpawar.github.io',
-    'https://praiseand-worship.vercel.app',
-    'https://praiseand-worship-bznmhyhlc-swareshs-projects.vercel.app',
-    /https:\/\/praiseand-worship-.*\.vercel\.app$/ // Match all Vercel deployment URLs
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list or matches Vercel pattern
+    if (allowedOrigins.includes(origin) || origin.match(/^https:\/\/praiseand-worship-.*\.vercel\.app$/)) {
+      return callback(null, true);
+    } else {
+      return callback(null, false);
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
@@ -41,7 +52,7 @@ app.use(cors(corsOptions));
 // Manual CORS handler for OPTIONS requests
 app.options('*', (req, res) => {
   const origin = req.headers.origin;
-  if (corsOptions.origin.includes(origin) || corsOptions.origin.some(o => o instanceof RegExp && o.test(origin))) {
+  if (allowedOrigins.includes(origin) || (origin && origin.match(/^https:\/\/praiseand-worship-.*\.vercel\.app$/))) {
     res.header('Access-Control-Allow-Origin', origin);
   } else {
     res.header('Access-Control-Allow-Origin', '*');
@@ -55,7 +66,7 @@ app.options('*', (req, res) => {
 // Add CORS headers to all responses
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (corsOptions.origin.includes(origin) || corsOptions.origin.some(o => o instanceof RegExp && o.test(origin))) {
+  if (allowedOrigins.includes(origin) || (origin && origin.match(/^https:\/\/praiseand-worship-.*\.vercel\.app$/))) {
     res.header('Access-Control-Allow-Origin', origin);
   } else {
     res.header('Access-Control-Allow-Origin', '*');
@@ -67,7 +78,7 @@ app.use((req, res, next) => {
 });
 
 app.use(express.json());
-app.use(express.static('.'));
+// Removed express.static('.') as it causes path-to-regexp errors and we use public directory for static files
 
 // Request logging middleware
 app.use((req, res, next) => {

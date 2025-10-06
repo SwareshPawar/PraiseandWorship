@@ -24,7 +24,10 @@ app.use(cors({
     'http://127.0.0.1:5501',
     'http://localhost:5501',
     'https://oldandnew.onrender.com',
-    'https://swareshpawar.github.io'
+    'https://swareshpawar.github.io',
+    'https://praiseand-worship.vercel.app',
+    'https://praiseand-worship-bznmhyhlc-swareshs-projects.vercel.app',
+    /https:\/\/praiseand-worship-.*\.vercel\.app$/ // Match all Vercel deployment URLs
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],

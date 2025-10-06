@@ -1,3 +1,6 @@
 const app = require('../server.js');
 
-module.exports = app;
+// Vercel serverless function handler
+module.exports = (req, res) => {
+  return app(req, res);
+};

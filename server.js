@@ -16,84 +16,19 @@ const client = new MongoClient(uri, {
   },
 });
 
-// CORS configuration for Vercel serverless  
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://127.0.0.1:5500',
-  'http://localhost:5500',
-  'http://127.0.0.1:5501',
-  'http://localhost:5501',
-  'https://oldandnew.onrender.com',
-  'https://swareshpawar.github.io/PraiseandWorship/',
-  'https://swareshpawar.github.io',
-  'https://praiseand-worship.vercel.app',
-  'https://praiseand-worship-bznmhyhlc-swareshs-projects.vercel.app'
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    
-    // Check if origin is in allowed list or matches Vercel pattern
-    if (allowedOrigins.includes(origin) || origin.match(/^https:\/\/praiseand-worship-.*\.vercel\.app$/)) {
-      return callback(null, true);
-    } else {
-      return callback(null, false);
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://127.0.0.1:5501',
+    'http://localhost:5501',
+    'https://praiseand-worship.vercel.app',
+    'https://swareshpawar.github.io' // GitHub Pages
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
-};
-
-app.use(cors(corsOptions));
-
-// Manual CORS handler for OPTIONS requests
-app.options('*', (req, res) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin) || (origin && origin.match(/^https:\/\/praiseand-worship-.*\.vercel\.app$/))) {
-    res.header('Access-Control-Allow-Origin', origin);
-  } else {
-    res.header('Access-Control-Allow-Origin', '*');
-  }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.status(200).end();
-});
-
-// Add CORS headers to all responses
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin) || (origin && origin.match(/^https:\/\/praiseand-worship-.*\.vercel\.app$/))) {
-    res.header('Access-Control-Allow-Origin', origin);
-  } else {
-    res.header('Access-Control-Allow-Origin', '*');
-  }
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
-
+}));
 app.use(express.json());
-// Removed express.static('.') as it causes path-to-regexp errors and we use public directory for static files
-
-// Simple test endpoint for Vercel deployment debugging
-app.get('/api/test', (req, res) => {
-  res.json({ 
-    message: 'API is working!', 
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
-
-// Request logging middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Origin: ${req.headers.origin || 'none'}`);
-  next();
-});
+app.use(express.static('.'));
 
 // Initialize connection for serverless
 let isConnected = false;
@@ -116,16 +51,7 @@ async function connectToDatabase() {
     db = client.db('PraiseAndWorship');
     songsCollection = db.collection('PraiseAndWorships');
     isConnected = true;
-    
-    // Debug database connection
     console.log('Successfully connected to MongoDB');
-    console.log('Database name:', db.databaseName);
-    console.log('Collection name:', songsCollection.collectionName);
-    
-    // Test query to see what we're actually getting
-    const sampleSong = await songsCollection.findOne({});
-    console.log('Sample song title:', sampleSong ? sampleSong.title : 'No songs found');
-    console.log('Sample song category:', sampleSong ? sampleSong.category : 'N/A');
   } catch (err) {
     console.error('Failed to connect to MongoDB:', err);
     isConnected = false;
@@ -253,31 +179,6 @@ app.patch('/api/users/:id/admin', authMiddleware, requireAdmin, async (req, res)
       return res.status(404).json({ error: 'User not found' });
     }
     res.json({ message: 'User marked as admin' });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Toggle user admin status (for main.js compatibility)
-app.put('/api/users/:id/admin', authMiddleware, requireAdmin, async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const { isAdmin } = req.body;
-    
-    if (typeof isAdmin !== 'boolean') {
-      return res.status(400).json({ error: 'isAdmin must be a boolean value' });
-    }
-    
-    const result = await db.collection('Users').updateOne(
-      { _id: new (require('mongodb').ObjectId)(userId) },
-      { $set: { isAdmin, updatedAt: new Date() } }
-    );
-    
-    if (result.matchedCount === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    res.json({ message: `User admin status updated to ${isAdmin}` });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -444,11 +345,6 @@ app.post('/api/reset-password', async (req, res) => {
 });
 
 app.get('/api/songs', async (req, res) => {
-  console.log('DEBUG: GET /api/songs request received');
-  console.log('DEBUG: Request origin:', req.headers.origin);
-  console.log('DEBUG: MongoDB connected:', !!db);
-  console.log('DEBUG: Songs collection:', !!songsCollection);
-  
   try {
     // Support delta fetching: if ?since=TIMESTAMP is provided, only return songs updated after that
     const { since } = req.query;
@@ -462,12 +358,18 @@ app.get('/api/songs', async (req, res) => {
         ]
       };
     }
-    console.log('DEBUG: MongoDB query:', JSON.stringify(query));
     const songs = await songsCollection.find(query).toArray();
-    console.log('DEBUG: Found songs count:', songs.length);
-    res.json(songs);
+    
+    // Convert category from lowercase to capitalized for frontend compatibility
+    const formattedSongs = songs.map(song => ({
+      ...song,
+      category: song.category === 'praise' ? 'Praise' : 
+                song.category === 'worship' ? 'Worship' : 
+                song.category // Keep original if not praise/worship
+    }));
+    
+    res.json(formattedSongs);
   } catch (err) {
-    console.error('DEBUG: Error in GET /api/songs:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -502,6 +404,13 @@ app.post('/api/songs', authMiddleware, async (req, res) => {
     }
     if (!req.body.mood) {
       req.body.mood = '';
+    }
+    
+    // Convert category from capitalized to lowercase for database storage
+    if (req.body.category === 'Praise') {
+      req.body.category = 'praise';
+    } else if (req.body.category === 'Worship') {
+      req.body.category = 'worship';
     }
     
     const result = await songsCollection.insertOne(req.body);
@@ -932,25 +841,10 @@ if (process.env.NODE_ENV !== 'production') {
     try {
       await connectToDatabase();
       const PORT = process.env.PORT || 3001;
-      
-      const server = app.listen(PORT, '0.0.0.0', () => {
-        console.log(`Server running on port ${PORT}`);
-        console.log(`Server address: ${JSON.stringify(server.address())}`);
-        console.log('Server is ready to accept connections');
-      });
-      
-      server.on('error', (err) => {
-        console.error('Server listen error:', err);
-        if (err.code === 'EADDRINUSE') {
-          console.error(`Port ${PORT} is already in use. Please close other servers or use a different port.`);
-        }
-      });
-      
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
     } catch (err) {
       console.error('Failed to start server:', err);
-      if (process.env.NODE_ENV !== 'production') {
-        process.exit(1);
-      }
+      process.exit(1);
     }
   }
   startLocalServer();

@@ -29,7 +29,7 @@ try {
 }
 
 const GENRES = [
-    "New", "Old", "Mid", "Hindi", "Marathi", "English", "RD Pattern","Acoustic", "Qawalli", "Classical", "Ghazal", "Sufi", "Rock",
+    "Praise", "Worship", "Mid", "Hindi", "Marathi", "English", "RD Pattern","Acoustic", "Qawalli", "Classical", "Ghazal", "Sufi", "Rock",
     "Blues", "Female", "Male", "Duet"
 ];
 
@@ -40,22 +40,135 @@ const KEYS = [
     "C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B",
     "Cm", "C#m", "Dm", "Ebm", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "Bbm", "Bm"
 ];
-const CATEGORIES = ["praise", "worship"];
+const CATEGORIES = ["Praise", "Worship"];
 const TIMES = ["4/4", "3/4", "2/4", "6/8", "5/4", "7/8","12/8","14/8"];
 const TAALS = [
-    "Keherwa", "Keherwa Slow", "Dadra", "Dadra Slow", "Western","Desi Drum", "EkTaal", "JhapTaal", "TeenTaal","Rupak", "Deepchandi", "Garba","RD Pattern", "Waltz", "Rock", "Jazz", "March Rhythm"
+    "Keherwa", "Keherwa Slow", "Dadra", "Dadra Slow",  "EkTaal", "JhapTaal", "TeenTaal","Rupak", "Deepchandi", "Garba","RD Pattern","Desi Drum", "Western", "Waltz", "Rock", "Jazz", "March Rhythm"
 ];
 
 const MOODS = [
-    "Joyful", "Peaceful", "Reverent", "Uplifting", "Contemplative", "Celebratory", 
-    "Triumphant", "Gentle", "Powerful", "Worshipful", "Grateful", "Hopeful",
-    "Devotional", "Inspiring", "Reflective", "Adoration", "Surrender", "Victory",
-    "Comfort", "Praise", "Thanksgiving", "Holy", "Majestic", "Intimate"
+    "Happy", "Sad", "Romantic", "Powerful", "Soothing", "Motivational", "Joyful",
+    "Nostalgic", "Celebratory", "Passionate", "Festive", "Sorrowful",
+    "Love", "Evergreen", "Dance", "Patriotic"
 ];
 
 const ARTISTS = [
- "Hindi", "Marathi", "English", "Other"
+  // Legendary Male Singers
+  "Kishore Kumar", "Mohammed Rafi", "Mukesh", "Manna Dey", "Talat Mahmood",
+  "Hemant Kumar", "Mahendra Kapoor", "Suresh Wadkar", "Udit Narayan", "Kumar Sanu",
+  "Abhijeet", "Vinod Rathod", "Shabbir Kumar", "Kunal Ganjawala", "Sonu Nigam",
+  "Shaan", "KK", "Javed Ali", "Arijit Singh", "Atif Aslam", "Jubin Nautiyal",
+  "Darshan Raval", "Armaan Malik", "Papon", "Mohit Chauhan", "Hariharan",
+  "Sukhwinder Singh", "Kailash Kher", "Benny Dayal", "Vijay Prakash",
+  "Karthik", "Sid Sriram", "Raghav Sachar", "Raghav", "Ankit Tiwari",
+
+  // Legendary Female Singers
+  "Lata Mangeshkar", "Asha Bhosle", "Geeta Dutt", "Shamshad Begum",
+  "Kavita Krishnamurthy", "Anuradha Paudwal", "Sadhana Sargam", "Alka Yagnik",
+  "Sunidhi Chauhan", "Shreya Ghoshal", "Palak Muchhal", "Tulsi Kumar",
+  "Neha Kakkar", "Monali Thakur", "Shilpa Rao", "Dhvani Bhanushali",
+  "Chinmayi", "Sunali Rathod", "Rekha Bhardwaj", "Ankita Bhattacharyya",
+  "Usha Uthup", "Annie Khalid","Madhushree",
+
+  // Golden Era Composers
+  "Naushad", "Shankar-Jaikishan", "S.D. Burman", "R.D. Burman", "Madan Mohan",
+  "Salil Chowdhury", "O.P. Nayyar", "Roshan", "Kalyanji-Anandji",
+  "Laxmikant-Pyarelal", "Ravindra Jain", "Anu Malik", "Bappi Lahiri",
+
+  // Modern Composers
+  "A.R. Rahman", "Ilaiyaraaja", "Harris Jayaraj", "Anirudh Ravichander",
+  "Devi Sri Prasad", "Thaman S", "Gopi Sundar", "Ajay-Atul", "Sachin-Jigar",
+  "Vishal-Shekhar", "Shankar-Ehsaan-Loy", "Pritam", "Amit Trivedi",
+  "Amaal Mallik", "Tanishk Bagchi", "Rochak Kohli", "Himesh Reshammiya","Sanam Puri",
+  "Neeti Mohan","Zubeen Garg","Vishal Dadlani","Salim-Sulaiman","Shraddha Pandit",
+  "Anand Raj Anand","Javed Bashir","Diljit Dosanjh","Richa Sharma","",
+
+  // Ghazal / Qawwali / Classical Legends
+  "Jagjit Singh", "Chitra Singh", "Pankaj Udhas", "Anup Jalota",
+  "Ghulam Ali", "Mehdi Hassan", "Nusrat Fateh Ali Khan",
+  "Rahat Fateh Ali Khan", "Abida Parveen", "Tina Sani", "Shafqat Amanat Ali",
+  "Pt. Bhimsen Joshi", "Kumar Gandharva", "Pt. Jasraj",
+
+  // Modern Lyricists
+  "Gulzar", "Javed Akhtar", "Prasoon Joshi", "Amitabh Bhattacharya",
+  "Manoj Muntashir", "Kumaar", "Kausar Munir", "Irshad Kamil",
+
+  // Pop / Indie / Rap / Others
+  "Lucky Ali", "Euphoria (Palash Sen)", "Adnan Sami", "Colonial Cousins",
+  "Mika Singh", "Daler Mehndi", "Guru Randhawa", "Badshah",
+  "Yo Yo Honey Singh", "Divine", "Raftaar", "Nucleya",
+  // Legendary Actors
+  "Amitabh Bachchan", "Dharmendra", "Jeetendra", "Rajesh Khanna",
+  "Shashi Kapoor", "Shammi Kapoor", "Dev Anand", "Raj Kapoor",
+  "Vinod Khanna", "Rishi Kapoor", "Amrish Puri", "Anupam Kher",
+
+  // Popular 90s & 2000s Actors
+  "Shah Rukh Khan", "Salman Khan", "Aamir Khan",
+  "Akshay Kumar", "Ajay Devgn", "Saif Ali Khan",
+  "Govinda", "Sunny Deol", "Sanjay Dutt", "Nana Patekar",
+
+  // Current Generation Male Actors
+  "Ranbir Kapoor", "Ranveer Singh", "Varun Dhawan",
+  "Sidharth Malhotra", "Tiger Shroff", "Kartik Aaryan",
+  "Ayushmann Khurrana", "Rajkummar Rao", "Shahid Kapoor",
+  "Vicky Kaushal", "Arjun Kapoor", "Aditya Roy Kapur",
+
+  // Leading Actresses (90s & 2000s)
+  "Madhuri Dixit", "Sridevi", "Juhi Chawla", "Karisma Kapoor",
+  "Kajol", "Raveena Tandon", "Shilpa Shetty", "Preity Zinta",
+  "Aishwarya Rai Bachchan", "Rani Mukerji","Imran Hashmi","John Abraham",
+
+  // Current Generation Actresses
+  "Deepika Padukone", "Priyanka Chopra", "Kareena Kapoor Khan",
+  "Anushka Sharma", "Katrina Kaif", "Vidya Balan",
+  "Kangana Ranaut", "Alia Bhatt", "Shraddha Kapoor",
+  "Kriti Sanon", "Kiara Advani", "Janhvi Kapoor", "Sara Ali Khan","Farhan Akhtar",
+
+  // Supporting / Character Actors
+  "Pankaj Tripathi", "Manoj Bajpayee", "Irrfan Khan",
+  "Nawazuddin Siddiqui", "Boman Irani", "Paresh Rawal",
+  "Johnny Lever", "Kunal Khemu", "Abhay Deol",
+
+  // Young Actresses Rising
+  "Tara Sutaria", "Ananya Panday", "Rashmika Mandanna",
+  "Mrunal Thakur", "Disha Patani",
+
+  // Legends & Bhavgeet
+  "Sudhir Phadke",  "Arun Date",  "Yashwant Deo",  "Hridaynath Mangeshkar",  "Vasundhara Patwardhan",
+  "Shobha Gurtu",  "Padmaja Fenade",  "Prabhakar Karekar",  "Jaywant Kulkarni",
+  "Ranjana Joglekar",  "Ravindra Sathe",  "Mohan Atre",  "Sharad Jambhekar",
+  "Rama Marathe",  "Vijaya Jog",
+
+  // Mangeshkar Family
+  "Usha Mangeshkar",  "Meera Mangeshkar",  "Hridaynath Mangeshkar",
+
+  // Golden Voices
+  "Suman Kalyanpur",  "Anuradha Paudwal",  "Suresh Wadkar",  "Sadhana Sargam",
+  "Devaki Pandit",  "Shaila Chikale",  "Yogini Joglekar",
+  "Anjali Marathe",  "Shobha Joshi",
+
+  // Modern & Popular
+  "Vaishali Samant",  "Avdhoot Gupte",  "Ajay Gogavale",  "Atul Gogavale",
+  "Swapnil Bandodkar",  "Shankar Mahadevan",  "Shreya Ghoshal",  "Sonu Nigam",
+  "Kumar Sanu",  "Sunidhi Chauhan",
+
+  // New Generation
+  "Saleel Kulkarni",  "Rahul Deshpande",  "Mahesh Kale",  "Adarsh Shinde",
+  "Anand Shinde",  "Vaishali Made",  "Mugdha Karhade",  "Ketaki Mategaonkar",
+  "Bela Shende",  "Ranjana Jogalekar",  "Meenal Jain",
+  // Folk & Lavani
+  "Surekha Punekar",  "Reshma Sonawane",  "Shakuntala Jadhav",  "Kasturi Waje",
+  "Vishnu Waghmare",
+
+  // Others in Marathi Films
+  "Ajay-Atul",  "Avinash-Vishwajeet",  "Ashok Patki",  "Nandu Bhende",
+  "Neha Rajpal",  "Prajakta Shukre",  "Anand Bhate",
+  "Roopkumar Rathod",  "Jitendra Abhyankar",  "Rohit Raut",
+  "Arya Ambekar",  "Jaanvee Prabhu Arora",  "Hrishikesh Ranade",
+  // Others / Misc
+  "Dr. Devika Rani", "Other"
 ];
+
 
 const TIME_GENRE_MAP = {
     "4/4": [
@@ -89,12 +202,14 @@ const CHORD_TYPES = [
 
         // Dynamic API base URL for local/dev/prod
         const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:3001'
-            : window.location.hostname === 'swareshpawar.github.io'
-                ? 'https://praiseand-worship.vercel.app' // Main Vercel deployment
-                : window.location.origin; // Use same origin for Vercel deployments
 
-        console.log('API_BASE_URL:', API_BASE_URL);
+            ? 'http://localhost:3001'
+            : 'https://praiseand-worship.vercel.app'; // Production deployment
+
+            console.log('API_BASE_URL:', API_BASE_URL);
+        
+        
+        // const API_BASE_URL = 'https://praiseand-worship.vercel.app';
 
 // --- CHORD REGEXES: always use CHORD_TYPES ---
 const CHORDS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B"];
@@ -487,7 +602,7 @@ async function loadSongsWithProgress(forceRefresh = false) {
             if (typeof renderSongs === 'function') {
                 try {
                     const filters = getCurrentFilterValues();
-                    renderSongs('praise', filters.key, filters.genre, filters.mood, filters.artist);
+                    renderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
                 } catch (err) {
                     console.warn('Error rendering cached songs:', err);
                 }
@@ -594,7 +709,7 @@ async function loadSongsWithProgress(forceRefresh = false) {
         if (typeof renderSongs === 'function') {
             try {
                 const filters = getCurrentFilterValues();
-                renderSongs('praise', filters.key, filters.genre, filters.mood, filters.artist);
+                renderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
                 updateProgress('renderSongs', 80);
             } catch (err) {
                 console.warn('Error rendering songs:', err);
@@ -747,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortFilter = document.getElementById('sortFilter');
     if (sortFilter) {
         sortFilter.addEventListener('change', () => {
-            const activeTab = document.getElementById('praiseTab')?.classList.contains('active') ? 'praise' : 'worship';
+            const activeTab = document.getElementById('PraiseTab')?.classList.contains('active') ? 'Praise' : 'Worship';
             if (typeof renderSongs === 'function') {
                 const filters = getCurrentFilterValues();
                 renderSongs(activeTab, filters.key, filters.genre, filters.mood, filters.artist);
@@ -2048,8 +2163,8 @@ async function performInitialization() {
     loadSettings();
     addEventListeners();
     addPanelToggles();
-    renderSongs('praise', '', '', '', '');
-    applyLyricsBackground(document.getElementById('praiseTab').classList.contains('active'));
+    renderSongs('Praise', '', '', '', '');
+    applyLyricsBackground(document.getElementById('PraiseTab').classList.contains('active'));
     // connectWebSocket(); // Removed - not needed and may cause delays
     updateSongCount();
     initScreenWakeLock();
@@ -2213,17 +2328,17 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
     
         function updateSongCount() {
             document.getElementById('totalSongs').textContent = songs.length;
-            document.getElementById('praiseCount').textContent = songs.filter(s => s.category.toLowerCase() === 'praise').length;
-            document.getElementById('worshipCount').textContent = songs.filter(s => s.category.toLowerCase() === 'worship').length;
+            document.getElementById('PraiseCount').textContent = songs.filter(s => s.category === 'Praise').length;
+            document.getElementById('WorshipCount').textContent = songs.filter(s => s.category === 'Worship').length;
         }
     
         // Old setlist arrays removed - now using dropdown setlist system only
 
         // DOM Elements
-        const praiseTab = document.getElementById('praiseTab');
-        const worshipTab = document.getElementById('worshipTab');
-        const praiseContent = document.getElementById('praiseContent');
-        const worshipContent = document.getElementById('worshipContent');
+        const PraiseTab = document.getElementById('PraiseTab');
+        const WorshipTab = document.getElementById('WorshipTab');
+        const PraiseContent = document.getElementById('PraiseContent');
+        const WorshipContent = document.getElementById('WorshipContent');
         const keyFilter = document.getElementById('keyFilter');
         const genreFilter = document.getElementById('genreFilter');
         const moodFilter = document.getElementById('moodFilter');
@@ -2232,10 +2347,10 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         const showAllEl = document.getElementById('showAll');
         const showFavoritesEl = document.getElementById('showFavorites');
         const setlistSection = document.getElementById('setlistSection');
-        const praiseSetlistSongs = document.getElementById('praiseSetlistSongs');
-        const worshipSetlistSongs = document.getElementById('worshipSetlistSongs');
-        const praiseSetlistTab = document.getElementById('praiseSetlistTab');
-        const worshipSetlistTab = document.getElementById('worshipSetlistTab');
+        const NewSetlistSongs = document.getElementById('NewSetlistSongs');
+        const OldSetlistSongs = document.getElementById('OldSetlistSongs');
+        const NewSetlistTab = document.getElementById('NewSetlistTab');
+        const OldSetlistTab = document.getElementById('OldSetlistTab');
         const deleteSection = document.getElementById('deleteSection');
         const deleteContent = document.getElementById('deleteContent');
         const favoritesSection = document.getElementById('favoritesSection');
@@ -3451,24 +3566,24 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
             
             // Selected songs tabs
-            const selectedWorshipTab = document.getElementById(`${prefix}SelectedWorshipTab`);
-            const selectedPraiseTab = document.getElementById(`${prefix}SelectedPraiseTab`);
-            const selectedWorshipContent = document.getElementById(`${prefix}SelectedWorshipContent`);
-            const selectedPraiseContent = document.getElementById(`${prefix}SelectedPraiseContent`);
+            const selectedOldTab = document.getElementById(`${prefix}SelectedOldTab`);
+            const selectedNewTab = document.getElementById(`${prefix}SelectedNewTab`);
+            const selectedOldContent = document.getElementById(`${prefix}SelectedOldContent`);
+            const selectedNewContent = document.getElementById(`${prefix}SelectedNewContent`);
             
-            if (selectedWorshipTab && selectedPraiseTab && selectedWorshipContent && selectedPraiseContent) {
-                selectedWorshipTab.addEventListener('click', () => {
-                    selectedWorshipTab.classList.add('active');
-                    selectedPraiseTab.classList.remove('active');
-                    selectedWorshipContent.classList.add('active');
-                    selectedPraiseContent.classList.remove('active');
+            if (selectedOldTab && selectedNewTab && selectedOldContent && selectedNewContent) {
+                selectedOldTab.addEventListener('click', () => {
+                    selectedOldTab.classList.add('active');
+                    selectedNewTab.classList.remove('active');
+                    selectedOldContent.classList.add('active');
+                    selectedNewContent.classList.remove('active');
                 });
 
-                selectedPraiseTab.addEventListener('click', () => {
-                    selectedPraiseTab.classList.add('active');
-                    selectedWorshipTab.classList.remove('active');
-                    selectedPraiseContent.classList.add('active');
-                    selectedWorshipContent.classList.remove('active');
+                selectedNewTab.addEventListener('click', () => {
+                    selectedNewTab.classList.add('active');
+                    selectedOldTab.classList.remove('active');
+                    selectedNewContent.classList.add('active');
+                    selectedOldContent.classList.remove('active');
                 });
             }
         }
@@ -3905,14 +4020,14 @@ window.viewSingleLyrics = function(songId, otherId) {
         clearSetlistSelections();
 
         // Hide other sections and show setlist section
-        const praiseContent = document.getElementById('praiseContent');
-        const worshipContent = document.getElementById('worshipContent');
+        const NewContent = document.getElementById('NewContent');
+        const OldContent = document.getElementById('OldContent');
         const setlistSection = document.getElementById('setlistSection');
         const deleteSection = document.getElementById('deleteSection');
         const favoritesSection = document.getElementById('favoritesSection');
 
-        praiseContent.classList.remove('active');
-        worshipContent.classList.remove('active');
+        NewContent.classList.remove('active');
+        OldContent.classList.remove('active');
         setlistSection.style.display = 'block';
         deleteSection.style.display = 'none';
         favoritesSection.style.display = 'none';
@@ -4026,14 +4141,14 @@ window.viewSingleLyrics = function(songId, otherId) {
         clearSetlistSelections();
 
         // Hide other sections and show setlist section
-        const praiseContent = document.getElementById('praiseContent');
-        const worshipContent = document.getElementById('worshipContent');
+        const NewContent = document.getElementById('NewContent');
+        const OldContent = document.getElementById('OldContent');
         const setlistSection = document.getElementById('setlistSection');
         const deleteSection = document.getElementById('deleteSection');
         const favoritesSection = document.getElementById('favoritesSection');
 
-        praiseContent.classList.remove('active');
-        worshipContent.classList.remove('active');
+        NewContent.classList.remove('active');
+        OldContent.classList.remove('active');
         setlistSection.style.display = 'block';
         deleteSection.style.display = 'none';
         favoritesSection.style.display = 'none';
@@ -5500,11 +5615,6 @@ window.viewSingleLyrics = function(songId, otherId) {
             } else if (isLoggedIn && currentUser && currentUser.username) {
                 userGreeting.textContent = `Hi, ${currentUser.username}`;
                 userGreeting.style.display = 'block';
-            } else if (isLoggedIn && currentUser && currentUser.email) {
-                // Extract name from email if no username/firstName available
-                const emailName = currentUser.email.split('@')[0];
-                userGreeting.textContent = `Hi, ${emailName}`;
-                userGreeting.style.display = 'block';
             } else {
                 userGreeting.textContent = '';
                 userGreeting.style.display = 'none';
@@ -5578,16 +5688,13 @@ window.viewSingleLyrics = function(songId, otherId) {
         const sortedUsers = users.sort((a, b) => {
             if (a.isAdmin && !b.isAdmin) return -1;
             if (!a.isAdmin && b.isAdmin) return 1;
-            // Secondary sort by username, with fallback to email if username doesn't exist
-            const nameA = a.username || a.email || '';
-            const nameB = b.username || b.email || '';
-            return nameA.localeCompare(nameB);
+            return a.username.localeCompare(b.username); // Secondary sort by username
         });
         
         sortedUsers.forEach(user => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${user.username || user.email || 'Unknown User'}</td>
+                <td>${user.username}</td>
                 <td>${user.isAdmin ? '<span style=\"color:green;font-weight:bold;\">Admin</span>' : ''}</td>
                 <td>
                     <button class=\"btn\" ${user.isAdmin ? 'disabled' : ''} onclick=\"markAdmin('${user._id}')\">Mark Admin</button>
@@ -6187,7 +6294,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const keyFilterValue = filterOrContainer;
                 
                 songsToRender = songs
-                    .filter(song => song.category && song.category.toLowerCase() === category.toLowerCase())
+                    .filter(song => song.category === category)
                     .filter(song => {
                         // If 'Key' or empty, show all
                         return !keyFilterValue || keyFilterValue === 'Key' || song.key === keyFilterValue;
@@ -6251,7 +6358,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                         return (b.id || 0) - (a.id || 0);
                     });
                 }
-                container = category === 'praise' ? document.getElementById('praiseContent') : document.getElementById('worshipContent');
+                container = category === 'New' ? document.getElementById('NewContent') : document.getElementById('OldContent');
             } else {
                 songsToRender = categoryOrSongs;
                 container = filterOrContainer;
@@ -6399,7 +6506,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const divListener = () => {
                     showPreview(song);
                     // Re-render songs to update active highlight
-                    const activeTab = document.getElementById('praiseTab').classList.contains('active') ? 'praise' : 'worship';
+                    const activeTab = document.getElementById('NewTab').classList.contains('active') ? 'New' : 'Old';
                     renderSongs(activeTab, keyFilter.value, genreFilter.value);
                     if (window.innerWidth <= 768) {
                         document.querySelector('.songs-section').classList.add('hidden');
@@ -6438,10 +6545,10 @@ window.viewSingleLyrics = function(songId, otherId) {
             
             // Reset UI
             songPreviewEl.innerHTML = '<h2>Select a song</h2><div class="song-lyrics">No song is selected</div>';
-            praiseContent.innerHTML = '<p>No songs found.</p>';
-            worshipContent.innerHTML = '<p>No songs found.</p>';
-            praiseSetlistSongs.innerHTML = '<p>Your praise setlist is empty.</p>';
-            worshipSetlistSongs.innerHTML = '<p>Your worship setlist is empty.</p>';
+            NewContent.innerHTML = '<p>No songs found.</p>';
+            OldContent.innerHTML = '<p>No songs found.</p>';
+            NewSetlistSongs.innerHTML = '<p>Your New setlist is empty.</p>';
+            OldSetlistSongs.innerHTML = '<p>Your Old setlist is empty.</p>';
             deleteContent.innerHTML = '<p>No songs available to delete.</p>';
             favoritesContent.innerHTML = '<p>No favorite songs yet.</p>';
             
@@ -7449,10 +7556,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             let apiEndpoint;
             const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
     ? 'http://localhost:3001' 
-    : 'https://praiseand-worship.vercel.app'; // or your actual backend URL
-
-
-
+    : 'https://oldand-new.vercel.app'; // or your actual backend URL
+            
             if (setlistId.startsWith('global_')) {
                 apiEndpoint = `${API_BASE_URL}/api/global-setlists/add-song`;
             } else if (setlistId.startsWith('my_')) {
@@ -8093,16 +8198,16 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
 
             // Tab switching
-            praiseTab.addEventListener('click', () => {
+            NewTab.addEventListener('click', () => {
                 setlistSection.style.display = 'none';
                 if (setlistSectionActions) setlistSectionActions.style.display = 'none';
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'none';
-                praiseTab.classList.add('active');
-                worshipTab.classList.remove('active');
-                praiseContent.classList.add('active');
-                worshipContent.classList.remove('active');
-                debouncedRenderSongs('praise', keyFilter.value, genreFilter.value);
+                NewTab.classList.add('active');
+                OldTab.classList.remove('active');
+                NewContent.classList.add('active');
+                OldContent.classList.remove('active');
+                debouncedRenderSongs('New', keyFilter.value, genreFilter.value);
                 applyLyricsBackground(true);
                 
                 // Mobile view: show songs panel and hide sidebar
@@ -8114,16 +8219,16 @@ window.viewSingleLyrics = function(songId, otherId) {
             });
 
     
-            worshipTab.addEventListener('click', () => {
+            OldTab.addEventListener('click', () => {
                 setlistSection.style.display = 'none';
                 if (setlistSectionActions) setlistSectionActions.style.display = 'none';
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'none';
-                worshipTab.classList.add('active');
-                praiseTab.classList.remove('active');
-                worshipContent.classList.add('active');
-                praiseContent.classList.remove('active');
-                debouncedRenderSongs('worship', keyFilter.value, genreFilter.value);
+                OldTab.classList.add('active');
+                NewTab.classList.remove('active');
+                OldContent.classList.add('active');
+                NewContent.classList.remove('active');
+                debouncedRenderSongs('Old', keyFilter.value, genreFilter.value);
                 applyLyricsBackground(false);
                 
                 // Mobile view: show songs panel and hide sidebar
@@ -8137,10 +8242,10 @@ window.viewSingleLyrics = function(songId, otherId) {
             // Filter changes
             keyFilter.addEventListener('change', () => {
                 const filters = getCurrentFilterValues();
-                if (praiseTab.classList.contains('active')) {
-                    debouncedRenderSongs('praise', filters.key, filters.genre, filters.mood, filters.artist);
+                if (NewTab.classList.contains('active')) {
+                    debouncedRenderSongs('New', filters.key, filters.genre, filters.mood, filters.artist);
                 } else {
-                    debouncedRenderSongs('worship', filters.key, filters.genre, filters.mood, filters.artist);
+                    debouncedRenderSongs('Old', filters.key, filters.genre, filters.mood, filters.artist);
                 }
             });
 
@@ -8267,8 +8372,8 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             showAllEl.addEventListener('click', (e) => {
                 e.preventDefault();
-                praiseContent.classList.add('active');
-                worshipContent.classList.remove('active');
+                NewContent.classList.add('active');
+                OldContent.classList.remove('active');
                 setlistSection.style.display = 'none';
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'none';
@@ -8279,7 +8384,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     setlistHeader.textContent = 'Setlist View';
                 }
                 
-                renderSongs('praise', keyFilter.value, genreFilter.value);
+                renderSongs('New', keyFilter.value, genreFilter.value);
                 document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
                 e.target.classList.add('active');
                 
@@ -8303,8 +8408,8 @@ window.viewSingleLyrics = function(songId, otherId) {
     
             showFavoritesEl.addEventListener('click', (e) => {
                 e.preventDefault();
-                praiseContent.classList.remove('active');
-                worshipContent.classList.remove('active');
+                NewContent.classList.remove('active');
+                OldContent.classList.remove('active');
                 setlistSection.style.display = 'none';
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'block';

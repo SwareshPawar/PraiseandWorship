@@ -260,8 +260,8 @@ async function saveRecommendationWeightsToBackend(weights) {
                 <div class="sidebar-footer">
                     <div class="song-count">
                         <div>Total Songs: <span id="totalSongs">0</span></div>
-                        <div>Praise: <span id="praiseCount">0</span></div>
-                        <div>Worship: <span id="worshipCount">0</span></div>
+                        <div>New: <span id="NewCount">0</span></div>
+                        <div>Old: <span id="OldCount">0</span></div>
                     </div>
 
                     <button class="theme-toggle" id="themeToggle" style="width:100%;margin-top:10px;" title="Switch Theme - Toggle between light and dark mode for better reading" aria-label="Toggle Theme">
@@ -297,8 +297,8 @@ async function saveRecommendationWeightsToBackend(weights) {
         <div class="songs-section hidden">
             <div class="sticky-header">
                 <div class="tabs">
-                    <div class="setlist-tab active" id="praiseTab" title="Praise Songs - Uplifting and celebratory worship music" aria-label="Praise Songs Tab">Praise</div>
-                    <div class="setlist-tab" id="worshipTab" title="Worship Songs - Intimate and reverent worship music" aria-label="Worship Songs Tab">Worship</div>
+                    <div class="setlist-tab active" id="PraiseTab" title="Praise Songs - Uplifting and contemporary praise music" aria-label="Praise Songs Tab">Praise</div>
+                    <div class="setlist-tab" id="WorshipTab" title="Worship Songs - Reverent and traditional worship music" aria-label="Worship Songs Tab">Worship</div>
                 </div>
                 <div class="filters-row">
                     <div class="search-container">
@@ -336,8 +336,8 @@ async function saveRecommendationWeightsToBackend(weights) {
                     <div id="searchResultsContent" class="scrollable-results"></div>
                 </div>
             </div>
-            <div class="tab-content active" id="praiseContent"></div>
-            <div class="tab-content" id="worshipContent"></div>
+            <div class="tab-content active" id="PraiseContent"></div>
+            <div class="tab-content" id="WorshipContent"></div>
             <div class="setlist" id="setlistSection" style="display: none;">
                 <div class="setlist-header">
                     <h3 id="setlistViewHeader">Setlist View</h3>
@@ -695,19 +695,19 @@ async function saveRecommendationWeightsToBackend(weights) {
                         
                         <!-- Tabs for Selected Old/New Songs -->
                         <div class="modal-song-tabs">
-                            <div class="modal-tab active" id="globalSelectedWorshipTab">Worship Songs (<span id="globalSelectedWorshipCount">0</span>)</div>
-                            <div class="modal-tab" id="globalSelectedPraiseTab">Praise Songs (<span id="globalSelectedPraiseCount">0</span>)</div>
+                            <div class="modal-tab active" id="globalSelectedOldTab">Old Songs (<span id="globalSelectedOldCount">0</span>)</div>
+                            <div class="modal-tab" id="globalSelectedNewTab">New Songs (<span id="globalSelectedNewCount">0</span>)</div>
                         </div>
                         
                         <div class="selected-songs-container">
-                            <!-- Selected Worship Songs Tab Content -->
-                            <div class="modal-tab-content active" id="globalSelectedWorshipContent">
-                                <div id="globalSelectedWorshipSongsList" class="selected-songs-list modal-scrollable-summary"></div>
+                            <!-- Selected Old Songs Tab Content -->
+                            <div class="modal-tab-content active" id="globalSelectedOldContent">
+                                <div id="globalSelectedOldSongsList" class="selected-songs-list modal-scrollable-summary"></div>
                             </div>
                             
-                            <!-- Selected Praise Songs Tab Content -->
-                            <div class="modal-tab-content" id="globalSelectedPraiseContent">
-                                <div id="globalSelectedPraiseSongsList" class="selected-songs-list modal-scrollable-summary"></div>
+                            <!-- Selected New Songs Tab Content -->
+                            <div class="modal-tab-content" id="globalSelectedNewContent">
+                                <div id="globalSelectedNewSongsList" class="selected-songs-list modal-scrollable-summary"></div>
                             </div>
                         </div>
                     </div>
@@ -805,19 +805,19 @@ async function saveRecommendationWeightsToBackend(weights) {
                     <div class="selected-songs-summary">
                         <!-- Tabs for Selected Old/New Songs -->
                         <div class="modal-song-tabs">
-                            <div class="modal-tab active" id="mySelectedWorshipTab">Worship Songs (<span id="mySelectedWorshipCount">0</span>)</div>
-                            <div class="modal-tab" id="mySelectedPraiseTab">Praise Songs (<span id="mySelectedPraiseCount">0</span>)</div>
+                            <div class="modal-tab active" id="mySelectedOldTab">Old Songs (<span id="mySelectedOldCount">0</span>)</div>
+                            <div class="modal-tab" id="mySelectedNewTab">New Songs (<span id="mySelectedNewCount">0</span>)</div>
                         </div>
                         
                         <div class="selected-songs-container">
-                            <!-- Selected Worship Songs Tab Content -->
-                            <div class="modal-tab-content active" id="mySelectedWorshipContent">
-                                <div id="mySelectedWorshipSongsList" class="selected-songs-list modal-scrollable-summary"></div>
+                            <!-- Selected Old Songs Tab Content -->
+                            <div class="modal-tab-content active" id="mySelectedOldContent">
+                                <div id="mySelectedOldSongsList" class="selected-songs-list modal-scrollable-summary"></div>
                             </div>
                             
-                            <!-- Selected Praise Songs Tab Content -->
-                            <div class="modal-tab-content" id="mySelectedPraiseContent">
-                                <div id="mySelectedPraiseSongsList" class="selected-songs-list modal-scrollable-summary"></div>
+                            <!-- Selected New Songs Tab Content -->
+                            <div class="modal-tab-content" id="mySelectedNewContent">
+                                <div id="mySelectedNewSongsList" class="selected-songs-list modal-scrollable-summary"></div>
                             </div>
                         </div>
                     </div>
@@ -984,8 +984,8 @@ async function saveRecommendationWeightsToBackend(weights) {
                         <div class="form-group">
                             <label for="manualSongCategory">Category:</label>
                             <select id="manualSongCategory" required>
-                                <option value="New">New</option>
-                                <option value="Old">Old</option>
+                                <option value="Praise">Praise</option>
+                                <option value="Worship">Worship</option>
                             </select>
                         </div>
                     </div>

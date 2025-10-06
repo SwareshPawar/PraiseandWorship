@@ -175,12 +175,12 @@ async function sendEmailOTP(email, otp, firstName = 'User') {
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: 'Password Reset OTP - New & Old Songs',
+    subject: 'Password Reset OTP - Praise & Worship Songs',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #667eea;">Password Reset Request</h2>
         <p>Hello ${firstName},</p>
-        <p>You have requested to reset your password for your New & Old Songs account.</p>
+        <p>You have requested to reset your password for your Praise & Worship Songs account.</p>
         <p>Your OTP code is:</p>
         <div style="background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 3px; margin: 20px 0;">
           ${otp}
@@ -188,7 +188,7 @@ async function sendEmailOTP(email, otp, firstName = 'User') {
         <p>This code will expire in 5 minutes.</p>
         <p>If you didn't request this password reset, please ignore this email.</p>
         <hr>
-        <p style="color: #666; font-size: 12px;">New & Old Songs App</p>
+        <p style="color: #666; font-size: 12px;">Praise & Worship Songs App</p>
       </div>
     `
   };
@@ -213,7 +213,7 @@ async function sendSMSOTP(phone, otp, firstName = 'User') {
   // Ensure phone number is in international format
   const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
   
-  const message = `Hello ${firstName}, your New & Old Songs password reset OTP is: ${otp}. This code expires in 5 minutes.`;
+  const message = `Hello ${firstName}, your Praise & Worship Songs password reset OTP is: ${otp}. This code expires in 5 minutes.`;
   
   await twilioClient.messages.create({
     body: message,

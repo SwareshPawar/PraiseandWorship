@@ -56,10 +56,51 @@ module.exports = async (req, res) => {
 
     await connectToDatabase();
     
-    if (req.method === 'GET') {
+    // Parse URL to extract path segments
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    const pathParts = url.pathname.split('/');
+    const setlistId = pathParts[3]; // /api/my-setlists/{setlistId}
+    const action = pathParts[4]; // add-song, etc.
+    
+    if (req.method === 'GET' && !setlistId) {
       // Get user's setlists
       const setlists = await db.collection('UserSetlists').find({ userId }).toArray();
       return res.json(setlists);
+    }
+    
+    if (req.method === 'GET' && setlistId && setlistId !== 'add-song') {
+      // Get individual setlist
+      const setlist = await db.collection('UserSetlists').findOne({ 
+        _id: new ObjectId(setlistId), 
+        userId 
+      });
+      if (!setlist) {
+        return res.status(404).json({ error: 'Setlist not found' });
+      }
+      return res.json(setlist);
+    }
+    
+    if (req.method === 'POST' && action === 'add-song') {
+      // Add song to user setlist
+      const { setlistId: targetSetlistId, songId } = req.body;
+      
+      if (!targetSetlistId || !songId) {
+        return res.status(400).json({ error: 'setlistId and songId are required' });
+      }
+      
+      const result = await db.collection('UserSetlists').updateOne(
+        { _id: new ObjectId(targetSetlistId), userId },
+        { 
+          $addToSet: { songs: songId },
+          $set: { updatedAt: new Date() }
+        }
+      );
+      
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ error: 'Setlist not found' });
+      }
+      
+      return res.json({ message: 'Song added to setlist successfully' });
     }
     
     if (req.method === 'POST') {
@@ -83,15 +124,10 @@ module.exports = async (req, res) => {
       return res.json({ ...newSetlist, _id: result.insertedId });
     }
     
-    if (req.method === 'PUT') {
+    if (req.method === 'PUT' && setlistId) {
       // Update existing setlist
-      const { setlistId, name, songs, description } = req.body;
+      const { name, songs, description } = req.body;
       
-      if (!setlistId) {
-        return res.status(400).json({ error: 'Setlist ID is required' });
-      }
-      
-      const { ObjectId } = require('mongodb');
       const updateData = {
         updatedAt: new Date()
       };
@@ -112,17 +148,57 @@ module.exports = async (req, res) => {
       return res.json({ message: 'Setlist updated successfully' });
     }
     
-    if (req.method === 'DELETE') {
-      // Delete setlist
-      const { setlistId } = req.body;
+    if (req.method === 'PUT' && !setlistId) {
+      // Legacy: Update existing setlist with setlistId in body
+      const { setlistId: bodySetlistId, name, songs, description } = req.body;
       
-      if (!setlistId) {
+      if (!bodySetlistId) {
         return res.status(400).json({ error: 'Setlist ID is required' });
       }
       
-      const { ObjectId } = require('mongodb');
+      const updateData = {
+        updatedAt: new Date()
+      };
+      
+      if (name !== undefined) updateData.name = name.trim();
+      if (songs !== undefined) updateData.songs = songs;
+      if (description !== undefined) updateData.description = description;
+      
+      const result = await db.collection('UserSetlists').updateOne(
+        { _id: new ObjectId(bodySetlistId), userId },
+        { $set: updateData }
+      );
+      
+      if (result.matchedCount === 0) {
+        return res.status(404).json({ error: 'Setlist not found' });
+      }
+      
+      return res.json({ message: 'Setlist updated successfully' });
+    }
+    
+    if (req.method === 'DELETE' && setlistId) {
+      // Delete setlist by URL parameter
       const result = await db.collection('UserSetlists').deleteOne(
         { _id: new ObjectId(setlistId), userId }
+      );
+      
+      if (result.deletedCount === 0) {
+        return res.status(404).json({ error: 'Setlist not found' });
+      }
+      
+      return res.json({ message: 'Setlist deleted successfully' });
+    }
+    
+    if (req.method === 'DELETE' && !setlistId) {
+      // Legacy: Delete setlist with setlistId in body
+      const { setlistId: bodySetlistId } = req.body;
+      
+      if (!bodySetlistId) {
+        return res.status(400).json({ error: 'Setlist ID is required' });
+      }
+      
+      const result = await db.collection('UserSetlists').deleteOne(
+        { _id: new ObjectId(bodySetlistId), userId }
       );
       
       if (result.deletedCount === 0) {

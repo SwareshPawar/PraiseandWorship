@@ -1107,7 +1107,7 @@
     
     /* UI State Colors - Ocean Harmony */
     --delete-color: #189ab4;
-    --favorite-color: #75e6da;
+    --favorite-color: #e74c3c;
     --success-color: #75e6da;
     --error-color: #05445e;
     --warning-color: #189ab4;
@@ -1197,7 +1197,7 @@
                 
                 /* UI State Colors - Ocean Night Variants */
                 --delete-color: #189ab4;
-                --favorite-color: #75e6da;
+                --favorite-color: #ff6b6b;
                 --success-color: #75e6da;
                 --error-color: #189ab4;
                 --warning-color: #75e6da;

@@ -1,21 +1,51 @@
 {
   "name": "Praise & Worship Songs",
   "short_name": "P&W Songs",
-  "description": "Praise and Worship Songs Management App",
-  "start_url": ".",
+  "description": "Comprehensive Praise and Worship Songs Management App with ocean-inspired design",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4fc3f7",
+  "orientation": "portrait-primary",
+  "background_color": "#d4f1f4",
+  "theme_color": "#05445e",
+  "categories": ["music", "utilities", "productivity"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
     {
       "src": "icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "shortcuts": [
+    {
+      "name": "Praise Songs",
+      "short_name": "Praise",
+      "description": "Browse Praise songs",
+      "url": "/#praise",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Worship Songs",
+      "short_name": "Worship", 
+      "description": "Browse Worship songs",
+      "url": "/#worship",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "iarc_rating_id": "",
+  "protocol_handlers": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }

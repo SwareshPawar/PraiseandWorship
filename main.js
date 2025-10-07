@@ -1041,23 +1041,230 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-    // Show your custom install button
+// Enhanced PWA Installation Handler
+let installPromptAvailable = false;
+let isAppInstalled = false;
+
+// Check if app is already installed
+function checkAppInstallStatus() {
+    // Check for standalone display mode (PWA is installed)
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+        isAppInstalled = true;
+        console.log('✅ PWA is already installed and running in standalone mode');
+        hideInstallButton();
+        return true;
+    }
+    
+    // Check for iOS Safari standalone mode
+    if (window.navigator && window.navigator.standalone === true) {
+        isAppInstalled = true;
+        console.log('✅ PWA is installed on iOS Safari');
+        hideInstallButton();
+        return true;
+    }
+    
+    return false;
+}
+
+// Show install button with enhanced styling
+function showInstallButton() {
     const installBtn = document.getElementById('installAppBtn');
-    if (installBtn) installBtn.style.display = 'block';
+    if (installBtn && !isAppInstalled) {
+        installBtn.style.display = 'block';
+        installBtn.classList.add('pwa-install-ready');
+        installBtn.innerHTML = `
+            <i class="fas fa-download"></i>
+            <span>Install App</span>
+        `;
+        console.log('📱 PWA install button shown');
+    }
+}
+
+// Hide install button
+function hideInstallButton() {
+    const installBtn = document.getElementById('installAppBtn');
+    if (installBtn) {
+        installBtn.style.display = 'none';
+        installBtn.classList.remove('pwa-install-ready');
+        console.log('🔒 PWA install button hidden');
+    }
+}
+
+// Update install button text during installation
+function updateInstallButtonProgress(text) {
+    const installBtn = document.getElementById('installAppBtn');
+    if (installBtn) {
+        installBtn.innerHTML = `
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>${text}</span>
+        `;
+        installBtn.disabled = true;
+    }
+}
+
+// Handle beforeinstallprompt event
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('🎯 PWA install prompt intercepted');
+    e.preventDefault(); // Prevent default browser install prompt
+    deferredPrompt = e;
+    installPromptAvailable = true;
+    
+    // Only show button if app is not already installed
+    if (!checkAppInstallStatus()) {
+        showInstallButton();
+    }
 });
 
-document.getElementById('installAppBtn')?.addEventListener('click', () => {
-    if (deferredPrompt) {
+// Enhanced install button click handler
+document.getElementById('installAppBtn')?.addEventListener('click', async () => {
+    if (!deferredPrompt || !installPromptAvailable) {
+        console.warn('⚠️ No install prompt available');
+        showNotification('Installation not available at this time', 'error');
+        return;
+    }
+    
+    try {
+        updateInstallButtonProgress('Installing...');
+        
+        // Trigger the install prompt
+        console.log('🚀 Triggering PWA installation');
         deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(choiceResult => {
-            deferredPrompt = null;
-            document.getElementById('installAppBtn').style.display = 'none';
+        
+        // Wait for user response
+        const choiceResult = await deferredPrompt.userChoice;
+        console.log('👤 User choice:', choiceResult.outcome);
+        
+        if (choiceResult.outcome === 'accepted') {
+            console.log('✅ PWA installation accepted');
+            updateInstallButtonProgress('Installing App...');
+            showNotification('📱 Installing Praise & Worship App...', 'success');
+            
+            // Wait a moment for installation to complete
+            setTimeout(() => {
+                isAppInstalled = true;
+                hideInstallButton();
+                showNotification('🎉 App installed successfully! You can now access it from your home screen.', 'success');
+            }, 2000);
+        } else {
+            console.log('❌ PWA installation declined');
+            const installBtn = document.getElementById('installAppBtn');
+            if (installBtn) {
+                installBtn.innerHTML = `
+                    <i class="fas fa-download"></i>
+                    <span>Install App</span>
+                `;
+                installBtn.disabled = false;
+            }
+            showNotification('Installation cancelled', 'info');
+        }
+    } catch (error) {
+        console.error('❌ PWA installation error:', error);
+        showNotification('Installation failed. Please try again.', 'error');
+        
+        const installBtn = document.getElementById('installAppBtn');
+        if (installBtn) {
+            installBtn.innerHTML = `
+                <i class="fas fa-download"></i>
+                <span>Install App</span>
+            `;
+            installBtn.disabled = false;
+        }
+    } finally {
+        // Clean up
+        deferredPrompt = null;
+        installPromptAvailable = false;
+    }
+});
+
+// Listen for app installation completion
+window.addEventListener('appinstalled', (e) => {
+    console.log('🎉 PWA was successfully installed');
+    isAppInstalled = true;
+    hideInstallButton();
+    showNotification('🎊 Praise & Worship app installed! Launch it from your home screen for the best experience.', 'success');
+    
+    // Track installation for analytics if needed
+    if (typeof gtag !== 'undefined') {
+        gtag('event', 'pwa_installed', {
+            event_category: 'PWA',
+            event_label: 'App Installation'
         });
     }
 });
+
+// Check for display mode changes (app being opened in standalone mode)
+if (window.matchMedia) {
+    const standaloneQuery = window.matchMedia('(display-mode: standalone)');
+    standaloneQuery.addEventListener('change', (e) => {
+        if (e.matches) {
+            console.log('📱 App opened in standalone mode');
+            isAppInstalled = true;
+            hideInstallButton();
+        }
+    });
+}
+
+// Listen for messages from service worker
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', (event) => {
+        const { type, data } = event.data;
+        
+        switch (type) {
+            case 'INSTALL_PROMPT_AVAILABLE':
+                console.log('📬 Service worker reports install prompt available');
+                if (!checkAppInstallStatus()) {
+                    showInstallButton();
+                }
+                break;
+                
+            case 'APP_INSTALLED':
+                console.log('📬 Service worker reports app installed');
+                isAppInstalled = true;
+                hideInstallButton();
+                break;
+        }
+    });
+}
+
+// Initialize install status on page load
+document.addEventListener('DOMContentLoaded', () => {
+    checkAppInstallStatus();
+    
+    // Add additional mobile-specific install instructions
+    if (isMobileDevice() && !isAppInstalled) {
+        console.log('📱 Mobile device detected - PWA installation recommended');
+        
+        // Show mobile-specific install hint after a delay
+        setTimeout(() => {
+            if (!isAppInstalled && !installPromptAvailable) {
+                showMobileInstallHint();
+            }
+        }, 10000); // Show hint after 10 seconds if no install prompt
+    }
+});
+
+// Detect mobile devices
+function isMobileDevice() {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+           (navigator.maxTouchPoints && navigator.maxTouchPoints > 2);
+}
+
+// Show mobile-specific install instructions
+function showMobileInstallHint() {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    
+    let message = '';
+    if (isIOS) {
+        message = '💡 Tip: Tap the share button (📤) and select "Add to Home Screen" to install this app!';
+    } else if (isAndroid) {
+        message = '💡 Tip: Tap the menu (⋮) and select "Add to Home Screen" or "Install App" to get the full app experience!';
+    } else {
+        message = '💡 Tip: Look for "Install App" or "Add to Home Screen" in your browser menu for the best experience!';
+    }
+    
+    showNotification(message, 'info', 8000);
+}
 
 // --- FIXED helper implementations (fill in if previously incomplete) ---
 

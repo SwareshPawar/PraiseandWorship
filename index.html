@@ -1,8 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#667eea">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- PWA Manifest and Theme -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#05445e">
+    <meta name="background-color" content="#d4f1f4">
+    
+    <!-- PWA Installation Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="P&W Songs">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Praise & Worship Songs">
+    
+    <!-- App Icons for iOS -->
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+    
+    <!-- App Description -->
+    <meta name="description" content="Comprehensive Praise and Worship Songs Management App with ocean-inspired design">
+    <meta name="keywords" content="praise, worship, songs, hymns, church, music, christian, setlist">
+    
+    <!-- Windows/Microsoft -->
+    <meta name="msapplication-TileColor" content="#05445e">
+    <meta name="msapplication-TileImage" content="icon-192.png">
+    
+    <!-- Prevent zoom on mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <script>
 // Recommendation weights: loaded from backend or localStorage fallback
 let WEIGHTS = JSON.parse(localStorage.getItem('recommendationWeights')) || {
@@ -380,9 +408,14 @@ async function saveRecommendationWeightsToBackend(weights) {
 
         <!-- Preview Section -->
         <div class="preview-section" id="songPreview">
-            <button id="installAppBtn" style="display:none;" title="Install App - Add this web app to your home screen for offline access" aria-label="Install App">
-            <i class="fas fa-download" style="margin-right:8px;"></i>
-            Add to Home Screen
+            <!-- Enhanced PWA Install Button -->
+            <button id="installAppBtn" 
+                    style="display:none;" 
+                    title="Install Praise & Worship App - Get full app experience with offline access" 
+                    aria-label="Install Progressive Web App"
+                    role="button">
+                <i class="fas fa-download"></i>
+                <span>Install App</span>
             </button>
             <h2>Select a song</h2>
             <div class="song-lyrics">No song is selected</div>

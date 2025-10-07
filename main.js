@@ -203,8 +203,9 @@ const CHORD_TYPES = [
         // Dynamic API base URL for local/dev/prod
         const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
             ? 'http://localhost:3001'
-            : 'https://praiseandworship.onrender.com'; // Primary production deployment (Render)
-            // Fallback: 'https://praiseand-worship.vercel.app''https://praiseandworship.onrender.com';
+            : 'https://praiseandworship.onrender.com'; // Backend on Render
+            // Frontend: Vercel (https://praiseand-worship.vercel.app)
+            // Backend: Render (https://praiseandworship.onrender.com)
 
             console.log('API_BASE_URL:', API_BASE_URL);
 
@@ -294,28 +295,66 @@ let initializationState = {
     initPromise: null
 };
 
-// Global authFetch function with timeout
+// Enhanced authFetch function with cross-origin support for Render backend
 async function authFetch(url, options = {}) {
     const headers = options.headers || {};
     if (jwtToken) headers.Authorization = `Bearer ${jwtToken}`;
     
-    // Add 30-second timeout to prevent long-hanging requests
+    // Enhanced headers for cross-origin requests to Render backend
+    const isRenderBackend = url.includes('praiseandworship.onrender.com');
+    const isCrossOrigin = isRenderBackend || url.startsWith('http') && !url.includes(window.location.hostname);
+    
+    if (isCrossOrigin) {
+        headers['Content-Type'] = headers['Content-Type'] || 'application/json';
+        headers['Accept'] = 'application/json';
+        // Don't add CORS headers in the request - let the server handle them
+    }
+    
+    // Add 30-second timeout (extended for cross-origin requests)
+    const timeoutDuration = isCrossOrigin ? 45000 : 30000; // 45s for cross-origin, 30s for same-origin
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
     
     try {
-        const response = await fetch(url, { 
+        console.log(`🌐 ${isCrossOrigin ? 'Cross-origin' : 'Same-origin'} request to:`, url);
+        
+        const fetchOptions = { 
             ...options, 
-            headers, 
-            signal: controller.signal 
-        });
+            headers,
+            signal: controller.signal,
+            mode: isCrossOrigin ? 'cors' : 'same-origin',
+            credentials: isCrossOrigin ? 'include' : 'same-origin'
+        };
+        
+        const response = await fetch(url, fetchOptions);
         clearTimeout(timeoutId);
+        
+        // Enhanced error handling for cross-origin requests
+        if (!response.ok) {
+            if (isCrossOrigin && response.status === 0) {
+                console.error('❌ CORS error or network failure for cross-origin request');
+                throw new Error('Cross-origin request failed - please check if the backend is running');
+            }
+            if (response.status >= 500) {
+                console.error(`❌ Server error ${response.status} for:`, url);
+                throw new Error(`Backend server error (${response.status})`);
+            }
+        }
+        
         return response;
     } catch (error) {
         clearTimeout(timeoutId);
+        
         if (error.name === 'AbortError') {
-            console.warn(`Request timeout for ${url}`);
-            throw new Error('Request timeout');
+            console.warn(`⏰ Request timeout for ${url} (${timeoutDuration/1000}s)`);
+            throw new Error(`Request timeout - ${isCrossOrigin ? 'Backend may be sleeping' : 'Network issue'}`);
+        }
+        
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            console.error('🌐 Network error for:', url);
+            if (isCrossOrigin) {
+                throw new Error('Backend unavailable - Render backend may be sleeping or have CORS issues');
+            }
         }
         throw error;
     }
@@ -2287,6 +2326,45 @@ function isJwtValid(token) {
     const exp = getJwtExpiry(token);
     return !!(token && exp && Date.now() < exp);
 }
+
+// Backend health check function for Render deployment
+async function checkBackendHealth() {
+    try {
+        console.log('🏥 Checking backend health...');
+        showNotification('🔌 Connecting to backend...', 'info', 2000);
+        
+        const healthResponse = await fetch(`${API_BASE_URL}/api/health`, {
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (healthResponse.ok) {
+            const healthData = await healthResponse.json();
+            console.log('✅ Backend health check passed:', healthData);
+            showNotification('✅ Connected to backend successfully!', 'success', 2000);
+            return true;
+        } else {
+            console.warn('⚠️ Backend health check failed with status:', healthResponse.status);
+            showNotification('⚠️ Backend connection issues detected', 'warning', 3000);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Backend health check failed:', error);
+        
+        if (error.message.includes('timeout')) {
+            showNotification('⏰ Backend is warming up (Render free tier) - please wait...', 'info', 5000);
+        } else {
+            showNotification('🔄 Backend unavailable - using cached data where possible', 'warning', 4000);
+        }
+        
+        return false;
+    }
+}
+
 // Robust theme switching function
 // Global async init function for app initialization
 window.init = async function init() {
@@ -2313,11 +2391,18 @@ window.init = async function init() {
 };
 
 async function performInitialization() {
+    // Check backend health first (important for cross-origin setup)
+    const backendHealthy = await checkBackendHealth();
+    
     // Restore JWT and user state
     jwtToken = localStorage.getItem('jwtToken') || '';
     if (jwtToken && isJwtValid(jwtToken)) {
         updateAuthButtons();
-        await loadUserData();
+        if (backendHealthy) {
+            await loadUserData();
+        } else {
+            console.log('⚠️ Skipping user data load due to backend issues - using cached data');
+        }
     } else {
         updateAuthButtons();
     }

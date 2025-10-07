@@ -21,13 +21,16 @@ app.use(cors({
     'http://localhost:3000',
     'http://127.0.0.1:5501',
     'http://localhost:5501',
-    'https://praiseand-worship.vercel.app',
+    'https://praiseand-worship.vercel.app', // Primary Vercel domain
+    /^https:\/\/praiseand-worship-.*\.vercel\.app$/, // All Vercel deployment URLs
+    /^https:\/\/.*-swareshs-projects\.vercel\.app$/, // User-specific Vercel URLs
     'https://swareshpawar.github.io', // GitHub Pages
     'https://praiseandworship.onrender.com', // Primary Render deployment
     /^https:\/\/.*\.onrender\.com$/ // All Render domains (fallback)
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true // Allow cookies/auth headers for cross-origin requests
 }));
 app.use(express.json());
 app.use(express.static('.'));

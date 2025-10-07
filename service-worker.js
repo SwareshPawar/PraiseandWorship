@@ -75,7 +75,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - implement caching strategies
+// Fetch event - implement caching strategies with cross-origin support
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -85,9 +85,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Handle API requests with Network First strategy
-  if (url.pathname.startsWith('/api/')) {
-    event.respondWith(networkFirstStrategy(request));
+  // Handle cross-origin API requests to Render backend
+  if (url.hostname === 'praiseandworship.onrender.com' || url.pathname.startsWith('/api/')) {
+    event.respondWith(crossOriginApiStrategy(request));
     return;
   }
   
@@ -137,7 +137,81 @@ async function cacheFirstStrategy(request) {
   }
 }
 
-// Network First Strategy - for API calls
+// Cross-Origin API Strategy - for Render backend requests
+async function crossOriginApiStrategy(request) {
+  try {
+    console.log('Service Worker: Cross-origin API request to:', request.url);
+    
+    // Create request with proper CORS headers for cross-origin
+    const corsRequest = new Request(request.url, {
+      method: request.method,
+      headers: {
+        ...Object.fromEntries(request.headers.entries()),
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+      },
+      mode: 'cors',
+      credentials: 'include'
+    });
+    
+    const networkResponse = await fetch(corsRequest);
+    
+    if (networkResponse.ok) {
+      // Cache successful API responses for offline access
+      const cache = await caches.open(API_CACHE);
+      const responseClone = networkResponse.clone();
+      
+      // Only cache GET requests for data endpoints
+      if (request.method === 'GET' && 
+          (request.url.includes('/api/songs') || 
+           request.url.includes('/api/global-setlists') ||
+           request.url.includes('/api/recommendation-weights'))) {
+        cache.put(request, responseClone);
+        console.log('Service Worker: Cached API response:', request.url);
+      }
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    console.warn('Service Worker: Cross-origin API failed, trying cache:', error);
+    
+    // Fallback to cache if network fails
+    const cache = await caches.open(API_CACHE);
+    const cachedResponse = await cache.match(request);
+    
+    if (cachedResponse) {
+      console.log('Service Worker: Serving cross-origin API from cache:', request.url);
+      // Add offline indicator to cached responses
+      const modifiedResponse = new Response(cachedResponse.body, {
+        status: cachedResponse.status,
+        statusText: cachedResponse.statusText,
+        headers: {
+          ...Object.fromEntries(cachedResponse.headers.entries()),
+          'X-Served-From': 'cache',
+          'X-Offline-Mode': 'true'
+        }
+      });
+      return modifiedResponse;
+    }
+    
+    // Return structured error response for API failures
+    return new Response(JSON.stringify({ 
+      error: 'Backend unavailable and no cached data',
+      offline: true,
+      message: 'Please check your internet connection. The app will work when the backend is available.',
+      backend: 'https://praiseandworship.onrender.com'
+    }), {
+      status: 503,
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Error-Type': 'cross-origin-api-failure'
+      }
+    });
+  }
+}
+
+// Network First Strategy - for same-origin API calls
 async function networkFirstStrategy(request) {
   try {
     console.log('Service Worker: Network first for API:', request.url);

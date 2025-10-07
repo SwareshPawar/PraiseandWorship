@@ -203,7 +203,7 @@ const CHORD_TYPES = [
         // Dynamic API base URL for local/dev/prod
         const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
             ? 'http://localhost:3001'
-            : 'https://praiseandworship.onrender.com'; // Backend on Render
+            : 'https://praiseand-worship.vercel.app'; // Backend on Render
             // Frontend: Vercel (https://praiseand-worship.vercel.app)
             // Backend: Render (https://praiseandworship.onrender.com)
 

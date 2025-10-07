@@ -1,5 +1,8 @@
 {
   "version": 2,
+  "buildCommand": "echo 'No build step required for static PWA'",
+  "outputDirectory": ".",
+  "installCommand": "echo 'No install step required'",
   "functions": {
     "api/*.js": {
       "includeFiles": "utils/**"
@@ -9,6 +12,47 @@
     {
       "source": "/api/(.*)",
       "destination": "/api/index.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/manifest.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json"
+        }
+      ]
+    },
+    {
+      "source": "/service-worker.js",
+      "headers": [
+        {
+          "key": "Content-Type", 
+          "value": "application/javascript"
+        },
+        {
+          "key": "Service-Worker-Allowed",
+          "value": "/"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options", 
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
     }
   ]
 }

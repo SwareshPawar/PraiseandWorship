@@ -31,6 +31,57 @@
     
     <!-- Prevent zoom on mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- Dynamic Manifest Configuration for Multiple Deployment Environments -->
+    <script>
+        // Detect deployment environment and update manifest dynamically
+        (function() {
+            const currentHost = window.location.hostname;
+            const currentPath = window.location.pathname;
+            
+            // Determine the base path for the app
+            let basePath = '/';
+            let scope = '/';
+            
+            if (currentHost === 'swareshpawar.github.io') {
+                // GitHub Pages deployment
+                basePath = '/PraiseandWorship/';
+                scope = '/PraiseandWorship/';
+            } else if (currentHost.includes('vercel.app')) {
+                // Vercel deployment
+                basePath = '/';
+                scope = '/';
+            } else if (currentHost.includes('onrender.com')) {
+                // Render deployment (if serving frontend)
+                basePath = '/';
+                scope = '/';
+            }
+            
+            console.log('🌐 Detected deployment environment:', currentHost);
+            console.log('📁 Base path set to:', basePath);
+            console.log('🔒 Scope set to:', scope);
+            
+            // Store environment info for service worker and other scripts
+            window.APP_CONFIG = {
+                basePath: basePath,
+                scope: scope,
+                hostname: currentHost,
+                isGitHubPages: currentHost === 'swareshpawar.github.io',
+                isVercel: currentHost.includes('vercel.app'),
+                isRender: currentHost.includes('onrender.com')
+            };
+            
+            // Update the manifest link if necessary (for GitHub Pages)
+            if (window.APP_CONFIG.isGitHubPages) {
+                const manifestLink = document.querySelector('link[rel="manifest"]');
+                if (manifestLink) {
+                    console.log('📝 Using GitHub Pages manifest configuration');
+                    // The manifest.json is already configured for GitHub Pages
+                }
+            }
+        })();
+    </script>
+
 <script>
 // Recommendation weights: loaded from backend or localStorage fallback
 let WEIGHTS = JSON.parse(localStorage.getItem('recommendationWeights')) || {

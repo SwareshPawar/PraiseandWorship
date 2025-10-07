@@ -24,7 +24,8 @@ app.use(cors({
     'https://praiseand-worship.vercel.app', // Primary Vercel domain
     /^https:\/\/praiseand-worship-.*\.vercel\.app$/, // All Vercel deployment URLs
     /^https:\/\/.*-swareshs-projects\.vercel\.app$/, // User-specific Vercel URLs
-    'https://swareshpawar.github.io', // GitHub Pages
+    'https://swareshpawar.github.io', // GitHub Pages root
+    'https://swareshpawar.github.io/PraiseandWorship', // GitHub Pages app path
     'https://praiseandworship.onrender.com', // Primary Render deployment
     /^https:\/\/.*\.onrender\.com$/ // All Render domains (fallback)
   ],

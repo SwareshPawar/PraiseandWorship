@@ -2,8 +2,8 @@
   "name": "Praise & Worship Songs",
   "short_name": "P&W Songs",
   "description": "Comprehensive Praise and Worship Songs Management App with ocean-inspired design",
-  "start_url": "/",
-  "scope": "/",
+  "start_url": ".",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#d4f1f4",
@@ -30,14 +30,14 @@
       "name": "Praise Songs",
       "short_name": "Praise",
       "description": "Browse Praise songs",
-      "url": "/#praise",
+      "url": "./#praise",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
       "name": "Worship Songs",
       "short_name": "Worship", 
       "description": "Browse Worship songs",
-      "url": "/#worship",
+      "url": "./#worship",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ],

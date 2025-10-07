@@ -3,12 +3,20 @@ const CACHE_NAME = 'praise-worship-ocean-v2.1';
 const STATIC_CACHE = 'praise-worship-static-v2.1';
 const API_CACHE = 'praise-worship-api-v2.1';
 
-// Resources to cache for offline functionality
+// Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [
+  './',
+  './index.html',
+  './styles.css', 
+  './main.js',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  // Also cache with absolute paths for broader compatibility
   '/',
   '/index.html',
   '/styles.css',
-  '/main.js',
+  '/main.js', 
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'

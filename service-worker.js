@@ -93,9 +93,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Handle cross-origin API requests to Render backend
-  if (url.hostname === 'praiseandworship.onrender.com' || url.pathname.startsWith('/api/')) {
+  // Handle cross-origin API requests to Render backend only (not localhost)
+  const isRenderBackend = url.hostname === 'praiseandworship.onrender.com';
+  const isLocalApi = (url.hostname === 'localhost' || url.hostname === '127.0.0.1') && url.pathname.startsWith('/api/');
+  
+  if (isRenderBackend) {
     event.respondWith(crossOriginApiStrategy(request));
+    return;
+  }
+  
+  // Handle localhost API requests with regular network first strategy
+  if (isLocalApi) {
+    event.respondWith(networkFirstStrategy(request));
     return;
   }
   
@@ -145,25 +154,16 @@ async function cacheFirstStrategy(request) {
   }
 }
 
-// Cross-Origin API Strategy - for Render backend requests
+// Cross-Origin API Strategy - for Render backend requests (single attempt)
 async function crossOriginApiStrategy(request) {
   try {
     console.log('Service Worker: Cross-origin API request to:', request.url);
     
-    // Create request with proper CORS headers for cross-origin
-    const corsRequest = new Request(request.url, {
-      method: request.method,
-      headers: {
-        ...Object.fromEntries(request.headers.entries()),
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
-      },
+    // Don't add custom CORS headers - let the main thread handle retries
+    const networkResponse = await fetch(request, {
       mode: 'cors',
       credentials: 'include'
     });
-    
-    const networkResponse = await fetch(corsRequest);
     
     if (networkResponse.ok) {
       // Cache successful API responses for offline access

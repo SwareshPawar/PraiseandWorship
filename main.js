@@ -295,14 +295,16 @@ let initializationState = {
     initPromise: null
 };
 
-// Enhanced authFetch function with cross-origin support for Render backend
+// Enhanced authFetch function with Render cold-start retry logic
 async function authFetch(url, options = {}) {
     const headers = options.headers || {};
     if (jwtToken) headers.Authorization = `Bearer ${jwtToken}`;
     
     // Enhanced headers for cross-origin requests to Render backend
     const isRenderBackend = url.includes('praiseandworship.onrender.com');
-    const isCrossOrigin = isRenderBackend || url.startsWith('http') && !url.includes(window.location.hostname);
+    const isLocalDevelopment = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && 
+                              (url.includes('localhost') || url.includes('127.0.0.1'));
+    const isCrossOrigin = isRenderBackend && !isLocalDevelopment;
     
     if (isCrossOrigin) {
         headers['Content-Type'] = headers['Content-Type'] || 'application/json';
@@ -310,60 +312,111 @@ async function authFetch(url, options = {}) {
         // Don't add CORS headers in the request - let the server handle them
     }
     
-    // Add 30-second timeout (extended for cross-origin requests)
-    const timeoutDuration = isCrossOrigin ? 45000 : 30000; // 45s for cross-origin, 30s for same-origin
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+    // Retry configuration for Render backend cold starts
+    const maxRetries = isRenderBackend ? 3 : 1;
+    const baseDelay = 2000; // 2 seconds base delay
     
-    try {
-        console.log(`🌐 ${isCrossOrigin ? 'Cross-origin' : 'Same-origin'} request to:`, url);
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        const isRetry = attempt > 0;
+        const timeoutDuration = isRenderBackend ? 60000 : (isCrossOrigin ? 45000 : 30000); // 60s for Render, 45s for other cross-origin
         
-        const fetchOptions = { 
-            ...options, 
-            headers,
-            signal: controller.signal,
-            mode: isCrossOrigin ? 'cors' : 'same-origin',
-            credentials: isCrossOrigin ? 'include' : 'same-origin'
-        };
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
         
-        const response = await fetch(url, fetchOptions);
-        clearTimeout(timeoutId);
-        
-        // Enhanced error handling for cross-origin requests
-        if (!response.ok) {
-            if (isCrossOrigin && response.status === 0) {
-                console.error('❌ CORS error or network failure for cross-origin request');
-                throw new Error('Cross-origin request failed - please check if the backend is running');
+        try {
+            if (isRetry) {
+                const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff: 2s, 4s, 8s
+                console.log(`🔄 Retry attempt ${attempt}/${maxRetries} for Render backend after ${delay}ms...`);
+                showNotification(`🔄 Retrying connection (${attempt}/${maxRetries}) - Render backend is waking up...`, 'info', 3000);
+                await new Promise(resolve => setTimeout(resolve, delay));
+            } else if (isRenderBackend) {
+                console.log(`🌐 Render backend request (attempt ${attempt + 1}/${maxRetries + 1}):`, url);
+            } else {
+                console.log(`🌐 ${isCrossOrigin ? 'Cross-origin' : 'Same-origin'} request to:`, url);
             }
-            if (response.status >= 500) {
-                console.error(`❌ Server error ${response.status} for:`, url);
-                throw new Error(`Backend server error (${response.status})`);
+            
+            const fetchOptions = { 
+                ...options, 
+                headers,
+                signal: controller.signal,
+                mode: isCrossOrigin ? 'cors' : 'same-origin',
+                credentials: isCrossOrigin ? 'include' : 'same-origin'
+            };
+            
+            const response = await fetch(url, fetchOptions);
+            clearTimeout(timeoutId);
+            
+            // Handle different response statuses
+            if (!response.ok) {
+                if (isCrossOrigin && response.status === 0) {
+                    throw new Error('CORS_ERROR');
+                }
+                
+                // Render backend cold start (503) - retry if we have attempts left
+                if (isRenderBackend && response.status === 503 && attempt < maxRetries) {
+                    console.warn(`⚠️ Render backend cold start (503) - attempt ${attempt + 1}/${maxRetries + 1}`);
+                    clearTimeout(timeoutId);
+                    continue; // Retry
+                }
+                
+                // Other server errors
+                if (response.status >= 500) {
+                    const errorMessage = isRenderBackend && response.status === 503 
+                        ? 'Render backend is taking too long to wake up' 
+                        : `Backend server error (${response.status})`;
+                    throw new Error(errorMessage);
+                }
+                
+                // Client errors (4xx) - don't retry
+                if (response.status >= 400) {
+                    throw new Error(`Client error (${response.status})`);
+                }
+            }
+            
+            // Success! Clear any cold start notifications
+            if (isRetry && isRenderBackend) {
+                showNotification('✅ Connected to Render backend successfully!', 'success', 2000);
+            }
+            
+            return response;
+            
+        } catch (error) {
+            clearTimeout(timeoutId);
+            
+            // Don't retry on certain errors
+            if (error.name === 'AbortError') {
+                const timeoutMessage = isRenderBackend 
+                    ? 'Render backend timeout - may be experiencing high load' 
+                    : 'Request timeout';
+                throw new Error(timeoutMessage);
+            }
+            
+            if (error.message === 'CORS_ERROR') {
+                throw new Error('Cross-origin request failed - CORS or network issue');
+            }
+            
+            // Network errors - retry for Render backend
+            if ((error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) && isRenderBackend && attempt < maxRetries) {
+                console.warn(`🌐 Network error for Render backend - attempt ${attempt + 1}/${maxRetries + 1}:`, error.message);
+                continue; // Retry
+            }
+            
+            // Final attempt failed or non-retryable error
+            if (attempt === maxRetries || !isRenderBackend) {
+                const finalError = isRenderBackend 
+                    ? 'Render backend unavailable after multiple attempts - may be experiencing issues'
+                    : (isCrossOrigin ? 'Cross-origin request failed' : 'Network request failed');
+                throw new Error(finalError);
             }
         }
-        
-        return response;
-    } catch (error) {
-        clearTimeout(timeoutId);
-        
-        if (error.name === 'AbortError') {
-            console.warn(`⏰ Request timeout for ${url} (${timeoutDuration/1000}s)`);
-            throw new Error(`Request timeout - ${isCrossOrigin ? 'Backend may be sleeping' : 'Network issue'}`);
-        }
-        
-        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            console.error('🌐 Network error for:', url);
-            if (isCrossOrigin) {
-                throw new Error('Backend unavailable - Render backend may be sleeping or have CORS issues');
-            }
-        }
-        throw error;
     }
 }
 
-// Optimized fetch with caching and retry logic
-async function cachedFetch(endpoint, forceRefresh = false, retries = 2) {
+// Optimized fetch with caching (authFetch handles retries)
+async function cachedFetch(endpoint, forceRefresh = false, retries = 0) {
     const cacheKey = endpoint.replace(`${API_BASE_URL}/api/`, '').split('/')[0].split('?')[0];
     const now = Date.now();
+    const isRenderBackend = endpoint.includes('praiseandworship.onrender.com');
     
     // Check if we have cached data and it's still fresh
     if (!forceRefresh && window.dataCache[cacheKey] && window.dataCache.lastFetch[cacheKey]) {
@@ -371,40 +424,49 @@ async function cachedFetch(endpoint, forceRefresh = false, retries = 2) {
         const expiry = CACHE_EXPIRY[cacheKey] || CACHE_EXPIRY.setlists;
         
         if (cacheAge < expiry) {
+            console.log(`📦 Using cached data for ${cacheKey} (${Math.round(cacheAge/1000)}s old)`);
             return { ok: true, json: () => Promise.resolve(window.dataCache[cacheKey]) };
         }
     }
 
-    // Retry logic for failed requests
-    let lastError;
-    for (let attempt = 0; attempt <= retries; attempt++) {
-        try {
-            const response = await authFetch(endpoint);
-            
-            if (response.ok) {
-                const data = await response.json();
-                window.dataCache[cacheKey] = data;
-                window.dataCache.lastFetch[cacheKey] = now;
-                return { ok: true, json: () => Promise.resolve(data) };
-            }
-            
-            // If not a 5xx error, don't retry
-            if (response.status < 500) {
-                return response;
-            }
-            
-            lastError = new Error(`HTTP ${response.status}`);
-        } catch (error) {
-            lastError = error;
-            if (attempt < retries) {
-                // Exponential backoff: wait 1s, then 2s, then 4s
-                await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
-            }
+    try {
+        // Single attempt - authFetch handles Render backend retries
+        const response = await authFetch(endpoint);
+        
+        if (response.ok) {
+            const data = await response.json();
+            window.dataCache[cacheKey] = data;
+            window.dataCache.lastFetch[cacheKey] = now;
+            console.log(`💾 Cached fresh data for ${cacheKey}`);
+            return { ok: true, json: () => Promise.resolve(data) };
         }
+        
+        // Non-OK response
+        return response;
+        
+    } catch (error) {
+        console.warn(`❌ Request failed for ${cacheKey}:`, error.message);
+        
+        // Try to use stale cached data as fallback
+        if (window.dataCache[cacheKey]) {
+            const cacheAge = now - (window.dataCache.lastFetch[cacheKey] || 0);
+            console.log(`📦 Using stale cached data for ${cacheKey} (${Math.round(cacheAge/1000)}s old) due to error`);
+            
+            if (isRenderBackend) {
+                showNotification(`⚠️ Using cached data - Render backend unavailable`, 'warning', 4000);
+            }
+            
+            return { 
+                ok: true, 
+                json: () => Promise.resolve(window.dataCache[cacheKey]),
+                fromCache: true,
+                stale: true
+            };
+        }
+        
+        // No cache available, re-throw error
+        throw error;
     }
-    
-    // If all retries failed, throw the last error
-    throw lastError;
 }
 
 // Invalidate specific cache entries when data changes (moved to global scope)
@@ -2331,15 +2393,21 @@ function isJwtValid(token) {
 async function checkBackendHealth() {
     try {
         console.log('🏥 Checking backend health...');
+        
+        // Skip health check if we know it's not available (localhost backend from remote frontend)
+        const isLocalFrontend = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const isLocalBackend = API_BASE_URL.includes('localhost') || API_BASE_URL.includes('127.0.0.1');
+        
+        if (isLocalBackend && !isLocalFrontend) {
+            console.log('🔧 Skipping health check - localhost backend not available from remote frontend');
+            return false;
+        }
+        
         showNotification('🔌 Connecting to backend...', 'info', 2000);
         
-        const healthResponse = await fetch(`${API_BASE_URL}/api/health`, {
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+        // Use authFetch with built-in retry logic for Render backend
+        const healthResponse = await authFetch(`${API_BASE_URL}/api/health`, {
+            method: 'GET'
         });
         
         if (healthResponse.ok) {
@@ -2355,10 +2423,12 @@ async function checkBackendHealth() {
     } catch (error) {
         console.error('❌ Backend health check failed:', error);
         
-        if (error.message.includes('timeout')) {
-            showNotification('⏰ Backend is warming up (Render free tier) - please wait...', 'info', 5000);
+        if (error.message.includes('timeout') || error.message.includes('taking too long')) {
+            showNotification('⏰ Backend is warming up (Render free tier) - using cached data...', 'info', 5000);
+        } else if (error.message.includes('unavailable after multiple attempts')) {
+            showNotification('🔄 Backend temporarily unavailable - app will work in offline mode', 'warning', 6000);
         } else {
-            showNotification('🔄 Backend unavailable - using cached data where possible', 'warning', 4000);
+            showNotification('🔄 Backend connection failed - using cached data where possible', 'warning', 4000);
         }
         
         return false;

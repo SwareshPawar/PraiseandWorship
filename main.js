@@ -15,41 +15,41 @@ const CACHE_EXPIRY = {
 };  
 let deferredPrompt;
 // Global variables for app state
-let jwtToken = localStorage.getItem('jwtToken') || '';
+let jwtToken = localStorage.getItem('pw_jwtToken') || '';
 let currentUser = null;
-let isDarkMode = localStorage.getItem('darkMode') === 'true';
+let isDarkMode = localStorage.getItem('pw_darkMode') === 'true';
 let songs = []; // Global songs array
 
 // Initialize currentUser from localStorage
 try {
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem('pw_currentUser');
     if (storedUser) currentUser = JSON.parse(storedUser);
 } catch (e) {
     // Failed to parse stored user data - continue with default
 }
 
-const GENRES = [
+const PW_GENRES = [
     "Praise", "Worship", "Hymns", "Hindi", "Marathi", "English", "Others"
 ];
 
-const VOCAL_TAGS = ['Male', 'Female', 'Duet'];
+const PW_VOCAL_TAGS = ['Male', 'Female', 'Duet'];
 
 
-const KEYS = [
+const PW_KEYS = [
     "C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B",
     "Cm", "C#m", "Dm", "Ebm", "Em", "Fm", "F#m", "Gm", "G#m", "Am", "Bbm", "Bm"
 ];
-const CATEGORIES = ["Praise", "Worship"];
-const TIMES = ["4/4", "3/4", "2/4", "6/8", "5/4", "7/8","12/8","14/8"];
-const TAALS = [
+const PW_CATEGORIES = ["Praise", "Worship"];
+const PW_TIMES = ["4/4", "3/4", "2/4", "6/8", "5/4", "7/8","12/8","14/8"];
+const PW_TAALS = [
     "Keherwa", "Keherwa Slow", "Dadra", "Dadra Slow", "RD Pattern", "Desi Drum", "Western", "Waltz", "Rock", "Jazz", "March Rhythm","EkTaal", "JhapTaal", "TeenTaal","Rupak", "Deepchandi", "Garba"
 ];
 
-const MOODS = [
+const PW_MOODS = [
     "Dance", "Patriotic", "Christmas", "Easter", "Action", "Forgiveness","Thanksgiving","Good Friday", "Holy Spirit","Love","Qawalli","Miracle"
 ];
 
-const ARTISTS = [
+const PW_ARTISTS = [
   // Legendary Male Singers
   "Ajay-Atul",  "Avinash-Vishwajeet",  "Ashok Patki",  "Nandu Bhende",
   "Neha Rajpal",  "Prajakta Shukre",  "Anand Bhate",
@@ -60,7 +60,7 @@ const ARTISTS = [
 ];
 
 
-const TIME_GENRE_MAP = {
+const PW_TIME_GENRE_MAP = {
     "4/4": [
         "Keherwa", "Keherwa Slow","Keherwa Bhajani",  "Bhangra", "Pop", "Rock", "Jazz", "Funk", "Shuffle",
         "Blues", "Disco", "Reggae", "R&B", "Hip-Hop","K-Pop"
@@ -76,7 +76,7 @@ const TIME_GENRE_MAP = {
 };
 
 // --- CHORD TYPES: single source of truth ---
-const CHORD_TYPES = [
+const PW_CHORD_TYPES = [
     // Longest patterns first to prevent partial matches
     "madd13", "madd11", "madd9", "madd7", "madd4", "madd2", // Minor add chords
     "add13", "add11", "add9", "add7", "add6", "add4", "add2", // Major add chords
@@ -102,19 +102,19 @@ const CHORD_TYPES = [
             console.log('API_BASE_URL:', API_BASE_URL);
 
 // --- CHORD REGEXES: always use CHORD_TYPES ---
-const CHORDS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B"];
-const CHORD_TYPE_REGEX = CHORD_TYPES.join("|");
-const CHORD_REGEX = new RegExp(`([A-G](?:#|b)?)(?:${CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?`, "gi");
-const CHORD_LINE_REGEX = new RegExp(`^(\\s*[A-G](?:#|b)?(?:${CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?[\\s\\-\\/\\|]*)+$`, "i");
-const INLINE_CHORD_REGEX = new RegExp(`[\\[(]([A-G](?:#|b)?(?:${CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?)[\\])]`, "gi");
+const PW_CHORDS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B"];
+const PW_CHORD_TYPE_REGEX = PW_CHORD_TYPES.join("|");
+const PW_CHORD_REGEX = new RegExp(`([A-G](?:#|b)?)(?:${PW_CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?`, "gi");
+const PW_CHORD_LINE_REGEX = new RegExp(`^(\\s*[A-G](?:#|b)?(?:${PW_CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?[\\s\\-\\/\\|]*)+$`, "i");
+const PW_INLINE_CHORD_REGEX = new RegExp(`[\\[(]([A-G](?:#|b)?(?:${PW_CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?)[\\])]`, "gi");
 
 // Re-initialize variables from localStorage (no redeclaration)
-jwtToken = localStorage.getItem('jwtToken') || '';
-isDarkMode = localStorage.getItem('darkMode') === 'true';
+jwtToken = localStorage.getItem('pw_jwtToken') || '';
+isDarkMode = localStorage.getItem('pw_darkMode') === 'true';
 
 // Update currentUser from localStorage again if needed
 try {
-    const storedUser = localStorage.getItem('currentUser');
+    const storedUser = localStorage.getItem('pw_currentUser');
     if (storedUser) currentUser = JSON.parse(storedUser);
 } catch {}
 
@@ -122,9 +122,9 @@ function populateGenreDropdown(id, timeSignature) {
     const select = document.getElementById(id);
     if (!select) return;
     select.innerHTML = '';
-    let options = GENRES;
-    if (timeSignature && TIME_GENRE_MAP[timeSignature]) {
-        options = TIME_GENRE_MAP[timeSignature];
+    let options = PW_GENRES;
+    if (timeSignature && PW_TIME_GENRE_MAP[timeSignature]) {
+        options = PW_TIME_GENRE_MAP[timeSignature];
     }
     options.forEach(val => {
         const opt = document.createElement('option');
@@ -169,8 +169,8 @@ try {
         } else {
             const cacheAge = Date.now() - parseInt(storedSongsTimestamp);
             const expiry = CACHE_EXPIRY.songs;
-            localStorage.removeItem('songs');
-            localStorage.removeItem('songsTimestamp');
+            localStorage.removeItem('pw_songs');
+            localStorage.removeItem('pw_songsTimestamp');
         }
     } else {
         // No cached songs found, will fetch from API
@@ -194,10 +194,10 @@ async function authFetch(url, options = {}) {
 
     // Helper to build fetch options
     function buildFetchOptions(url) {
-        const isRenderBackend = url.includes('praiseandworship.onrender.com');
-        const isLocalDevelopment = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && 
-                                  (url.includes('localhost') || url.includes('127.0.0.1'));
-        const isCrossOrigin = (isRenderBackend || url.includes('praiseand-worship.vercel.app')) && !isLocalDevelopment;
+    const isRenderBackend = url.includes(API_BASE_URL_RENDER);
+    const isLocalDevelopment = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && 
+                  (url.includes('localhost') || url.includes('127.0.0.1'));
+    const isCrossOrigin = (isRenderBackend || url.includes(API_BASE_URL_VERCEL)) && !isLocalDevelopment;
         return {
             ...options,
             headers: {
@@ -726,22 +726,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Populate dropdowns once
-    populateDropdown('keyFilter', ['Key', ...KEYS]);
-    populateDropdown('genreFilter', ['Genre', ...GENRES]);
-    populateDropdown('moodFilter', ['Mood', ...MOODS]);
-    populateDropdown('artistFilter', ['Artist', ...ARTISTS]);
-    populateDropdown('songKey', KEYS);
-    populateDropdown('editSongKey', KEYS);
-    populateDropdown('songCategory', CATEGORIES);
-    populateDropdown('editSongCategory', CATEGORIES);
-    populateDropdown('songTime', TIMES);
-    populateDropdown('editSongTime', TIMES);
-    populateDropdown('songTaal', TAALS);
-    populateDropdown('editSongTaal', TAALS);
-    populateDropdown('songArtist', ARTISTS);
-    populateDropdown('editSongArtist', ARTISTS);
-    populateDropdown('songMood', MOODS);
-    populateDropdown('editSongMood', MOODS);
+    populateDropdown('keyFilter', ['Key', ...PW_KEYS]);
+    populateDropdown('genreFilter', ['Genre', ...PW_GENRES]);
+    populateDropdown('moodFilter', ['Mood', ...PW_MOODS]);
+    populateDropdown('artistFilter', ['Artist', ...PW_ARTISTS]);
+    populateDropdown('songKey', PW_KEYS);
+    populateDropdown('editSongKey', PW_KEYS);
+    populateDropdown('songCategory', PW_CATEGORIES);
+    populateDropdown('editSongCategory', PW_CATEGORIES);
+    populateDropdown('songTime', PW_TIMES);
+    populateDropdown('editSongTime', PW_TIMES);
+    populateDropdown('songTaal', PW_TAALS);
+    populateDropdown('editSongTaal', PW_TAALS);
+    populateDropdown('songArtist', PW_ARTISTS);
+    populateDropdown('editSongArtist', PW_ARTISTS);
+    populateDropdown('songMood', PW_MOODS);
+    populateDropdown('editSongMood', PW_MOODS);
 
     // Genre multiselect (lazy setup; only once each)
     setupGenreMultiselect('songGenre', 'genreDropdown', 'selectedGenres');
@@ -754,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupArtistMultiselect('editSongArtist', 'editArtistDropdown', 'editSelectedArtists');
 
     // Theme
-     isDarkMode = localStorage.getItem('darkMode') === 'true';
+    isDarkMode = localStorage.getItem('pw_darkMode') === 'true';
     applyTheme(isDarkMode);
     const themeToggleBtn = document.getElementById('themeToggle');
     function updateThemeToggleBtn() {
@@ -1246,7 +1246,7 @@ function setupTapTempo(buttonId, inputId) {
 
 function populateDropdown(id, options, withLabel = false) {
     const select = document.getElementById(id);
-    if (!select) return;
+        if (!select) return; // Ensure the select element exists
     select.innerHTML = '';
     if (withLabel) {
         const opt = document.createElement('option');
@@ -1255,7 +1255,7 @@ function populateDropdown(id, options, withLabel = false) {
         opt.textContent = 'Select...';
         select.appendChild(opt);
     }
-    options.forEach(val => {
+        options.forEach(val => { // Populate dropdown options
         const opt = document.createElement('option');
         opt.value = val;
         opt.textContent = val;
@@ -1266,7 +1266,7 @@ function populateDropdown(id, options, withLabel = false) {
 function renderGenreOptions(dropdownId) {
     const dropdown = document.getElementById(dropdownId);
     if (!dropdown) return;
-    dropdown.innerHTML = GENRES
+    dropdown.innerHTML = PW_GENRES
         .map((g, index) => {
             const isFirstItem = index === 0 ? ' highlighted' : '';
             return `<div class="multiselect-option${isFirstItem}" data-value="${g}">${g}</div>`;
@@ -1289,7 +1289,7 @@ function renderGenreOptionsWithSelections(dropdownId, genreList, selections) {
 function renderMoodOptions(dropdownId) {
     const dropdown = document.getElementById(dropdownId);
     if (!dropdown) return;
-    dropdown.innerHTML = MOODS
+    dropdown.innerHTML = PW_MOODS
         .map((m, index) => {
             const isFirstItem = index === 0 ? ' highlighted' : '';
             return `<div class="multiselect-option${isFirstItem}" data-value="${m}">${m}</div>`;
@@ -1300,7 +1300,7 @@ function renderMoodOptions(dropdownId) {
 function renderArtistOptions(dropdownId) {
     const dropdown = document.getElementById(dropdownId);
     if (!dropdown) return;
-    dropdown.innerHTML = ARTISTS
+    dropdown.innerHTML = PW_ARTISTS
         .map((a, index) => {
             const isFirstItem = index === 0 ? ' highlighted' : '';
             return `<div class="multiselect-option${isFirstItem}" data-value="${a}">${a}</div>`;
@@ -1419,7 +1419,7 @@ function setupGenreMultiselect(inputId, dropdownId, selectedId) {
     // Handle search input
     input._genreInputListener = (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        const filteredGenres = GENRES.filter(genre => 
+        const filteredGenres = PW_GENRES.filter(genre => 
             genre.toLowerCase().includes(searchTerm)
         );
         
@@ -1440,7 +1440,7 @@ function setupGenreMultiselect(inputId, dropdownId, selectedId) {
     input._genreClickListener = (e) => {
         e.stopPropagation();
         // Show all options with current selections when clicked
-        renderGenreOptionsWithSelections(dropdownId, GENRES, dropdown._genreSelections);
+    renderGenreOptionsWithSelections(dropdownId, PW_GENRES, dropdown._genreSelections);
         
         // Close all other dropdowns before opening this one
         multiselectInstances.forEach((instance) => {
@@ -1455,7 +1455,7 @@ function setupGenreMultiselect(inputId, dropdownId, selectedId) {
     // Show dropdown on focus
     input._genreFocusListener = (e) => {
         // Show all options with current selections when focused
-        renderGenreOptionsWithSelections(dropdownId, GENRES, dropdown._genreSelections);
+    renderGenreOptionsWithSelections(dropdownId, PW_GENRES, dropdown._genreSelections);
         
         // Close all other dropdowns before opening this one
         multiselectInstances.forEach((instance) => {
@@ -1620,7 +1620,7 @@ function setupMoodMultiselect(inputId, dropdownId, selectedId) {
     // Handle search input
     input._moodInputListener = (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        const filteredMoods = MOODS.filter(mood => 
+        const filteredMoods = PW_MOODS.filter(mood => 
             mood.toLowerCase().includes(searchTerm)
         );
         
@@ -1641,7 +1641,7 @@ function setupMoodMultiselect(inputId, dropdownId, selectedId) {
     input._moodClickListener = (e) => {
         e.stopPropagation();
         // Show all options with current selections when clicked
-        renderMoodOptionsWithSelections(dropdownId, MOODS, dropdown._moodSelections);
+    renderMoodOptionsWithSelections(dropdownId, PW_MOODS, dropdown._moodSelections);
         
         // Close all other dropdowns before opening this one
         multiselectInstances.forEach((instance) => {
@@ -1656,7 +1656,7 @@ function setupMoodMultiselect(inputId, dropdownId, selectedId) {
     // Show dropdown on focus
     input._moodFocusListener = (e) => {
         // Show all options with current selections when focused
-        renderMoodOptionsWithSelections(dropdownId, MOODS, dropdown._moodSelections);
+    renderMoodOptionsWithSelections(dropdownId, PW_MOODS, dropdown._moodSelections);
         
         // Close all other dropdowns before opening this one
         multiselectInstances.forEach((instance) => {
@@ -1821,7 +1821,7 @@ function setupArtistMultiselect(inputId, dropdownId, selectedId) {
     // Handle search input
     input._artistInputListener = (e) => {
         const searchTerm = e.target.value.toLowerCase();
-        const filteredArtists = ARTISTS.filter(artist => 
+        const filteredArtists = PW_ARTISTS.filter(artist => 
             artist.toLowerCase().includes(searchTerm)
         );
         
@@ -1842,7 +1842,7 @@ function setupArtistMultiselect(inputId, dropdownId, selectedId) {
     input._artistClickListener = (e) => {
         e.stopPropagation();
         // Show all options with current selections when clicked
-        renderArtistOptionsWithSelections(dropdownId, ARTISTS, dropdown._artistSelections);
+    renderArtistOptionsWithSelections(dropdownId, PW_ARTISTS, dropdown._artistSelections);
         
         // Close all other dropdowns before opening this one
         multiselectInstances.forEach((instance) => {
@@ -1857,7 +1857,7 @@ function setupArtistMultiselect(inputId, dropdownId, selectedId) {
     // Show dropdown on focus
     input._artistFocusListener = (e) => {
         // Show all options with current selections when focused
-        renderArtistOptionsWithSelections(dropdownId, ARTISTS, dropdown._artistSelections);
+    renderArtistOptionsWithSelections(dropdownId, PW_ARTISTS, dropdown._artistSelections);
         
         // Close all other dropdowns before opening this one
         multiselectInstances.forEach((instance) => {
@@ -2405,7 +2405,7 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
     const taalSelect = document.getElementById(taalSelectId);
     if (!timeSelect || !taalSelect) return;
     const selectedTime = timeSelect.value;
-    const taals = TIME_GENRE_MAP[selectedTime] || [];
+    const taals = PW_TIME_GENRE_MAP[selectedTime] || [];
     taalSelect.innerHTML = '';
     // Add default option
     const defaultOpt = document.createElement('option');
@@ -2493,7 +2493,7 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
             });
         } else if (jwtToken && !isJwtValid(jwtToken)) {
             // Remove expired token only if it is actually expired
-            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('pw_jwtToken');
             jwtToken = '';
             updateAuthButtons();
         } else {
@@ -3300,7 +3300,7 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             // Populate key filter
             if (keyFilter) {
-                KEYS.forEach(key => {
+                PW_KEYS.forEach(key => {
                     const option = document.createElement('option');
                     option.value = key;
                     option.textContent = key;
@@ -3385,8 +3385,8 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         // Separate songs into worship and praise based on the `category` property
         function categorizeSongs() {
-            const worshipSongs = songs.filter(song => song.category === 'Worship');
-            const praiseSongs = songs.filter(song => song.category === 'Praise');
+            const worshipSongs = songs.filter(song => song.category === PW_CATEGORIES[1]);
+            const praiseSongs = songs.filter(song => song.category === PW_CATEGORIES[0]);
             
             // Apply filters
             filteredWorshipSongs = applyFilters(worshipSongs);
@@ -5696,7 +5696,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         // Auto-scroll and chord variables
     let autoScrollInterval = null;
     let isUserScrolling = false;
-    // Use global CHORDS, CHORD_REGEX, CHORD_LINE_REGEX, INLINE_CHORD_REGEX
+    // Use global PW_CHORDS, PW_CHORD_TYPES, PW_CHORD_TYPE_REGEX, CHORD_LINE_REGEX, INLINE_CHORD_REGEX
         
         let navigationHistory = [];
         let currentHistoryPosition = -1;
@@ -6377,10 +6377,10 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
 
         function getVocalTags(genres) {
-        return genres ? genres.filter(g => VOCAL_TAGS.includes(g)) : [];
+    return genres ? genres.filter(g => PW_VOCAL_TAGS.includes(g)) : [];
         }
         function getNonVocalGenres(genres) {
-            return genres ? genres.filter(g => !VOCAL_TAGS.includes(g)) : [];
+            return genres ? genres.filter(g => !PW_VOCAL_TAGS.includes(g)) : [];
         }
 
         function getMoodTags(moodString) {
@@ -7523,7 +7523,7 @@ window.viewSingleLyrics = function(songId, otherId) {
     
                 if (isChordLine(line)) {
                     let processedLine = line.replace(
-                        CHORD_REGEX,
+                        PW_CHORD_REGEX,
                         (chord) => {
                             if (!chord.trim()) return chord;
                             if (chord.includes('/')) {
@@ -7560,12 +7560,12 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         function isChordLine(line) {
             // Use only the defined constant for chord line detection
-            return CHORD_LINE_REGEX.test(line.trim());
+            return PW_CHORD_LINE_REGEX.test(line.trim());
         }
 
         function hasInlineChords(line) {
             // Use only the defined constant for inline chord detection
-            return INLINE_CHORD_REGEX.test(line);
+            return PW_INLINE_CHORD_REGEX.test(line);
         }
     
         function transposeChord(chord, steps) {
@@ -8214,7 +8214,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 // Update the display
                 updateSelectedGenres('editSelectedGenres', 'editGenreDropdown');
                 // Re-render the options with current selections
-                renderGenreOptionsWithSelections('editGenreDropdown', GENRES, editGenreDropdown._genreSelections);
+                renderGenreOptionsWithSelections('editGenreDropdown', PW_GENRES, editGenreDropdown._genreSelections);
             }
             document.getElementById('editSongLyrics').value = song.lyrics;
             editSongModal.style.display = 'flex';

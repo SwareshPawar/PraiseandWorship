@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood Migration Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .button-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.secondary {
+            background: #6c757d;
+        }
+        button.secondary:hover {
+            background: #545b62;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        #output {
+            background: #000;
+            color: #0f0;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 20px;
+            display: none;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #0c5460;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Mood Migration Tool</h1>
+        
+        <div class="info">
+            <strong>ℹ️ What this tool does:</strong><br>
+            This migration script will move mood-related tags from the "Genres" field to the new "Moods" field in your database.
+            <br><br>
+            <strong>Tags to be moved:</strong> Dance, Patriotic, Christmas, Easter, Action, Forgiveness, Thanksgiving, Good Friday, Holy Spirit, Love, Qawalli, Miracle
+            <br><br>
+            <strong>✅ No authentication required</strong> - Script will run directly against your local database.
+        </div>
+        
+        <div class="warning">
+            <strong>⚠️ Important:</strong> Always run the "Dry Run" first to preview changes before performing the actual migration.
+        </div>
+        
+        <div class="button-group">
+            <button id="dryRunBtn">🔍 Run Dry Run</button>
+            <button id="migrateBtn" class="secondary">🚀 Run Migration</button>
+            <button id="clearBtn" onclick="clearOutput()">🗑️ Clear Output</button>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+
+    <script src="migrate-moods.js"></script>
+    <script>
+        const output = document.getElementById('output');
+        const dryRunBtn = document.getElementById('dryRunBtn');
+        const migrateBtn = document.getElementById('migrateBtn');
+        
+        // Override console.log to show in our output div
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+        
+        function logToOutput(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            let color = '#0f0'; // green
+            if (type === 'error') color = '#f44';
+            if (type === 'warn') color = '#fa0';
+            
+            const span = document.createElement('span');
+            span.style.color = color;
+            span.textContent = `[${timestamp}] ${message}\n`;
+            output.appendChild(span);
+            output.scrollTop = output.scrollHeight;
+            output.style.display = 'block';
+            
+            // Also log to real console
+            if (type === 'error') originalConsoleError(message);
+            else if (type === 'warn') originalConsoleWarn(message);
+            else originalConsoleLog(message);
+        }
+        
+        console.log = (message) => logToOutput(message, 'log');
+        console.error = (message) => logToOutput(message, 'error');
+        console.warn = (message) => logToOutput(message, 'warn');
+        
+        // Button event handlers
+        dryRunBtn.addEventListener('click', async () => {
+            dryRunBtn.disabled = true;
+            migrateBtn.disabled = true;
+            
+            try {
+                console.log('🔍 Starting Dry Run...\n');
+                await runMoodMigrationDryRun();
+            } catch (error) {
+                console.error('❌ Dry run failed: ' + error.message);
+            } finally {
+                dryRunBtn.disabled = false;
+                migrateBtn.disabled = false;
+            }
+        });
+        
+        migrateBtn.addEventListener('click', async () => {
+            const confirmed = confirm(
+                '⚠️ Are you sure you want to run the migration?\n\n' +
+                'This will make permanent changes to your database.\n' +
+                'Make sure you have run the dry run first and are satisfied with the preview.'
+            );
+            
+            if (!confirmed) return;
+            
+            dryRunBtn.disabled = true;
+            migrateBtn.disabled = true;
+            
+            try {
+                console.log('🚀 Starting Migration...\n');
+                await runMoodMigration();
+            } catch (error) {
+                console.error('❌ Migration failed: ' + error.message);
+            } finally {
+                dryRunBtn.disabled = false;
+                migrateBtn.disabled = false;
+            }
+        });
+        
+        function clearOutput() {
+            output.innerHTML = '';
+            output.style.display = 'none';
+        }
+        
+        // Initial setup message
+        setTimeout(() => {
+            console.log('🎯 Migration tool loaded successfully!');
+            console.log('💡 Click "Run Dry Run" to preview changes first');
+        }, 500);
+    </script>
+</body>
+</html>

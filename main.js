@@ -29,8 +29,7 @@ try {
 }
 
 const GENRES = [
-    "Praise", "Worship", "Mid", "Hindi", "Marathi", "English", "RD Pattern","Acoustic", "Qawalli", "Classical", "Ghazal", "Sufi", "Rock",
-    "Blues", "Female", "Male", "Duet"
+    "Praise", "Worship", "Hymns", "Hindi", "Marathi", "English", "Others"
 ];
 
 const VOCAL_TAGS = ['Male', 'Female', 'Duet'];
@@ -43,124 +42,15 @@ const KEYS = [
 const CATEGORIES = ["Praise", "Worship"];
 const TIMES = ["4/4", "3/4", "2/4", "6/8", "5/4", "7/8","12/8","14/8"];
 const TAALS = [
-    "Keherwa", "Keherwa Slow", "Dadra", "Dadra Slow",  "EkTaal", "JhapTaal", "TeenTaal","Rupak", "Deepchandi", "Garba","RD Pattern","Desi Drum", "Western", "Waltz", "Rock", "Jazz", "March Rhythm"
+    "Keherwa", "Keherwa Slow", "Dadra", "Dadra Slow", "RD Pattern", "Desi Drum", "Western", "Waltz", "Rock", "Jazz", "March Rhythm","EkTaal", "JhapTaal", "TeenTaal","Rupak", "Deepchandi", "Garba"
 ];
 
 const MOODS = [
-    "Happy", "Sad", "Romantic", "Powerful", "Soothing", "Motivational", "Joyful",
-    "Nostalgic", "Celebratory", "Passionate", "Festive", "Sorrowful",
-    "Love", "Evergreen", "Dance", "Patriotic"
+    "Dance", "Patriotic", "Christmas", "Easter", "Action", "Forgiveness","Thanksgiving","Good Friday", "Holy Spirit","Love","Qawalli","Miracle"
 ];
 
 const ARTISTS = [
   // Legendary Male Singers
-  "Kishore Kumar", "Mohammed Rafi", "Mukesh", "Manna Dey", "Talat Mahmood",
-  "Hemant Kumar", "Mahendra Kapoor", "Suresh Wadkar", "Udit Narayan", "Kumar Sanu",
-  "Abhijeet", "Vinod Rathod", "Shabbir Kumar", "Kunal Ganjawala", "Sonu Nigam",
-  "Shaan", "KK", "Javed Ali", "Arijit Singh", "Atif Aslam", "Jubin Nautiyal",
-  "Darshan Raval", "Armaan Malik", "Papon", "Mohit Chauhan", "Hariharan",
-  "Sukhwinder Singh", "Kailash Kher", "Benny Dayal", "Vijay Prakash",
-  "Karthik", "Sid Sriram", "Raghav Sachar", "Raghav", "Ankit Tiwari",
-
-  // Legendary Female Singers
-  "Lata Mangeshkar", "Asha Bhosle", "Geeta Dutt", "Shamshad Begum",
-  "Kavita Krishnamurthy", "Anuradha Paudwal", "Sadhana Sargam", "Alka Yagnik",
-  "Sunidhi Chauhan", "Shreya Ghoshal", "Palak Muchhal", "Tulsi Kumar",
-  "Neha Kakkar", "Monali Thakur", "Shilpa Rao", "Dhvani Bhanushali",
-  "Chinmayi", "Sunali Rathod", "Rekha Bhardwaj", "Ankita Bhattacharyya",
-  "Usha Uthup", "Annie Khalid","Madhushree",
-
-  // Golden Era Composers
-  "Naushad", "Shankar-Jaikishan", "S.D. Burman", "R.D. Burman", "Madan Mohan",
-  "Salil Chowdhury", "O.P. Nayyar", "Roshan", "Kalyanji-Anandji",
-  "Laxmikant-Pyarelal", "Ravindra Jain", "Anu Malik", "Bappi Lahiri",
-
-  // Modern Composers
-  "A.R. Rahman", "Ilaiyaraaja", "Harris Jayaraj", "Anirudh Ravichander",
-  "Devi Sri Prasad", "Thaman S", "Gopi Sundar", "Ajay-Atul", "Sachin-Jigar",
-  "Vishal-Shekhar", "Shankar-Ehsaan-Loy", "Pritam", "Amit Trivedi",
-  "Amaal Mallik", "Tanishk Bagchi", "Rochak Kohli", "Himesh Reshammiya","Sanam Puri",
-  "Neeti Mohan","Zubeen Garg","Vishal Dadlani","Salim-Sulaiman","Shraddha Pandit",
-  "Anand Raj Anand","Javed Bashir","Diljit Dosanjh","Richa Sharma","",
-
-  // Ghazal / Qawwali / Classical Legends
-  "Jagjit Singh", "Chitra Singh", "Pankaj Udhas", "Anup Jalota",
-  "Ghulam Ali", "Mehdi Hassan", "Nusrat Fateh Ali Khan",
-  "Rahat Fateh Ali Khan", "Abida Parveen", "Tina Sani", "Shafqat Amanat Ali",
-  "Pt. Bhimsen Joshi", "Kumar Gandharva", "Pt. Jasraj",
-
-  // Modern Lyricists
-  "Gulzar", "Javed Akhtar", "Prasoon Joshi", "Amitabh Bhattacharya",
-  "Manoj Muntashir", "Kumaar", "Kausar Munir", "Irshad Kamil",
-
-  // Pop / Indie / Rap / Others
-  "Lucky Ali", "Euphoria (Palash Sen)", "Adnan Sami", "Colonial Cousins",
-  "Mika Singh", "Daler Mehndi", "Guru Randhawa", "Badshah",
-  "Yo Yo Honey Singh", "Divine", "Raftaar", "Nucleya",
-  // Legendary Actors
-  "Amitabh Bachchan", "Dharmendra", "Jeetendra", "Rajesh Khanna",
-  "Shashi Kapoor", "Shammi Kapoor", "Dev Anand", "Raj Kapoor",
-  "Vinod Khanna", "Rishi Kapoor", "Amrish Puri", "Anupam Kher",
-
-  // Popular 90s & 2000s Actors
-  "Shah Rukh Khan", "Salman Khan", "Aamir Khan",
-  "Akshay Kumar", "Ajay Devgn", "Saif Ali Khan",
-  "Govinda", "Sunny Deol", "Sanjay Dutt", "Nana Patekar",
-
-  // Current Generation Male Actors
-  "Ranbir Kapoor", "Ranveer Singh", "Varun Dhawan",
-  "Sidharth Malhotra", "Tiger Shroff", "Kartik Aaryan",
-  "Ayushmann Khurrana", "Rajkummar Rao", "Shahid Kapoor",
-  "Vicky Kaushal", "Arjun Kapoor", "Aditya Roy Kapur",
-
-  // Leading Actresses (90s & 2000s)
-  "Madhuri Dixit", "Sridevi", "Juhi Chawla", "Karisma Kapoor",
-  "Kajol", "Raveena Tandon", "Shilpa Shetty", "Preity Zinta",
-  "Aishwarya Rai Bachchan", "Rani Mukerji","Imran Hashmi","John Abraham",
-
-  // Current Generation Actresses
-  "Deepika Padukone", "Priyanka Chopra", "Kareena Kapoor Khan",
-  "Anushka Sharma", "Katrina Kaif", "Vidya Balan",
-  "Kangana Ranaut", "Alia Bhatt", "Shraddha Kapoor",
-  "Kriti Sanon", "Kiara Advani", "Janhvi Kapoor", "Sara Ali Khan","Farhan Akhtar",
-
-  // Supporting / Character Actors
-  "Pankaj Tripathi", "Manoj Bajpayee", "Irrfan Khan",
-  "Nawazuddin Siddiqui", "Boman Irani", "Paresh Rawal",
-  "Johnny Lever", "Kunal Khemu", "Abhay Deol",
-
-  // Young Actresses Rising
-  "Tara Sutaria", "Ananya Panday", "Rashmika Mandanna",
-  "Mrunal Thakur", "Disha Patani",
-
-  // Legends & Bhavgeet
-  "Sudhir Phadke",  "Arun Date",  "Yashwant Deo",  "Hridaynath Mangeshkar",  "Vasundhara Patwardhan",
-  "Shobha Gurtu",  "Padmaja Fenade",  "Prabhakar Karekar",  "Jaywant Kulkarni",
-  "Ranjana Joglekar",  "Ravindra Sathe",  "Mohan Atre",  "Sharad Jambhekar",
-  "Rama Marathe",  "Vijaya Jog",
-
-  // Mangeshkar Family
-  "Usha Mangeshkar",  "Meera Mangeshkar",  "Hridaynath Mangeshkar",
-
-  // Golden Voices
-  "Suman Kalyanpur",  "Anuradha Paudwal",  "Suresh Wadkar",  "Sadhana Sargam",
-  "Devaki Pandit",  "Shaila Chikale",  "Yogini Joglekar",
-  "Anjali Marathe",  "Shobha Joshi",
-
-  // Modern & Popular
-  "Vaishali Samant",  "Avdhoot Gupte",  "Ajay Gogavale",  "Atul Gogavale",
-  "Swapnil Bandodkar",  "Shankar Mahadevan",  "Shreya Ghoshal",  "Sonu Nigam",
-  "Kumar Sanu",  "Sunidhi Chauhan",
-
-  // New Generation
-  "Saleel Kulkarni",  "Rahul Deshpande",  "Mahesh Kale",  "Adarsh Shinde",
-  "Anand Shinde",  "Vaishali Made",  "Mugdha Karhade",  "Ketaki Mategaonkar",
-  "Bela Shende",  "Ranjana Jogalekar",  "Meenal Jain",
-  // Folk & Lavani
-  "Surekha Punekar",  "Reshma Sonawane",  "Shakuntala Jadhav",  "Kasturi Waje",
-  "Vishnu Waghmare",
-
-  // Others in Marathi Films
   "Ajay-Atul",  "Avinash-Vishwajeet",  "Ashok Patki",  "Nandu Bhende",
   "Neha Rajpal",  "Prajakta Shukre",  "Anand Bhate",
   "Roopkumar Rathod",  "Jitendra Abhyankar",  "Rohit Raut",

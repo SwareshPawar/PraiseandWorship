@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Tab Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .admin-tab { padding: 10px 20px; border: 1px solid #ccc; background: #f5f5f5; cursor: pointer; }
+        .admin-tab.active { background: #007bff; color: white; }
+        .admin-tab-content { display: none; padding: 20px; border: 1px solid #ccc; }
+        .admin-tab-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <h1>Admin Tab Test</h1>
+    
+    <div class="admin-tabs">
+        <button class="admin-tab active" id="userMgmtTab">User Management</button>
+        <button class="admin-tab" id="weightsTab">Recommendation Weights</button>
+        <button class="admin-tab" id="duplicateDetectionTab">Duplicate Detection</button>
+        <button class="admin-tab" id="backendMgmtTab">Backend Management</button>
+    </div>
+    
+    <div class="admin-tab-content active" id="userMgmtTabContent">
+        <h3>User Management Content</h3>
+        <p>This is the user management tab content.</p>
+    </div>
+    
+    <div class="admin-tab-content" id="weightsTabContent">
+        <h3>Weights Content</h3>
+        <p>This is the weights tab content.</p>
+    </div>
+    
+    <div class="admin-tab-content" id="duplicateDetectionTabContent">
+        <h3>Duplicate Detection Content</h3>
+        <p>This is the duplicate detection tab content.</p>
+    </div>
+    
+    <div class="admin-tab-content" id="backendMgmtTabContent">
+        <div id="backendNotification"></div>
+        <div style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 10px; color: #333;">🖥️ Backend Server Management</h3>
+            <p style="color: #666; margin-bottom: 15px;">Switch the backend server for all users. This affects all API calls globally.</p>
+        </div>
+        
+        <div class="backend-status" style="margin-bottom: 25px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+            <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                <strong>Current Backend: </strong>
+                <span id="currentBackendStatus" style="margin-left: 8px; padding: 4px 12px; border-radius: 15px; font-weight: bold; background: #4CAF50; color: white;">Render</span>
+            </div>
+            <div style="color: #666; font-size: 0.9em;">
+                <strong>API URL: </strong><span id="currentApiUrl">http://localhost:3002</span>
+            </div>
+        </div>
+        
+        <div class="backend-toggle" style="margin-bottom: 20px;">
+            <h4 style="margin-bottom: 15px;">Switch Backend:</h4>
+            <div style="display: flex; gap: 15px;">
+                <button id="switchToRenderBtn" style="background: #4CAF50; color: white; border: none; padding: 12px 20px; border-radius: 6px; flex: 1; cursor: pointer;">
+                    🔄 Switch to Render
+                    <div style="font-size: 0.8em; opacity: 0.9;">praiseandworship.onrender.com</div>
+                </button>
+                <button id="switchToVercelBtn" style="background: #0070f3; color: white; border: none; padding: 12px 20px; border-radius: 6px; flex: 1; cursor: pointer;">
+                    🔄 Switch to Vercel  
+                    <div style="font-size: 0.8em; opacity: 0.9;">praiseand-worship.vercel.app</div>
+                </button>
+            </div>
+        </div>
+        
+        <div class="backend-health" style="margin-bottom: 20px;">
+            <h4 style="margin-bottom: 15px;">Backend Health Check:</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="health-card" style="padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                    <div style="font-weight: bold; margin-bottom: 5px;">🟢 Render Status</div>
+                    <div id="renderHealthStatus" style="font-size: 0.9em; color: #666;">✅ Online</div>
+                </div>
+                <div class="health-card" style="padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                    <div style="font-weight: bold; margin-bottom: 5px;">🔵 Vercel Status</div>
+                    <div id="vercelHealthStatus" style="font-size: 0.9em; color: #666;">✅ Online</div>
+                </div>
+            </div>
+            <button id="checkHealthBtn" style="width: 100%; margin-top: 10px; background: #17a2b8; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer;">
+                🏥 Check Backend Health
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Simple tab switching
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.admin-tab');
+            const contents = document.querySelectorAll('.admin-tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    const targetId = tab.id.replace('Tab', 'TabContent');
+                    const targetContent = document.getElementById(targetId);
+                    if (targetContent) {
+                        targetContent.classList.add('active');
+                    }
+                });
+            });
+            
+            // Test button functionality
+            document.getElementById('switchToRenderBtn').onclick = () => alert('Switch to Render clicked!');
+            document.getElementById('switchToVercelBtn').onclick = () => alert('Switch to Vercel clicked!');
+            document.getElementById('checkHealthBtn').onclick = () => alert('Check Health clicked!');
+        });
+    </script>
+</body>
+</html>

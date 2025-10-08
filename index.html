@@ -482,6 +482,7 @@ async function saveRecommendationWeightsToBackend(weights) {
                 <button class="admin-tab active" id="userMgmtTab" title="User Management - Manage user accounts and admin privileges" aria-label="User Management Tab">User Management</button>
                 <button class="admin-tab" id="weightsTab" title="Recommendation Weights - Configure song recommendation algorithm parameters" aria-label="Recommendation Weights Tab">Recommendation Weights</button>
                 <button class="admin-tab" id="duplicateDetectionTab" title="Duplicate Detection - Find and manage duplicate songs in database" aria-label="Duplicate Detection Tab">Duplicate Detection</button>
+                <button class="admin-tab" id="backendMgmtTab" title="Backend Management - Switch between Vercel and Render deployments for all users" aria-label="Backend Management Tab">Backend Management</button>
             </div>
             <div class="admin-tab-content" id="userMgmtTabContent">
                 <div class="notification" id="adminNotification"></div>
@@ -549,6 +550,67 @@ async function saveRecommendationWeightsToBackend(weights) {
             </div>
             <div class="admin-tab-content" id="duplicateDetectionTabContent" style="display:none;">
                 <!-- Duplicate detection results will be rendered by JS -->
+            </div>
+            <div class="admin-tab-content" id="backendMgmtTabContent" style="display:none;">
+                <div class="notification" id="backendNotification"></div>
+                <div style="margin: 0 20px 20px 20px;">
+                    <h3 style="margin-bottom: 10px; color: var(--text-color);">🖥️ Backend Server Management</h3>
+                    <p style="color: var(--text-muted); margin-bottom: 15px;">Switch the backend server for all users. This affects all API calls globally.</p>
+                </div>
+                
+                <div class="backend-status" style="margin: 0 20px 25px 20px;">
+                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                        <strong>Current Backend: </strong>
+                        <span id="currentBackendStatus" style="margin-left: 8px; padding: 4px 12px; border-radius: 15px; font-weight: bold;"></span>
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.9em;">
+                        <strong>API URL: </strong><span id="currentApiUrl"></span>
+                    </div>
+                </div>
+                
+                <div class="backend-toggle" style="margin: 0 20px 20px 20px;">
+                    <h4 style="margin-bottom: 15px; color: var(--text-color);">Switch Backend:</h4>
+                    <div style="display: flex; gap: 15px;">
+                        <button id="switchToRenderBtn" class="btn" style="background: #4CAF50; color: white; flex: 1; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600;" 
+                                title="Switch to Render Backend - Stable deployment" aria-label="Switch to Render">
+                            🔄 Switch to Render
+                            <div style="font-size: 0.8em; opacity: 0.9;">praiseandworship.onrender.com</div>
+                        </button>
+                        <button id="switchToVercelBtn" class="btn" style="background: #0070f3; color: white; flex: 1; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600;" 
+                                title="Switch to Vercel Backend - Fast deployment" aria-label="Switch to Vercel">
+                            🔄 Switch to Vercel  
+                            <div style="font-size: 0.8em; opacity: 0.9;">praiseand-worship.vercel.app</div>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="backend-health" style="margin: 0 20px 20px 20px;">
+                    <h4 style="margin-bottom: 15px; color: var(--text-color);">Backend Health Check:</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div class="health-card" style="padding: 15px; border: 1px solid var(--input-border); border-radius: 8px; background: var(--form-bg);">
+                            <div style="font-weight: bold; margin-bottom: 5px; color: var(--text-color);">🟢 Render Status</div>
+                            <div id="renderHealthStatus" style="font-size: 0.9em; color: var(--text-muted);">Checking...</div>
+                        </div>
+                        <div class="health-card" style="padding: 15px; border: 1px solid var(--input-border); border-radius: 8px; background: var(--form-bg);">
+                            <div style="font-weight: bold; margin-bottom: 5px; color: var(--text-color);">🔵 Vercel Status</div>
+                            <div id="vercelHealthStatus" style="font-size: 0.9em; color: var(--text-muted);">Checking...</div>
+                        </div>
+                    </div>
+                    <button id="checkHealthBtn" class="btn" style="width: 100%; margin-top: 10px; background: #17a2b8; color: white; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: 600;" 
+                            title="Check Backend Health - Test connectivity to both servers" aria-label="Check Health">
+                        🏥 Check Backend Health
+                    </button>
+                </div>
+                
+                <div class="backend-info" style="margin: 0 20px 20px 20px; background: var(--form-bg); border: 1px solid var(--input-border); padding: 15px; border-radius: 8px; font-size: 0.9em;">
+                    <h4 style="margin-bottom: 10px; color: var(--text-color);">ℹ️ About Backend Switching:</h4>
+                    <ul style="margin: 0; padding-left: 20px; color: var(--text-muted);">
+                        <li><strong>Render:</strong> More stable, slower cold starts, better for production</li>
+                        <li><strong>Vercel:</strong> Faster response, quick deployments, better for development</li>
+                        <li>Changes apply immediately to all users</li>
+                        <li>Local development always uses localhost:3002</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

@@ -93,9 +93,29 @@ const PW_CHORD_TYPES = [
         // Dynamic API base URL for local/dev/prod
                 const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
                 const API_BASE_URL_VERCEL = 'https://praiseand-worship.vercel.app';
-                const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                        ? 'http://localhost:3001'
+                let API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                        ? 'http://localhost:3002'
                         : API_BASE_URL_RENDER;
+
+                // Admin-configurable backend switching for production
+                function getStoredBackend() {
+                    return localStorage.getItem('pw_admin_backend') || 'render';
+                }
+
+                function setBackend(backend) {
+                    if (backend === 'vercel') {
+                        API_BASE_URL = API_BASE_URL_VERCEL;
+                    } else {
+                        API_BASE_URL = API_BASE_URL_RENDER;
+                    }
+                    localStorage.setItem('pw_admin_backend', backend);
+                    console.log('🔄 Backend switched to:', backend.toUpperCase(), '- URL:', API_BASE_URL);
+                }
+
+                // Initialize backend based on stored preference (production only)
+                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+                    setBackend(getStoredBackend());
+                }
             // Frontend: Vercel (https://praiseand-worship.vercel.app)
             // Backend: Render (https://praiseandworship.onrender.com)
 
@@ -2721,54 +2741,237 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         document.getElementById('weightsTabContent').classList.remove('active');
         document.getElementById('duplicateDetectionTab').classList.remove('active');
         document.getElementById('duplicateDetectionTabContent').classList.remove('active');
+        document.getElementById('backendMgmtTab').classList.remove('active');
+        document.getElementById('backendMgmtTabContent').classList.remove('active');
         
         // Load users and set up functions
         loadUsers();
         window.markAdmin = markAdmin;
     }
-    const adminPanelBtn = document.getElementById('adminPanelBtn');
-    adminPanelBtn.onclick = () => showAdminPanelModal();
+    // Setup admin panel event handlers
+    function setupAdminPanelEventHandlers() {
+        console.log('🔧 Setting up admin panel event handlers...');
+        
+        const adminPanelBtn = document.getElementById('adminPanelBtn');
+        if (adminPanelBtn) {
+            adminPanelBtn.onclick = () => showAdminPanelModal();
+            console.log('✅ Admin panel button handler set');
+        } else {
+            console.log('⚠️ Admin panel button not found');
+        }
 
-    // Tab switching logic for admin panel
-    document.getElementById('userMgmtTab').onclick = function() {
-        // Set active tab
-        document.getElementById('userMgmtTab').classList.add('active');
-        document.getElementById('userMgmtTabContent').classList.add('active');
+        // Setup tab handlers with error checking
+        setupAdminTabHandler('userMgmtTab', 'userMgmtTabContent', null);
+        setupAdminTabHandler('weightsTab', 'weightsTabContent', loadWeightsToForm);
+        setupAdminTabHandler('duplicateDetectionTab', 'duplicateDetectionTabContent', renderDuplicateDetection);
+        setupAdminTabHandler('backendMgmtTab', 'backendMgmtTabContent', initializeBackendManagement);
+    }
+    
+    function setupAdminTabHandler(tabId, contentId, initFunction) {
+        const tabElement = document.getElementById(tabId);
+        if (!tabElement) {
+            console.log(`⚠️ Tab element ${tabId} not found`);
+            return;
+        }
         
-        // Remove active from other tabs
-        document.getElementById('weightsTab').classList.remove('active');
-        document.getElementById('weightsTabContent').classList.remove('active');
-        document.getElementById('duplicateDetectionTab').classList.remove('active');
-        document.getElementById('duplicateDetectionTabContent').classList.remove('active');
-    };
-    document.getElementById('weightsTab').onclick = function() {
-        // Set active tab
-        document.getElementById('weightsTab').classList.add('active');
-        document.getElementById('weightsTabContent').classList.add('active');
+        tabElement.onclick = function() {
+            console.log(`🖱️ ${tabId} clicked!`);
+            
+            // Remove active from all tabs
+            const allTabs = ['userMgmtTab', 'weightsTab', 'duplicateDetectionTab', 'backendMgmtTab'];
+            const allContents = ['userMgmtTabContent', 'weightsTabContent', 'duplicateDetectionTabContent', 'backendMgmtTabContent'];
+            
+            allTabs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            
+            allContents.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active');
+            });
+            
+            // Set active tab
+            const activeTab = document.getElementById(tabId);
+            const activeContent = document.getElementById(contentId);
+            
+            if (activeTab) {
+                activeTab.classList.add('active');
+                console.log(`✅ ${tabId} set to active`);
+            }
+            
+            if (activeContent) {
+                activeContent.classList.add('active');
+                console.log(`✅ ${contentId} set to active`);
+                console.log(`Display style: ${getComputedStyle(activeContent).display}`);
+            } else {
+                console.log(`❌ Content element ${contentId} not found`);
+            }
+            
+            // Run initialization function if provided
+            if (initFunction && typeof initFunction === 'function') {
+                try {
+                    initFunction();
+                } catch (error) {
+                    console.error(`❌ Error running init function for ${tabId}:`, error);
+                }
+            }
+        };
         
-        // Remove active from other tabs
-        document.getElementById('userMgmtTab').classList.remove('active');
-        document.getElementById('userMgmtTabContent').classList.remove('active');
-        document.getElementById('duplicateDetectionTab').classList.remove('active');
-        document.getElementById('duplicateDetectionTabContent').classList.remove('active');
+        console.log(`✅ Handler set for ${tabId}`);
+    }
+
+    // Initialize admin panel after DOM is ready
+    document.addEventListener('DOMContentLoaded', setupAdminPanelEventHandlers);
+
+
+
+    // --- Backend Management Logic ---
+    function initializeBackendManagement() {
+        console.log('🔧 Initializing Backend Management...');
+        try {
+            updateBackendStatus();
+            setupBackendEventListeners();
+            checkAllBackendHealth();
+            console.log('✅ Backend Management initialized successfully');
+        } catch (error) {
+            console.error('❌ Error initializing Backend Management:', error);
+        }
+    }
+
+    function updateBackendStatus() {
+        console.log('📊 Updating backend status...');
+        const currentBackend = getStoredBackend();
+        const statusElement = document.getElementById('currentBackendStatus');
+        const apiUrlElement = document.getElementById('currentApiUrl');
         
-        // Load weights when switching to weights tab
-        loadWeightsToForm();
-    };
-    document.getElementById('duplicateDetectionTab').onclick = function() {
-        // Set active tab
-        document.getElementById('duplicateDetectionTab').classList.add('active');
-        document.getElementById('duplicateDetectionTabContent').classList.add('active');
+        console.log('Current backend:', currentBackend);
+        console.log('Status element:', statusElement);
+        console.log('API URL element:', apiUrlElement);
         
-        // Remove active from other tabs
-        document.getElementById('userMgmtTab').classList.remove('active');
-        document.getElementById('userMgmtTabContent').classList.remove('active');
-        document.getElementById('weightsTab').classList.remove('active');
-        document.getElementById('weightsTabContent').classList.remove('active');
+        if (!statusElement || !apiUrlElement) {
+            console.error('❌ Backend status elements not found!');
+            return;
+        }
         
-        // Render duplicate detection when switching to this tab
-        renderDuplicateDetection();
-    };
+        if (currentBackend === 'vercel') {
+            statusElement.textContent = 'Vercel';
+            statusElement.style.background = '#0070f3';
+            statusElement.style.color = 'white';
+        } else {
+            statusElement.textContent = 'Render';
+            statusElement.style.background = '#4CAF50';
+            statusElement.style.color = 'white';
+        }
+        
+        apiUrlElement.textContent = API_BASE_URL;
+        console.log('✅ Backend status updated');
+    }
+
+    function setupBackendEventListeners() {
+        console.log('🎧 Setting up backend event listeners...');
+        const renderBtn = document.getElementById('switchToRenderBtn');
+        const vercelBtn = document.getElementById('switchToVercelBtn');
+        const healthBtn = document.getElementById('checkHealthBtn');
+        
+        console.log('Render button:', renderBtn);
+        console.log('Vercel button:', vercelBtn);
+        console.log('Health button:', healthBtn);
+        
+        if (renderBtn) {
+            renderBtn.onclick = () => switchBackend('render');
+        } else {
+            console.error('❌ Switch to Render button not found!');
+        }
+        
+        if (vercelBtn) {
+            vercelBtn.onclick = () => switchBackend('vercel');
+        } else {
+            console.error('❌ Switch to Vercel button not found!');
+        }
+        
+        if (healthBtn) {
+            healthBtn.onclick = checkAllBackendHealth;
+        } else {
+            console.error('❌ Check Health button not found!');
+        }
+        
+        console.log('✅ Backend event listeners setup complete');
+    }
+
+    function switchBackend(backend) {
+        const previousBackend = getStoredBackend();
+        
+        if (previousBackend === backend) {
+            showBackendNotification(`Already using ${backend.toUpperCase()} backend`, 'info');
+            return;
+        }
+        
+        setBackend(backend);
+        updateBackendStatus();
+        showBackendNotification(`✅ Switched to ${backend.toUpperCase()} backend! All API calls now use ${API_BASE_URL}`, 'success');
+        
+        // Optionally refresh data to test the new backend
+        setTimeout(() => {
+            checkAllBackendHealth();
+        }, 1000);
+    }
+
+    async function checkBackendHealth(url, name) {
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+            
+            const response = await fetch(`${url}/api/health`, {
+                method: 'GET',
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (response.ok) {
+                return { status: 'online', message: `✅ Online (${response.status})` };
+            } else {
+                return { status: 'error', message: `❌ Error (${response.status})` };
+            }
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                return { status: 'timeout', message: '⏱️ Timeout (>10s)' };
+            }
+            return { status: 'offline', message: `❌ Offline (${error.message})` };
+        }
+    }
+
+    async function checkAllBackendHealth() {
+        const renderStatusEl = document.getElementById('renderHealthStatus');
+        const vercelStatusEl = document.getElementById('vercelHealthStatus');
+        
+        renderStatusEl.textContent = 'Checking...';
+        vercelStatusEl.textContent = 'Checking...';
+        
+        // Check both backends in parallel
+        const [renderHealth, vercelHealth] = await Promise.all([
+            checkBackendHealth(API_BASE_URL_RENDER, 'Render'),
+            checkBackendHealth(API_BASE_URL_VERCEL, 'Vercel')
+        ]);
+        
+        renderStatusEl.textContent = renderHealth.message;
+        renderStatusEl.style.color = renderHealth.status === 'online' ? '#28a745' : '#dc3545';
+        
+        vercelStatusEl.textContent = vercelHealth.message;
+        vercelStatusEl.style.color = vercelHealth.status === 'online' ? '#28a745' : '#dc3545';
+    }
+
+    function showBackendNotification(msg, type = 'info') {
+        const n = document.getElementById('backendNotification');
+        n.textContent = msg;
+        n.className = `notification show ${type}`;
+        n.style.display = 'block';
+        setTimeout(() => {
+            n.classList.remove('show');
+            setTimeout(() => n.style.display = 'none', 300);
+        }, 4000);
+    }
 
     // --- Duplicate Detection Logic ---
     function stringSimilarity(str1, str2) {

@@ -1,17 +1,17 @@
 {
   "version": 2,
-  "buildCommand": "echo 'No build step required for static PWA'",
+  "buildCommand": "npm install",
   "outputDirectory": ".",
-  "installCommand": "echo 'No install step required'",
+  "installCommand": "npm install",
   "functions": {
-    "api/*.js": {
+    "api/server.js": {
       "includeFiles": "utils/**"
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index.js"
+      "destination": "/api/server.js"
     }
   ],
   "headers": [

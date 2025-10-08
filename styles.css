@@ -276,7 +276,7 @@
         }
 
         .song-item .favorite-btn.favorited {
-            color: var(--favorite-color);
+              color: #e74c3c !important;
         }
 
         .song-item .favorite-btn:hover {

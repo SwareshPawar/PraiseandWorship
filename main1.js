@@ -51,12 +51,7 @@ const PW_MOODS = [
 
 const PW_ARTISTS = [
   // Legendary Male Singers
-  "Ajay-Atul",  "Avinash-Vishwajeet",  "Ashok Patki",  "Nandu Bhende",
-  "Neha Rajpal",  "Prajakta Shukre",  "Anand Bhate",
-  "Roopkumar Rathod",  "Jitendra Abhyankar",  "Rohit Raut",
-  "Arya Ambekar",  "Jaanvee Prabhu Arora",  "Hrishikesh Ranade",
-  // Others / Misc
-  "Dr. Devika Rani", "Other"
+    "Traditional","New","Old","Favorites","Rock","Evergreen"
 ];
 
 
@@ -127,6 +122,35 @@ const PW_CHORD_TYPE_REGEX = PW_CHORD_TYPES.join("|");
 const PW_CHORD_REGEX = new RegExp(`([A-G](?:#|b)?)(?:${PW_CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?`, "gi");
 const PW_CHORD_LINE_REGEX = new RegExp(`^(\\s*[A-G](?:#|b)?(?:${PW_CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?[\\s\\-\\/\\|]*)+$`, "i");
 const PW_INLINE_CHORD_REGEX = new RegExp(`[\\[(]([A-G](?:#|b)?(?:${PW_CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?)[\\])]`, "gi");
+
+// Notification throttling system to prevent duplicate backend notifications
+let recentNotifications = new Map(); // Map to track recent notifications
+const NOTIFICATION_THROTTLE_TIME = 10000; // 10 seconds throttle for backend notifications
+
+function throttledShowNotification(message, type = 'info', duration = 3000) {
+    const key = `${message}_${type}`;
+    const now = Date.now();
+    
+    // Check if this exact notification was shown recently
+    if (recentNotifications.has(key)) {
+        const lastShown = recentNotifications.get(key);
+        if (now - lastShown < NOTIFICATION_THROTTLE_TIME) {
+            // Skip showing this notification as it was shown recently
+            return;
+        }
+    }
+    
+    // Show the notification and record the time
+    recentNotifications.set(key, now);
+    showNotification(message, type, duration);
+    
+    // Clean up old entries to prevent memory leaks
+    for (const [k, timestamp] of recentNotifications.entries()) {
+        if (now - timestamp > NOTIFICATION_THROTTLE_TIME * 2) {
+            recentNotifications.delete(k);
+        }
+    }
+}
 
 // Re-initialize variables from localStorage (no redeclaration)
 jwtToken = localStorage.getItem('pw_jwtToken') || '';
@@ -246,9 +270,9 @@ async function authFetch(url, options = {}) {
             clearTimeout(timeoutId);
             if (response.ok) {
                 if (backendUrl === API_BASE_URL_RENDER) {
-                    showNotification('✅ Connected to Render backend!', 'success', 2000);
+                    throttledShowNotification('✅ Connected to Render backend!', 'success', 2000);
                 } else {
-                    showNotification('✅ Connected to Vercel backend!', 'success', 2000);
+                    throttledShowNotification('✅ Connected to Vercel backend!', 'success', 2000);
                 }
                 return response;
             } else {
@@ -307,7 +331,7 @@ async function cachedFetch(endpoint, forceRefresh = false, retries = 0) {
             console.log(`📦 Using stale cached data for ${cacheKey} (${Math.round(cacheAge/1000)}s old) due to error`);
             
             if (isRenderBackend) {
-                showNotification(`⚠️ Using cached data - Render backend unavailable`, 'warning', 4000);
+                throttledShowNotification(`⚠️ Using cached data - Render backend unavailable`, 'warning', 4000);
             }
             
             return { 
@@ -722,7 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     const userData = await response.json();
                     if (userData.transpose) {
-                        localStorage.setItem('transposeCache', JSON.stringify(userData.transpose));
+                        localStorage.setItem('pw_transposeCache', JSON.stringify(userData.transpose));
                     }
                 }
             } catch {}
@@ -788,7 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', () => {
             isDarkMode = !isDarkMode;
-            localStorage.setItem('darkMode', isDarkMode);
+            localStorage.setItem('pw_darkMode', isDarkMode);
             applyTheme(isDarkMode);
             updateThemeToggleBtn();
         });
@@ -912,8 +936,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const data = await res.json().catch(() => ({}));
                 if (res.ok && data.token) {
-                    localStorage.setItem('jwtToken', data.token);
-                    if (data.user) localStorage.setItem('currentUser', JSON.stringify(data.user));
+                    localStorage.setItem('pw_jwtToken', data.token);
+                    if (data.user) localStorage.setItem('pw_currentUser', JSON.stringify(data.user));
                     jwtToken = data.token;
                     currentUser = data.user;
                     
@@ -2257,7 +2281,7 @@ async function checkBackendHealth() {
             return false;
         }
         
-        showNotification('🔌 Connecting to backend...', 'info', 2000);
+        throttledShowNotification('🔌 Connecting to backend...', 'info', 2000);
         
         // Use authFetch with built-in retry logic for Render backend
         const healthResponse = await authFetch(`${API_BASE_URL}/api/health`, {
@@ -2267,22 +2291,22 @@ async function checkBackendHealth() {
         if (healthResponse.ok) {
             const healthData = await healthResponse.json();
             console.log('✅ Backend health check passed:', healthData);
-            showNotification('✅ Connected to backend successfully!', 'success', 2000);
+            throttledShowNotification('✅ Connected to backend successfully!', 'success', 2000);
             return true;
         } else {
             console.warn('⚠️ Backend health check failed with status:', healthResponse.status);
-            showNotification('⚠️ Backend connection issues detected', 'warning', 3000);
+            throttledShowNotification('⚠️ Backend connection issues detected', 'warning', 3000);
             return false;
         }
     } catch (error) {
         console.error('❌ Backend health check failed:', error);
         
         if (error.message.includes('timeout') || error.message.includes('taking too long')) {
-            showNotification('⏰ Backend is warming up (Render free tier) - using cached data...', 'info', 5000);
+            throttledShowNotification('⏰ Backend is warming up (Render free tier) - using cached data...', 'info', 5000);
         } else if (error.message.includes('unavailable after multiple attempts')) {
-            showNotification('🔄 Backend temporarily unavailable - app will work in offline mode', 'warning', 6000);
+            throttledShowNotification('🔄 Backend temporarily unavailable - app will work in offline mode', 'warning', 6000);
         } else {
-            showNotification('🔄 Backend connection failed - using cached data where possible', 'warning', 4000);
+            throttledShowNotification('🔄 Backend connection failed - using cached data where possible', 'warning', 4000);
         }
         
         return false;
@@ -2319,7 +2343,7 @@ async function performInitialization() {
     const backendHealthy = await checkBackendHealth();
     
     // Restore JWT and user state
-    jwtToken = localStorage.getItem('jwtToken') || '';
+    jwtToken = localStorage.getItem('pw_jwtToken') || '';
     if (jwtToken && isJwtValid(jwtToken)) {
         updateAuthButtons();
         if (backendHealthy) {
@@ -2484,12 +2508,12 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
 
         // Update currentUser from localStorage (no redeclaration needed)
         try {
-            const s = localStorage.getItem('currentUser');
+            const s = localStorage.getItem('pw_currentUser');
             currentUser = s ? JSON.parse(s) : null;
         } catch { 
             currentUser = null; 
         }
-         isDarkMode = localStorage.getItem('darkMode') === 'true';
+         isDarkMode = localStorage.getItem('pw_darkMode') === 'true';
 
 
 
@@ -2502,8 +2526,8 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
 
 
         // Restore JWT token and user state on every refresh
-        if (!jwtToken && localStorage.getItem('jwtToken')) {
-            jwtToken = localStorage.getItem('jwtToken');
+        if (!jwtToken && localStorage.getItem('pw_jwtToken')) {
+            jwtToken = localStorage.getItem('pw_jwtToken');
         }
 
         // On script load, update UI and user data if logged in and token is valid
@@ -3306,9 +3330,9 @@ window.viewSingleLyrics = function(songId, otherId) {
         
         // Save to localStorage (clear if empty selection)
         if (value && value !== '') {
-            localStorage.setItem('selectedSetlist', value);
+            localStorage.setItem('pw_selectedSetlist', value);
         } else {
-            localStorage.removeItem('selectedSetlist');
+            localStorage.removeItem('pw_selectedSetlist');
         }
         
         // Update styling
@@ -3436,7 +3460,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
         } else {
             // If no current selection, check localStorage
-            const savedSelection = localStorage.getItem('selectedSetlist');
+            const savedSelection = localStorage.getItem('pw_selectedSetlist');
             if (savedSelection) {
                 const optionExists = Array.from(setlistDropdown.options).some(option => option.value === savedSelection);
                 if (optionExists) {
@@ -5856,9 +5880,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const data = await res.json();
                 if (res.ok && data.token) {
                     jwtToken = data.token;
-                    localStorage.setItem('jwtToken', jwtToken);
+                    localStorage.setItem('pw_jwtToken', jwtToken);
                     currentUser = data.user;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    localStorage.setItem('pw_currentUser', JSON.stringify(currentUser));
                     document.getElementById('loginModal').style.display = 'none';
                     showNotification('Login successful!');
                     // If user is admin, reload page to ensure all admin UI loads
@@ -5924,7 +5948,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         let userDataSaveQueue = Promise.resolve();
 
         // Search history
-        let searchHistory = JSON.parse(localStorage.getItem('searchHistory')) || [];
+        let searchHistory = JSON.parse(localStorage.getItem('pw_searchHistory')) || [];
     
         // Initialize the application
 
@@ -6067,7 +6091,7 @@ window.viewSingleLyrics = function(songId, otherId) {
     // --- Admin Panel Logic ---
     //const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:3000' : 'https://oldandnew.onrender.com';
     async function fetchUsers() {
-        const jwtToken = localStorage.getItem('jwtToken');
+        const jwtToken = localStorage.getItem('pw_jwtToken');
         const res = await fetch(`${API_BASE_URL}/api/users`, {
             headers: { 'Authorization': `Bearer ${jwtToken}` }
         });
@@ -6075,7 +6099,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         return res.json();
     }
     async function markAdmin(userId) {
-        const jwtToken = localStorage.getItem('jwtToken');
+        const jwtToken = localStorage.getItem('pw_jwtToken');
         const res = await fetch(`${API_BASE_URL}/api/users/${userId}/admin`, {
             method: 'PATCH',
             headers: {
@@ -6364,7 +6388,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             
             if (searchHistory.length > 50) {
                 searchHistory = searchHistory.slice(0, 50);
-                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                localStorage.setItem('pw_searchHistory', JSON.stringify(searchHistory));
             }
             
             // Force garbage collection (works in most modern browsers)
@@ -6397,7 +6421,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     if (!Array.isArray(pw_favorites)) pw_favorites = [];
                     if (data.user && data.user.username) {
                         currentUser = data.user;
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        localStorage.setItem('pw_currentUser', JSON.stringify(currentUser));
                     }
                     updateAuthButtons();
                         // Force re-render songs to update favorite icons for both tabs
@@ -6433,7 +6457,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const email = currentUser && currentUser.email ? currentUser.email : '';
                 let transpose = {};
                 try {
-                    transpose = JSON.parse(localStorage.getItem('transposeCache') || '{}');
+                    transpose = JSON.parse(localStorage.getItem('pw_transposeCache') || '{}');
                 } catch (e) { transpose = {}; }
                 const response = await authFetch(`${API_BASE_URL}/api/userdata`, {
                     method: 'PUT',
@@ -6609,7 +6633,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 searchHistory = searchHistory.slice(0, 10);
             }
     
-            localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+            localStorage.setItem('pw_searchHistory', JSON.stringify(searchHistory));
         }
 
         function getVocalTags(genres) {
@@ -6661,7 +6685,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             clearBtn.textContent = 'Clear History';
             clearBtn.addEventListener('click', () => {
                 searchHistory = [];
-                localStorage.setItem('searchHistory', JSON.stringify(searchHistory));
+                localStorage.setItem('pw_searchHistory', JSON.stringify(searchHistory));
                 dropdown.style.display = 'none';
             });
             dropdown.appendChild(clearBtn);
@@ -6967,8 +6991,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             // Clear all local storage
             localStorage.removeItem('songs');
             localStorage.removeItem('pw_favorites');
-            localStorage.removeItem('searchHistory');
-            localStorage.removeItem('darkMode');
+            localStorage.removeItem('pw_searchHistory');
+            localStorage.removeItem('pw_darkMode');
             localStorage.removeItem('sidebarHeader');
             localStorage.removeItem('setlistText');
             localStorage.removeItem('sidebarWidth');
@@ -7003,7 +7027,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             if (document.body.classList.contains('dark-mode')) {
                 document.body.classList.remove('dark-mode');
                 document.getElementById('themeToggle').innerHTML = '<i class="fas fa-moon"></i><span>Dark Mode</span>';
-                localStorage.setItem('darkMode', 'false');
+                localStorage.setItem('pw_darkMode', 'false');
             }
             
             // Show default view
@@ -7263,13 +7287,13 @@ window.viewSingleLyrics = function(songId, otherId) {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('jwtToken') || ''}`
+                        'Authorization': `Bearer ${localStorage.getItem('pw_jwtToken') || ''}`
                     },
                     body: JSON.stringify(weights)
                 });
                 if (res.ok) {
                     const data = await res.json();
-                    localStorage.setItem('recommendationWeights', JSON.stringify(weights));
+                    localStorage.setItem('pw_recommendationWeights', JSON.stringify(weights));
                     WEIGHTS = weights;
                     return { success: true, message: data.message || 'Weights updated' };
                 } else {
@@ -7287,11 +7311,11 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const res = await fetch(`${API_BASE_URL}/api/recommendation-weights`);
                 if (res.ok) {
                     const data = await res.json();
-                    const localLastModified = WEIGHTS.lastModified || localStorage.getItem('recommendationWeightsLastModified');
+                    const localLastModified = WEIGHTS.lastModified || localStorage.getItem('pw_recommendationWeightsLastModified');
                     if (!localLastModified || !data.lastModified || data.lastModified !== localLastModified) {
                         WEIGHTS = data;
-                        localStorage.setItem('recommendationWeights', JSON.stringify(data));
-                        localStorage.setItem('recommendationWeightsLastModified', data.lastModified || '');
+                        localStorage.setItem('pw_recommendationWeights', JSON.stringify(data));
+                        localStorage.setItem('pw_recommendationWeightsLastModified', data.lastModified || '');
                     }
                 }
             } catch (e) { /* fallback to local */ }
@@ -7440,10 +7464,10 @@ window.viewSingleLyrics = function(songId, otherId) {
                     // Update localStorage cache immediately regardless of backend result
                     let localTranspose = {};
                     try {
-                        localTranspose = JSON.parse(localStorage.getItem('transposeCache') || '{}');
+                        localTranspose = JSON.parse(localStorage.getItem('pw_transposeCache') || '{}');
                     } catch (e) { localTranspose = {}; }
                     localTranspose[song.id] = level;
-                    localStorage.setItem('transposeCache', JSON.stringify(localTranspose));
+                    localStorage.setItem('pw_transposeCache', JSON.stringify(localTranspose));
                 });
             }
             // Setup auto-scroll if needed
@@ -7504,7 +7528,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             let userData = {};
             let localTranspose = {};
             try {
-                localTranspose = JSON.parse(localStorage.getItem('transposeCache') || '{}');
+                localTranspose = JSON.parse(localStorage.getItem('pw_transposeCache') || '{}');
             } catch (e) { localTranspose = {}; }
             
             if (song.id && typeof localTranspose[song.id] === 'number') {
@@ -8781,7 +8805,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 });
                 
                 // Restore previous selection from localStorage on page load
-                const savedSelection = localStorage.getItem('selectedSetlist');
+                const savedSelection = localStorage.getItem('pw_selectedSetlist');
                 if (savedSelection) {
                     // Wait a bit for the dropdown to be populated, then restore selection
                     setTimeout(() => {
@@ -8986,7 +9010,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     };
                     try {
                         console.log(`🔄 Adding song to backend: ${newSong.title}`);
-                        const jwtToken = localStorage.getItem('jwtToken') || '';
+                        const jwtToken = localStorage.getItem('pw_jwtToken') || '';
                         const response = await fetch(`${API_BASE_URL}/api/songs`, {
                             method: 'POST',
                             headers: {
@@ -9938,7 +9962,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         }, { passive: true });
 
         async function removeAdminRole(userId) {
-    const jwtToken = localStorage.getItem('jwtToken');
+    const jwtToken = localStorage.getItem('pw_jwtToken');
     
     // Confirm action with user
     if (!confirm('Are you sure you want to remove admin role from this user?')) {

@@ -84,7 +84,7 @@
 
 <script>
 // Recommendation weights: loaded from backend or localStorage fallback
-let WEIGHTS = JSON.parse(localStorage.getItem('recommendationWeights')) || {
+let WEIGHTS = JSON.parse(localStorage.getItem('pw_recommendationWeights')) || {
     language: 20,
     scale: 25,
     timeSignature: 20,
@@ -101,7 +101,7 @@ async function fetchRecommendationWeights() {
         if (res.ok) {
             const data = await res.json();
             WEIGHTS = data;
-            localStorage.setItem('recommendationWeights', JSON.stringify(data));
+            localStorage.setItem('pw_recommendationWeights', JSON.stringify(data));
         }
     } catch (e) { /* fallback to local */ }
 }
@@ -112,13 +112,13 @@ async function saveRecommendationWeightsToBackend(weights) {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('jwtToken') || ''}`
+                'Authorization': `Bearer ${localStorage.getItem('pw_jwtToken') || ''}`
             },
             body: JSON.stringify(weights)
         });
         if (res.ok) {
             const data = await res.json();
-            localStorage.setItem('recommendationWeights', JSON.stringify(weights));
+            localStorage.setItem('pw_recommendationWeights', JSON.stringify(weights));
             WEIGHTS = weights;
             return { success: true, message: data.message || 'Weights updated' };
         } else {

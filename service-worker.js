@@ -1,7 +1,7 @@
 // Enhanced Progressive Web App Service Worker for Praise & Worship Songs
-const CACHE_NAME = 'praise-worship-ocean-v2.1';
-const STATIC_CACHE = 'praise-worship-static-v2.1';
-const API_CACHE = 'praise-worship-api-v2.1';
+const CACHE_NAME = 'pw-ocean-v2.1-UNIQUE';
+const STATIC_CACHE = 'pw-static-v2.1-UNIQUE';
+const API_CACHE = 'pw-api-v2.1-UNIQUE';
 
 // Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [

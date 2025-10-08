@@ -150,8 +150,8 @@ window.dataCache = {
 
 // Initialize cache from localStorage on page load
 try {
-    const storedSongs = localStorage.getItem('songs');
-    const storedSongsTimestamp = localStorage.getItem('songsTimestamp');
+    const storedSongs = localStorage.getItem('pw_songs');
+    const storedSongsTimestamp = localStorage.getItem('pw_songsTimestamp');
 
     function isCacheFresh(type, timestamp) {
         if (!timestamp) return false;
@@ -420,8 +420,8 @@ function updateSongInCache(song, isNewSong = false) {
     
     // Update localStorage with validation
     try {
-        localStorage.setItem('songs', JSON.stringify(window.dataCache.songs));
-        localStorage.setItem('songsTimestamp', Date.now().toString());
+    localStorage.setItem('pw_songs', JSON.stringify(window.dataCache.songs));
+    localStorage.setItem('pw_songsTimestamp', Date.now().toString());
         return true;
     } catch (error) {
         console.error(`❌ Failed to update localStorage:`, error);
@@ -672,8 +672,8 @@ async function loadSongsWithProgress(forceRefresh = false) {
         // Update both cache and localStorage
         window.dataCache.songs = unique;
         window.dataCache.lastFetch.songs = Date.now();
-        localStorage.setItem('songs', JSON.stringify(unique));
-        localStorage.setItem('songsTimestamp', Date.now().toString());
+    localStorage.setItem('pw_songs', JSON.stringify(unique));
+    localStorage.setItem('pw_songsTimestamp', Date.now().toString());
         updateProgress('processSongs'); // Mark processing as complete
         
         // Load user data if authenticated
@@ -3021,7 +3021,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             });
             if (resp.ok) {
                 songs = songs.filter(s => s.id !== songId);
-                localStorage.setItem('songs', JSON.stringify(songs));
+                localStorage.setItem('pw_songs', JSON.stringify(songs));
                 showNotification('Song deleted successfully');
                 if (typeof postDeleteCallback === 'function') postDeleteCallback();
             } else if (resp.status === 404) {
@@ -6170,7 +6170,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 }
             }
     
-            localStorage.setItem('songs', JSON.stringify(songs));
+            localStorage.setItem('pw_songs', JSON.stringify(songs));
             const embedded = document.getElementById('embeddedSongs');
             if (embedded) {
                 embedded.textContent = JSON.stringify(songs, null, 2);

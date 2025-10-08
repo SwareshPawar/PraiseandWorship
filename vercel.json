@@ -4,14 +4,14 @@
   "outputDirectory": ".",
   "installCommand": "npm install",
   "functions": {
-    "api/server.js": {
+    "api/index.js": {
       "includeFiles": "utils/**"
     }
   },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/server.js"
+      "destination": "/api/index.js"
     }
   ],
   "headers": [

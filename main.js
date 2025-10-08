@@ -91,9 +91,11 @@ const CHORD_TYPES = [
 ];
 
         // Dynamic API base URL for local/dev/prod
-        const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? 'http://localhost:3001'
-            : 'https://praiseandworship.onrender.com'; // Backend on Render
+                const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
+                const API_BASE_URL_VERCEL = 'https://praiseand-worship.vercel.app';
+                const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+                        ? 'http://localhost:3001'
+                        : API_BASE_URL_RENDER;
             // Frontend: Vercel (https://praiseand-worship.vercel.app)
             // Backend: Render (https://praiseandworship.onrender.com)
 
@@ -189,117 +191,59 @@ let initializationState = {
 async function authFetch(url, options = {}) {
     const headers = options.headers || {};
     if (jwtToken) headers.Authorization = `Bearer ${jwtToken}`;
-    
-    // Enhanced headers for cross-origin requests to Render backend
-    const isRenderBackend = url.includes('praiseandworship.onrender.com');
-    const isLocalDevelopment = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && 
-                              (url.includes('localhost') || url.includes('127.0.0.1'));
-    const isCrossOrigin = isRenderBackend && !isLocalDevelopment;
-    
-    if (isCrossOrigin) {
-        headers['Content-Type'] = headers['Content-Type'] || 'application/json';
-        headers['Accept'] = 'application/json';
-        // Don't add CORS headers in the request - let the server handle them
+
+    // Helper to build fetch options
+    function buildFetchOptions(url) {
+        const isRenderBackend = url.includes('praiseandworship.onrender.com');
+        const isLocalDevelopment = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && 
+                                  (url.includes('localhost') || url.includes('127.0.0.1'));
+        const isCrossOrigin = (isRenderBackend || url.includes('praiseand-worship.vercel.app')) && !isLocalDevelopment;
+        return {
+            ...options,
+            headers: {
+                ...headers,
+                'Content-Type': headers['Content-Type'] || 'application/json',
+                'Accept': headers['Accept'] || 'application/json'
+            },
+            mode: isCrossOrigin ? 'cors' : 'same-origin',
+            credentials: isCrossOrigin ? 'include' : 'same-origin'
+        };
     }
-    
-    // Retry configuration for Render backend cold starts
-    const maxRetries = isRenderBackend ? 3 : 1;
-    const baseDelay = 2000; // 2 seconds base delay
-    
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-        const isRetry = attempt > 0;
-        const timeoutDuration = isRenderBackend ? 60000 : (isCrossOrigin ? 45000 : 30000); // 60s for Render, 45s for other cross-origin
-        
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
-        
+
+    // Try Render backend first, then Vercel if Render fails
+    let lastError = null;
+    for (const backendUrl of [API_BASE_URL_RENDER, API_BASE_URL_VERCEL]) {
+        let fetchUrl = url;
+        if (url.startsWith(API_BASE_URL_RENDER) || url.startsWith(API_BASE_URL_VERCEL)) {
+            fetchUrl = backendUrl + url.substring(url.indexOf('/api/'));
+        }
         try {
-            if (isRetry) {
-                const delay = baseDelay * Math.pow(2, attempt - 1); // Exponential backoff: 2s, 4s, 8s
-                console.log(`🔄 Retry attempt ${attempt}/${maxRetries} for Render backend after ${delay}ms...`);
-                showNotification(`🔄 Retrying connection (${attempt}/${maxRetries}) - Render backend is waking up...`, 'info', 3000);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            } else if (isRenderBackend) {
-                console.log(`🌐 Render backend request (attempt ${attempt + 1}/${maxRetries + 1}):`, url);
+            const controller = new AbortController();
+            const timeoutDuration = backendUrl === API_BASE_URL_RENDER ? 60000 : 30000;
+            const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+            const fetchOptions = { ...buildFetchOptions(fetchUrl), signal: controller.signal };
+            const response = await fetch(fetchUrl, fetchOptions);
+            clearTimeout(timeoutId);
+            if (response.ok) {
+                if (backendUrl === API_BASE_URL_RENDER) {
+                    showNotification('✅ Connected to Render backend!', 'success', 2000);
+                } else {
+                    showNotification('✅ Connected to Vercel backend!', 'success', 2000);
+                }
+                return response;
             } else {
-                console.log(`🌐 ${isCrossOrigin ? 'Cross-origin' : 'Same-origin'} request to:`, url);
+                lastError = new Error(`Backend error (${response.status}) from ${backendUrl}`);
+                // If Render fails, try Vercel next
+                continue;
             }
-            
-            const fetchOptions = { 
-                ...options, 
-                headers,
-                signal: controller.signal,
-                mode: isCrossOrigin ? 'cors' : 'same-origin',
-                credentials: isCrossOrigin ? 'include' : 'same-origin'
-            };
-            
-            const response = await fetch(url, fetchOptions);
-            clearTimeout(timeoutId);
-            
-            // Handle different response statuses
-            if (!response.ok) {
-                if (isCrossOrigin && response.status === 0) {
-                    throw new Error('CORS_ERROR');
-                }
-                
-                // Render backend cold start (503) - retry if we have attempts left
-                if (isRenderBackend && response.status === 503 && attempt < maxRetries) {
-                    console.warn(`⚠️ Render backend cold start (503) - attempt ${attempt + 1}/${maxRetries + 1}`);
-                    clearTimeout(timeoutId);
-                    continue; // Retry
-                }
-                
-                // Other server errors
-                if (response.status >= 500) {
-                    const errorMessage = isRenderBackend && response.status === 503 
-                        ? 'Render backend is taking too long to wake up' 
-                        : `Backend server error (${response.status})`;
-                    throw new Error(errorMessage);
-                }
-                
-                // Client errors (4xx) - don't retry
-                if (response.status >= 400) {
-                    throw new Error(`Client error (${response.status})`);
-                }
-            }
-            
-            // Success! Clear any cold start notifications
-            if (isRetry && isRenderBackend) {
-                showNotification('✅ Connected to Render backend successfully!', 'success', 2000);
-            }
-            
-            return response;
-            
         } catch (error) {
-            clearTimeout(timeoutId);
-            
-            // Don't retry on certain errors
-            if (error.name === 'AbortError') {
-                const timeoutMessage = isRenderBackend 
-                    ? 'Render backend timeout - may be experiencing high load' 
-                    : 'Request timeout';
-                throw new Error(timeoutMessage);
-            }
-            
-            if (error.message === 'CORS_ERROR') {
-                throw new Error('Cross-origin request failed - CORS or network issue');
-            }
-            
-            // Network errors - retry for Render backend
-            if ((error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) && isRenderBackend && attempt < maxRetries) {
-                console.warn(`🌐 Network error for Render backend - attempt ${attempt + 1}/${maxRetries + 1}:`, error.message);
-                continue; // Retry
-            }
-            
-            // Final attempt failed or non-retryable error
-            if (attempt === maxRetries || !isRenderBackend) {
-                const finalError = isRenderBackend 
-                    ? 'Render backend unavailable after multiple attempts - may be experiencing issues'
-                    : (isCrossOrigin ? 'Cross-origin request failed' : 'Network request failed');
-                throw new Error(finalError);
-            }
+            lastError = error;
+            // If Render fails, try Vercel next
+            continue;
         }
     }
+    // If both backends fail, throw last error
+    throw lastError;
 }
 
 // Optimized fetch with caching (authFetch handles retries)

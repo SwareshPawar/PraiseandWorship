@@ -2450,7 +2450,7 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         let socket = null;
         // songs is now global - don't redeclare it here
         let lastSongsFetch = null; // ISO string of last fetch
-        let favorites = [];
+        let pw_favorites = [];
         let keepScreenOn = false;
         let autoScrollSpeed = localStorage.getItem('autoScrollSpeed') || 1500;
         let suggestedSongsDrawerOpen = false;
@@ -2662,9 +2662,24 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         });
         
         sortedUsers.forEach(user => {
+            let displayName = '';
+            if (user.username && user.username.trim()) {
+                displayName = user.username.trim();
+            } else if (user.name && user.name.trim()) {
+                displayName = user.name.trim();
+            } else if (user.firstName && user.firstName.trim()) {
+                displayName = user.firstName.trim();
+                if (user.lastName && user.lastName.trim()) {
+                    displayName += ' ' + user.lastName.trim();
+                }
+            } else if (user.email && user.email.trim()) {
+                displayName = user.email.trim();
+            } else {
+                displayName = 'Unknown User';
+            }
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td style="max-width:180px;overflow-wrap:break-word;">${user.username || 'Unknown User'}</td>
+                <td style="max-width:180px;overflow-wrap:break-word;">${displayName}</td>
                 <td>${user.isAdmin ? '<span class="admin-badge">Admin</span>' : ''}</td>
                 <td>
                     <button class="btn" ${user.isAdmin ? 'disabled' : ''} onclick="markAdmin('${user._id}')">Mark Admin</button>
@@ -5756,17 +5771,17 @@ window.viewSingleLyrics = function(songId, otherId) {
     
         function renderFavorites() {
             favoritesContent.innerHTML = '';
-            // Update favorites count in showFavoritesEl
+            // Update pw_favorites count in showFavoritesEl
             if (showFavoritesEl) {
-                showFavoritesEl.innerHTML = `Favorites (<span class="favorites-count">${favorites.length}</span>)`;
+                showFavoritesEl.innerHTML = `Favorites (<span class="pw_favorites-count">${pw_favorites.length}</span>)`;
             }
         
-            if (favorites.length === 0) {
+            if (pw_favorites.length === 0) {
                 favoritesContent.innerHTML = '<p>No favorite songs yet.</p>';
                 return;
             }
         
-            const favoriteSongs = songs.filter(song => favorites.includes(song.id));
+            const favoriteSongs = songs.filter(song => pw_favorites.includes(song.id));
             renderSongs(favoriteSongs, favoritesContent);
         }
 
@@ -5805,41 +5820,44 @@ window.viewSingleLyrics = function(songId, otherId) {
         function updateAuthButtons() {
             const isLoggedIn = !!jwtToken;
             const userGreeting = document.getElementById('userGreeting');
-            if (isLoggedIn && currentUser && currentUser.firstName && currentUser.lastName) {
-                userGreeting.textContent = `Hi, ${currentUser.firstName} ${currentUser.lastName}`;
-                userGreeting.style.display = 'block';
-            } else if (isLoggedIn && currentUser && currentUser.username) {
-                userGreeting.textContent = `Hi, ${currentUser.username}`;
-                userGreeting.style.display = 'block';
-            } else {
-                userGreeting.textContent = '';
-                userGreeting.style.display = 'none';
+            if (userGreeting) {
+                if (isLoggedIn && currentUser && currentUser.firstName && currentUser.lastName) {
+                    userGreeting.textContent = `Hi, ${currentUser.firstName} ${currentUser.lastName}`;
+                    userGreeting.style.display = 'block';
+                } else if (isLoggedIn && currentUser && currentUser.username) {
+                    userGreeting.textContent = `Hi, ${currentUser.username}`;
+                    userGreeting.style.display = 'block';
+                } else {
+                    userGreeting.textContent = '';
+                    userGreeting.style.display = 'none';
+                }
             }
-            document.getElementById('loginBtn').style.display = isLoggedIn ? 'none' : 'block';
-            document.getElementById('logoutBtn').style.display = isLoggedIn ? 'block' : 'none';
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) loginBtn.style.display = isLoggedIn ? 'none' : 'block';
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.style.display = isLoggedIn ? 'block' : 'none';
             const registerBtn = document.getElementById('registerBtn');
             if (registerBtn) registerBtn.style.display = isLoggedIn ? 'none' : 'block';
             const isAdminUser = isAdmin();
-            document.getElementById('adminPanelBtn').style.display = isAdminUser ? 'block' : 'none';
-            if (isAdminUser) {
-                document.getElementById('deleteAllSongsBtn').style.display = 'block';
-            } else {
-                document.getElementById('deleteAllSongsBtn').style.display = 'none';
-            }
+            const adminPanelBtn = document.getElementById('adminPanelBtn');
+            if (adminPanelBtn) adminPanelBtn.style.display = isAdminUser ? 'block' : 'none';
+            const deleteAllSongsBtn = document.getElementById('deleteAllSongsBtn');
+            if (deleteAllSongsBtn) deleteAllSongsBtn.style.display = isAdminUser ? 'block' : 'none';
             if (!isLoggedIn) {
-                document.getElementById('deleteSection').style.display = 'none';
+                const deleteSection = document.getElementById('deleteSection');
+                if (deleteSection) deleteSection.style.display = 'none';
             }
 
             // Update setlist add button visibility
             const addGlobalSetlistBtn = document.getElementById('addGlobalSetlistBtn');
             const addMySetlistBtn = document.getElementById('addMySetlistBtn');
-            
-            if (addGlobalSetlistBtn) {
-                addGlobalSetlistBtn.style.display = (isAdminUser && document.getElementById('globalSetlistContent')?.style.display === 'block') ? 'block' : 'none';
+            const globalSetlistContent = document.getElementById('globalSetlistContent');
+            const mySetlistContent = document.getElementById('mySetlistContent');
+            if (addGlobalSetlistBtn && globalSetlistContent) {
+                addGlobalSetlistBtn.style.display = (isAdminUser && globalSetlistContent.style.display === 'block') ? 'block' : 'none';
             }
-            
-            if (addMySetlistBtn) {
-                addMySetlistBtn.style.display = (isLoggedIn && document.getElementById('mySetlistContent')?.style.display === 'block') ? 'block' : 'none';
+            if (addMySetlistBtn && mySetlistContent) {
+                addMySetlistBtn.style.display = (isLoggedIn && mySetlistContent.style.display === 'block') ? 'block' : 'none';
             }
         }
 
@@ -5891,9 +5909,24 @@ window.viewSingleLyrics = function(songId, otherId) {
         });
         
         sortedUsers.forEach(user => {
+            let displayName = '';
+            if (user.username && user.username.trim()) {
+                displayName = user.username.trim();
+            } else if (user.name && user.name.trim()) {
+                displayName = user.name.trim();
+            } else if (user.firstName && user.firstName.trim()) {
+                displayName = user.firstName.trim();
+                if (user.lastName && user.lastName.trim()) {
+                    displayName += ' ' + user.lastName.trim();
+                }
+            } else if (user.email && user.email.trim()) {
+                displayName = user.email.trim();
+            } else {
+                displayName = 'Unknown User';
+            }
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${user.username || 'Unknown User'}</td>
+                <td>${displayName}</td>
                 <td>${user.isAdmin ? '<span style=\"color:green;font-weight:bold;\">Admin</span>' : ''}</td>
                 <td>
                     <button class=\"btn\" ${user.isAdmin ? 'disabled' : ''} onclick=\"markAdmin('${user._id}')\">Mark Admin</button>
@@ -6156,9 +6189,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const response = await cachedFetch(`${API_BASE_URL}/api/userdata`);
                 if (response.ok) {
                     const data = await response.json();
-                    // Always update favorites from backend
-                    favorites = Array.isArray(data.favorites) ? data.favorites : [];
-                    if (!Array.isArray(favorites)) favorites = [];
+                    // Always update pw_favorites from backend (map from favorites)
+                    pw_favorites = Array.isArray(data.favorites) ? data.favorites : [];
+                    if (!Array.isArray(pw_favorites)) pw_favorites = [];
                     if (data.user && data.user.username) {
                         currentUser = data.user;
                         localStorage.setItem('currentUser', JSON.stringify(currentUser));
@@ -6168,7 +6201,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                         const filters = getCurrentFilterValues();
                         renderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                         renderSongs('Worship', filters.key, filters.genre, filters.mood, filters.artist);
-                        // Always re-render favorites list after loading
+                        // Always re-render pw_favorites list after loading
                         if (typeof renderFavorites === 'function') {
                             renderFavorites();
                         }
@@ -6190,8 +6223,8 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         async function saveUserData() {
             try {
-                // No cap on favorites, send all
-                const limitedFavorites = Array.isArray(favorites) ? favorites : [];
+                // No cap on pw_favorites, send all
+                const limitedFavorites = Array.isArray(pw_favorites) ? pw_favorites : [];
                 // Use name, email, transpose as expected by backend
                 const name = currentUser && currentUser.username ? currentUser.username : '';
                 const email = currentUser && currentUser.email ? currentUser.email : '';
@@ -6234,14 +6267,14 @@ window.viewSingleLyrics = function(songId, otherId) {
         //     if (success) {
         //         showNotification('Favorites saved!');
         //     } else {
-        //         showNotification('Failed to save favorites.');
+        //         showNotification('Failed to save pw_favorites.');
         //     }
         // });
     
         function downloadSongs() {
             const data = {
                 songs: songs,
-                favorites: favorites
+                pw_favorites: pw_favorites
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
@@ -6263,7 +6296,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     const data = JSON.parse(e.target.result);
                     if (data.songs && Array.isArray(data.songs)) {
                         songs = data.songs;
-                        favorites = data.favorites || [];
+                        pw_favorites = data.pw_favorites || [];
                         saveSongs();
                         queueSaveUserData();
                         
@@ -6627,7 +6660,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 }
                 // No fallback to old system - if no setlist selected, buttons show "Add"
                 
-                const isFavorite = Array.isArray(favorites) && favorites.includes(song.id);
+                const isFavorite = Array.isArray(pw_favorites) && pw_favorites.includes(song.id);
                 const displayGenres = song.genres ? song.genres.join(', ') : song.genre || '';
                 div.innerHTML = `
                 <div class="song-header">
@@ -6723,14 +6756,14 @@ window.viewSingleLyrics = function(songId, otherId) {
         function resetApplicationState() {
             // Clear all data from memory
             songs = [];
-            favorites = [];
+            pw_favorites = [];
             searchHistory = [];
             navigationHistory = [];
             currentHistoryPosition = -1;
             
             // Clear all local storage
             localStorage.removeItem('songs');
-            localStorage.removeItem('favorites');
+            localStorage.removeItem('pw_favorites');
             localStorage.removeItem('searchHistory');
             localStorage.removeItem('darkMode');
             localStorage.removeItem('sidebarHeader');
@@ -7257,11 +7290,11 @@ window.viewSingleLyrics = function(songId, otherId) {
             songPreviewEl.dataset.originalLyrics = song.lyrics;
             songPreviewEl.dataset.originalKey = song.key;
 
-            // Check if song is in current setlist and favorites
+            // Check if song is in current setlist and pw_favorites
             const setlistDropdown = document.getElementById('setlistDropdown');
             const currentSetlistValue = setlistDropdown ? setlistDropdown.value : '';
             const isInSetlist = currentSetlistValue ? isSongInCurrentSetlist(song.id, currentSetlistValue) : false;
-            const isFavorite = favorites.includes(song.id);
+            const isFavorite = pw_favorites.includes(song.id);
 
             // Use localStorage for transpose cache, update only on page refresh
             let transposeLevel = 0;
@@ -8047,20 +8080,20 @@ window.viewSingleLyrics = function(songId, otherId) {
     
         function toggleFavorite(id) {
             if (!jwtToken) {
-                showNotification('Please login to add songs to your favorites.');
+                showNotification('Please login to add songs to your pw_favorites.');
                 return;
             }
-            const index = favorites.indexOf(id);
+            const index = pw_favorites.indexOf(id);
             const song = songs.find(s => s.id === id);
             let nowFavorite;
             if (index === -1) {
-                favorites.push(id);
+                pw_favorites.push(id);
                 nowFavorite = true;
             } else {
-                favorites.splice(index, 1);
+                pw_favorites.splice(index, 1);
                 nowFavorite = false;
             }
-            showNotification(`"${song.title}" ${nowFavorite ? 'added to' : 'removed from'} favorites`);
+            showNotification(`"${song.title}" ${nowFavorite ? 'added to' : 'removed from'} pw_favorites`);
             queueSaveUserData();
             const favButtons = document.querySelectorAll(`.favorite-btn[data-song-id="${id}"]`);
             favButtons.forEach(btn => {
@@ -8232,7 +8265,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             if (deleteSection.style.display === 'block') {
                 return songs.slice().sort((a, b) => a.title.localeCompare(b.title));
             } else if (favoritesSection.style.display === 'block') {
-                return songs.filter(song => favorites.includes(song.id));
+                return songs.filter(song => pw_favorites.includes(song.id));
             } else if (setlistSection.style.display === 'block') {
                 // Use dropdown-based setlist system
                 const setlistDropdown = document.getElementById('setlistDropdown');
@@ -8944,7 +8977,7 @@ window.viewSingleLyrics = function(songId, otherId) {
     
             confirmDeleteAll.addEventListener('click', () => {
                 songs = [];
-                favorites = [];
+                pw_favorites = [];
                 saveSongs();
                 queueSaveUserData();
                 

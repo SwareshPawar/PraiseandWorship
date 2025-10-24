@@ -89,7 +89,7 @@ const PW_CHORD_TYPES = [
                 const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
                 const API_BASE_URL_VERCEL = 'https://praiseand-worship.vercel.app';
                 let API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                        ? 'http://localhost:3002'
+                        ? 'http://localhost:3001'
                         : API_BASE_URL_RENDER;
 
                 // Admin-configurable backend switching for production
@@ -239,9 +239,19 @@ async function authFetch(url, options = {}) {
     // Helper to build fetch options
     function buildFetchOptions(url) {
     const isRenderBackend = url.includes(API_BASE_URL_RENDER);
-    const isLocalDevelopment = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && 
-                  (url.includes('localhost') || url.includes('127.0.0.1'));
-    const isCrossOrigin = (isRenderBackend || url.includes(API_BASE_URL_VERCEL)) && !isLocalDevelopment;
+    const isVercelBackend = url.includes(API_BASE_URL_VERCEL);
+    const isLocalFrontend = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const isLocalBackend = url.includes('localhost') || url.includes('127.0.0.1');
+    const isExternalBackend = isRenderBackend || isVercelBackend;
+    
+    // Use CORS in these cases:
+    // 1. External backends (Render/Vercel) from any frontend
+    // 2. Local backend from local frontend but different ports (localhost:5500 -> localhost:3001)
+    const frontendOrigin = `${window.location.protocol}//${window.location.host}`;
+    const backendUrl = new URL(url);
+    const backendOrigin = `${backendUrl.protocol}//${backendUrl.host}`;
+    const shouldUseCors = frontendOrigin !== backendOrigin;
+    
         return {
             ...options,
             headers: {
@@ -249,8 +259,8 @@ async function authFetch(url, options = {}) {
                 'Content-Type': headers['Content-Type'] || 'application/json',
                 'Accept': headers['Accept'] || 'application/json'
             },
-            mode: isCrossOrigin ? 'cors' : 'same-origin',
-            credentials: isCrossOrigin ? 'include' : 'same-origin'
+            mode: shouldUseCors ? 'cors' : 'same-origin',
+            credentials: shouldUseCors ? 'include' : 'same-origin'
         };
     }
 
@@ -897,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorDiv.style.display = 'none';
             errorDiv.textContent = '';
             try {
-                const res = await fetch(`${API_BASE_URL}/api/register`, {
+                const res = await authFetch(`${API_BASE_URL}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ firstName, lastName, username, email, phone, password })
@@ -929,7 +939,7 @@ document.addEventListener('DOMContentLoaded', () => {
             errorDiv.style.display = 'none';
             errorDiv.textContent = '';
             try {
-                const res = await fetch(`${API_BASE_URL}/api/login`, {
+                const res = await authFetch(`${API_BASE_URL}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ usernameOrEmail: loginInput, password })
@@ -2941,8 +2951,14 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         }, 1000);
     }
 
-    async function checkBackendHealth(url, name) {
+    async function checkSpecificBackendHealth(url, name) {
         try {
+            // Validate URL parameter
+            if (!url) {
+                console.error('❌ checkSpecificBackendHealth called with undefined URL');
+                return { status: 'error', message: '❌ Invalid URL' };
+            }
+            
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
             
@@ -2975,8 +2991,8 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         
         // Check both backends in parallel
         const [renderHealth, vercelHealth] = await Promise.all([
-            checkBackendHealth(API_BASE_URL_RENDER, 'Render'),
-            checkBackendHealth(API_BASE_URL_VERCEL, 'Vercel')
+            checkSpecificBackendHealth(API_BASE_URL_RENDER, 'Render'),
+            checkSpecificBackendHealth(API_BASE_URL_VERCEL, 'Vercel')
         ]);
         
         renderStatusEl.textContent = renderHealth.message;
@@ -7283,7 +7299,7 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         async function saveRecommendationWeightsToBackend(weights) {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/recommendation-weights`, {
+                const res = await authFetch(`${API_BASE_URL}/api/recommendation-weights`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -7308,7 +7324,7 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         async function fetchRecommendationWeights() {
             try {
-                const res = await fetch(`${API_BASE_URL}/api/recommendation-weights`);
+                const res = await authFetch(`${API_BASE_URL}/api/recommendation-weights`);
                 if (res.ok) {
                     const data = await res.json();
                     const localLastModified = WEIGHTS.lastModified || localStorage.getItem('pw_recommendationWeightsLastModified');

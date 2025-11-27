@@ -835,7 +835,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof updateAuthButtons === 'function') updateAuthButtons();
         });
     } else if (!isJwtValid(jwtToken)) {
-        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('pw_jwtToken');
         jwtToken = '';
         if (typeof updateAuthButtons === 'function') updateAuthButtons();
     }
@@ -5939,12 +5939,28 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
 
         function logout() {
+            // Prevent multiple logout calls
+            if (!jwtToken && !currentUser) {
+                return;
+            }
+            
+            console.log('🔓 Logging out user...');
+            
+            // Clear all authentication data
             jwtToken = '';
-            localStorage.removeItem('jwtToken');
             currentUser = null;
-            localStorage.removeItem('currentUser');
-            showNotification('Logged out');
+            
+            // Remove from localStorage with correct keys
+            localStorage.removeItem('pw_jwtToken');
+            localStorage.removeItem('pw_currentUser');
+            
+            // Clear any other user-specific data
+            pw_favorites = [];
+            localStorage.removeItem('pw_favorites');
+            
+            showNotification('Logged out successfully');
             updateAuthButtons();
+            
             // Reload page after logout to ensure all admin UI is removed
             setTimeout(() => { window.location.reload(); }, 500);
         }

@@ -3503,7 +3503,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
     }
 
-    // Initialize song selection with checkboxes for setlist creation (Old and New songs)
+    // Initialize song selection with checkboxes for setlist creation (Worship and Praise songs)
     function initializeSetlistSongSelection(prefix) {
         const searchInput = document.getElementById(`${prefix}SetlistSongSearch`);
         const worshipSongList = document.getElementById(`${prefix}WorshipSongSelectionList`);
@@ -3651,8 +3651,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             filteredPraiseSongs = applyFilters(praiseSongs);
             
             // Update counts
-            if (oldSongsCount) oldSongsCount.textContent = filteredWorshipSongs.length;
-            if (newSongsCount) newSongsCount.textContent = filteredPraiseSongs.length;
+            if (worshipSongsCount) worshipSongsCount.textContent = filteredWorshipSongs.length;
+            if (praiseSongsCount) praiseSongsCount.textContent = filteredPraiseSongs.length;
             
             return { worshipSongs: filteredWorshipSongs, praiseSongs: filteredPraiseSongs };
         }
@@ -3666,8 +3666,8 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         // Render both worship and praise song lists
         function renderSongLists() {
-            renderSongList(oldSongList, filteredWorshipSongs, 'worship');
-            renderSongList(newSongList, filteredPraiseSongs, 'praise');
+            renderSongList(worshipSongList, filteredWorshipSongs, 'worship');
+            renderSongList(praiseSongList, filteredPraiseSongs, 'praise');
         }
 
         // Render a specific song list with checkboxes
@@ -3870,8 +3870,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             const currentFilteredWorshipSongs = applyFilters(worshipSongs);
             const currentFilteredPraiseSongs = applyFilters(praiseSongs);
             
-            updateSelectAllState(selectAllOldCheckbox, currentFilteredWorshipSongs, 'worship');
-            updateSelectAllState(selectAllNewCheckbox, currentFilteredPraiseSongs, 'praise');
+            updateSelectAllState(selectAllWorshipCheckbox, currentFilteredWorshipSongs, 'worship');
+            updateSelectAllState(selectAllPraiseCheckbox, currentFilteredPraiseSongs, 'praise');
         }
 
         // Update select all checkbox state for a specific category
@@ -3916,11 +3916,11 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
 
         // Event listeners for select all checkboxes
-        selectAllOldCheckbox.addEventListener('change', (e) => {
+        selectAllWorshipCheckbox.addEventListener('change', (e) => {
             handleSelectAll(e.target, filteredWorshipSongs);
         });
 
-        selectAllNewCheckbox.addEventListener('change', (e) => {
+        selectAllPraiseCheckbox.addEventListener('change', (e) => {
             handleSelectAll(e.target, filteredPraiseSongs);
         });
 
@@ -4003,19 +4003,19 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
             
             // Song selection tabs
-            if (oldSongsTab && newSongsTab && oldSongsContent && newSongsContent) {
-                oldSongsTab.addEventListener('click', () => {
-                    oldSongsTab.classList.add('active');
-                    newSongsTab.classList.remove('active');
-                    oldSongsContent.classList.add('active');
-                    newSongsContent.classList.remove('active');
+            if (worshipSongsTab && praiseSongsTab && worshipSongsContent && praiseSongsContent) {
+                worshipSongsTab.addEventListener('click', () => {
+                    worshipSongsTab.classList.add('active');
+                    praiseSongsTab.classList.remove('active');
+                    worshipSongsContent.classList.add('active');
+                    praiseSongsContent.classList.remove('active');
                 });
 
-                newSongsTab.addEventListener('click', () => {
-                    newSongsTab.classList.add('active');
-                    oldSongsTab.classList.remove('active');
-                    newSongsContent.classList.add('active');
-                    oldSongsContent.classList.remove('active');
+                praiseSongsTab.addEventListener('click', () => {
+                    praiseSongsTab.classList.add('active');
+                    worshipSongsTab.classList.remove('active');
+                    praiseSongsContent.classList.add('active');
+                    worshipSongsContent.classList.remove('active');
                 });
             }
             
@@ -4079,14 +4079,14 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
 
         // Event listeners for select all checkboxes
-        if (selectAllOldCheckbox) {
-            selectAllOldCheckbox.addEventListener('change', (e) => {
+        if (selectAllWorshipCheckbox) {
+            selectAllWorshipCheckbox.addEventListener('change', (e) => {
                 handleSelectAll(e.target, filteredWorshipSongs);
             });
         }
 
-        if (selectAllNewCheckbox) {
-            selectAllNewCheckbox.addEventListener('change', (e) => {
+        if (selectAllPraiseCheckbox) {
+            selectAllPraiseCheckbox.addEventListener('change', (e) => {
                 handleSelectAll(e.target, filteredPraiseSongs);
             });
         }
@@ -6523,7 +6523,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'Old-songs.json';
+            a.download = 'songs-backup.json';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);

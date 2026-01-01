@@ -92,11 +92,11 @@ const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
 const API_BASE_URL_VERCEL = 'https://praiseand-worship.vercel.app';
 let API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:3001'
-        : API_BASE_URL_VERCEL; // Default to Vercel for production
+        : API_BASE_URL_RENDER; // Fallback to Render for now due to Vercel API issues
 
 // Admin-configurable backend switching for production
 function getStoredBackend() {
-    return localStorage.getItem('pw_admin_backend') || 'vercel'; // Default to Vercel
+    return localStorage.getItem('pw_admin_backend') || 'render'; // Default back to Render for now
 }
 
 function setBackend(backend) {
@@ -8106,6 +8106,13 @@ window.viewSingleLyrics = function(songId, otherId) {
                     showNotification('❌ Error adding song to setlist', 'error');
                 }
                 console.error('Error adding song to setlist:', error);
+                
+                // Try switching to Render backend if Vercel fails
+                if (API_BASE_URL.includes('vercel.app') && !window.location.hostname.includes('localhost')) {
+                    console.log('🔄 Vercel API failed, trying to switch to Render backend...');
+                    setBackend('render');
+                    showNotification('Switching to backup server, please try again in a moment', 'info');
+                }
             });
         }
 
@@ -8183,6 +8190,13 @@ window.viewSingleLyrics = function(songId, otherId) {
                     showNotification('❌ Error removing song from setlist', 'error');
                 }
                 console.error('Error removing song from setlist:', error);
+                
+                // Try switching to Render backend if Vercel fails
+                if (API_BASE_URL.includes('vercel.app') && !window.location.hostname.includes('localhost')) {
+                    console.log('🔄 Vercel API failed, trying to switch to Render backend...');
+                    setBackend('render');
+                    showNotification('Switching to backup server, please try again in a moment', 'info');
+                }
             });
         }
 

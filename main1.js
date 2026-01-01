@@ -1,10 +1,12 @@
-// Register service worker for PWA installability
-if ('serviceWorker' in navigator) {
+// Register service worker for PWA installability (skip on localhost)
+if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js')
             .then(reg => console.log('Service Worker registered:', reg))
             .catch(err => console.warn('Service Worker registration failed:', err));
     });
+} else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    console.log('Service Worker: Skipped registration for localhost development');
 }
 // --- GLOBAL CONSTANTS AND VARIABLES ---
 // --- Cache expiry times in milliseconds (move to top to avoid ReferenceError) ---
@@ -85,36 +87,36 @@ const PW_CHORD_TYPES = [
     "13", "11", "9", "7", "6", "5" // Basic numbered chords (7 should come last)
 ];
 
-        // Dynamic API base URL for local/dev/prod
-                const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
-                const API_BASE_URL_VERCEL = 'https://praiseand-worship.vercel.app';
-                let API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-                        ? 'http://localhost:3001'
-                        : API_BASE_URL_RENDER;
+// Dynamic API base URL for local/dev/prod (Global scope)
+const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
+const API_BASE_URL_VERCEL = 'https://praiseand-worship.vercel.app';
+let API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+        ? 'http://localhost:3001'
+        : API_BASE_URL_VERCEL; // Default to Vercel for production
 
-                // Admin-configurable backend switching for production
-                function getStoredBackend() {
-                    return localStorage.getItem('pw_admin_backend') || 'render';
-                }
+// Admin-configurable backend switching for production
+function getStoredBackend() {
+    return localStorage.getItem('pw_admin_backend') || 'vercel'; // Default to Vercel
+}
 
-                function setBackend(backend) {
-                    if (backend === 'vercel') {
-                        API_BASE_URL = API_BASE_URL_VERCEL;
-                    } else {
-                        API_BASE_URL = API_BASE_URL_RENDER;
-                    }
-                    localStorage.setItem('pw_admin_backend', backend);
-                    console.log('🔄 Backend switched to:', backend.toUpperCase(), '- URL:', API_BASE_URL);
-                }
+function setBackend(backend) {
+    if (backend === 'vercel') {
+        API_BASE_URL = API_BASE_URL_VERCEL;
+    } else {
+        API_BASE_URL = API_BASE_URL_RENDER;
+    }
+    localStorage.setItem('pw_admin_backend', backend);
+    console.log('🔄 Backend switched to:', backend.toUpperCase(), '- URL:', API_BASE_URL);
+}
 
-                // Initialize backend based on stored preference (production only)
-                if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-                    setBackend(getStoredBackend());
-                }
-            // Frontend: Vercel (https://praiseand-worship.vercel.app)
-            // Backend: Render (https://praiseandworship.onrender.com)
+// Initialize backend based on stored preference (production only)
+if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    setBackend(getStoredBackend());
+}
+// Frontend: Vercel (https://praiseand-worship.vercel.app)
+// Backend: Render (https://praiseandworship.onrender.com)
 
-            console.log('API_BASE_URL:', API_BASE_URL);
+console.log('API_BASE_URL:', API_BASE_URL);
 
 // --- CHORD REGEXES: always use CHORD_TYPES ---
 const PW_CHORDS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B"];
@@ -8056,6 +8058,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
 
             // Make API call to add song to the specific setlist
+            console.log('🔄 Adding song to setlist:', { apiEndpoint, setlistId, songId: song.id, API_BASE_URL });
             fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
@@ -8068,8 +8071,12 @@ window.viewSingleLyrics = function(songId, otherId) {
                 })
             })
             .then(response => {
+                console.log('📡 Add song response:', { status: response.status, statusText: response.statusText, url: response.url });
                 if (response.status === 403) {
                     throw new Error('FORBIDDEN_ACCESS');
+                }
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 return response.json();
             })
@@ -8127,6 +8134,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
 
 
+            console.log('🔄 Removing song from setlist:', { apiEndpoint, setlistId, songId, API_BASE_URL });
             fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
@@ -8139,8 +8147,12 @@ window.viewSingleLyrics = function(songId, otherId) {
                 })
             })
             .then(response => {
+                console.log('📡 Remove song response:', { status: response.status, statusText: response.statusText, url: response.url });
                 if (response.status === 403) {
                     throw new Error('FORBIDDEN_ACCESS');
+                }
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 return response.json();
             })

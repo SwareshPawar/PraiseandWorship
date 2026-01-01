@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Service Worker - P&W Songs</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            text-align: center;
+            background: #d4f1f4;
+            color: #05445e;
+        }
+        .btn {
+            padding: 12px 24px;
+            margin: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            background: #05445e;
+            color: white;
+        }
+        .btn:hover { background: #0367A6; }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.7);
+        }
+    </style>
+</head>
+<body>
+    <h1>Service Worker Fix</h1>
+    <p>Click the button below to clear the service worker and fix the 503 error:</p>
+    
+    <button class="btn" onclick="clearServiceWorker()">Clear Service Worker</button>
+    <button class="btn" onclick="window.location.href='index.html'">Go to Main App</button>
+    
+    <div class="status" id="status">Ready to clear service worker...</div>
+
+    <script>
+        async function clearServiceWorker() {
+            const statusDiv = document.getElementById('status');
+            
+            try {
+                statusDiv.innerHTML = 'Clearing service worker...';
+                
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                        console.log('Service worker unregistered:', registration);
+                    }
+                    
+                    // Clear all caches
+                    const cacheNames = await caches.keys();
+                    for (const cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                        console.log('Cache deleted:', cacheName);
+                    }
+                    
+                    statusDiv.innerHTML = '✅ Service worker cleared! You can now refresh the page or click "Go to Main App"';
+                    statusDiv.style.background = '#d4edda';
+                } else {
+                    statusDiv.innerHTML = '❌ Service workers not supported in this browser';
+                    statusDiv.style.background = '#f8d7da';
+                }
+            } catch (error) {
+                console.error('Error clearing service worker:', error);
+                statusDiv.innerHTML = '❌ Error clearing service worker: ' + error.message;
+                statusDiv.style.background = '#f8d7da';
+            }
+        }
+
+        // Check if service worker is active
+        window.addEventListener('load', async () => {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                if (registrations.length > 0) {
+                    document.getElementById('status').innerHTML = 
+                        `⚠️ Found ${registrations.length} active service worker(s). Click "Clear Service Worker" to remove them.`;
+                    document.getElementById('status').style.background = '#fff3cd';
+                } else {
+                    document.getElementById('status').innerHTML = '✅ No active service workers found.';
+                    document.getElementById('status').style.background = '#d4edda';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

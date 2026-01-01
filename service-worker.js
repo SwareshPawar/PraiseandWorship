@@ -33,6 +33,17 @@ const API_ENDPOINTS = [
 self.addEventListener('install', (event) => {
   console.log('Service Worker: Installing Ocean Theme PWA v2.1');
   
+  // Skip caching in development (localhost)
+  const isLocalhost = self.location.hostname === 'localhost' || 
+                     self.location.hostname === '127.0.0.1' ||
+                     self.location.hostname === '';
+  
+  if (isLocalhost) {
+    console.log('Service Worker: Skipping caching for localhost development');
+    self.skipWaiting();
+    return;
+  }
+  
   event.waitUntil(
     Promise.all([
       // Cache static resources

@@ -10088,7 +10088,11 @@ function showPasswordResetNotification(message, isError = false) {
 // Initiate password reset (send OTP)
 async function initiatePasswordReset(identifier, method) {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/forgot-password`, {
+        // Use Vercel for password reset since Render blocks SMTP
+        const passwordResetUrl = `${API_BASE_URL_VERCEL}/api/forgot-password`;
+        console.log('🔐 Using Vercel for password reset:', passwordResetUrl);
+        
+        const response = await fetch(passwordResetUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -10106,7 +10110,7 @@ async function initiatePasswordReset(identifier, method) {
             document.getElementById('forgotPasswordSuccess').textContent = data.message;
             document.getElementById('forgotPasswordSuccess').style.display = 'block';
             
-            console.log('✅ Email sent successfully, showing OTP modal in 1.5 seconds');
+            console.log('✅ Password reset request successful via Vercel');
             setTimeout(() => {
                 console.log('🔄 Switching to OTP modal');
                 hidePasswordResetModals();
@@ -10120,6 +10124,7 @@ async function initiatePasswordReset(identifier, method) {
             return { success: false, error: data.error };
         }
     } catch (error) {
+        console.error('Password reset error:', error);
         const errorMsg = 'Network error. Please check your connection.';
         document.getElementById('forgotPasswordError').textContent = errorMsg;
         document.getElementById('forgotPasswordError').style.display = 'block';
@@ -10154,7 +10159,8 @@ async function verifyOtpAndResetPassword(otp, newPassword) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/reset-password`, {
+        // Use Vercel for password reset completion
+        const response = await fetch(`${API_BASE_URL_VERCEL}/api/reset-password`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -10173,6 +10179,7 @@ async function verifyOtpAndResetPassword(otp, newPassword) {
             currentResetData = null;
             hidePasswordResetModals();
             showPasswordResetNotification('Password reset successfully! You can now login with your new password.', false);
+            console.log('✅ Password reset completed successfully via Vercel');
             return { success: true };
         } else {
             document.getElementById('otpError').textContent = data.error;
@@ -10180,6 +10187,7 @@ async function verifyOtpAndResetPassword(otp, newPassword) {
             return { success: false, error: data.error };
         }
     } catch (error) {
+        console.error('Password reset completion error:', error);
         const errorMsg = 'Network error. Please try again.';
         document.getElementById('otpError').textContent = errorMsg;
         document.getElementById('otpError').style.display = 'block';

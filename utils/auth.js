@@ -179,6 +179,11 @@ async function verifyOTP(db, identifier, otp, type = 'email') {
 async function sendEmailOTP(email, otp, firstName = 'User') {
   console.log(`📧 Attempting to send email OTP to ${email}`);
   
+  // In production, if we're using SendGrid
+  if (process.env.NODE_ENV === 'production' && process.env.SENDGRID_API_KEY) {
+    return await sendEmailViaSendGrid(email, otp, firstName);
+  }
+  
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
     console.error('❌ Email credentials not configured');
     throw new Error('Email service not configured. Please use SMS option or contact administrator.');
@@ -217,6 +222,9 @@ async function sendEmailOTP(email, otp, firstName = 'User') {
     console.log(`✅ Email sent successfully to ${email}`);
   } catch (error) {
     console.error('❌ Email sending error:', error);
+    if (error.code === 'ETIMEDOUT' || error.code === 'ECONNECTION') {
+      throw new Error('Email service temporarily unavailable. Please use SMS option or try again later.');
+    }
     if (error.code === 'EAUTH' || error.message.includes('Username and Password not accepted')) {
       throw new Error('Invalid email credentials. Please check your Gmail app password setup.');
     }

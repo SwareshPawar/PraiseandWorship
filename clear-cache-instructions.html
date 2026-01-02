@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Cache Instructions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .step {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .step h3 {
+            color: #2563eb;
+            margin-top: 0;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .button {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin: 10px 5px;
+            cursor: pointer;
+            border: none;
+            font-size: 14px;
+        }
+        .button:hover {
+            background: #1d4ed8;
+        }
+        .warning {
+            background: #fef3c7;
+            padding: 15px;
+            border-left: 4px solid #f59e0b;
+            margin: 15px 0;
+        }
+        .success {
+            background: #d1fae5;
+            padding: 15px;
+            border-left: 4px solid #10b981;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔄 Force Cache Clear & Reload</h1>
+    
+    <div class="warning">
+        <strong>⚠️ Important:</strong> Your browser is serving the OLD cached version of main1.js. 
+        The fixes have been applied to the file, but you need to clear the cache to see them.
+    </div>
+
+    <div class="step">
+        <h3>Method 1: Hard Refresh (Quick)</h3>
+        <ol>
+            <li>Press <code>Ctrl + Shift + R</code> (Windows/Linux) or <code>Cmd + Shift + R</code> (Mac)</li>
+            <li>Or press <code>Ctrl + F5</code> (Windows)</li>
+        </ol>
+        <button class="button" onclick="location.reload(true)">🔄 Hard Reload This Page</button>
+    </div>
+
+    <div class="step">
+        <h3>Method 2: Clear Service Worker (Recommended)</h3>
+        <ol>
+            <li>Open DevTools: Press <code>F12</code> or <code>Ctrl + Shift + I</code></li>
+            <li>Go to <strong>Application</strong> tab (or <strong>Storage</strong> in Firefox)</li>
+            <li>Click <strong>Service Workers</strong> in the left sidebar</li>
+            <li>Find your service worker and click <strong>Unregister</strong></li>
+            <li>Go to <strong>Storage</strong> section in left sidebar</li>
+            <li>Click <strong>Clear site data</strong> button</li>
+            <li>Close DevTools and refresh the page with <code>Ctrl + F5</code></li>
+        </ol>
+        <button class="button" onclick="unregisterServiceWorkers()">🗑️ Unregister Service Workers</button>
+        <button class="button" onclick="clearAllCaches()">🗑️ Clear All Caches</button>
+    </div>
+
+    <div class="step">
+        <h3>Method 3: Clear Browser Data (Most Thorough)</h3>
+        <ol>
+            <li>Press <code>Ctrl + Shift + Delete</code> to open Clear browsing data</li>
+            <li>Select <strong>Time range: Last hour</strong> (or All time)</li>
+            <li>Check these boxes:
+                <ul>
+                    <li>✅ Cached images and files</li>
+                    <li>✅ Cookies and other site data</li>
+                </ul>
+            </li>
+            <li>Click <strong>Clear data</strong></li>
+            <li>Close and reopen the app</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3>Method 4: Test Locally (For Development)</h3>
+        <p>If the issue persists, test from localhost to avoid GitHub Pages caching:</p>
+        <ol>
+            <li>Open PowerShell in your project folder</li>
+            <li>Run: <code>python -m http.server 8000</code></li>
+            <li>Or run: <code>npx http-server -p 8000</code></li>
+            <li>Open: <a href="http://localhost:8000" target="_blank">http://localhost:8000</a></li>
+        </ol>
+    </div>
+
+    <div class="success">
+        <h3>✅ How to Verify the Fix Worked</h3>
+        <ol>
+            <li>Open DevTools Console (F12)</li>
+            <li>Try the forgot password feature</li>
+            <li>Look for this log: <code>🔐 Using Vercel for password reset: https://praiseand-worship.vercel.app/api/forgot-password</code></li>
+            <li>If you see a <strong>different error</strong> (not "Failed to fetch"), the cache is cleared!</li>
+            <li>If you still see "Failed to fetch", try Method 2 or 3 above</li>
+        </ol>
+    </div>
+
+    <div class="step">
+        <h3>🧪 Test the Fixed Version</h3>
+        <button class="button" onclick="testPasswordResetWithCors()">Test Password Reset</button>
+        <div id="test-result" style="margin-top: 15px;"></div>
+    </div>
+
+    <script>
+        async function unregisterServiceWorkers() {
+            if ('serviceWorker' in navigator) {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                for (let registration of registrations) {
+                    await registration.unregister();
+                }
+                alert('✅ Service workers unregistered! Now press Ctrl+F5 to reload.');
+            } else {
+                alert('Service workers not supported in this browser');
+            }
+        }
+
+        async function clearAllCaches() {
+            if ('caches' in window) {
+                const cacheNames = await caches.keys();
+                for (let cacheName of cacheNames) {
+                    await caches.delete(cacheName);
+                }
+                alert(`✅ Cleared ${cacheNames.length} cache(s)! Now press Ctrl+F5 to reload.`);
+            } else {
+                alert('Cache API not supported in this browser');
+            }
+        }
+
+        async function testPasswordResetWithCors() {
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = '<div style="padding: 10px; background: #e5e7eb; border-radius: 5px;">Testing with CORS mode enabled...</div>';
+
+            const testEmail = 'test@example.com'; // Use a test email
+            
+            try {
+                const response = await fetch('https://praiseand-worship.vercel.app/api/forgot-password', {
+                    method: 'POST',
+                    mode: 'cors', // THIS IS THE FIX
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        identifier: testEmail, 
+                        method: 'email' 
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div style="padding: 15px; background: #d1fae5; border-radius: 5px; border-left: 4px solid #10b981;">
+                            <strong>✅ SUCCESS! The fix is working!</strong><br>
+                            Response: ${data.message}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="padding: 15px; background: #fef3c7; border-radius: 5px; border-left: 4px solid #f59e0b;">
+                            <strong>⚠️ Got a response (not cached!)</strong><br>
+                            Status: ${response.status}<br>
+                            Error: ${data.error || 'Unknown error'}<br>
+                            <small>This is normal if you used a fake email</small>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="padding: 15px; background: #fee2e2; border-radius: 5px; border-left: 4px solid #ef4444;">
+                        <strong>❌ Still getting: ${error.message}</strong><br>
+                        <small>If you see "Failed to fetch", the cache is NOT cleared yet.<br>
+                        Try Method 2 or 3 above.</small>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

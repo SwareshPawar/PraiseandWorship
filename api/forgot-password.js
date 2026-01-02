@@ -8,18 +8,25 @@ function generateOTP() {
 }
 
 async function findUserForPasswordReset(db, identifier) {
-  const usersCollection = db.collection('users');
-  const user = await usersCollection.findOne({
-    $or: [
-      { email: identifier },
-      { phone: identifier }
-    ]
+  const usersCollection = db.collection('Users');
+  
+  // Try email first (case-insensitive)
+  let user = await usersCollection.findOne({ 
+    email: identifier.toLowerCase() 
   });
+  
+  // If not found by email, try phone
+  if (!user) {
+    user = await usersCollection.findOne({ 
+      phone: identifier 
+    });
+  }
+  
   return user;
 }
 
 async function storeOTP(db, identifier, otp, method) {
-  const otpCollection = db.collection('password_resets');
+  const otpCollection = db.collection('PasswordResetOTPs');
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
   await otpCollection.updateOne(

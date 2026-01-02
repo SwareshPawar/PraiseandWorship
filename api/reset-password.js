@@ -3,18 +3,25 @@ const { MongoClient, ServerApiVersion } = require('mongodb');
 const bcrypt = require('bcrypt');
 
 async function findUserForPasswordReset(db, identifier) {
-  const usersCollection = db.collection('users');
-  const user = await usersCollection.findOne({
-    $or: [
-      { email: identifier },
-      { phone: identifier }
-    ]
+  const usersCollection = db.collection('Users');
+  
+  // Try email first (case-insensitive)
+  let user = await usersCollection.findOne({ 
+    email: identifier.toLowerCase() 
   });
+  
+  // If not found by email, try phone
+  if (!user) {
+    user = await usersCollection.findOne({ 
+      phone: identifier 
+    });
+  }
+  
   return user;
 }
 
 async function verifyOTP(db, identifier, otp) {
-  const otpCollection = db.collection('password_resets');
+  const otpCollection = db.collection('PasswordResetOTPs');
   const resetRecord = await otpCollection.findOne({
     identifier,
     otp,
@@ -36,7 +43,7 @@ async function verifyOTP(db, identifier, otp) {
 }
 
 async function updatePassword(db, identifier, newPassword) {
-  const usersCollection = db.collection('users');
+  const usersCollection = db.collection('Users');
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
   const result = await usersCollection.updateOne(

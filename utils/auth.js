@@ -163,12 +163,16 @@ async function verifyOTP(db, identifier, otp, type = 'email') {
 
 // Send email OTP
 async function sendEmailOTP(email, otp, firstName = 'User') {
+  console.log(`📧 Attempting to send email OTP to ${email}`);
+  
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    console.error('❌ Email credentials not configured');
     throw new Error('Email service not configured. Please use SMS option or contact administrator.');
   }
 
   const transporter = createEmailTransporter();
   if (!transporter) {
+    console.error('❌ Email transporter creation failed');
     throw new Error('Email service not properly configured. Please use SMS option or contact administrator.');
   }
 
@@ -194,9 +198,11 @@ async function sendEmailOTP(email, otp, firstName = 'User') {
   };
 
   try {
+    console.log(`📤 Sending email to ${email}...`);
     await transporter.sendMail(mailOptions);
+    console.log(`✅ Email sent successfully to ${email}`);
   } catch (error) {
-    console.error('Email sending error:', error);
+    console.error('❌ Email sending error:', error);
     if (error.code === 'EAUTH' || error.message.includes('Username and Password not accepted')) {
       throw new Error('Invalid email credentials. Please check your Gmail app password setup.');
     }
@@ -258,11 +264,16 @@ async function resetUserPassword(db, identifier, newPassword, otp) {
   const isEmail = identifier.includes('@');
   const otpType = isEmail ? 'email' : 'sms';
   
+  console.log(`🔐 Password reset attempt for ${identifier} using ${otpType} OTP`);
+  
   // Verify OTP
   const otpValid = await verifyOTP(db, identifier, otp, otpType);
   if (!otpValid) {
+    console.error(`❌ OTP verification failed for ${identifier}`);
     throw new Error('Invalid or expired OTP');
   }
+  
+  console.log(`✅ OTP verified for ${identifier}`);
   
   // Hash new password
   const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -272,6 +283,8 @@ async function resetUserPassword(db, identifier, newPassword, otp) {
     { _id: user._id },
     { $set: { password: hashedPassword } }
   );
+  
+  console.log(`✅ Password updated successfully for ${identifier}`);
   
   return { message: 'Password reset successfully' };
 }

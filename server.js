@@ -296,38 +296,51 @@ app.post('/api/forgot-password', async (req, res) => {
   try {
     const { identifier, method } = req.body; // identifier can be email or phone, method is 'email' or 'sms'
     
+    console.log(`🔐 Password reset request for ${identifier} via ${method}`);
+    
     if (!identifier || !method) {
+      console.log('❌ Missing required fields');
       return res.status(400).json({ error: 'Email/phone and method are required' });
     }
     
     if (!['email', 'sms'].includes(method)) {
+      console.log('❌ Invalid method');
       return res.status(400).json({ error: 'Method must be email or sms' });
     }
     
     // Find user
     const user = await findUserForPasswordReset(db, identifier);
     if (!user) {
+      console.log(`❌ User not found for identifier: ${identifier}`);
       return res.status(404).json({ error: 'User not found' });
     }
     
+    console.log(`✅ User found: ${user.firstName || 'Unknown'} (${user.email || user.phone})`);
+    
     // Generate OTP
     const otp = generateOTP();
+    console.log(`🔢 Generated OTP: ${otp}`);
     
     // Store OTP in database
     await storeOTP(db, identifier, otp, method);
+    console.log(`💾 OTP stored in database`);
     
     // Send OTP based on method
     if (method === 'email') {
       if (!user.email) {
+        console.log('❌ No email associated with account');
         return res.status(400).json({ error: 'No email associated with this account' });
       }
       await sendEmailOTP(user.email, otp, user.firstName);
     } else if (method === 'sms') {
       if (!user.phone) {
+        console.log('❌ No phone associated with account');
         return res.status(400).json({ error: 'No phone number associated with this account' });
       }
       await sendSMSOTP(user.phone, otp, user.firstName);
     }
+    
+    console.log(`✅ OTP sent successfully via ${method}`);
     
     res.json({ 
       message: `OTP sent successfully via ${method}`,

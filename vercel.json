@@ -1,31 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "echo 'No build needed - static site'",
-  "outputDirectory": ".",
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/forgot-password",
-      "dest": "/api/forgot-password.js"
-    },
-    {
-      "src": "/api/reset-password",
-      "dest": "/api/reset-password.js"
-    },
-    {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
-    }
-  ],
   "headers": [
     {
       "source": "/manifest.json",

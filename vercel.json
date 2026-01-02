@@ -2,11 +2,19 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",
+      "src": "api/**/*.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
+    {
+      "src": "/api/forgot-password",
+      "dest": "/api/forgot-password.js"
+    },
+    {
+      "src": "/api/reset-password",
+      "dest": "/api/reset-password.js"
+    },
     {
       "src": "/api/(.*)",
       "dest": "/server.js"

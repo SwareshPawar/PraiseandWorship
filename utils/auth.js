@@ -25,17 +25,31 @@ let emailTransporter = null;
 
 function createEmailTransporter() {
   if (!nodemailer) {
-    console.log('Nodemailer not available - cannot create email transporter');
+    console.log('❌ Nodemailer not available - cannot create email transporter');
     return null;
   }
   
   if (!emailTransporter && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
-    emailTransporter = nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-      }
+    try {
+      console.log('📧 Creating email transporter...');
+      emailTransporter = nodemailer.createTransporter({
+        service: process.env.EMAIL_SERVICE || 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD
+        }
+      });
+      console.log('✅ Email transporter created successfully');
+    } catch (error) {
+      console.error('❌ Failed to create email transporter:', error);
+      return null;
+    }
+  } else if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    console.error('❌ Email credentials not configured');
+    console.log('Available env vars:', {
+      EMAIL_USER: !!process.env.EMAIL_USER,
+      EMAIL_PASSWORD: !!process.env.EMAIL_PASSWORD,
+      EMAIL_SERVICE: process.env.EMAIL_SERVICE
     });
   }
   return emailTransporter;

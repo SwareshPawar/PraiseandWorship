@@ -117,13 +117,37 @@ function authMiddleware(req, res, next) {
 }
 
 // Health check endpoint for deployment detection
-app.get('/api/health', (req, res) => {
-  res.json({ 
-    status: 'healthy', 
-    service: 'Praise & Worship API',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
+app.get('/api/health', async (req, res) => {
+  try {
+    // Test database connectivity
+    const dbStatus = db ? 'connected' : 'not connected';
+    
+    // Test collections
+    let collectionsCount = 0;
+    if (db) {
+      const collections = await db.listCollections().toArray();
+      collectionsCount = collections.length;
+    }
+    
+    res.json({
+      status: 'healthy',
+      service: 'Praise & Worship API',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      database: dbStatus,
+      collectionsCount,
+      emailConfigured: !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD),
+      smsConfigured: !!(process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN),
+      mongoUri: process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 50) + '...' : 'NOT SET'
+    });
+  } catch (err) {
+    console.error('Health check error:', err);
+    res.status(500).json({
+      status: 'unhealthy',
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Get recommendation weights config
@@ -351,8 +375,36 @@ app.post('/api/forgot-password', async (req, res) => {
     });
     
   } catch (err) {
-    console.error('Forgot password error:', err);
-    res.status(500).json({ error: err.message || 'Failed to send OTP' });
+    console.error('❌ Forgot password error:', err);
+    console.error('Error stack:', err.stack);
+    
+    // Debug environment variables in production
+    console.log('🔧 Debug Info:');
+    console.log('- NODE_ENV:', process.env.NODE_ENV);
+    console.log('- EMAIL_USER configured:', !!process.env.EMAIL_USER);
+    console.log('- EMAIL_PASSWORD configured:', !!process.env.EMAIL_PASSWORD);
+    console.log('- EMAIL_SERVICE:', process.env.EMAIL_SERVICE);
+    console.log('- TWILIO_ACCOUNT_SID configured:', !!process.env.TWILIO_ACCOUNT_SID);
+    console.log('- TWILIO_AUTH_TOKEN configured:', !!process.env.TWILIO_AUTH_TOKEN);
+    console.log('- MONGODB_URI configured:', !!process.env.MONGODB_URI);
+    
+    // Send appropriate error response
+    let errorMessage = err.message || 'Failed to send OTP';
+    
+    // Don't expose sensitive information in production
+    if (process.env.NODE_ENV === 'production') {
+      if (err.message && err.message.includes('Email service not configured')) {
+        errorMessage = 'Email service is currently unavailable. Please try SMS option or contact support.';
+      } else if (err.message && err.message.includes('SMS service not configured')) {
+        errorMessage = 'SMS service is currently unavailable. Please try email option or contact support.';
+      } else if (err.message && err.message.includes('credentials')) {
+        errorMessage = 'Service configuration error. Please contact support.';
+      } else {
+        errorMessage = 'Password reset service is currently unavailable. Please try again later or contact support.';
+      }
+    }
+    
+    res.status(500).json({ error: errorMessage });
   }
 });
 
@@ -373,8 +425,23 @@ app.post('/api/reset-password', async (req, res) => {
     res.json(result);
     
   } catch (err) {
-    console.error('Reset password error:', err);
-    res.status(400).json({ error: err.message || 'Failed to reset password' });
+    console.error('❌ Reset password error:', err);
+    console.error('Error stack:', err.stack);
+    
+    let errorMessage = err.message || 'Failed to reset password';
+    
+    // Don't expose sensitive information in production
+    if (process.env.NODE_ENV === 'production') {
+      if (err.message && err.message.includes('User not found')) {
+        errorMessage = 'Invalid reset request. Please restart the password reset process.';
+      } else if (err.message && err.message.includes('Invalid or expired OTP')) {
+        errorMessage = 'Invalid or expired verification code. Please request a new one.';
+      } else {
+        errorMessage = 'Password reset failed. Please try again or contact support.';
+      }
+    }
+    
+    res.status(400).json({ error: errorMessage });
   }
 });
 
@@ -872,14 +939,25 @@ app.post('/api/my-setlists/remove-song', authMiddleware, async (req, res) => {
 // Start server - works for both local development and production (Render, etc.)
 async function startServer() {
   try {
+    console.log('🚀 Starting server...');
+    console.log('📋 Environment Check:');
+    console.log('- NODE_ENV:', process.env.NODE_ENV || 'development');
+    console.log('- PORT:', process.env.PORT || 3001);
+    console.log('- MONGODB_URI configured:', !!process.env.MONGODB_URI);
+    console.log('- MONGODB_URI preview:', process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 50) + '...' : 'NOT SET');
+    console.log('- EMAIL_USER:', process.env.EMAIL_USER || 'NOT SET');
+    console.log('- EMAIL_SERVICE:', process.env.EMAIL_SERVICE || 'NOT SET');
+    
     await connectToDatabase();
     const PORT = process.env.PORT || 3001;
     app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-      console.log('Environment:', process.env.NODE_ENV || 'development');
+      console.log(`✅ Server running on port ${PORT}`);
+      console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
+      console.log('📡 Server is ready to accept requests');
     });
   } catch (err) {
-    console.error('Failed to start server:', err);
+    console.error('❌ Failed to start server:', err);
+    console.error('Error stack:', err.stack);
     process.exit(1);
   }
 }

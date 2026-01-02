@@ -1,8 +1,5 @@
 {
   "version": 2,
-  "buildCommand": "npm install",
-  "outputDirectory": ".",
-  "installCommand": "npm install",
   "functions": {
     "api/index.js": {
       "includeFiles": "utils/**"

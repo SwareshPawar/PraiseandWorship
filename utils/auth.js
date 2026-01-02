@@ -32,7 +32,7 @@ function createEmailTransporter() {
   if (!emailTransporter && process.env.EMAIL_USER && process.env.EMAIL_PASSWORD) {
     try {
       console.log('📧 Creating email transporter...');
-      emailTransporter = nodemailer.createTransporter({
+      emailTransporter = nodemailer.createTransport({
         service: process.env.EMAIL_SERVICE || 'gmail',
         auth: {
           user: process.env.EMAIL_USER,

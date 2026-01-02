@@ -10094,6 +10094,7 @@ async function initiatePasswordReset(identifier, method) {
         
         const response = await fetch(passwordResetUrl, {
             method: 'POST',
+            mode: 'cors',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -10162,6 +10163,7 @@ async function verifyOtpAndResetPassword(otp, newPassword) {
         // Use Vercel for password reset completion
         const response = await fetch(`${API_BASE_URL_VERCEL}/api/reset-password`, {
             method: 'POST',
+            mode: 'cors',
             headers: {
                 'Content-Type': 'application/json'
             },

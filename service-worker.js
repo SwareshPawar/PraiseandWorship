@@ -1,7 +1,7 @@
 // Enhanced Progressive Web App Service Worker for Praise & Worship Songs
-const CACHE_NAME = 'pw-ocean-v2.1-UNIQUE';
-const STATIC_CACHE = 'pw-static-v2.1-UNIQUE';
-const API_CACHE = 'pw-api-v2.1-UNIQUE';
+const CACHE_NAME = 'pw-ocean-v2.2-CORS-FIX';
+const STATIC_CACHE = 'pw-static-v2.2-CORS-FIX';
+const API_CACHE = 'pw-api-v2.2-CORS-FIX';
 
 // Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [
@@ -104,11 +104,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Handle cross-origin API requests to Render backend only (not localhost)
+  // Handle cross-origin API requests to both Render and Vercel backends (not localhost)
   const isRenderBackend = url.hostname === 'praiseandworship.onrender.com';
+  const isVercelBackend = url.hostname === 'praiseand-worship.vercel.app' || url.hostname.endsWith('.vercel.app');
   const isLocalApi = (url.hostname === 'localhost' || url.hostname === '127.0.0.1') && url.pathname.startsWith('/api/');
   
-  if (isRenderBackend) {
+  if (isRenderBackend || isVercelBackend) {
     event.respondWith(crossOriginApiStrategy(request));
     return;
   }

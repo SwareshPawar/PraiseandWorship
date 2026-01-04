@@ -266,35 +266,37 @@ async function authFetch(url, options = {}) {
         };
     }
 
-    // Try Render backend first, then Vercel if Render fails
+    // Try Vercel backend first (faster), then Render as fallback
     let lastError = null;
-    for (const backendUrl of [API_BASE_URL_RENDER, API_BASE_URL_VERCEL]) {
+    for (const backendUrl of [API_BASE_URL_VERCEL, API_BASE_URL_RENDER]) {
         let fetchUrl = url;
         if (url.startsWith(API_BASE_URL_RENDER) || url.startsWith(API_BASE_URL_VERCEL)) {
             fetchUrl = backendUrl + url.substring(url.indexOf('/api/'));
         }
         try {
             const controller = new AbortController();
-            const timeoutDuration = backendUrl === API_BASE_URL_RENDER ? 60000 : 30000;
+            const timeoutDuration = backendUrl === API_BASE_URL_VERCEL ? 15000 : 60000; // Vercel faster timeout
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
             const fetchOptions = { ...buildFetchOptions(fetchUrl), signal: controller.signal };
             const response = await fetch(fetchUrl, fetchOptions);
             clearTimeout(timeoutId);
             if (response.ok) {
-                if (backendUrl === API_BASE_URL_RENDER) {
-                    throttledShowNotification('✅ Connected to Render backend!', 'success', 2000);
+                if (backendUrl === API_BASE_URL_VERCEL) {
+                    throttledShowNotification('✅ Connected to Vercel backend (Primary)', 'success', 2000);
                 } else {
-                    throttledShowNotification('✅ Connected to Vercel backend!', 'success', 2000);
+                    throttledShowNotification('⚠️ Using Render backend (Fallback)', 'warning', 3000);
                 }
                 return response;
             } else {
                 lastError = new Error(`Backend error (${response.status}) from ${backendUrl}`);
-                // If Render fails, try Vercel next
+                console.warn(`❌ ${backendUrl} returned ${response.status}, trying next backend...`);
+                // If Vercel fails, try Render next
                 continue;
             }
         } catch (error) {
             lastError = error;
-            // If Render fails, try Vercel next
+            console.warn(`❌ ${backendUrl} failed: ${error.message}, trying next backend...`);
+            // If Vercel fails, try Render next
             continue;
         }
     }
@@ -2991,17 +2993,19 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         renderStatusEl.textContent = 'Checking...';
         vercelStatusEl.textContent = 'Checking...';
         
-        // Check both backends in parallel
-        const [renderHealth, vercelHealth] = await Promise.all([
-            checkSpecificBackendHealth(API_BASE_URL_RENDER, 'Render'),
-            checkSpecificBackendHealth(API_BASE_URL_VERCEL, 'Vercel')
+        // Check both backends in parallel (Vercel is primary)
+        const [vercelHealth, renderHealth] = await Promise.all([
+            checkSpecificBackendHealth(API_BASE_URL_VERCEL, 'Vercel'),
+            checkSpecificBackendHealth(API_BASE_URL_RENDER, 'Render')
         ]);
         
-        renderStatusEl.textContent = renderHealth.message;
-        renderStatusEl.style.color = renderHealth.status === 'online' ? '#28a745' : '#dc3545';
-        
-        vercelStatusEl.textContent = vercelHealth.message;
+        // Update Vercel status (Primary)
+        vercelStatusEl.textContent = vercelHealth.message + ' (Primary)';
         vercelStatusEl.style.color = vercelHealth.status === 'online' ? '#28a745' : '#dc3545';
+        
+        // Update Render status (Backup)
+        renderStatusEl.textContent = renderHealth.message + ' (Backup)';
+        renderStatusEl.style.color = renderHealth.status === 'online' ? '#28a745' : '#dc3545';
     }
 
     function showBackendNotification(msg, type = 'info') {

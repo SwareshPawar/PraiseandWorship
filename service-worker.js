@@ -1,7 +1,7 @@
 // Enhanced Progressive Web App Service Worker for Praise & Worship Songs
-const CACHE_NAME = 'pw-ocean-v2.2-CORS-FIX';
-const STATIC_CACHE = 'pw-static-v2.2-CORS-FIX';
-const API_CACHE = 'pw-api-v2.2-CORS-FIX';
+const CACHE_NAME = 'pw-ocean-v2.3-SMART-FALLBACK';
+const STATIC_CACHE = 'pw-static-v2.3-SMART-FALLBACK';
+const API_CACHE = 'pw-api-v2.3-SMART-FALLBACK';
 
 // Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [
@@ -104,13 +104,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Handle cross-origin API requests to both Render and Vercel backends (not localhost)
+  // Handle cross-origin API requests to both Render and Vercel backends
+  // IMPORTANT: Let the main thread handle fallback logic, SW just passes through
   const isRenderBackend = url.hostname === 'praiseandworship.onrender.com';
   const isVercelBackend = url.hostname === 'praiseand-worship.vercel.app' || url.hostname.endsWith('.vercel.app');
   const isLocalApi = (url.hostname === 'localhost' || url.hostname === '127.0.0.1') && url.pathname.startsWith('/api/');
   
   if (isRenderBackend || isVercelBackend) {
-    event.respondWith(crossOriginApiStrategy(request));
+    // For backend APIs, use simple pass-through strategy to allow main thread fallback
+    event.respondWith(simplePassThroughStrategy(request));
     return;
   }
   
@@ -166,7 +168,46 @@ async function cacheFirstStrategy(request) {
   }
 }
 
-// Cross-Origin API Strategy - for Render backend requests (single attempt)
+// Simple Pass-Through Strategy - for backend APIs (allows main thread to handle fallback)
+async function simplePassThroughStrategy(request) {
+  try {
+    console.log('Service Worker: Pass-through for API:', request.url);
+    
+    // Just pass through to network - let main thread handle Vercel→Render fallback
+    const networkResponse = await fetch(request, {
+      mode: 'cors',
+      credentials: 'include'
+    });
+    
+    // Only cache successful GET requests
+    if (networkResponse.ok && request.method === 'GET' && 
+        (request.url.includes('/api/songs') || 
+         request.url.includes('/api/global-setlists') ||
+         request.url.includes('/api/recommendation-weights'))) {
+      const cache = await caches.open(API_CACHE);
+      cache.put(request, networkResponse.clone());
+      console.log('Service Worker: Cached API response:', request.url);
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    console.warn('Service Worker: Network failed, checking cache:', error);
+    
+    // Only use cache as absolute last resort
+    const cache = await caches.open(API_CACHE);
+    const cachedResponse = await cache.match(request);
+    
+    if (cachedResponse) {
+      console.log('Service Worker: Serving from cache (offline):', request.url);
+      return cachedResponse;
+    }
+    
+    // Let the error propagate so main thread can handle fallback
+    throw error;
+  }
+}
+
+// Cross-Origin API Strategy - for Render backend requests (DEPRECATED - using simplePassThroughStrategy)
 async function crossOriginApiStrategy(request) {
   try {
     console.log('Service Worker: Cross-origin API request to:', request.url);

@@ -7811,11 +7811,26 @@ window.viewSingleLyrics = function(songId, otherId) {
             const lines = lyrics.split('\n');
             let output = [];
     
+            // Flexible regex to detect section tags in various formats:
+            // - [Chorus], (Chorus), Chorus, CHORUS
+            // - Chorus:, Chorus 1, Verse 2:, etc.
+            // - With or without brackets/parentheses
+            const sectionTagRegex = /^[\[\(]?\s*(Chorus|Verse|Pre-?chorus|Bridge|Intro|Outro|Tag|Interlude|Ending|Refrain|Hook|Coda|Solo)(\s*\d+)?\s*[\]\)]?\s*:?\s*$/i;
+    
             for (let i = 0; i < lines.length; i++) {
                 const line = lines[i];
     
                 if (line.trim() === '') {
                     output.push(`<div class="lyric-line">${line}</div>`);
+                    continue;
+                }
+    
+                // Check if this line is a section tag
+                const sectionMatch = line.trim().match(sectionTagRegex);
+                if (sectionMatch) {
+                    const sectionType = sectionMatch[1].toLowerCase().replace('-', '');
+                    const sectionNumber = sectionMatch[2] ? sectionMatch[2].trim() : '';
+                    output.push(`<div class="section-tag section-${sectionType}"><i class="fas fa-music"></i> ${sectionMatch[1]}${sectionNumber ? ' ' + sectionNumber : ''}</div>`);
                     continue;
                 }
     

@@ -92,11 +92,11 @@ const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
 const API_BASE_URL_VERCEL = 'https://praiseand-worship.vercel.app';
 let API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:3001'
-        : API_BASE_URL_RENDER; // Fallback to Render for now due to Vercel API issues
+        : API_BASE_URL_VERCEL; // Use Vercel for all APIs (password reset uses dedicated serverless functions)
 
 // Admin-configurable backend switching for production
 function getStoredBackend() {
-    return localStorage.getItem('pw_admin_backend') || 'render'; // Default back to Render for now
+    return localStorage.getItem('pw_admin_backend') || 'vercel'; // Default to Vercel
 }
 
 function setBackend(backend) {

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Vercel Deployment Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+        .loading { background: #fef3c7; border-left: 4px solid #f59e0b; }
+        .success { background: #d1fae5; border-left: 4px solid #10b981; }
+        .error { background: #fee2e2; border-left: 4px solid #ef4444; }
+        button {
+            background: #2563eb;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover { background: #1d4ed8; }
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .step {
+            background: white;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🚀 Vercel Deployment Status Checker</h1>
+    
+    <div class="status loading" id="status">
+        ⏳ Waiting for deployment... (typically takes 1-2 minutes)
+    </div>
+
+    <div class="step">
+        <h3>Step 1: Check Deployment Status</h3>
+        <button onclick="checkDeployment()">🔍 Check If Deployed</button>
+        <div id="deployment-result"></div>
+    </div>
+
+    <div class="step">
+        <h3>Step 2: Test Forgot Password API</h3>
+        <input type="email" id="testEmail" placeholder="Enter test email" style="padding: 8px; width: 300px;">
+        <br><br>
+        <button onclick="testForgotPassword()">📧 Test Email Reset</button>
+        <button onclick="testForgotPasswordSMS()">📱 Test SMS Reset</button>
+        <div id="test-result"></div>
+    </div>
+
+    <div class="step">
+        <h3>Step 3: Clear Cache & Test App</h3>
+        <button onclick="clearCacheAndTest()">🗑️ Clear Cache</button>
+        <button onclick="openApp()">🚀 Open App</button>
+    </div>
+
+    <script>
+        const VERCEL_URL = 'https://praiseand-worship.vercel.app';
+
+        async function checkDeployment() {
+            const resultDiv = document.getElementById('deployment-result');
+            resultDiv.innerHTML = '<p>Checking...</p>';
+
+            try {
+                // Test OPTIONS (preflight)
+                const optionsResponse = await fetch(`${VERCEL_URL}/api/forgot-password`, {
+                    method: 'OPTIONS',
+                    mode: 'cors'
+                });
+
+                console.log('OPTIONS response:', optionsResponse);
+                console.log('Headers:', [...optionsResponse.headers.entries()]);
+
+                const corsHeader = optionsResponse.headers.get('access-control-allow-origin');
+                const allowMethods = optionsResponse.headers.get('access-control-allow-methods');
+
+                if (optionsResponse.ok && corsHeader) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Deployment Successful!</strong><br><br>
+                            <strong>Status:</strong> ${optionsResponse.status} ${optionsResponse.statusText}<br>
+                            <strong>CORS Origin:</strong> ${corsHeader}<br>
+                            <strong>Allowed Methods:</strong> ${allowMethods}<br><br>
+                            <strong>🎉 The API is ready! You can now test password reset.</strong>
+                        </div>
+                    `;
+                    document.getElementById('status').className = 'status success';
+                    document.getElementById('status').innerHTML = '✅ Deployment Complete! API is working.';
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>⚠️ Deployment may not be complete</strong><br>
+                            Status: ${optionsResponse.status}<br>
+                            CORS Header: ${corsHeader || 'Missing'}<br>
+                            Try again in 1 minute...
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Error checking deployment:</strong><br>
+                        ${error.message}<br><br>
+                        This might mean Vercel is still deploying. Wait 1-2 minutes and try again.
+                    </div>
+                `;
+            }
+        }
+
+        async function testForgotPassword() {
+            const email = document.getElementById('testEmail').value;
+            if (!email) {
+                alert('Please enter an email address');
+                return;
+            }
+
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = '<p>Testing email password reset...</p>';
+
+            try {
+                const response = await fetch(`${VERCEL_URL}/api/forgot-password`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        identifier: email,
+                        method: 'email'
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Response:', response.status, data);
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ SUCCESS!</strong><br><br>
+                            ${data.message}<br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                } else if (response.status === 404) {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>⚠️ User Not Found (But API is Working!)</strong><br><br>
+                            This is actually good - it means the API is functional!<br>
+                            The user "${email}" just doesn't exist in the database.<br><br>
+                            Try with a registered email or register first.
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>❌ Error:</strong><br>
+                            Status: ${response.status}<br>
+                            Error: ${data.error}<br>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network Error:</strong><br>
+                        ${error.message}<br><br>
+                        If you see "Failed to fetch", clear your browser cache completely.
+                    </div>
+                `;
+            }
+        }
+
+        async function testForgotPasswordSMS() {
+            const phone = prompt('Enter phone number (with country code, e.g., +1234567890):');
+            if (!phone) return;
+
+            const resultDiv = document.getElementById('test-result');
+            resultDiv.innerHTML = '<p>Testing SMS password reset...</p>';
+
+            try {
+                const response = await fetch(`${VERCEL_URL}/api/forgot-password`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        identifier: phone,
+                        method: 'sms'
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ SUCCESS!</strong><br><br>
+                            ${data.message}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>Error:</strong> ${data.error}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        async function clearCacheAndTest() {
+            try {
+                // Unregister service workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let registration of registrations) {
+                        await registration.unregister();
+                    }
+                }
+
+                // Clear caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (let cacheName of cacheNames) {
+                        await caches.delete(cacheName);
+                    }
+                }
+
+                alert('✅ Cache cleared! Now reload the main app.');
+            } catch (error) {
+                alert('Error clearing cache: ' + error.message);
+            }
+        }
+
+        function openApp() {
+            window.open('https://swareshpawar.github.io/PraiseandWorship/', '_blank');
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            setTimeout(checkDeployment, 1000);
+        });
+    </script>
+</body>
+</html>

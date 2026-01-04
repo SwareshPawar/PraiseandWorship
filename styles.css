@@ -313,9 +313,9 @@
         }
 
         .song-lyrics {
-            user-select: none;
-            -webkit-user-select: none;
-            -webkit-touch-callout: none;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+            -webkit-touch-callout: default !important;
             -webkit-tap-highlight-color: transparent;
         }
 

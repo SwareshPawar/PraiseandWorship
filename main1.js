@@ -905,7 +905,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Forms
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
-        registerForm.addEventListener('submit', async e => {
+        if (registerForm._submitListener) {
+            registerForm.removeEventListener('submit', registerForm._submitListener);
+        }
+        
+        registerForm._submitListener = async e => {
             e.preventDefault();
             const capitalizeFirst = s => s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '';
             const firstName = capitalizeFirst(document.getElementById('registerFirstName').value.trim());
@@ -935,14 +939,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorDiv.textContent = 'Network error';
                 errorDiv.style.display = 'block';
             }
-        });
+        };
+        
+        registerForm.addEventListener('submit', registerForm._submitListener);
 
         initScreenWakeLock();
     }
 
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
-        loginForm.addEventListener('submit', async e => {
+        if (loginForm._submitListener) {
+            loginForm.removeEventListener('submit', loginForm._submitListener);
+        }
+        
+        loginForm._submitListener = async e => {
             e.preventDefault();
             const loginInput = document.getElementById('loginUsername').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -980,7 +990,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 errorDiv.textContent = 'Network error';
                 errorDiv.style.display = 'block';
             }
-        });
+        };
+        
+        loginForm.addEventListener('submit', loginForm._submitListener);
     }
 
     // Final init hooks (if defined externally)
@@ -3235,9 +3247,19 @@ window.viewSingleLyrics = function(songId, otherId) {
                 method: 'DELETE'
             });
             if (resp.ok) {
+                // Remove from global songs array
                 songs = songs.filter(s => s.id !== songId);
+                
+                // Remove from cache if it exists
+                if (window.dataCache && window.dataCache.songs) {
+                    window.dataCache.songs = window.dataCache.songs.filter(s => s.id !== songId);
+                }
+                
+                // Remove from localStorage
                 localStorage.setItem('pw_songs', JSON.stringify(songs));
+                
                 showNotification('Song deleted successfully');
+                
                 if (typeof postDeleteCallback === 'function') postDeleteCallback();
             } else if (resp.status === 404) {
                 showNotification('Song not found in backend (already deleted)');
@@ -8692,7 +8714,11 @@ window.viewSingleLyrics = function(songId, otherId) {
             // Save weights form
             const weightsForm = document.getElementById('weightsForm');
             if (weightsForm) {
-                weightsForm.addEventListener('submit', async function(e) {
+                if (weightsForm._submitListener) {
+                    weightsForm.removeEventListener('submit', weightsForm._submitListener);
+                }
+                
+                weightsForm._submitListener = async function(e) {
                     e.preventDefault();
                     const newWeights = {
                         language: parseInt(document.getElementById('weightLanguage').value),
@@ -8734,7 +8760,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                     setTimeout(() => {
                         notif.style.display = 'none';
                     }, 4000);
-                });
+                };
+                
+                weightsForm.addEventListener('submit', weightsForm._submitListener);
             }
 
             // Tab switching
@@ -9151,7 +9179,12 @@ window.viewSingleLyrics = function(songId, otherId) {
                 newSongForm.addEventListener('submit', newSongForm._addListener);
             }
     
-            editSongForm.addEventListener('submit', async (e) => {
+            // Remove existing listener to prevent duplicates
+            if (editSongForm._editListener) {
+                editSongForm.removeEventListener('submit', editSongForm._editListener);
+            }
+            
+            editSongForm._editListener = async (e) => {
                 e.preventDefault();
                 const id = document.getElementById('editSongId').value;
                 const title = document.getElementById('editSongTitle').value;
@@ -9243,7 +9276,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                 } catch (err) {
                     showNotification('Error updating song');
                 }
-            });
+            };
+            
+            editSongForm.addEventListener('submit', editSongForm._editListener);
     
             cancelDeleteSong.addEventListener('click', () => {
                 deleteSongModal.style.display = 'none';
@@ -9479,12 +9514,21 @@ window.viewSingleLyrics = function(songId, otherId) {
                 document.getElementById("settingsModal").style.display = "flex";
             });
     
-            document.getElementById("settingsForm").addEventListener("submit", function (e) {
-                e.preventDefault();
-                saveSettings();
-                showNotification('Settings saved successfully');
-                document.getElementById("settingsModal").style.display = "none";
-            });
+            const settingsForm = document.getElementById("settingsForm");
+            if (settingsForm) {
+                if (settingsForm._submitListener) {
+                    settingsForm.removeEventListener("submit", settingsForm._submitListener);
+                }
+                
+                settingsForm._submitListener = function (e) {
+                    e.preventDefault();
+                    saveSettings();
+                    showNotification('Settings saved successfully');
+                    document.getElementById("settingsModal").style.display = "none";
+                };
+                
+                settingsForm.addEventListener("submit", settingsForm._submitListener);
+            }
     
             // Folder toggle
             document.getElementById('toggleSongTools').addEventListener('click', () => {
@@ -9806,7 +9850,11 @@ window.viewSingleLyrics = function(songId, otherId) {
             const manualSongTitle = document.getElementById('manualSongTitle');
 
             if (manualSongForm) {
-                manualSongForm.addEventListener('submit', handleManualSongSubmit);
+                if (manualSongForm._submitListener) {
+                    manualSongForm.removeEventListener('submit', manualSongForm._submitListener);
+                }
+                manualSongForm._submitListener = handleManualSongSubmit;
+                manualSongForm.addEventListener('submit', manualSongForm._submitListener);
             }
 
             if (cancelManualSong) {
@@ -10290,7 +10338,11 @@ function setupPasswordResetEventListeners() {
     // Forgot password form submission
     const forgotPasswordForm = document.getElementById('forgotPasswordForm');
     if (forgotPasswordForm) {
-        forgotPasswordForm.addEventListener('submit', async (e) => {
+        if (forgotPasswordForm._submitListener) {
+            forgotPasswordForm.removeEventListener('submit', forgotPasswordForm._submitListener);
+        }
+        
+        forgotPasswordForm._submitListener = async (e) => {
             e.preventDefault();
             
             const identifier = document.getElementById('resetIdentifier').value.trim();
@@ -10318,13 +10370,19 @@ function setupPasswordResetEventListeners() {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Send OTP';
             }, 2000);
-        });
+        };
+        
+        forgotPasswordForm.addEventListener('submit', forgotPasswordForm._submitListener);
     }
 
     // OTP verification form submission
     const otpVerificationForm = document.getElementById('otpVerificationForm');
     if (otpVerificationForm) {
-        otpVerificationForm.addEventListener('submit', async (e) => {
+        if (otpVerificationForm._submitListener) {
+            otpVerificationForm.removeEventListener('submit', otpVerificationForm._submitListener);
+        }
+        
+        otpVerificationForm._submitListener = async (e) => {
             e.preventDefault();
             
             const otp = document.getElementById('otpCode').value.trim();
@@ -10365,7 +10423,9 @@ function setupPasswordResetEventListeners() {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Reset Password';
             }, 2000);
-        });
+        };
+        
+        otpVerificationForm.addEventListener('submit', otpVerificationForm._submitListener);
     }
 
     // Resend OTP button

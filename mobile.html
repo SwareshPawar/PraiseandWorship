@@ -1,0 +1,3305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4A90E2">
+    <title>Praise & Worship - Mobile</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #4A90E2;
+            --primary-dark: #357ABD;
+            --secondary: #50E3C2;
+            --praise: #FFB84D;
+            --worship: #9B59B6;
+            --success: #4CAF50;
+            --danger: #F44336;
+            --warning: #FF9800;
+            --text: #333;
+            --text-light: #666;
+            --bg: #F5F7FA;
+            --card: #FFFFFF;
+            --border: #E0E0E0;
+            --shadow: rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+            touch-action: pan-y;
+        }
+
+        /* App Container */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            max-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Top Header */
+        .mobile-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px var(--shadow);
+            z-index: 100;
+            min-height: 56px;
+        }
+
+        .mobile-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            flex: 1;
+            text-align: center;
+        }
+
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .header-btn:active {
+            background: rgba(255,255,255,0.3);
+            transform: scale(0.95);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+        }
+
+        /* Panels */
+        .panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 80px;
+            display: none;
+        }
+
+        .panel.active {
+            transform: translateX(0);
+            display: block;
+        }
+
+        .panel.left {
+            transform: translateX(-100%);
+            display: none;
+        }
+
+        .panel.right {
+            transform: translateX(100%);
+            display: none;
+        }
+
+        /* Home Panel */
+        .home-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 16px;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .welcome-card h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .welcome-card p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .action-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px var(--shadow);
+            border: 2px solid transparent;
+        }
+
+        .action-card:active {
+            transform: scale(0.95);
+            box-shadow: 0 1px 4px var(--shadow);
+        }
+
+        .action-card.active {
+            border-color: var(--primary);
+            background: rgba(74, 144, 226, 0.05);
+        }
+
+        .action-card i {
+            font-size: 32px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .action-card.praise i {
+            color: var(--praise);
+        }
+
+        .action-card.worship i {
+            color: var(--worship);
+        }
+
+        .action-card.favorites i {
+            color: var(--danger);
+        }
+
+        .action-card.all i {
+            color: var(--primary);
+        }
+
+        .action-card span {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .action-card .count {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .menu-list {
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .menu-item {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+            transition: background 0.2s;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:active {
+            background: rgba(74, 144, 226, 0.05);
+        }
+
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .menu-item i {
+            font-size: 20px;
+            width: 24px;
+            color: var(--primary);
+        }
+
+        .menu-item span {
+            font-weight: 500;
+        }
+
+        /* Songs Panel */
+        .songs-panel {
+            padding: 0;
+        }
+
+        .search-bar {
+            padding: 12px 16px;
+            background: var(--card);
+            box-shadow: 0 2px 4px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            display: flex;
+            gap: 8px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 40px 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 25px;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+
+        .search-clear {
+            position: absolute;
+            right: 70px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 18px;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .filter-btn {
+            padding: 12px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .category-tabs {
+            display: flex;
+            background: var(--card);
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .category-tab {
+            flex: 1;
+            padding: 14px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .category-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .category-tab:active {
+            background: rgba(74, 144, 226, 0.05);
+        }
+
+        .filter-pills {
+            padding: 12px 16px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .filter-pills::-webkit-scrollbar {
+            display: none;
+        }
+
+        .pill {
+            padding: 8px 16px;
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pill.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .song-list {
+            padding: 8px;
+        }
+
+        .song-card {
+            background: var(--card);
+            margin-bottom: 8px;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 6px var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .song-card:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px var(--shadow);
+        }
+
+        .song-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .song-title {
+            font-weight: 600;
+            font-size: 16px;
+            flex: 1;
+            line-height: 1.4;
+        }
+
+        .song-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .song-badge.praise {
+            background: rgba(255, 184, 77, 0.2);
+            color: var(--praise);
+        }
+
+        .song-badge.worship {
+            background: rgba(155, 89, 182, 0.2);
+            color: var(--worship);
+        }
+
+        .song-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+        }
+
+        .song-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .song-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .song-action-btn {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .song-action-btn:active {
+            transform: scale(0.95);
+        }
+
+        .song-action-btn.primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .song-action-btn.danger {
+            color: var(--danger);
+        }
+
+        /* Lyrics Panel */
+        .lyrics-panel {
+            background: white;
+        }
+
+        .lyrics-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 20px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .lyrics-header.praise-bg {
+            background: linear-gradient(135deg, var(--praise), #FF9800);
+        }
+
+        .lyrics-header.worship-bg {
+            background: linear-gradient(135deg, var(--worship), #8E44AD);
+        }
+
+        .lyrics-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .lyrics-info {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            opacity: 0.95;
+            flex-wrap: wrap;
+        }
+
+        .lyrics-controls {
+            padding: 12px 16px;
+            background: var(--card);
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            box-shadow: 0 2px 4px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 9;
+        }
+
+        .control-btn {
+            padding: 10px 16px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            white-space: nowrap;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .control-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .lyrics-content {
+            padding: 24px 16px;
+            font-size: 16px;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            min-height: 50vh;
+        }
+
+        /* Transpose Controls */
+        .transpose-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .transpose-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        .transpose-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .transpose-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .transpose-btn:active {
+            transform: scale(0.95);
+        }
+
+        .transpose-btn:hover {
+            background: var(--card);
+        }
+
+        .transpose-reset {
+            background: rgba(255, 107, 107, 0.1);
+            border-color: rgba(255, 107, 107, 0.4);
+            color: var(--danger);
+        }
+
+        .transpose-reset:hover {
+            background: rgba(255, 107, 107, 0.2);
+        }
+
+        .transpose-save {
+            background: rgba(76, 175, 80, 0.1);
+            border-color: rgba(76, 175, 80, 0.4);
+            color: #4CAF50;
+        }
+
+        .transpose-save:hover {
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .transpose-display {
+            min-width: 40px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .current-key-display {
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .current-key-display strong {
+            color: var(--primary);
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        /* Chord and Lyrics Formatting */
+        .chord {
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: color 0.3s;
+        }
+
+        .chord-line {
+            margin-bottom: -4px;
+            white-space: pre;
+            font-weight: bold;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+
+        .lyric-line {
+            white-space: pre-wrap;
+            line-height: 1.6;
+            margin-bottom: 4px;
+        }
+
+        /* Section Tags */
+        .section-tag {
+            font-weight: bold;
+            font-size: 1.05em;
+            margin: 20px 0 10px 0;
+            padding: 8px 12px;
+            border-left: 4px solid;
+            background: linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.02) 100%);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-tag i {
+            font-size: 0.9em;
+        }
+
+        .section-chorus {
+            border-left-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .section-verse {
+            border-left-color: #4ecdc4;
+            color: #4ecdc4;
+        }
+
+        .section-prechorus, .section-pre-chorus {
+            border-left-color: #ffa500;
+            color: #ffa500;
+        }
+
+        .section-bridge {
+            border-left-color: #9b59b6;
+            color: #9b59b6;
+        }
+
+        .section-intro, .section-outro {
+            border-left-color: #3498db;
+            color: #3498db;
+        }
+
+        .section-hook, .section-solo {
+            border-left-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .section-coda {
+            border-left-color: #16a085;
+            color: #16a085;
+        }
+
+        .section-tag, .section-interlude, .section-ending, .section-refrain {
+            border-left-color: #95a5a6;
+            color: #95a5a6;
+        }
+
+        /* Home Panel Styles */
+        .home-panel {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 16px;
+        }
+
+        .user-greeting {
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .user-greeting h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .home-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .home-btn {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            color: var(--text);
+        }
+
+        .home-btn:active {
+            background: rgba(5, 68, 94, 0.1);
+        }
+
+        .home-btn i {
+            width: 20px;
+        }
+
+        .home-nav-links {
+            margin-bottom: 12px;
+        }
+
+        .home-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--card);
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--text);
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .home-nav-link:active {
+            background: rgba(5, 68, 94, 0.1);
+        }
+
+        .home-nav-link.active {
+            background: linear-gradient(135deg, rgba(5, 68, 94, 0.1), rgba(5, 68, 94, 0.05));
+            border-left: 4px solid var(--primary);
+        }
+
+        .home-nav-link i {
+            width: 20px;
+        }
+
+        .count-badge {
+            margin-left: auto;
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .home-stats {
+            padding: 16px;
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .home-stats h4 {
+            margin: 0 0 12px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-item span {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .stat-item strong {
+            color: var(--primary);
+            font-size: 15px;
+        }
+
+        /* Setlist Selector */
+        .setlist-selector-mobile {
+            padding: 16px;
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+
+        .setlist-selector-mobile label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .setlist-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* Setlist Folders */
+        .setlist-folders {
+            margin-bottom: 16px;
+        }
+
+        .setlist-folder {
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            cursor: pointer;
+            user-select: none;
+            background: linear-gradient(135deg, rgba(5, 68, 94, 0.1), rgba(5, 68, 94, 0.05));
+        }
+
+        .folder-header:active {
+            background: linear-gradient(135deg, rgba(5, 68, 94, 0.15), rgba(5, 68, 94, 0.08));
+        }
+
+        .folder-icon {
+            transition: transform 0.3s;
+            font-size: 12px;
+        }
+
+        .folder-icon.open {
+            transform: rotate(90deg);
+        }
+
+        .folder-header span {
+            flex: 1;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .add-setlist-btn {
+            padding: 6px 10px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .add-setlist-btn:active {
+            transform: scale(0.95);
+        }
+
+        .setlist-folder-content {
+            padding: 0 16px 12px 16px;
+        }
+
+        .setlist-item {
+            padding: 10px 12px;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .setlist-item:active {
+            background: rgba(5, 68, 94, 0.1);
+        }
+
+        .setlist-item-main {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .setlist-item-main i {
+            color: var(--primary);
+        }
+
+        .setlist-item-main span {
+            flex: 1;
+            font-size: 14px;
+        }
+
+        .setlist-item-main .count {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .setlist-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .setlist-action-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(5, 68, 94, 0.1);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .setlist-action-btn i {
+            font-size: 12px;
+            color: var(--primary);
+        }
+
+        .setlist-action-btn:active {
+            background: rgba(5, 68, 94, 0.2);
+        }
+
+        .setlist-action-btn.edit-setlist i {
+            color: var(--primary);
+        }
+
+        .setlist-action-btn.delete-setlist i {
+            color: #f44336;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+            box-shadow: 0 -2px 10px var(--shadow);
+            z-index: 100;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item i {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item span {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        /* Floating Action Button */
+        .fab {
+            position: fixed;
+            bottom: calc(70px + env(safe-area-inset-bottom));
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 24px;
+            box-shadow: 0 4px 12px var(--shadow);
+            cursor: pointer;
+            transition: all 0.2s;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fab:active {
+            transform: scale(0.9);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: flex-end;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 20px 20px 0 0;
+            padding: 24px;
+            max-height: 85vh;
+            overflow-y: auto;
+            width: 100%;
+            animation: slideUp 0.3s;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .modal-header h3 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            font-size: 28px;
+            color: var(--text-light);
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:active {
+            background: var(--primary-dark);
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: var(--text-light);
+            opacity: 0.5;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: var(--text-light);
+        }
+
+        .empty-state p {
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 70px;
+            left: 16px;
+            right: 16px;
+            padding: 16px;
+            background: var(--card);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px var(--shadow);
+            z-index: 999;
+            display: none;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .notification.show {
+            display: block;
+        }
+
+        /* Hidden Elements */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Multiselect */
+        .multiselect-dropdown {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            margin-top: 8px;
+        }
+
+        .multiselect-option {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .multiselect-option:last-child {
+            border-bottom: none;
+        }
+
+        .multiselect-option.selected {
+            background: rgba(74, 144, 226, 0.1);
+            color: var(--primary);
+        }
+
+        .multiselect-selected {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .multiselect-tag {
+            background: var(--primary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .remove-tag {
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* Auth Elements */
+        .auth-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        #userNameDisplay {
+            font-size: 14px;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <div class="mobile-header">
+            <button class="header-btn" id="backBtn" style="display:none;">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 id="headerTitle">Praise & Worship</h1>
+            <div class="auth-buttons">
+                <button class="header-btn" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                </button>
+                <button class="header-btn hidden" id="userBtn">
+                    <span id="userNameDisplay"></span>
+                </button>
+                <button class="header-btn hidden" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Home Panel -->
+            <div class="panel active" id="homePanel">
+                <div class="home-panel">
+                    <!-- User Greeting -->
+                    <div class="user-greeting" id="userGreeting" style="display:none;">
+                        <h3>Hi, <span id="userGreetingName"></span></h3>
+                    </div>
+
+                    <!-- Home Actions -->
+                    <div class="home-actions">
+                        <button class="home-btn" id="logoutBtnHome" style="display:none;">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </button>
+                        <button class="home-btn" id="adminPanelBtn" style="display:none;">
+                            <i class="fas fa-cogs"></i> Admin Panel
+                        </button>
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <div class="home-nav-links">
+                        <a href="#" class="home-nav-link active" id="showAllSongs">
+                            <i class="fas fa-music"></i> All Songs
+                        </a>
+                    </div>
+
+                    <!-- Setlist Selector -->
+                    <div class="setlist-selector-mobile">
+                        <label>My Setlist</label>
+                        <select id="setlistDropdown" class="setlist-select">
+                            <option value="">Select a Setlist</option>
+                        </select>
+                    </div>
+
+                    <!-- Favorites Link -->
+                    <div class="home-nav-links">
+                        <a href="#" class="home-nav-link" id="showFavoritesHome">
+                            <i class="fas fa-heart"></i> Favorites <span class="count-badge" id="favoritesBadge">0</span>
+                        </a>
+                    </div>
+
+                    <!-- Add Song Button -->
+                    <button class="btn btn-primary" id="addSongBtnHome" style="width: 100%; margin: 16px 0;">
+                        <i class="fas fa-plus"></i> Add New Song
+                    </button>
+
+                    <!-- Setlist Folders -->
+                    <div class="setlist-folders">
+                        <div class="setlist-folder">
+                            <div class="folder-header" id="globalSetlistHeaderMobile">
+                                <i class="fas fa-chevron-right folder-icon" id="globalSetlistIconMobile"></i>
+                                <i class="fas fa-globe"></i>
+                                <span>Global Setlists</span>
+                                <button id="addGlobalSetlistBtnMobile" class="add-setlist-btn" style="display:none;">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="setlist-folder-content" id="globalSetlistContentMobile" style="display:none;">
+                                <!-- Global setlists will be populated here -->
+                            </div>
+                        </div>
+                        <div class="setlist-folder">
+                            <div class="folder-header" id="mySetlistHeaderMobile">
+                                <i class="fas fa-chevron-right folder-icon" id="mySetlistIconMobile"></i>
+                                <i class="fas fa-user"></i>
+                                <span>My Setlists</span>
+                                <button id="addMySetlistBtnMobile" class="add-setlist-btn">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="setlist-folder-content" id="mySetlistContentMobile" style="display:none;">
+                                <!-- My setlists will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="home-stats">
+                        <h4>Statistics</h4>
+                        <div class="stat-item">
+                            <span>Total Songs:</span>
+                            <strong id="totalSongsHome">0</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Praise:</span>
+                            <strong id="praiseCountHome">0</strong>
+                        </div>
+                        <div class="stat-item">
+                            <span>Worship:</span>
+                            <strong id="worshipCountHome">0</strong>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="home-actions" style="margin-top: auto;">
+                        <button class="home-btn" id="darkModeToggle">
+                            <i class="fas fa-moon"></i> Dark Mode
+                        </button>
+                        <button class="home-btn" id="settingsBtn">
+                            <i class="fas fa-cog"></i> Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Songs Panel -->
+            <div class="panel" id="songsPanel">
+                <div class="songs-panel">
+                    <div class="search-bar">
+                        <div class="search-input-wrapper">
+                            <input type="text" class="search-input" id="searchInput" placeholder="Search songs...">
+                            <button class="search-clear hidden" id="clearSearch">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="filter-btn" id="filterBtn">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="category-tabs">
+                        <button class="category-tab active" data-category="Praise">
+                            <i class="fas fa-hands-clapping"></i> Praise
+                        </button>
+                        <button class="category-tab" data-category="Worship">
+                            <i class="fas fa-dove"></i> Worship
+                        </button>
+                    </div>
+
+                    <div class="filter-pills" id="filterPills">
+                        <div class="pill active" data-key="">All Keys</div>
+                        <div class="pill" data-key="C">C</div>
+                        <div class="pill" data-key="D">D</div>
+                        <div class="pill" data-key="E">E</div>
+                        <div class="pill" data-key="F">F</div>
+                        <div class="pill" data-key="G">G</div>
+                        <div class="pill" data-key="A">A</div>
+                        <div class="pill" data-key="B">B</div>
+                    </div>
+
+                    <div class="song-list" id="songList">
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Loading songs...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lyrics Panel -->
+            <div class="panel" id="lyricsPanel">
+                <div class="lyrics-panel">
+                    <div class="lyrics-header" id="lyricsHeader">
+                        <div class="lyrics-title" id="lyricsTitle">Song Title</div>
+                        <div class="lyrics-info" id="lyricsInfo">
+                            <span><i class="fas fa-music"></i> Key: C</span>
+                            <span><i class="fas fa-drum"></i> Tempo: 120</span>
+                            <span><i class="fas fa-clock"></i> 4/4</span>
+                        </div>
+                    </div>
+
+                    <div class="lyrics-controls">
+                        <button class="control-btn" id="favBtn">
+                            <i class="far fa-heart"></i> Favorite
+                        </button>
+                        <button class="control-btn" id="setlistBtn">
+                            <i class="fas fa-list"></i> Setlist
+                        </button>
+                        <button class="control-btn" id="editBtn">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="control-btn" id="autoScrollBtn">
+                            <i class="fas fa-scroll"></i> Auto Scroll
+                        </button>
+                    </div>
+
+                    <div class="transpose-controls">
+                        <div class="transpose-label">
+                            <i class="fas fa-music"></i>
+                            <span>Transpose</span>
+                        </div>
+                        <div class="transpose-buttons">
+                            <button class="transpose-btn" id="transposeDown">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="transpose-display" id="transposeLevel">0</span>
+                            <button class="transpose-btn" id="transposeUp">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                            <button class="transpose-btn transpose-reset" id="transposeReset">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button class="transpose-btn transpose-save" id="saveTransposeBtn" title="Save transpose">
+                                <i class="fas fa-save"></i>
+                            </button>
+                        </div>
+                        <div class="current-key-display">
+                            <span>Key: <strong id="currentKey">-</strong></span>
+                        </div>
+                    </div>
+
+                    <div class="lyrics-content" id="lyricsContent">
+                        Select a song to view lyrics
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <button class="nav-item active" data-panel="home">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </button>
+            <button class="nav-item" data-panel="songs">
+                <i class="fas fa-list-music"></i>
+                <span>Songs</span>
+            </button>
+            <button class="nav-item" data-panel="lyrics">
+                <i class="fas fa-file-lines"></i>
+                <span>Lyrics</span>
+            </button>
+        </div>
+
+        <!-- Floating Action Button -->
+        <button class="fab hidden" id="addSongFab">
+            <i class="fas fa-plus"></i>
+        </button>
+    </div>
+
+    <!-- Add Song Modal -->
+    <div class="modal" id="addSongModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Song</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="newSongForm">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="songTitle" required placeholder="Enter song title">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="songCategory" required>
+                        <option value="Praise">Praise</option>
+                        <option value="Worship">Worship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Key</label>
+                    <select id="songKey">
+                        <!-- Will be populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Tempo</label>
+                    <input type="text" id="songTempo" placeholder="e.g., 120">
+                </div>
+                <div class="form-group">
+                    <label>Time Signature</label>
+                    <select id="songTime">
+                        <!-- Will be populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Taal</label>
+                    <select id="songTaal">
+                        <!-- Will be populated by JS -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Genres</label>
+                    <input type="text" id="songGenre" placeholder="Search genres...">
+                    <div class="multiselect-dropdown hidden" id="genreDropdown"></div>
+                    <div class="multiselect-selected" id="selectedGenres"></div>
+                </div>
+                <div class="form-group">
+                    <label>Lyrics</label>
+                    <textarea id="songLyrics" required placeholder="Enter song lyrics"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Song</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Song Modal -->
+    <div class="modal" id="editSongModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Song</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="editSongForm">
+                <input type="hidden" id="editSongId">
+                <input type="hidden" id="editSongObjectId">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="editSongTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="editSongCategory" required>
+                        <option value="Praise">Praise</option>
+                        <option value="Worship">Worship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Key</label>
+                    <select id="editSongKey"></select>
+                </div>
+                <div class="form-group">
+                    <label>Tempo</label>
+                    <input type="text" id="editSongTempo">
+                </div>
+                <div class="form-group">
+                    <label>Time Signature</label>
+                    <select id="editSongTime"></select>
+                </div>
+                <div class="form-group">
+                    <label>Taal</label>
+                    <select id="editSongTaal"></select>
+                </div>
+                <div class="form-group">
+                    <label>Genres</label>
+                    <input type="text" id="editSongGenre" placeholder="Search genres...">
+                    <div class="multiselect-dropdown hidden" id="editGenreDropdown"></div>
+                    <div class="multiselect-selected" id="editSelectedGenres"></div>
+                </div>
+                <div class="form-group">
+                    <label>Lyrics</label>
+                    <textarea id="editSongLyrics" required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Song Modal -->
+    <div class="modal" id="deleteSongModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Deletion</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="deleteSongForm">
+                <input type="hidden" id="deleteSongId">
+                <p style="margin-bottom: 20px; color: var(--text-light);">
+                    Are you sure you want to delete <strong id="deleteSongTitle"></strong>?
+                </p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary modal-close" id="cancelDeleteSong">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Login</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email or Username</label>
+                    <input type="text" id="loginUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div id="loginError" style="display:none; color: var(--danger); margin-bottom: 12px;"></div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Register</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>First Name</label>
+                    <input type="text" id="registerFirstName" required>
+                </div>
+                <div class="form-group">
+                    <label>Last Name</label>
+                    <input type="text" id="registerLastName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="registerUsername" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="tel" id="registerPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="registerPassword" required>
+                </div>
+                <div id="registerError" style="display:none; color: var(--danger); margin-bottom: 12px;"></div>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="settingsForm">
+                <div class="form-group">
+                    <label>App Name</label>
+                    <input type="text" id="sidebarHeaderInput" value="Praise & Worship">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Settings</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Setlist Modal -->
+    <div class="modal" id="createSetlistModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Setlist</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="createSetlistForm">
+                <div class="form-group">
+                    <label>Setlist Name</label>
+                    <input type="text" id="newSetlistName" required placeholder="Enter setlist name">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="newSetlistDescription" placeholder="Optional description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Type</label>
+                    <select id="newSetlistType">
+                        <option value="personal">Personal Setlist</option>
+                        <option value="global">Global Setlist (Admin Only)</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add to Setlist Modal -->
+    <div class="modal" id="addToSetlistModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add to Setlist</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div style="padding: 16px 0;">
+                <div class="form-group">
+                    <label>Select Setlist</label>
+                    <select id="addToSetlistSelect" class="setlist-select">
+                        <option value="">Select a setlist...</option>
+                    </select>
+                </div>
+                <p style="text-align: center; margin: 16px 0; color: var(--text-light);">or</p>
+                <button type="button" class="btn btn-secondary" id="createNewSetlistFromModal" style="width: 100%;">
+                    <i class="fas fa-plus"></i> Create New Setlist
+                </button>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmAddToSetlist">Add to Setlist</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Hidden Elements for Compatibility -->
+    <div style="display:none;">
+        <!-- Core navigation tabs -->
+        <div id="PraiseTab" class="active"></div>
+        <div id="WorshipTab"></div>
+        <div id="PraiseContent"></div>
+        <div id="WorshipContent"></div>
+        
+        <!-- Filters -->
+        <select id="keyFilter"></select>
+        <select id="genreFilter"></select>
+        <select id="moodFilter"></select>
+        <select id="artistFilter"></select>
+        <select id="sortFilter"></select>
+        
+        <!-- Preview section -->
+        <div id="songPreview"></div>
+        
+        <!-- Multiselect dropdowns -->
+        <input id="moodDropdown">
+        <input id="artistDropdown">
+        <div id="selectedMoods"></div>
+        <div id="selectedArtists"></div>
+        <input id="editMoodDropdown">
+        <input id="editArtistDropdown">
+        <div id="editSelectedMoods"></div>
+        <div id="editSelectedArtists"></div>
+        
+        <!-- Settings inputs -->
+        <input id="panelWidthInput" value="25">
+        <input id="previewMarginInput" value="40">
+        <input id="autoScrollSpeedInput" value="1500">
+        <select id="sessionResetOption">
+            <option value="never">Never</option>
+        </select>
+        
+        <!-- Sidebar navigation -->
+        <button id="showAll"></button>
+        <button id="showFavorites"></button>
+        <div id="setlistSection"></div>
+        <div id="PraiseSetlistSongs"></div>
+        <div id="WorshipSetlistSongs"></div>
+        <div id="PraiseSetlistTab"></div>
+        <div id="WorshipSetlistTab"></div>
+        <div id="deleteSection"></div>
+        <div id="deleteContent"></div>
+        <div id="favoritesSection"></div>
+        <div id="favoritesContent"></div>
+        
+        <!-- Action buttons -->
+        <button id="openAddSongModal"></button>
+        <button id="openManualSongModal"></button>
+        <button id="openDeleteSongModal"></button>
+        <button id="downloadSongsBtn"></button>
+        <button id="deleteAllSongsBtn"></button>
+        <button id="toggleAutoScroll"></button>
+        <button id="keepScreenOnBtn"></button>
+        <button id="toggle-sidebar"></button>
+        <button id="toggle-songs"></button>
+        <button id="toggle-all-panels"></button>
+        <button id="editSetlistSectionBtn"></button>
+        <button id="resequenceSetlistSectionBtn"></button>
+        <button id="deleteSetlistSectionBtn"></button>
+        <button id="toggleSongTools"></button>
+        <button id="toggleSuggestedSongs"></button>
+        <button id="closeSuggestedSongs"></button>
+        <div id="songToolsContent"></div>
+        <div id="suggestedSongsDrawer"></div>
+        
+        <!-- Modals and overlays -->
+        <div id="confirmDeleteAllModal"></div>
+        <button id="cancelDeleteAll"></button>
+        <button id="confirmDeleteAll"></button>
+        <div id="authChoiceModal"></div>
+        <button id="authLoginBtn"></button>
+        <button id="authRegisterBtn"></button>
+        <button id="closeLoginModal"></button>
+        <button id="closeRegisterModal"></button>
+        <button id="registerBtn"></button>
+        <button id="themeToggle"></button>
+        <button id="installAppBtn"></button>
+        
+        <!-- Search -->
+        <div id="searchResults"></div>
+        <div id="searchResultsContent"></div>
+        <div id="searchHistoryDropdown"></div>
+        <div class="search-container"></div>
+        <button id="downloadHtmlWithSongsBtn"></button>
+        
+        <!-- Setlist content -->
+        <div id="globalSetlistContent"></div>
+        <div id="mySetlistContent"></div>
+        <div id="globalSetlistHeader"></div>
+        <div id="mySetlistHeader"></div>
+        <div id="setlistViewHeader"></div>
+        <div id="setlistSectionActions"></div>
+        <button id="addGlobalSetlistBtn"></button>
+        <button id="addMySetlistBtn"></button>
+        <div id="globalSetlistIcon"></div>
+        
+        <!-- Stats -->
+        <span id="totalSongs">0</span>
+        <span id="PraiseCount">0</span>
+        <span id="WorshipCount">0</span>
+        
+        <!-- Loading overlay -->
+        <div id="loadingOverlay"></div>
+        <div id="loadingPercent"></div>
+        
+        <!-- Notification -->
+        <div id="notification"></div>
+        
+        <!-- User display -->
+        <span id="logoutBtn"></span>
+        
+        <!-- Transpose compatibility elements for main1.js -->
+        <span id="transpose-level">0</span>
+        <span id="current-key">C</span>
+        <div class="song-lyrics"></div>
+        
+        <!-- Hidden count elements for compatibility -->
+        <span id="praiseCount">0</span>
+        <span id="worshipCount">0</span>
+        <span id="favoritesCount">0</span>
+        <span id="allCount">0</span>
+    </div>
+
+    <script src="main1.js"></script>
+    <script>
+        // Mobile-specific initialization
+        (function() {
+            let currentPanel = 'home';
+            let currentCategory = 'All';
+            let currentSongId = null;
+            let autoScrollInterval = null;
+            let currentSetlistSongs = null; // Track if we're viewing a setlist
+
+            // Panel Navigation
+            function switchPanel(panelName) {
+                const panels = document.querySelectorAll('.panel');
+                const navItems = document.querySelectorAll('.nav-item');
+                
+                panels.forEach(panel => {
+                    panel.classList.remove('active', 'left', 'right');
+                    const panelId = panel.id.replace('Panel', '').toLowerCase();
+                    if (panelId === panelName) {
+                        panel.classList.add('active');
+                    } else if (panelId === 'home') {
+                        panel.classList.add('left');
+                    } else if (panelId === 'lyrics') {
+                        panel.classList.add('right');
+                    }
+                });
+
+                navItems.forEach(item => {
+                    item.classList.toggle('active', item.dataset.panel === panelName);
+                });
+
+                currentPanel = panelName;
+                
+                // Update header
+                const backBtn = document.getElementById('backBtn');
+                const headerTitle = document.getElementById('headerTitle');
+                
+                if (panelName === 'home') {
+                    backBtn.style.display = 'none';
+                    headerTitle.textContent = 'Praise & Worship';
+                } else if (panelName === 'songs') {
+                    backBtn.style.display = 'block';
+                    if (currentCategory === 'All' || currentCategory === 'Favorites') {
+                        headerTitle.textContent = currentCategory + ' Songs';
+                    } else {
+                        headerTitle.textContent = currentCategory;
+                    }
+                } else if (panelName === 'lyrics') {
+                    backBtn.style.display = 'block';
+                    headerTitle.textContent = 'Lyrics';
+                }
+
+                // Show/hide FAB
+                document.getElementById('addSongFab').classList.toggle('hidden', panelName !== 'songs');
+            }
+
+            // Bottom Navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    switchPanel(item.dataset.panel);
+                });
+            });
+
+            // Back Button
+            document.getElementById('backBtn').addEventListener('click', () => {
+                if (currentPanel === 'lyrics') {
+                    switchPanel('songs');
+                } else if (currentPanel === 'songs') {
+                    switchPanel('home');
+                }
+            });
+
+            // Category Cards
+            document.querySelectorAll('.action-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const category = card.dataset.category;
+                    currentCategory = category;
+                    
+                    // Mark active
+                    document.querySelectorAll('.action-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    
+                    // Load songs based on category
+                    if (category === 'Favorites' || category === 'All') {
+                        loadSongsForCategory(category);
+                    } else {
+                        // For Praise/Worship, set the tab and load
+                        setActiveCategoryTab(category);
+                        loadSongsForCategory(category);
+                    }
+                    switchPanel('songs');
+                });
+            });
+
+            // Category tabs in songs panel
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const category = tab.dataset.category;
+                    currentCategory = category;
+                    
+                    // Mark active tab
+                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // If viewing a setlist, filter setlist songs by category
+                    if (currentSetlistSongs) {
+                        let filteredSongs = currentSetlistSongs;
+                        if (category === 'Praise') {
+                            filteredSongs = currentSetlistSongs.filter(s => s.category === 'Praise');
+                        } else if (category === 'Worship') {
+                            filteredSongs = currentSetlistSongs.filter(s => s.category === 'Worship');
+                        }
+                        renderSongCards(filteredSongs);
+                    } else {
+                        // Normal all songs view
+                        loadSongsForCategory(category);
+                    }
+                });
+            });
+
+            function setActiveCategoryTab(category) {
+                document.querySelectorAll('.category-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.category === category);
+                });
+            }
+
+            // Load songs for category
+            function loadSongsForCategory(category) {
+                const songList = document.getElementById('songList');
+                songList.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading songs...</p></div>';
+
+                // Get songs from window.songs or window.dataCache.songs
+                setTimeout(() => {
+                    let allSongs = window.songs || window.dataCache?.songs || [];
+                    
+                    // Also try localStorage if not in memory
+                    if (allSongs.length === 0) {
+                        try {
+                            const stored = localStorage.getItem('pw_songs');
+                            if (stored) {
+                                allSongs = JSON.parse(stored);
+                                // Set to window.songs if it was from localStorage
+                                if (!window.songs) window.songs = allSongs;
+                            }
+                        } catch (e) {
+                            console.error('Error loading songs from localStorage:', e);
+                        }
+                    }
+                    
+                    let filteredSongs = allSongs;
+                    
+                    if (category === 'Praise') {
+                        filteredSongs = allSongs.filter(s => s.category === 'Praise');
+                    } else if (category === 'Worship') {
+                        filteredSongs = allSongs.filter(s => s.category === 'Worship');
+                    } else if (category === 'Favorites') {
+                        const favs = window.pw_favorites || JSON.parse(localStorage.getItem('pw_favorites') || '[]');
+                        filteredSongs = allSongs.filter(s => favs.includes(s.id));
+                    }
+                    
+                    console.log(`Loading ${category}: ${filteredSongs.length} songs from ${allSongs.length} total`);
+                    renderSongCards(filteredSongs);
+                }, 300);
+            }
+
+            // Render song cards
+            function renderSongCards(songs) {
+                const songList = document.getElementById('songList');
+                
+                if (!songs || songs.length === 0) {
+                    songList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-music"></i>
+                            <h3>No songs found</h3>
+                            <p>Try a different category or add a new song</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                songList.innerHTML = songs.map(song => `
+                    <div class="song-card" data-id="${song.id}">
+                        <div class="song-card-header">
+                            <div class="song-title">${song.title}</div>
+                            <div class="song-badge ${song.category.toLowerCase()}">${song.category}</div>
+                        </div>
+                        <div class="song-meta">
+                            <span><i class="fas fa-music"></i> ${song.key || 'N/A'}</span>
+                            <span><i class="fas fa-drum"></i> ${song.tempo || 'N/A'}</span>
+                            <span><i class="fas fa-clock"></i> ${song.time || 'N/A'}</span>
+                        </div>
+                        <div class="song-actions">
+                            <button class="song-action-btn primary view-lyrics-btn" data-id="${song.id}">
+                                <i class="fas fa-eye"></i> View
+                            </button>
+                            <button class="song-action-btn add-to-setlist-btn" data-id="${song.id}" title="Add to Selected Setlist">
+                                <i class="fas fa-list"></i> Add
+                            </button>
+                            <button class="song-action-btn edit-song-btn" data-id="${song.id}">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="song-action-btn danger delete-song-btn" data-id="${song.id}">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Attach event listeners to song cards (clicking anywhere on card shows lyrics)
+                document.querySelectorAll('.song-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        // Don't trigger if clicking on action buttons
+                        if (e.target.closest('.song-action-btn')) {
+                            return;
+                        }
+                        const songId = parseInt(card.dataset.id);
+                        console.log('Song card clicked, ID:', songId);
+                        viewSongLyrics(songId);
+                    });
+                });
+
+                // Attach event listeners to view buttons
+                document.querySelectorAll('.view-lyrics-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const songId = parseInt(btn.dataset.id);
+                        console.log('View button clicked, ID:', songId);
+                        viewSongLyrics(songId);
+                    });
+                });
+
+                document.querySelectorAll('.edit-song-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (typeof window.editSong === 'function') {
+                            window.editSong(parseInt(btn.dataset.id));
+                        }
+                    });
+                });
+
+                document.querySelectorAll('.add-to-setlist-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const songId = parseInt(btn.dataset.id);
+                        addSongToSelectedSetlist(songId);
+                    });
+                });
+
+                document.querySelectorAll('.delete-song-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (typeof window.openDeleteSongModal === 'function') {
+                            window.openDeleteSongModal(parseInt(btn.dataset.id));
+                        }
+                    });
+                });
+            }
+
+            // Transpose state
+            let currentTransposeLevel = 0;
+            let currentSongData = null;
+
+            // View song lyrics with chord formatting
+            function viewSongLyrics(songId) {
+                console.log('viewSongLyrics called with songId:', songId, 'type:', typeof songId);
+                
+                // Get all available songs
+                const allSongs = window.songs || window.dataCache?.songs || [];
+                console.log('Available songs:', allSongs.length);
+                
+                // Ensure songId is a number
+                const numericSongId = parseInt(songId);
+                console.log('Searching for song with numeric ID:', numericSongId);
+                
+                const song = allSongs.find(s => s.id === numericSongId);
+                
+                if (!song) {
+                    console.error('Song not found with id:', numericSongId);
+                    console.log('Available song IDs:', allSongs.map(s => ({ id: s.id, title: s.title })).slice(0, 10));
+                    
+                    // Show error message
+                    document.getElementById('lyricsContent').innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: var(--text-light);">
+                            <i class="fas fa-exclamation-circle" style="font-size: 48px; margin-bottom: 16px;"></i>
+                            <h3>Song Not Found</h3>
+                            <p>Could not load song with ID: ${numericSongId}</p>
+                        </div>
+                    `;
+                    switchPanel('lyrics');
+                    return;
+                }
+                
+                console.log('Found song:', song.title, 'with lyrics length:', song.lyrics?.length || 0);
+
+                currentSongId = numericSongId;
+                currentSongData = song;
+                currentTransposeLevel = 0;
+
+                // Update header
+                const lyricsHeader = document.getElementById('lyricsHeader');
+                lyricsHeader.className = 'lyrics-header ' + (song.category || 'Praise').toLowerCase() + '-bg';
+                
+                document.getElementById('lyricsTitle').textContent = song.title || 'Untitled';
+                document.getElementById('lyricsInfo').innerHTML = `
+                    <span><i class="fas fa-music"></i> Key: ${song.key || 'N/A'}</span>
+                    <span><i class="fas fa-drum"></i> Tempo: ${song.tempo || 'N/A'}</span>
+                    <span><i class="fas fa-clock"></i> ${song.time || song.timeSignature || 'N/A'}</span>
+                `;
+                
+                // Reset transpose
+                document.getElementById('transposeLevel').textContent = '0';
+                document.getElementById('currentKey').textContent = song.key || 'N/A';
+                
+                // Set lyrics content with chord formatting
+                const lyricsContent = document.getElementById('lyricsContent');
+                if (song.lyrics && song.lyrics.trim()) {
+                    if (typeof window.formatLyricsWithChords === 'function') {
+                        lyricsContent.innerHTML = window.formatLyricsWithChords(song.lyrics, 0);
+                    } else {
+                        lyricsContent.textContent = song.lyrics;
+                    }
+                    console.log('Lyrics set successfully with chord formatting');
+                } else {
+                    lyricsContent.innerHTML = `
+                        <div style="text-align: center; padding: 40px 20px; color: var(--text-light);">
+                            <i class="fas fa-file-lines" style="font-size: 48px; margin-bottom: 16px;"></i>
+                            <h3>No Lyrics Available</h3>
+                            <p>This song does not have lyrics yet.</p>
+                        </div>
+                    `;
+                    console.log('No lyrics available for this song');
+                }
+
+                // Update controls
+                const favBtn = document.getElementById('favBtn');
+                const favsList = window.pw_favorites || JSON.parse(localStorage.getItem('pw_favorites') || '[]');
+                const isFavorite = favsList.includes(numericSongId);
+                favBtn.innerHTML = isFavorite ? '<i class="fas fa-heart"></i> Favorite' : '<i class="far fa-heart"></i> Favorite';
+                favBtn.classList.toggle('active', isFavorite);
+
+                console.log('Switching to lyrics panel');
+                switchPanel('lyrics');
+            }
+
+            // Transpose functions
+            function updateTranspose(level) {
+                if (!currentSongData) return;
+                
+                currentTransposeLevel = Math.max(-12, Math.min(12, level));
+                document.getElementById('transposeLevel').textContent = currentTransposeLevel;
+                
+                // Update key display
+                const originalKey = currentSongData.key || 'C';
+                if (currentTransposeLevel === 0) {
+                    document.getElementById('currentKey').textContent = originalKey;
+                } else {
+                    if (typeof window.transposeChord === 'function') {
+                        document.getElementById('currentKey').textContent = window.transposeChord(originalKey, currentTransposeLevel);
+                    }
+                }
+                
+                // Reformat lyrics with new transpose level
+                const lyricsContent = document.getElementById('lyricsContent');
+                if (currentSongData.lyrics && currentSongData.lyrics.trim()) {
+                    if (typeof window.formatLyricsWithChords === 'function') {
+                        lyricsContent.innerHTML = window.formatLyricsWithChords(currentSongData.lyrics, currentTransposeLevel);
+                    }
+                }
+            }
+
+            // FAB
+            document.getElementById('addSongFab').addEventListener('click', () => {
+                document.getElementById('addSongModal').classList.add('active');
+            });
+
+            // Modal handling
+            document.querySelectorAll('.modal-close').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.closest('.modal').classList.remove('active');
+                });
+            });
+
+            // Transpose controls
+            document.getElementById('transposeUp').addEventListener('click', () => {
+                updateTranspose(currentTransposeLevel + 1);
+            });
+
+            document.getElementById('transposeDown').addEventListener('click', () => {
+                updateTranspose(currentTransposeLevel - 1);
+            });
+
+            document.getElementById('transposeReset').addEventListener('click', () => {
+                updateTranspose(0);
+            });
+
+            // Save transpose button
+            document.getElementById('saveTransposeBtn').addEventListener('click', async () => {
+                if (!currentSongData || !currentUser) {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('Login required to save transpose');
+                    }
+                    return;
+                }
+
+                const level = currentTransposeLevel;
+                const originalKey = currentSongData.key || 'C';
+                
+                // Calculate new key
+                let newKey = originalKey;
+                if (typeof window.transposeChord === 'function') {
+                    newKey = window.transposeChord(originalKey, level);
+                }
+
+                // Save transpose using main1.js function if available
+                if (typeof window.saveTransposeToBackend === 'function') {
+                    await window.saveTransposeToBackend(currentSongData.id, level, newKey);
+                } else {
+                    // Fallback: save to localStorage
+                    const userData = JSON.parse(localStorage.getItem('pw_userdata') || '{}');
+                    if (!userData.transpose) userData.transpose = {};
+                    userData.transpose[currentSongData.id] = level;
+                    localStorage.setItem('pw_userdata', JSON.stringify(userData));
+                    
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('Transpose saved!');
+                    }
+                }
+            });
+
+            // Click outside modal to close
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target === modal) {
+                        modal.classList.remove('active');
+                    }
+                });
+            });
+
+            // Lyrics controls
+            document.getElementById('favBtn').addEventListener('click', () => {
+                if (currentSongId && typeof window.toggleFavorite === 'function') {
+                    window.toggleFavorite(currentSongId);
+                    // Reload song to update favorite button state
+                    setTimeout(() => {
+                        if (currentSongData) {
+                            const favsList = window.pw_favorites || JSON.parse(localStorage.getItem('pw_favorites') || '[]');
+                            const isFavorite = favsList.includes(currentSongId);
+                            const favBtn = document.getElementById('favBtn');
+                            favBtn.innerHTML = isFavorite ? '<i class="fas fa-heart"></i> Favorite' : '<i class="far fa-heart"></i> Favorite';
+                            favBtn.classList.toggle('active', isFavorite);
+                        }
+                    }, 100);
+                }
+            });
+
+            document.getElementById('setlistBtn').addEventListener('click', () => {
+                if (!currentSongId) {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('No song selected');
+                    }
+                    return;
+                }
+                
+                // Check if setlist is selected
+                const setlistDropdown = document.getElementById('setlistDropdown');
+                const selectedSetlist = setlistDropdown ? setlistDropdown.value : '';
+                
+                if (selectedSetlist) {
+                    // Add/remove from selected setlist
+                    if (typeof window.checkSongInSetlistAndToggle === 'function') {
+                        window.checkSongInSetlistAndToggle(currentSongId, selectedSetlist);
+                    }
+                } else {
+                    // Show modal to select setlist
+                    showAddToSetlistModal(currentSongId);
+                }
+            });
+
+            document.getElementById('editBtn').addEventListener('click', () => {
+                if (currentSongId && typeof window.editSong === 'function') {
+                    window.editSong(currentSongId);
+                }
+            });
+
+            document.getElementById('autoScrollBtn').addEventListener('click', () => {
+                const btn = document.getElementById('autoScrollBtn');
+                const content = document.getElementById('lyricsContent');
+                
+                if (autoScrollInterval) {
+                    clearInterval(autoScrollInterval);
+                    autoScrollInterval = null;
+                    btn.classList.remove('active');
+                    btn.innerHTML = '<i class="fas fa-scroll"></i> Auto Scroll';
+                } else {
+                    btn.classList.add('active');
+                    btn.innerHTML = '<i class="fas fa-pause"></i> Stop Scroll';
+                    autoScrollInterval = setInterval(() => {
+                        content.scrollBy(0, 1);
+                    }, 50);
+                }
+            });
+
+            // Search
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                document.getElementById('clearSearch').classList.toggle('hidden', !query);
+                
+                const allSongs = window.songs || window.dataCache?.songs || [];
+                if (allSongs.length > 0) {
+                    const filtered = allSongs.filter(s => 
+                        s.title.toLowerCase().includes(query) ||
+                        (s.lyrics && s.lyrics.toLowerCase().includes(query))
+                    );
+                    renderSongCards(filtered);
+                }
+            });
+
+            document.getElementById('clearSearch').addEventListener('click', () => {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('clearSearch').classList.add('hidden');
+                loadSongsForCategory(currentCategory);
+            });
+
+            // Filter pills
+            document.querySelectorAll('.pill').forEach(pill => {
+                pill.addEventListener('click', () => {
+                    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+                    pill.classList.add('active');
+                    
+                    const key = pill.dataset.key;
+                    const allSongs = window.songs || window.dataCache?.songs || [];
+                    if (allSongs.length > 0) {
+                        const filtered = key ? allSongs.filter(s => s.key === key) : allSongs;
+                        renderSongCards(filtered);
+                    }
+                });
+            });
+
+            // Function to add song to currently selected setlist
+            function addSongToSelectedSetlist(songId) {
+                const setlistDropdown = document.getElementById('setlistDropdown');
+                const selectedSetlist = setlistDropdown ? setlistDropdown.value : '';
+                
+                if (!selectedSetlist) {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('Please select a setlist first from the Home page');
+                    }
+                    return;
+                }
+                
+                if (typeof window.checkSongInSetlistAndToggle === 'function') {
+                    window.checkSongInSetlistAndToggle(songId, selectedSetlist);
+                } else {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('Setlist function not available');
+                    }
+                }
+            }
+
+            // Setlist dropdown change handler
+            document.getElementById('setlistDropdown').addEventListener('change', (e) => {
+                const selectedValue = e.target.value;
+                console.log('📋 Setlist selected:', selectedValue);
+                
+                if (!selectedValue) {
+                    // Return to all songs view
+                    currentSetlistSongs = null; // Clear setlist context
+                    currentCategory = 'All';
+                    switchPanel('songs');
+                    loadSongsForCategory('All');
+                    return;
+                }
+                
+                const [type, id] = selectedValue.split('_');
+                let setlist = null;
+                
+                if (type === 'global' && window.globalSetlists) {
+                    setlist = window.globalSetlists.find(s => s._id === id);
+                } else if (type === 'my' && window.mySetlists) {
+                    setlist = window.mySetlists.find(s => s._id === id);
+                }
+                
+                if (setlist) {
+                    displaySetlistSongsInMobile(setlist);
+                } else {
+                    console.error('Setlist not found:', selectedValue);
+                }
+            });
+
+            // Home panel navigation
+            document.getElementById('showAllSongs').addEventListener('click', (e) => {
+                e.preventDefault();
+                currentSetlistSongs = null; // Clear setlist context
+                currentCategory = 'All';
+                switchPanel('songs');
+                loadSongsForCategory('All');
+            });
+
+            document.getElementById('showFavoritesHome').addEventListener('click', (e) => {
+                e.preventDefault();
+                currentCategory = 'Favorites';
+                switchPanel('songs');
+                loadSongsForCategory('Favorites');
+            });
+
+            document.getElementById('addSongBtnHome').addEventListener('click', () => {
+                document.getElementById('addSongModal').classList.add('active');
+            });
+
+            document.getElementById('logoutBtnHome').addEventListener('click', () => {
+                if (typeof window.handleLogout === 'function') {
+                    window.handleLogout();
+                }
+            });
+
+            document.getElementById('adminPanelBtn').addEventListener('click', () => {
+                if (typeof window.openAdminPanel === 'function') {
+                    window.openAdminPanel();
+                }
+            });
+
+            // Settings
+            document.getElementById('settingsBtn').addEventListener('click', () => {
+                document.getElementById('settingsModal').classList.add('active');
+            });
+
+            // Auth buttons
+            document.getElementById('loginBtn').addEventListener('click', () => {
+                document.getElementById('loginModal').classList.add('active');
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', () => {
+                if (typeof window.handleLogout === 'function') {
+                    window.handleLogout();
+                }
+            });
+
+            // Update song counts
+            function updateCounts() {
+                // Try multiple sources for songs
+                const allSongs = window.songs || window.dataCache?.songs || [];
+                
+                // Also try localStorage if memory is empty
+                if (allSongs.length === 0) {
+                    try {
+                        const stored = localStorage.getItem('pw_songs');
+                        if (stored) {
+                            const parsedSongs = JSON.parse(stored);
+                            if (!window.songs) window.songs = parsedSongs;
+                            updateCountsFromArray(parsedSongs);
+                            return;
+                        }
+                    } catch (e) {
+                        console.error('Error reading songs from localStorage:', e);
+                    }
+                }
+                
+                updateCountsFromArray(allSongs);
+            }
+            
+            function updateCountsFromArray(allSongs) {
+                if (allSongs && allSongs.length > 0) {
+                    const praise = allSongs.filter(s => s.category === 'Praise').length;
+                    const worship = allSongs.filter(s => s.category === 'Worship').length;
+                    const favs = window.pw_favorites || JSON.parse(localStorage.getItem('pw_favorites') || '[]');
+                    const favorites = favs.length;
+                    
+                    // Update quick action counts (hidden elements for compatibility)
+                    const praiseEl = document.getElementById('praiseCount');
+                    const worshipEl = document.getElementById('worshipCount');
+                    const favoritesEl = document.getElementById('favoritesCount');
+                    const allEl = document.getElementById('allCount');
+                    
+                    if (praiseEl) praiseEl.textContent = `${praise}`;
+                    if (worshipEl) worshipEl.textContent = `${worship}`;
+                    if (favoritesEl) favoritesEl.textContent = `${favorites}`;
+                    if (allEl) allEl.textContent = `${allSongs.length}`;
+                    
+                    // Update home panel stats
+                    const totalEl = document.getElementById('totalSongsHome');
+                    const praiseHomeEl = document.getElementById('praiseCountHome');
+                    const worshipHomeEl = document.getElementById('worshipCountHome');
+                    const favBadgeEl = document.getElementById('favoritesBadge');
+                    
+                    if (totalEl) totalEl.textContent = allSongs.length;
+                    if (praiseHomeEl) praiseHomeEl.textContent = praise;
+                    if (worshipHomeEl) worshipHomeEl.textContent = worship;
+                    if (favBadgeEl) favBadgeEl.textContent = favorites;
+                    
+                    console.log('Updated counts:', { praise, worship, favorites, total: allSongs.length });
+                }
+            }
+
+            // Update user greeting
+            function updateUserGreeting() {
+                const userGreeting = document.getElementById('userGreeting');
+                const userGreetingName = document.getElementById('userGreetingName');
+                const logoutBtnHome = document.getElementById('logoutBtnHome');
+                const adminPanelBtn = document.getElementById('adminPanelBtn');
+                const loginBtn = document.getElementById('loginBtn');
+                const userBtn = document.getElementById('userBtn');
+                const logoutBtn = document.getElementById('logoutBtn');
+                const userNameDisplay = document.getElementById('userNameDisplay');
+                
+                if (window.currentUser && window.currentUser.firstName) {
+                    if (userGreeting) userGreeting.style.display = 'block';
+                    if (userGreetingName) userGreetingName.textContent = window.currentUser.firstName + ' ' + (window.currentUser.lastName || '');
+                    if (logoutBtnHome) logoutBtnHome.style.display = 'block';
+                    
+                    // Show/hide admin button
+                    const isAdmin = typeof window.isAdmin === 'function' ? window.isAdmin() : false;
+                    if (adminPanelBtn) adminPanelBtn.style.display = isAdmin ? 'block' : 'none';
+                    
+                    // Header buttons
+                    if (loginBtn) loginBtn.classList.add('hidden');
+                    if (userBtn) userBtn.classList.remove('hidden');
+                    if (logoutBtn) logoutBtn.classList.remove('hidden');
+                    if (userNameDisplay) userNameDisplay.textContent = window.currentUser.firstName;
+                } else {
+                    if (userGreeting) userGreeting.style.display = 'none';
+                    if (logoutBtnHome) logoutBtnHome.style.display = 'none';
+                    if (adminPanelBtn) adminPanelBtn.style.display = 'none';
+                    
+                    // Header buttons
+                    if (loginBtn) loginBtn.classList.remove('hidden');
+                    if (userBtn) userBtn.classList.add('hidden');
+                    if (logoutBtn) logoutBtn.classList.add('hidden');
+                }
+            }
+
+            // Notification wrapper
+            window.showMobileNotification = function(message) {
+                const notif = document.getElementById('notification');
+                notif.textContent = message;
+                notif.classList.add('show');
+                setTimeout(() => notif.classList.remove('show'), 3000);
+            };
+
+            // Override desktop showNotification
+            const originalShowNotification = window.showNotification;
+            window.showNotification = function(message) {
+                window.showMobileNotification(message);
+                if (originalShowNotification) originalShowNotification(message);
+            };
+
+            // Periodically update counts
+            setInterval(updateCounts, 2000);
+            
+            // Initial update
+            setTimeout(updateCounts, 1000);
+            setTimeout(updateUserGreeting, 1000);
+            
+            // Check admin status and show/hide admin buttons
+            function updateAdminUI() {
+                updateUserGreeting();
+                
+                const isAdmin = typeof window.isAdmin === 'function' ? window.isAdmin() : false;
+                const globalAddBtn = document.getElementById('addGlobalSetlistBtnMobile');
+                const globalOption = document.querySelector('#newSetlistType option[value="global"]');
+                
+                if (globalAddBtn) {
+                    globalAddBtn.style.display = isAdmin ? 'block' : 'none';
+                }
+                
+                if (globalOption) {
+                    globalOption.disabled = !isAdmin;
+                    if (!isAdmin) {
+                        globalOption.textContent = 'Global Setlist (Admin Only - Locked)';
+                    }
+                }
+            }
+            
+            // Update admin UI on load and after login
+            setTimeout(updateAdminUI, 1000);
+            document.addEventListener('userLoggedIn', updateAdminUI);
+            document.addEventListener('userLoggedOut', updateUserGreeting);
+            
+            // Listen for songs loaded event
+            let songsLoadCheckInterval = setInterval(() => {
+                if (window.songs && window.songs.length > 0) {
+                    console.log('Songs loaded:', window.songs.length);
+                    updateCounts();
+                    clearInterval(songsLoadCheckInterval);
+                }
+            }, 500);
+            
+            // Also listen for custom event if main1.js dispatches it
+            document.addEventListener('songsLoaded', () => {
+                console.log('Songs loaded event received');
+                updateCounts();
+            });
+
+            // ===== SETLIST MANAGEMENT =====
+            
+            // Show add to setlist modal
+            function showAddToSetlistModal(songId) {
+                const modal = document.getElementById('addToSetlistModal');
+                const select = document.getElementById('addToSetlistSelect');
+                
+                // Populate setlist dropdown
+                populateSetlistDropdown(select);
+                
+                // Store song ID on modal
+                modal.dataset.songId = songId;
+                
+                modal.classList.add('active');
+            }
+
+            // Populate setlist dropdown
+            function populateSetlistDropdown(selectElement) {
+                if (!selectElement) return;
+                
+                selectElement.innerHTML = '<option value="">Select a setlist...</option>';
+                
+                // Get setlists from main1.js or localStorage
+                let setlists = [];
+                
+                if (typeof window.getAllSetlists === 'function') {
+                    setlists = window.getAllSetlists();
+                } else {
+                    // Fallback to reading from main dropdown
+                    const mainDropdown = document.getElementById('setlistDropdown');
+                    if (mainDropdown) {
+                        Array.from(mainDropdown.options).forEach(opt => {
+                            if (opt.value) {
+                                setlists.push({ id: opt.value, name: opt.text });
+                            }
+                        });
+                    }
+                }
+                
+                setlists.forEach(setlist => {
+                    const option = document.createElement('option');
+                    option.value = setlist.id || setlist._id;
+                    option.textContent = setlist.name;
+                    selectElement.appendChild(option);
+                });
+            }
+
+            // Confirm add to setlist
+            document.getElementById('confirmAddToSetlist').addEventListener('click', () => {
+                const modal = document.getElementById('addToSetlistModal');
+                const select = document.getElementById('addToSetlistSelect');
+                const songId = parseInt(modal.dataset.songId);
+                const setlistId = select.value;
+                
+                if (!setlistId) {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('Please select a setlist');
+                    }
+                    return;
+                }
+                
+                if (typeof window.checkSongInSetlistAndToggle === 'function') {
+                    window.checkSongInSetlistAndToggle(songId, setlistId);
+                }
+                
+                modal.classList.remove('active');
+            });
+
+            // Create setlist button
+            document.getElementById('createSetlistBtn').addEventListener('click', () => {
+                document.getElementById('createSetlistModal').classList.add('active');
+            });
+
+            // Create new setlist from modal button
+            document.getElementById('createNewSetlistFromModal').addEventListener('click', () => {
+                document.getElementById('addToSetlistModal').classList.remove('active');
+                document.getElementById('createSetlistModal').classList.add('active');
+            });
+
+            // Create setlist form
+            document.getElementById('createSetlistForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const form = e.target;
+                const name = document.getElementById('newSetlistName').value.trim();
+                const description = document.getElementById('newSetlistDescription').value.trim();
+                
+                // Check if type is set from add button click or from select element
+                let type = form.dataset.setlistType || document.getElementById('newSetlistType')?.value || 'my';
+                
+                if (!name) {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('Please enter a setlist name');
+                    }
+                    return;
+                }
+                
+                if (typeof window.createSetlist === 'function') {
+                    const isGlobal = type === 'global';
+                    await window.createSetlist(name, description, isGlobal);
+                } else {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('Setlist creation not available');
+                    }
+                }
+                
+                // Close modal and reset form
+                document.getElementById('createSetlistModal').classList.remove('active');
+                form.reset();
+                delete form.dataset.setlistType; // Clear the type
+                
+                // Refresh setlist dropdown and folders
+                refreshSetlists();
+            });
+
+            // Folder toggle functionality
+            document.getElementById('globalSetlistHeaderMobile').addEventListener('click', () => {
+                const content = document.getElementById('globalSetlistContentMobile');
+                const icon = document.getElementById('globalSetlistIconMobile');
+                const addBtn = document.getElementById('addGlobalSetlistBtnMobile');
+                
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    icon.classList.add('open');
+                    loadGlobalSetlists();
+                    
+                    // Show add button only for admins
+                    if (window.isAdmin) {
+                        addBtn.style.display = 'inline-flex';
+                    }
+                } else {
+                    content.style.display = 'none';
+                    icon.classList.remove('open');
+                    addBtn.style.display = 'none';
+                }
+            });
+
+            document.getElementById('mySetlistHeaderMobile').addEventListener('click', () => {
+                const content = document.getElementById('mySetlistContentMobile');
+                const icon = document.getElementById('mySetlistIconMobile');
+                const addBtn = document.getElementById('addMySetlistBtnMobile');
+                
+                if (content.style.display === 'none') {
+                    content.style.display = 'block';
+                    icon.classList.add('open');
+                    loadMySetlists();
+                    
+                    // Show add button only when logged in
+                    if (window.jwtToken && window.currentUser) {
+                        addBtn.style.display = 'inline-flex';
+                    }
+                } else {
+                    content.style.display = 'none';
+                    icon.classList.remove('open');
+                    addBtn.style.display = 'none';
+                }
+            });
+            
+            // Add button event handlers
+            document.getElementById('addGlobalSetlistBtnMobile')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!window.isAdmin) {
+                    window.showNotification && window.showNotification('Only admins can create global setlists', 'error');
+                    return;
+                }
+                
+                // Open create setlist modal for global setlist
+                const modal = document.getElementById('createSetlistModal');
+                const form = document.getElementById('createSetlistForm');
+                form.reset();
+                form.dataset.setlistType = 'global';
+                modal.classList.add('active');
+            });
+            
+            document.getElementById('addMySetlistBtnMobile')?.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!window.jwtToken || !window.currentUser) {
+                    window.showNotification && window.showNotification('Please login to create setlists', 'error');
+                    return;
+                }
+                
+                // Open create setlist modal for personal setlist
+                const modal = document.getElementById('createSetlistModal');
+                const form = document.getElementById('createSetlistForm');
+                form.reset();
+                form.dataset.setlistType = 'my';
+                modal.classList.add('active');
+            });
+            
+            // Create setlist function (mobile-specific)
+            async function createSetlist(name, description, isGlobal) {
+                const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+                    ? 'http://localhost:3001'
+                    : 'https://praiseandworshipapp.onrender.com';
+                
+                const endpoint = isGlobal ? 'global-setlists' : 'my-setlists';
+                
+                try {
+                    const headers = {
+                        'Content-Type': 'application/json'
+                    };
+                    
+                    if (window.jwtToken) {
+                        headers['Authorization'] = `Bearer ${window.jwtToken}`;
+                    }
+                    
+                    const res = await fetch(`${API_BASE_URL}/api/${endpoint}`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({ name, description, songs: [] })
+                    });
+                    
+                    if (res.ok) {
+                        window.showNotification && window.showNotification(`${isGlobal ? 'Global' : 'Personal'} setlist created successfully`, 'success');
+                        return true;
+                    } else if (res.status === 403) {
+                        window.showNotification && window.showNotification('Permission denied', 'error');
+                        return false;
+                    } else {
+                        const errorText = await res.text();
+                        window.showNotification && window.showNotification(`Error: ${errorText}`, 'error');
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Error creating setlist:', error);
+                    window.showNotification && window.showNotification('Error creating setlist', 'error');
+                    return false;
+                }
+            }
+            
+            // Expose createSetlist to window for form submission
+            window.createSetlist = createSetlist;
+
+            document.getElementById('addMySetlistBtnMobile').addEventListener('click', (e) => {
+                e.stopPropagation();
+                document.getElementById('newSetlistType').value = 'personal';
+                document.getElementById('createSetlistModal').classList.add('active');
+            });
+
+            // Load setlists functions
+            async function loadGlobalSetlists() {
+                const container = document.getElementById('globalSetlistContentMobile');
+                
+                if (typeof window.loadGlobalSetlists === 'function') {
+                    await window.loadGlobalSetlists(true); // Force refresh
+                    // Get the loaded setlists from window.globalSetlists
+                    const setlists = window.globalSetlists || [];
+                    renderSetlistItems(container, setlists, 'global');
+                } else {
+                    container.innerHTML = '<p style="padding: 12px; text-align: center; color: var(--text-light);">No global setlists available</p>';
+                }
+            }
+
+            async function loadMySetlists() {
+                const container = document.getElementById('mySetlistContentMobile');
+                
+                if (typeof window.loadMySetlists === 'function') {
+                    await window.loadMySetlists(true); // Force refresh
+                    // Get the loaded setlists from window.mySetlists
+                    const setlists = window.mySetlists || [];
+                    renderSetlistItems(container, setlists, 'my');
+                } else {
+                    container.innerHTML = '<p style="padding: 12px; text-align: center; color: var(--text-light);">No personal setlists available</p>';
+                }
+            }
+
+            function renderSetlistItems(container, setlists, type) {
+                if (!setlists || setlists.length === 0) {
+                    const emptyMsg = type === 'global' 
+                        ? '<p style="padding: 12px; text-align: center; color: var(--text-light);">No global setlists available</p>'
+                        : window.jwtToken 
+                            ? '<p style="padding: 12px; text-align: center; color: var(--text-light);">No personal setlists created</p>'
+                            : '<p style="padding: 12px; text-align: center; color: var(--text-light);">Login to create your setlists</p>';
+                    container.innerHTML = emptyMsg;
+                    return;
+                }
+                
+                container.innerHTML = setlists.map(setlist => `
+                    <div class="setlist-item" data-setlist-id="${setlist._id || setlist.id}" data-type="${type}">
+                        <div class="setlist-item-main">
+                            <i class="fas fa-list"></i>
+                            <span>${setlist.name}</span>
+                            <span class="count">${setlist.songs ? setlist.songs.length : 0}</span>
+                        </div>
+                        <div class="setlist-actions" style="display: flex; gap: 4px;">
+                            <button class="setlist-action-btn edit-setlist" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="setlist-action-btn delete-setlist" title="Delete">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                // Add click handlers
+                container.querySelectorAll('.setlist-item').forEach(item => {
+                    const setlistId = item.dataset.setlistId;
+                    const setlistType = item.dataset.type;
+                    
+                    // Main item click - view setlist
+                    item.querySelector('.setlist-item-main').addEventListener('click', () => {
+                        viewSetlistSongs(setlistId);
+                    });
+                    
+                    // Edit button
+                    item.querySelector('.edit-setlist')?.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (setlistType === 'global' && typeof window.editGlobalSetlist === 'function') {
+                            window.editGlobalSetlist(setlistId);
+                        } else if (setlistType === 'my' && typeof window.editMySetlist === 'function') {
+                            window.editMySetlist(setlistId);
+                        }
+                    });
+                    
+                    // Delete button
+                    item.querySelector('.delete-setlist')?.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (setlistType === 'global' && typeof window.deleteGlobalSetlist === 'function') {
+                            window.deleteGlobalSetlist(setlistId);
+                        } else if (setlistType === 'my' && typeof window.deleteMySetlist === 'function') {
+                            window.deleteMySetlist(setlistId);
+                        }
+                    });
+                });
+            }
+
+            // View songs in a setlist (called from folder click)
+            function viewSetlistSongs(setlistId) {
+                // Find the setlist in either global or my setlists
+                let setlist = null;
+                if (window.globalSetlists) {
+                    setlist = window.globalSetlists.find(s => s._id === setlistId || s.id === setlistId);
+                }
+                if (!setlist && window.mySetlists) {
+                    setlist = window.mySetlists.find(s => s._id === setlistId || s.id === setlistId);
+                }
+                
+                if (setlist) {
+                    displaySetlistSongsInMobile(setlist);
+                } else {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('Setlist not found');
+                    }
+                }
+            }
+
+            // Display setlist songs in mobile view with category filtering
+            function displaySetlistSongsInMobile(setlist) {
+                if (!setlist || !setlist.songs || setlist.songs.length === 0) {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('This setlist is empty');
+                    }
+                    return;
+                }
+
+                // Get full song objects
+                const allSongs = window.songs || JSON.parse(localStorage.getItem('pw_songs') || '[]');
+                const setlistSongs = setlist.songs.map(songId => {
+                    // Handle both ID strings and manual song objects
+                    if (typeof songId === 'object' && songId !== null) {
+                        return songId;
+                    }
+                    return allSongs.find(s => s._id === songId || s.id === songId);
+                }).filter(Boolean); // Remove nulls
+
+                if (setlistSongs.length === 0) {
+                    if (typeof window.showNotification === 'function') {
+                        window.showNotification('No songs found in this setlist');
+                    }
+                    return;
+                }
+
+                // Switch to songs panel
+                currentCategory = setlist.name;
+                currentSetlistSongs = setlistSongs; // Store for category filtering
+                switchPanel('songs');
+                
+                // Update header
+                document.getElementById('headerTitle').textContent = setlist.name;
+                
+                // Set active tab based on current category or default to All
+                const activeTab = document.querySelector('.category-tab.active');
+                const activeCategory = activeTab ? activeTab.dataset.category : 'All';
+                
+                // Filter by active category
+                let filteredSongs = setlistSongs;
+                if (activeCategory === 'Praise') {
+                    filteredSongs = setlistSongs.filter(s => s.category === 'Praise');
+                } else if (activeCategory === 'Worship') {
+                    filteredSongs = setlistSongs.filter(s => s.category === 'Worship');
+                }
+                
+                renderSongCards(filteredSongs);
+            }
+
+            async function refreshSetlists() {
+                // Refresh main dropdown using main1.js function
+                if (typeof window.populateSetlistDropdown === 'function') {
+                    window.populateSetlistDropdown();
+                }
+                
+                // Refresh folders if open
+                const globalContent = document.getElementById('globalSetlistContentMobile');
+                const myContent = document.getElementById('mySetlistContentMobile');
+                
+                if (globalContent.style.display === 'block') {
+                    await loadGlobalSetlists();
+                }
+                
+                if (myContent.style.display === 'block') {
+                    await loadMySetlists();
+                }
+            }
+
+            // Make functions global
+            window.mobileApp = {
+                switchPanel,
+                loadSongsForCategory,
+                viewSongLyrics,
+                updateCounts,
+                renderSongCards,
+                showAddToSetlistModal,
+                refreshSetlists,
+                loadGlobalSetlists,
+                loadMySetlists,
+                viewSetlistSongs
+            };
+            
+            // Expose render function for main1.js to call
+            window.mobileRenderUpdate = function() {
+                updateCounts();
+                if (currentPanel === 'songs' && currentCategory) {
+                    loadSongsForCategory(currentCategory);
+                }
+                refreshSetlists();
+            };
+
+            // Initialize setlists on page load
+            async function initializeSetlists() {
+                console.log('📋 Initializing setlists...');
+                
+                // Update user greeting first
+                updateUserGreeting();
+                updateAdminUI();
+                
+                if (typeof window.loadGlobalSetlists === 'function') {
+                    console.log('📥 Loading global setlists...');
+                    await window.loadGlobalSetlists();
+                    console.log('✅ Global setlists loaded:', window.globalSetlists);
+                } else {
+                    console.warn('⚠️ window.loadGlobalSetlists not available');
+                }
+                
+                if (window.jwtToken && typeof window.loadMySetlists === 'function') {
+                    console.log('📥 Loading my setlists...');
+                    await window.loadMySetlists();
+                    console.log('✅ My setlists loaded:', window.mySetlists);
+                } else {
+                    console.log('ℹ️ Skipping my setlists (not logged in or function unavailable)');
+                }
+                
+                if (typeof window.populateSetlistDropdown === 'function') {
+                    console.log('📝 Populating setlist dropdown...');
+                    window.populateSetlistDropdown();
+                    const dropdown = document.getElementById('setlistDropdown');
+                    console.log('✅ Dropdown populated with', dropdown ? dropdown.options.length : 0, 'options');
+                } else {
+                    console.warn('⚠️ window.populateSetlistDropdown not available');
+                }
+            }
+
+            // Watch for login modal close to refresh UI
+            const loginModal = document.getElementById('loginModal');
+            if (loginModal) {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.attributeName === 'style' || mutation.attributeName === 'class') {
+                            const isHidden = !loginModal.classList.contains('active') && 
+                                           loginModal.style.display === 'none';
+                            if (isHidden && window.currentUser) {
+                                // User logged in, refresh UI
+                                setTimeout(() => {
+                                    updateUserGreeting();
+                                    updateAdminUI();
+                                    initializeSetlists();
+                                }, 100);
+                            }
+                        }
+                    });
+                });
+                observer.observe(loginModal, { attributes: true });
+            }
+
+            // Call initialization after a short delay to ensure main1.js is fully loaded
+            setTimeout(initializeSetlists, 100);
+        })();
+    </script>
+</body>
+</html>

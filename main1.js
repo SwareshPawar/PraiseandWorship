@@ -22,10 +22,17 @@ let currentUser = null;
 let isDarkMode = localStorage.getItem('pw_darkMode') === 'true';
 let songs = []; // Global songs array
 
+// Expose to window for mobile.html access
+window.jwtToken = jwtToken;
+window.currentUser = currentUser;
+
 // Initialize currentUser from localStorage
 try {
     const storedUser = localStorage.getItem('pw_currentUser');
-    if (storedUser) currentUser = JSON.parse(storedUser);
+    if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+        window.currentUser = currentUser;
+    }
 } catch (e) {
     // Failed to parse stored user data - continue with default
 }
@@ -157,11 +164,15 @@ function throttledShowNotification(message, type = 'info', duration = 3000) {
 // Re-initialize variables from localStorage (no redeclaration)
 jwtToken = localStorage.getItem('pw_jwtToken') || '';
 isDarkMode = localStorage.getItem('pw_darkMode') === 'true';
+window.jwtToken = jwtToken;
 
 // Update currentUser from localStorage again if needed
 try {
     const storedUser = localStorage.getItem('pw_currentUser');
-    if (storedUser) currentUser = JSON.parse(storedUser);
+    if (storedUser) {
+        currentUser = JSON.parse(storedUser);
+        window.currentUser = currentUser;
+    }
 } catch {}
 
 function populateGenreDropdown(id, timeSignature) {
@@ -971,12 +982,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.user) localStorage.setItem('pw_currentUser', JSON.stringify(data.user));
                     jwtToken = data.token;
                     currentUser = data.user;
+                    window.jwtToken = jwtToken;
+                    window.currentUser = currentUser;
                     
                     // Update UI without page reload
                     updateAuthButtons();
                     await loadUserData();
                     await loadMySetlists();
                     renderMySetlists();
+                    
+                    // Update mobile UI if on mobile view
+                    if (typeof window.mobileApp !== 'undefined' && typeof window.mobileApp.refreshSetlists === 'function') {
+                        window.mobileApp.refreshSetlists();
+                    }
                     
                     // Close login modal
                     document.getElementById('loginModal').style.display = 'none';
@@ -2539,6 +2557,10 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         let currentViewingSetlist = null;
         let currentSetlistType = null; // 'global' or 'my'
 
+        // Expose setlist arrays to window for mobile.html access
+        window.globalSetlists = globalSetlists;
+        window.mySetlists = mySetlists;
+
         // Update currentUser from localStorage (no redeclaration needed)
         try {
             const s = localStorage.getItem('pw_currentUser');
@@ -3417,67 +3439,76 @@ window.viewSingleLyrics = function(songId, otherId) {
         const dropdownMenu = document.getElementById('dropdownMenu');
         const dropdownText = document.getElementById('dropdownText');
         
-        if (!setlistDropdown || !dropdownMenu || !dropdownText) {
+        if (!setlistDropdown) {
             return;
         }
+        
+        // Check if we're on mobile (no custom dropdown elements)
+        const isMobile = !dropdownMenu || !dropdownText;
         
         // Store the current selection to preserve it
         const currentSelection = setlistDropdown.value;
         
         // Clear existing options and menu items
         setlistDropdown.innerHTML = '<option value="">Select a Setlist</option>';
-        dropdownMenu.innerHTML = '';
+        if (dropdownMenu) dropdownMenu.innerHTML = '';
         
         // Check if we have real data
         let hasGlobalData = globalSetlists && globalSetlists.length > 0;
         let hasMyData = mySetlists && mySetlists.length > 0;
         
-        // Add default option to custom dropdown
-        const defaultOption = document.createElement('div');
-        defaultOption.className = 'dropdown-option';
-        defaultOption.dataset.value = '';
-        defaultOption.textContent = 'Select a Setlist';
-        defaultOption.style.cssText = 'font-style: italic; color: #aaa;';
-        dropdownMenu.appendChild(defaultOption);
+        // Add default option to custom dropdown (desktop only)
+        if (!isMobile) {
+            const defaultOption = document.createElement('div');
+            defaultOption.className = 'dropdown-option';
+            defaultOption.dataset.value = '';
+            defaultOption.textContent = 'Select a Setlist';
+            defaultOption.style.cssText = 'font-style: italic; color: #aaa;';
+            dropdownMenu.appendChild(defaultOption);
+        }
         
         // Only show real setlists that exist in the database
         // Add real My Setlists first with compact suffix (if user is logged in)
         if (currentUser && hasMyData) {
             mySetlists.forEach(setlist => {
-                // Add to original select (hidden)
+                // Add to original select (works for both mobile and desktop)
                 const option = document.createElement('option');
                 option.value = `my_${setlist._id}`;
                 option.textContent = `${setlist.name} (My)`;
                 setlistDropdown.appendChild(option);
                 
-                // Add to custom dropdown with suffix
-                const customOption = document.createElement('div');
-                customOption.className = 'dropdown-option';
-                customOption.dataset.value = `my_${setlist._id}`;
-                customOption.dataset.type = 'my';
-                customOption.dataset.setlistId = setlist._id;
-                customOption.innerHTML = `${setlist.name} <span style="color: #888; font-size: 0.85em; float: right;">(My)</span>`;
-                dropdownMenu.appendChild(customOption);
+                // Add to custom dropdown with suffix (desktop only)
+                if (!isMobile) {
+                    const customOption = document.createElement('div');
+                    customOption.className = 'dropdown-option';
+                    customOption.dataset.value = `my_${setlist._id}`;
+                    customOption.dataset.type = 'my';
+                    customOption.dataset.setlistId = setlist._id;
+                    customOption.innerHTML = `${setlist.name} <span style="color: #888; font-size: 0.85em; float: right;">(My)</span>`;
+                    dropdownMenu.appendChild(customOption);
+                }
             });
         }
         
         // Add real Global Setlists second with compact suffix
         if (hasGlobalData) {
             globalSetlists.forEach(setlist => {
-                // Add to original select (hidden)
+                // Add to original select (works for both mobile and desktop)
                 const option = document.createElement('option');
                 option.value = `global_${setlist._id}`;
                 option.textContent = `${setlist.name} (Global)`;
                 setlistDropdown.appendChild(option);
                 
-                // Add to custom dropdown with suffix
-                const customOption = document.createElement('div');
-                customOption.className = 'dropdown-option';
-                customOption.dataset.value = `global_${setlist._id}`;
-                customOption.dataset.type = 'global';
-                customOption.dataset.setlistId = setlist._id;
-                customOption.innerHTML = `${setlist.name} <span style="color: #888; font-size: 0.85em; float: right;">(Global)</span>`;
-                dropdownMenu.appendChild(customOption);
+                // Add to custom dropdown with suffix (desktop only)
+                if (!isMobile) {
+                    const customOption = document.createElement('div');
+                    customOption.className = 'dropdown-option';
+                    customOption.dataset.value = `global_${setlist._id}`;
+                    customOption.dataset.type = 'global';
+                    customOption.dataset.setlistId = setlist._id;
+                    customOption.innerHTML = `${setlist.name} <span style="color: #888; font-size: 0.85em; float: right;">(Global)</span>`;
+                    dropdownMenu.appendChild(customOption);
+                }
             });
         }
         
@@ -3489,13 +3520,15 @@ window.viewSingleLyrics = function(songId, otherId) {
             helpOption.textContent = currentUser ? 'Create your first setlist to get started' : 'Login to create and access setlists';
             setlistDropdown.appendChild(helpOption);
             
-            // Add to custom dropdown
-            const helpCustomOption = document.createElement('div');
-            helpCustomOption.className = 'dropdown-option';
-            helpCustomOption.style.color = '#888';
-            helpCustomOption.style.fontStyle = 'italic';
-            helpCustomOption.textContent = currentUser ? 'Create your first setlist to get started' : 'Login to create and access setlists';
-            dropdownMenu.appendChild(helpCustomOption);
+            // Add to custom dropdown (desktop only)
+            if (!isMobile) {
+                const helpCustomOption = document.createElement('div');
+                helpCustomOption.className = 'dropdown-option';
+                helpCustomOption.style.color = '#888';
+                helpCustomOption.style.fontStyle = 'italic';
+                helpCustomOption.textContent = currentUser ? 'Create your first setlist to get started' : 'Login to create and access setlists';
+                dropdownMenu.appendChild(helpCustomOption);
+            }
         }
         
         // Set up custom dropdown event handlers
@@ -4145,39 +4178,47 @@ window.viewSingleLyrics = function(songId, otherId) {
             // Skip if already cached and not forcing refresh
             if (!forceRefresh && window.dataCache['global-setlists']) {
                 globalSetlists = window.dataCache['global-setlists'];
-                return;
+                window.globalSetlists = globalSetlists; // Update window reference
+                return globalSetlists;
             }
             
             const res = await cachedFetch(`${API_BASE_URL}/api/global-setlists`, forceRefresh);
             if (res.ok) {
                 globalSetlists = await res.json();
+                window.globalSetlists = globalSetlists; // Update window reference
                 // Only update dropdown, do not re-render sidebar here
                 populateSetlistDropdown(); // Update dropdown when global setlists load
+                return globalSetlists;
             }
         } catch (err) {
             console.error('Failed to load global setlists:', err);
         }
+        return [];
     }
 
     // Load my setlists
     async function loadMySetlists(forceRefresh = false) {
-        if (!jwtToken) return;
+        if (!jwtToken) return [];
         try {
             // Skip if already cached and not forcing refresh
             if (!forceRefresh && window.dataCache['my-setlists']) {
                 mySetlists = window.dataCache['my-setlists'];
-                return;
+                window.mySetlists = mySetlists; // Update window reference
+                return mySetlists;
             }
             
             const res = await cachedFetch(`${API_BASE_URL}/api/my-setlists`, forceRefresh);
             if (res.ok) {
                 mySetlists = await res.json();
+                window.mySetlists = mySetlists; // Update window reference
                 // Only update dropdown, do not re-render sidebar here
                 populateSetlistDropdown(); // Update dropdown when my setlists load
+                return mySetlists;
             }
         } catch (err) {
             console.error('Failed to load my setlists:', err);
         }
+        return [];
     }
 
     // Function to refresh setlist data only (without updating button states)
@@ -4559,42 +4600,48 @@ window.viewSingleLyrics = function(songId, otherId) {
         const PraiseSetlistSongs = document.getElementById('PraiseSetlistSongs');
         const WorshipSetlistSongs = document.getElementById('WorshipSetlistSongs');
 
-        if (praiseSongs.length > 0) {
-            PraiseSetlistTab.classList.add('active');
-            WorshipSetlistTab.classList.remove('active');
-            PraiseSetlistSongs.style.display = 'block';
-            WorshipSetlistSongs.style.display = 'none';
-        } else {
-            PraiseSetlistTab.classList.remove('active');
-            WorshipSetlistTab.classList.add('active');
-            PraiseSetlistSongs.style.display = 'none';
-            WorshipSetlistSongs.style.display = 'block';
+        // Only update tabs if elements exist (desktop view)
+        if (PraiseSetlistTab && WorshipSetlistTab && PraiseSetlistSongs && WorshipSetlistSongs) {
+            if (praiseSongs.length > 0) {
+                PraiseSetlistTab.classList.add('active');
+                WorshipSetlistTab.classList.remove('active');
+                PraiseSetlistSongs.style.display = 'block';
+                WorshipSetlistSongs.style.display = 'none';
+            } else {
+                PraiseSetlistTab.classList.remove('active');
+                WorshipSetlistTab.classList.add('active');
+                PraiseSetlistSongs.style.display = 'none';
+                WorshipSetlistSongs.style.display = 'block';
+            }
+
+            // Always populate both tabs (even if one is empty)
+            displaySetlistSongs(praiseSongs, PraiseSetlistSongs);
+            displaySetlistSongs(worshipSongs, WorshipSetlistSongs);
+
+            // Add tab switching functionality
+            PraiseSetlistTab.onclick = () => {
+                PraiseSetlistTab.classList.add('active');
+                WorshipSetlistTab.classList.remove('active');
+                PraiseSetlistSongs.style.display = 'block';
+                WorshipSetlistSongs.style.display = 'none';
+            };
+
+            WorshipSetlistTab.onclick = () => {
+                WorshipSetlistTab.classList.add('active');
+                PraiseSetlistTab.classList.remove('active');
+                WorshipSetlistSongs.style.display = 'block';
+                PraiseSetlistSongs.style.display = 'none';
+            };
         }
 
-        // Always populate both tabs (even if one is empty)
-        displaySetlistSongs(praiseSongs, PraiseSetlistSongs);
-        displaySetlistSongs(worshipSongs, WorshipSetlistSongs);
-
-        // Add tab switching functionality
-        PraiseSetlistTab.onclick = () => {
-            PraiseSetlistTab.classList.add('active');
-            WorshipSetlistTab.classList.remove('active');
-            PraiseSetlistSongs.style.display = 'block';
-            WorshipSetlistSongs.style.display = 'none';
-        };
-
-        WorshipSetlistTab.onclick = () => {
-            WorshipSetlistTab.classList.add('active');
-            PraiseSetlistTab.classList.remove('active');
-            WorshipSetlistSongs.style.display = 'block';
-            PraiseSetlistSongs.style.display = 'none';
-        };
-
-        // Mobile view: show songs panel and hide sidebar
+        // Mobile view: show songs panel and hide sidebar (not applicable for mobile.html)
         if (window.innerWidth <= 768) {
-            document.querySelector('.songs-section').classList.remove('hidden');
-            document.querySelector('.sidebar').classList.add('hidden');
-            document.querySelector('.preview-section').classList.remove('full-width');
+            const songsSection = document.querySelector('.songs-section');
+            const sidebar = document.querySelector('.sidebar');
+            const previewSection = document.querySelector('.preview-section');
+            if (songsSection) songsSection.classList.remove('hidden');
+            if (sidebar) sidebar.classList.add('hidden');
+            if (previewSection) previewSection.classList.remove('full-width');
         }
     }
 
@@ -4713,9 +4760,12 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         // Mobile view: show songs panel and hide sidebar
         if (window.innerWidth <= 768) {
-            document.querySelector('.songs-section').classList.remove('hidden');
-            document.querySelector('.sidebar').classList.add('hidden');
-            document.querySelector('.preview-section').classList.remove('full-width');
+            const songsSection = document.querySelector('.songs-section');
+            const sidebar = document.querySelector('.sidebar');
+            const previewSection = document.querySelector('.preview-section');
+            if (songsSection) songsSection.classList.remove('hidden');
+            if (sidebar) sidebar.classList.add('hidden');
+            if (previewSection) previewSection.classList.remove('full-width');
         }
     }
 
@@ -5934,6 +5984,8 @@ window.viewSingleLyrics = function(songId, otherId) {
                     localStorage.setItem('pw_jwtToken', jwtToken);
                     currentUser = data.user;
                     localStorage.setItem('pw_currentUser', JSON.stringify(currentUser));
+                    window.jwtToken = jwtToken;
+                    window.currentUser = currentUser;
                     document.getElementById('loginModal').style.display = 'none';
                     showNotification('Login successful!');
                     // If user is admin, reload page to ensure all admin UI loads
@@ -5984,6 +6036,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             // Clear all authentication data
             jwtToken = '';
             currentUser = null;
+            window.jwtToken = '';
+            window.currentUser = null;
             
             // Remove from localStorage with correct keys
             localStorage.removeItem('pw_jwtToken');
@@ -8967,9 +9021,12 @@ window.viewSingleLyrics = function(songId, otherId) {
                 
                 // Mobile view: show songs panel and hide sidebar
                 if (window.innerWidth <= 768) {
-                    document.querySelector('.songs-section').classList.remove('hidden');
-                    document.querySelector('.sidebar').classList.add('hidden');
-                    document.querySelector('.preview-section').classList.remove('full-width');
+                    const songsSection = document.querySelector('.songs-section');
+                    const sidebar = document.querySelector('.sidebar');
+                    const previewSection = document.querySelector('.preview-section');
+                    if (songsSection) songsSection.classList.remove('hidden');
+                    if (sidebar) sidebar.classList.add('hidden');
+                    if (previewSection) previewSection.classList.remove('full-width');
                 }
             });
 
@@ -10454,3 +10511,24 @@ window.showForgotPasswordModal = showForgotPasswordModal;
 window.initiatePasswordReset = initiatePasswordReset;
 window.verifyOtpAndResetPassword = verifyOtpAndResetPassword;
 window.resendOtp = resendOtp;
+
+// Export setlist functions for mobile.html
+window.loadGlobalSetlists = loadGlobalSetlists;
+window.loadMySetlists = loadMySetlists;
+window.populateSetlistDropdown = populateSetlistDropdown;
+window.refreshSetlistDataOnly = refreshSetlistDataOnly;
+window.checkSongInSetlistAndToggle = checkSongInSetlistAndToggle;
+window.editGlobalSetlist = editGlobalSetlist;
+window.deleteGlobalSetlist = deleteGlobalSetlist;
+window.editMySetlist = editMySetlist;
+window.deleteMySetlist = deleteMySetlist;
+
+// Export chord and lyrics functions for mobile.html
+window.formatLyricsWithChords = formatLyricsWithChords;
+window.transposeChord = transposeChord;
+
+// Export isAdmin function for mobile.html
+window.isAdmin = isAdmin;
+
+// Export logout function for mobile.html
+window.handleLogout = logout;

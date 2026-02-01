@@ -516,7 +516,16 @@ app.post('/api/songs', authMiddleware, async (req, res) => {
     
     const result = await songsCollection.insertOne(req.body);
     const insertedSong = await songsCollection.findOne({ _id: result.insertedId });
-    res.status(201).json(insertedSong);
+    
+    // Convert category back to capitalized for frontend compatibility (like GET does)
+    const formattedSong = {
+      ...insertedSong,
+      category: insertedSong.category === 'praise' ? 'Praise' : 
+                insertedSong.category === 'worship' ? 'Worship' : 
+                insertedSong.category
+    };
+    
+    res.status(201).json(formattedSong);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -538,12 +547,32 @@ app.put('/api/songs/:id', authMiddleware, async (req, res) => {
       req.body.updatedBy = cap(req.user.username);
     }
     const update = { $set: req.body };
-    const result = await songsCollection.updateOne({ id: parseInt(id) }, update);
+    
+    // Try numeric id first, then _id as fallback
+    let result = await songsCollection.updateOne({ id: parseInt(id) }, update);
+    let updatedSong = null;
+    
     if (result.matchedCount === 0) {
+      // Try with MongoDB _id as fallback
+      try {
+        const ObjectId = require('mongodb').ObjectId;
+        if (ObjectId.isValid(id)) {
+          result = await songsCollection.updateOne({ _id: new ObjectId(id) }, update);
+          if (result.matchedCount > 0) {
+            updatedSong = await songsCollection.findOne({ _id: new ObjectId(id) });
+          }
+        }
+      } catch (err) {
+        console.log('Not a valid ObjectId, skipping _id lookup');
+      }
+    } else {
+      updatedSong = await songsCollection.findOne({ id: parseInt(id) });
+    }
+    
+    if (result.matchedCount === 0 || !updatedSong) {
       return res.status(404).json({ error: 'Song not found' });
     }
-    // Fetch and return the updated song object
-    const updatedSong = await songsCollection.findOne({ id: parseInt(id) });
+    
     res.json(updatedSong);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -553,10 +582,34 @@ app.put('/api/songs/:id', authMiddleware, async (req, res) => {
 app.delete('/api/songs/:id', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await songsCollection.deleteOne({ id: parseInt(id) });
+    console.log(`🗑️ DELETE request for song ID: ${id} (type: ${typeof id})`);
+    
+    // Try numeric id first
+    let result = await songsCollection.deleteOne({ id: parseInt(id) });
+    console.log(`   First attempt (numeric id): ${result.deletedCount} deleted`);
+    
+    // If not found, try with MongoDB _id as fallback
     if (result.deletedCount === 0) {
+      try {
+        const ObjectId = require('mongodb').ObjectId;
+        if (ObjectId.isValid(id)) {
+          console.log(`   Trying _id as ObjectId fallback...`);
+          result = await songsCollection.deleteOne({ _id: new ObjectId(id) });
+          console.log(`   Second attempt (_id): ${result.deletedCount} deleted`);
+        }
+      } catch (err) {
+        console.log('   Not a valid ObjectId, skipping _id lookup');
+      }
+    }
+    
+    if (result.deletedCount === 0) {
+      // Log all songs with their IDs for debugging
+      const allSongs = await songsCollection.find({}).limit(5).toArray();
+      console.log(`   ❌ Song not found. Sample songs in DB:`, allSongs.map(s => ({ id: s.id, _id: s._id, title: s.title })));
       return res.status(404).json({ error: 'Song not found' });
     }
+    
+    console.log(`   ✅ Song deleted successfully`);
     res.json({ message: 'Song deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });

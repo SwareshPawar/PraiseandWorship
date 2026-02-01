@@ -266,41 +266,48 @@ async function authFetch(url, options = {}) {
         };
     }
 
-    // Try Vercel backend first (faster), then Render as fallback
+    // If localhost, use it directly. Otherwise, try Vercel backend first (faster), then Render as fallback
+    const isLocalhost = url.includes('localhost') || url.includes('127.0.0.1');
+    const backendsToTry = isLocalhost ? [API_BASE_URL] : [API_BASE_URL_VERCEL, API_BASE_URL_RENDER];
+    
     let lastError = null;
-    for (const backendUrl of [API_BASE_URL_VERCEL, API_BASE_URL_RENDER]) {
+    for (const backendUrl of backendsToTry) {
         let fetchUrl = url;
-        if (url.startsWith(API_BASE_URL_RENDER) || url.startsWith(API_BASE_URL_VERCEL)) {
+        if (!isLocalhost && (url.startsWith(API_BASE_URL_RENDER) || url.startsWith(API_BASE_URL_VERCEL))) {
             fetchUrl = backendUrl + url.substring(url.indexOf('/api/'));
         }
         try {
             const controller = new AbortController();
-            const timeoutDuration = backendUrl === API_BASE_URL_VERCEL ? 15000 : 60000; // Vercel faster timeout
+            const timeoutDuration = isLocalhost ? 30000 : (backendUrl === API_BASE_URL_VERCEL ? 15000 : 60000);
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
             const fetchOptions = { ...buildFetchOptions(fetchUrl), signal: controller.signal };
             const response = await fetch(fetchUrl, fetchOptions);
             clearTimeout(timeoutId);
             if (response.ok) {
-                if (backendUrl === API_BASE_URL_VERCEL) {
-                    throttledShowNotification('✅ Connected to Vercel backend (Primary)', 'success', 2000);
-                } else {
-                    throttledShowNotification('⚠️ Using Render backend (Fallback)', 'warning', 3000);
+                if (!isLocalhost) {
+                    if (backendUrl === API_BASE_URL_VERCEL) {
+                        throttledShowNotification('✅ Connected to Vercel backend (Primary)', 'success', 2000);
+                    } else {
+                        throttledShowNotification('⚠️ Using Render backend (Fallback)', 'warning', 3000);
+                    }
                 }
                 return response;
             } else {
                 lastError = new Error(`Backend error (${response.status}) from ${backendUrl}`);
-                console.warn(`❌ ${backendUrl} returned ${response.status}, trying next backend...`);
-                // If Vercel fails, try Render next
-                continue;
+                console.warn(`❌ ${backendUrl} returned ${response.status}${isLocalhost ? '' : ', trying next backend...'}`);
+                // If not localhost and Vercel fails, try Render next
+                if (!isLocalhost) continue;
+                else break;
             }
         } catch (error) {
             lastError = error;
-            console.warn(`❌ ${backendUrl} failed: ${error.message}, trying next backend...`);
-            // If Vercel fails, try Render next
-            continue;
+            console.warn(`❌ ${backendUrl} failed: ${error.message}${isLocalhost ? '' : ', trying next backend...'}`);
+            // If not localhost and Vercel fails, try Render next
+            if (!isLocalhost) continue;
+            else break;
         }
     }
-    // If both backends fail, throw last error
+    // If all backends fail, throw last error
     throw lastError;
 }
 
@@ -9242,7 +9249,12 @@ window.viewSingleLyrics = function(songId, otherId) {
                 deleteSongModal.style.display = 'none';
             });
     
-            deleteSongForm.addEventListener('submit', async (e) => {
+            // Remove any existing listener before adding new one to prevent duplicates
+            if (deleteSongForm._deleteSubmitListener) {
+                deleteSongForm.removeEventListener('submit', deleteSongForm._deleteSubmitListener);
+            }
+            
+            deleteSongForm._deleteSubmitListener = async (e) => {
                 e.preventDefault();
                 const id = Number(document.getElementById('deleteSongId').value);
                 const deleteBtn = deleteSongForm.querySelector('button[type="submit"]');
@@ -9254,7 +9266,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                     debouncedRenderSongs(activeTab, keyFilter.value, genreFilter.value);
                     if (deleteBtn) deleteBtn.disabled = false;
                 });
-            });
+            };
+            
+            deleteSongForm.addEventListener('submit', deleteSongForm._deleteSubmitListener);
     
             // Preview scrolling
             songPreviewEl.addEventListener('wheel', handleUserScroll, { passive: true });

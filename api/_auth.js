@@ -51,9 +51,23 @@ function requireAdmin(user) {
 }
 
 // CORS headers for Vercel
-function getCorsHeaders() {
+function getCorsHeaders(origin) {
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:5500',
+    'http://localhost:5500',
+    'http://127.0.0.1:5501',
+    'http://localhost:5501',
+    'https://praiseand-worship.vercel.app',
+    'https://swareshpawar.github.io',
+    'https://praiseandworship.onrender.com'
+  ];
+  
+  const requestOrigin = origin || 'https://swareshpawar.github.io';
+  const allowOrigin = allowedOrigins.includes(requestOrigin) ? requestOrigin : allowedOrigins[0];
+  
   return {
-    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Credentials': 'true'

@@ -3,15 +3,16 @@ const { connectToDatabase } = require('./_db');
 const { getCorsHeaders } = require('./_auth');
 
 module.exports = async (req, res) => {
+  const origin = req.headers.origin || req.headers.Origin;
+  const corsHeaders = getCorsHeaders(origin);
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    res.setHeader(key, value);
+  });
+
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).json({});
   }
-
-  const corsHeaders = getCorsHeaders();
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    res.setHeader(key, value);
-  });
 
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });

@@ -3,19 +3,16 @@ const { connectToDatabase } = require('./_db');
 const { getCorsHeaders, authMiddleware, requireAdmin } = require('./_auth');
 
 module.exports = async (req, res) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    const corsHeaders = getCorsHeaders();
-    Object.entries(corsHeaders).forEach(([key, value]) => {
-      res.setHeader(key, value);
-    });
-    return res.status(200).json({});
-  }
-
-  const corsHeaders = getCorsHeaders();
+  const origin = req.headers.origin || req.headers.Origin;
+  const corsHeaders = getCorsHeaders(origin);
   Object.entries(corsHeaders).forEach(([key, value]) => {
     res.setHeader(key, value);
   });
+
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
+    return res.status(200).json({});
+  }
 
   try {
     const { db } = await connectToDatabase();

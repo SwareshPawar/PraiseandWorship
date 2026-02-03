@@ -1,53 +1,53 @@
 {
   "version": 2,
-  "routes": [
+  "installCommand": "npm install",
+  "buildCommand": null,
+  "devCommand": null,
+  "outputDirectory": ".",
+  "rewrites": [
     {
-      "src": "/api/health",
-      "dest": "/api/health.js"
+      "source": "/api/health",
+      "destination": "/api/health.js"
     },
     {
-      "src": "/api/songs/?(.*)",
-      "dest": "/api/songs.js"
+      "source": "/api/songs/:path*",
+      "destination": "/api/songs.js"
     },
     {
-      "src": "/api/userdata",
-      "dest": "/api/userdata.js"
+      "source": "/api/userdata",
+      "destination": "/api/userdata.js"
     },
     {
-      "src": "/api/register",
-      "dest": "/api/register.js"
+      "source": "/api/register",
+      "destination": "/api/register.js"
     },
     {
-      "src": "/api/login",
-      "dest": "/api/login.js"
+      "source": "/api/login",
+      "destination": "/api/login.js"
     },
     {
-      "src": "/api/forgot-password",
-      "dest": "/api/forgot-password.js"
+      "source": "/api/forgot-password",
+      "destination": "/api/forgot-password.js"
     },
     {
-      "src": "/api/reset-password",
-      "dest": "/api/reset-password.js"
+      "source": "/api/reset-password",
+      "destination": "/api/reset-password.js"
     },
     {
-      "src": "/api/recommendation-weights",
-      "dest": "/api/recommendation-weights.js"
+      "source": "/api/recommendation-weights",
+      "destination": "/api/recommendation-weights.js"
     },
     {
-      "src": "/api/users/?(.*)",
-      "dest": "/api/users.js"
+      "source": "/api/users/:path*",
+      "destination": "/api/users.js"
     },
     {
-      "src": "/api/global-setlists/?(.*)",
-      "dest": "/api/global-setlists.js"
+      "source": "/api/global-setlists/:path*",
+      "destination": "/api/global-setlists.js"
     },
     {
-      "src": "/api/my-setlists/?(.*)",
-      "dest": "/api/my-setlists.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/api/my-setlists/:path*",
+      "destination": "/api/my-setlists.js"
     }
   ],
   "headers": [

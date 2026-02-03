@@ -99,11 +99,11 @@ const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
 const API_BASE_URL_VERCEL = 'https://praiseand-worship.vercel.app';
 let API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:3001'
-        : API_BASE_URL_VERCEL; // Use Vercel for all APIs (password reset uses dedicated serverless functions)
+        : API_BASE_URL_RENDER; // Use Render as primary backend (fully functional)
 
 // Admin-configurable backend switching for production
 function getStoredBackend() {
-    return localStorage.getItem('pw_admin_backend') || 'vercel'; // Default to Vercel
+    return localStorage.getItem('pw_admin_backend') || 'render'; // Default to Render (Vercel incomplete)
 }
 
 function setBackend(backend) {
@@ -120,8 +120,8 @@ function setBackend(backend) {
 if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     setBackend(getStoredBackend());
 }
-// Frontend: Vercel (https://praiseand-worship.vercel.app)
-// Backend: Render (https://praiseandworship.onrender.com)
+// Frontend: GitHub Pages (https://swareshpawar.github.io/PraiseandWorship/)
+// Backend: Render (https://praiseandworship.onrender.com) - Vercel incomplete
 
 console.log('API_BASE_URL:', API_BASE_URL);
 
@@ -277,9 +277,9 @@ async function authFetch(url, options = {}) {
         };
     }
 
-    // If localhost, use it directly. Otherwise, try Vercel backend first (faster), then Render as fallback
+    // If localhost, use it directly. Otherwise, try Render backend first (reliable), then Vercel as fallback
     const isLocalhost = url.includes('localhost') || url.includes('127.0.0.1');
-    const backendsToTry = isLocalhost ? [API_BASE_URL] : [API_BASE_URL_VERCEL, API_BASE_URL_RENDER];
+    const backendsToTry = isLocalhost ? [API_BASE_URL] : [API_BASE_URL_RENDER, API_BASE_URL_VERCEL];
     
     let lastError = null;
     for (const backendUrl of backendsToTry) {
@@ -289,31 +289,31 @@ async function authFetch(url, options = {}) {
         }
         try {
             const controller = new AbortController();
-            const timeoutDuration = isLocalhost ? 30000 : (backendUrl === API_BASE_URL_VERCEL ? 15000 : 60000);
+            const timeoutDuration = isLocalhost ? 30000 : (backendUrl === API_BASE_URL_RENDER ? 60000 : 10000);
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
             const fetchOptions = { ...buildFetchOptions(fetchUrl), signal: controller.signal };
             const response = await fetch(fetchUrl, fetchOptions);
             clearTimeout(timeoutId);
             if (response.ok) {
                 if (!isLocalhost) {
-                    if (backendUrl === API_BASE_URL_VERCEL) {
-                        throttledShowNotification('✅ Connected to Vercel backend (Primary)', 'success', 2000);
+                    if (backendUrl === API_BASE_URL_RENDER) {
+                        throttledShowNotification('✅ Connected to Render backend (Primary)', 'success', 2000);
                     } else {
-                        throttledShowNotification('⚠️ Using Render backend (Fallback)', 'warning', 3000);
+                        throttledShowNotification('⚠️ Using Vercel backend (Fallback)', 'warning', 3000);
                     }
                 }
                 return response;
             } else {
                 lastError = new Error(`Backend error (${response.status}) from ${backendUrl}`);
                 console.warn(`❌ ${backendUrl} returned ${response.status}${isLocalhost ? '' : ', trying next backend...'}`);
-                // If not localhost and Vercel fails, try Render next
+                // If not localhost and Render fails, try Vercel next
                 if (!isLocalhost) continue;
                 else break;
             }
         } catch (error) {
             lastError = error;
             console.warn(`❌ ${backendUrl} failed: ${error.message}${isLocalhost ? '' : ', trying next backend...'}`);
-            // If not localhost and Vercel fails, try Render next
+            // If not localhost and Render fails, try Vercel next
             if (!isLocalhost) continue;
             else break;
         }
@@ -3034,15 +3034,15 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         renderStatusEl.textContent = 'Checking...';
         vercelStatusEl.textContent = 'Checking...';
         
-        // Check both backends in parallel (Vercel is primary)
-        const [vercelHealth, renderHealth] = await Promise.all([
-            checkSpecificBackendHealth(API_BASE_URL_VERCEL, 'Vercel'),
-            checkSpecificBackendHealth(API_BASE_URL_RENDER, 'Render')
+        // Check both backends in parallel (Render is primary)
+        const [renderHealth, vercelHealth] = await Promise.all([
+            checkSpecificBackendHealth(API_BASE_URL_RENDER, 'Render'),
+            checkSpecificBackendHealth(API_BASE_URL_VERCEL, 'Vercel')
         ]);
         
-        // Update Vercel status (Primary)
-        vercelStatusEl.textContent = vercelHealth.message + ' (Primary)';
-        vercelStatusEl.style.color = vercelHealth.status === 'online' ? '#28a745' : '#dc3545';
+        // Update Render status (Primary)
+        vercelStatusEl.textContent = renderHealth.message + ' (Primary - Render)';
+        vercelStatusEl.style.color = renderHealth.status === 'online' ? '#28a745' : '#dc3545';
         
         // Update Render status (Backup)
         renderStatusEl.textContent = renderHealth.message + ' (Backup)';
@@ -10226,9 +10226,9 @@ function showPasswordResetNotification(message, isError = false) {
 // Initiate password reset (send OTP)
 async function initiatePasswordReset(identifier, method) {
     try {
-        // Use Vercel for password reset since Render blocks SMTP
-        const passwordResetUrl = `${API_BASE_URL_VERCEL}/api/forgot-password`;
-        console.log('🔐 Using Vercel for password reset:', passwordResetUrl);
+        // Use Render for password reset (primary backend)
+        const passwordResetUrl = `${API_BASE_URL_RENDER}/api/forgot-password`;
+        console.log('🔐 Using Render for password reset:', passwordResetUrl);
         
         const response = await fetch(passwordResetUrl, {
             method: 'POST',
@@ -10298,8 +10298,8 @@ async function verifyOtpAndResetPassword(otp, newPassword) {
     }
 
     try {
-        // Use Vercel for password reset completion
-        const response = await fetch(`${API_BASE_URL_VERCEL}/api/reset-password`, {
+        // Use Render for password reset completion
+        const response = await fetch(`${API_BASE_URL_RENDER}/api/reset-password`, {
             method: 'POST',
             mode: 'cors',
             headers: {

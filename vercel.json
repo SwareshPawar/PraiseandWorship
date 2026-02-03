@@ -1,12 +1,26 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "server.js",
-      "use": "@vercel/node"
-    }
-  ],
   "routes": [
+    {
+      "src": "/api/health",
+      "dest": "/api/health.js"
+    },
+    {
+      "src": "/api/songs/?(.*)",
+      "dest": "/api/songs.js"
+    },
+    {
+      "src": "/api/userdata",
+      "dest": "/api/userdata.js"
+    },
+    {
+      "src": "/api/register",
+      "dest": "/api/register.js"
+    },
+    {
+      "src": "/api/login",
+      "dest": "/api/login.js"
+    },
     {
       "src": "/api/forgot-password",
       "dest": "/api/forgot-password.js"
@@ -16,8 +30,20 @@
       "dest": "/api/reset-password.js"
     },
     {
-      "src": "/api/(.*)",
-      "dest": "/server.js"
+      "src": "/api/recommendation-weights",
+      "dest": "/api/recommendation-weights.js"
+    },
+    {
+      "src": "/api/users/?(.*)",
+      "dest": "/api/users.js"
+    },
+    {
+      "src": "/api/global-setlists/?(.*)",
+      "dest": "/api/global-setlists.js"
+    },
+    {
+      "src": "/api/my-setlists/?(.*)",
+      "dest": "/api/my-setlists.js"
     },
     {
       "src": "/(.*)",

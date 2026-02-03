@@ -55,7 +55,7 @@ const PW_TAALS = [
 ];
 
 const PW_MOODS = [
-    "Dance", "Patriotic", "Christmas", "Easter", "Action", "Forgiveness","Thanksgiving","Good Friday", "Holy Spirit","Love","Qawalli","Miracle"
+    "Dance", "Christmas", "Easter", "Action", "Forgiveness","Thanksgiving","Good Friday", "Holy Spirit","Love","Qawalli","Miracle"
 ];
 
 const PW_ARTISTS = [
@@ -66,8 +66,7 @@ const PW_ARTISTS = [
 
 const PW_TIME_GENRE_MAP = {
     "4/4": [
-        "Keherwa", "Keherwa Slow","Keherwa Bhajani",  "Bhangra", "Pop", "Rock", "Jazz", "Funk", "Shuffle",
-        "Blues", "Disco", "Reggae", "R&B", "Hip-Hop","K-Pop"
+        "Keherwa", "Keherwa Slow","Keherwa Bhajani",  "Bhangra", "Pop", "Rock", "Jazz"
     ],
     "3/4": ["Waltz","Western", "Darda"],
     "2/4": ["Waltz","Western", "March", "Polka", "Samba"],
@@ -10225,10 +10224,18 @@ function showPasswordResetNotification(message, isError = false) {
 
 // Initiate password reset (send OTP)
 async function initiatePasswordReset(identifier, method) {
+    console.log(`🔐 Initiating password reset for "${identifier}" via ${method}`);
+    
+    // Hide previous messages
+    const errorEl = document.getElementById('forgotPasswordError');
+    const successEl = document.getElementById('forgotPasswordSuccess');
+    if (errorEl) errorEl.style.display = 'none';
+    if (successEl) successEl.style.display = 'none';
+    
     try {
         // Use Render for password reset (primary backend)
         const passwordResetUrl = `${API_BASE_URL_RENDER}/api/forgot-password`;
-        console.log('🔐 Using Render for password reset:', passwordResetUrl);
+        console.log('📡 Sending request to:', passwordResetUrl);
         
         const response = await fetch(passwordResetUrl, {
             method: 'POST',
@@ -10240,16 +10247,19 @@ async function initiatePasswordReset(identifier, method) {
         });
 
         const data = await response.json();
+        console.log('📥 Response:', response.status, data);
 
         if (response.ok) {
             // Store reset data for OTP verification
             currentResetData = { identifier, method };
             
             // Show success and switch to OTP modal
-            document.getElementById('forgotPasswordSuccess').textContent = data.message;
-            document.getElementById('forgotPasswordSuccess').style.display = 'block';
+            if (successEl) {
+                successEl.textContent = data.message || 'OTP sent successfully!';
+                successEl.style.display = 'block';
+            }
             
-            console.log('✅ Password reset request successful via Vercel');
+            console.log('✅ Password reset request successful');
             setTimeout(() => {
                 console.log('🔄 Switching to OTP modal');
                 hidePasswordResetModals();
@@ -10258,15 +10268,24 @@ async function initiatePasswordReset(identifier, method) {
             
             return { success: true, data };
         } else {
-            document.getElementById('forgotPasswordError').textContent = data.error;
-            document.getElementById('forgotPasswordError').style.display = 'block';
-            return { success: false, error: data.error };
+            // Show detailed error from backend
+            const errorMsg = data.error || data.debug || `Failed with status ${response.status}`;
+            console.error('❌ Password reset failed:', errorMsg);
+            if (errorEl) {
+                errorEl.textContent = errorMsg;
+                errorEl.style.display = 'block';
+            }
+            showNotification(errorMsg, 'error', 5000);
+            return { success: false, error: errorMsg };
         }
     } catch (error) {
-        console.error('Password reset error:', error);
-        const errorMsg = 'Network error. Please check your connection.';
-        document.getElementById('forgotPasswordError').textContent = errorMsg;
-        document.getElementById('forgotPasswordError').style.display = 'block';
+        console.error('❌ Password reset network error:', error);
+        const errorMsg = 'Network error. Please check your connection and try again.';
+        if (errorEl) {
+            errorEl.textContent = errorMsg;
+            errorEl.style.display = 'block';
+        }
+        showNotification(errorMsg, 'error', 5000);
         return { success: false, error: errorMsg };
     }
 }
@@ -10420,13 +10439,16 @@ function setupPasswordResetEventListeners() {
             submitBtn.disabled = true;
             submitBtn.textContent = 'Sending...';
             
-            await initiatePasswordReset(identifier, method);
+            const result = await initiatePasswordReset(identifier, method);
             
-            // Re-enable submit button
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Send OTP';
-            }, 2000);
+            // Re-enable submit button immediately after response
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Send OTP';
+            
+            // If successful, button will be hidden when modal closes anyway
+            if (!result.success) {
+                console.log('❌ Reset failed, button re-enabled for retry');
+            }
         };
         
         forgotPasswordForm.addEventListener('submit', forgotPasswordForm._submitListener);

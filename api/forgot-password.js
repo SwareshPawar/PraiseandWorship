@@ -15,10 +15,22 @@ async function findUserForPasswordReset(db, identifier) {
     email: identifier.toLowerCase() 
   });
   
-  // If not found by email, try phone
+  if (!user) {
+    // Try finding by phone (remove any formatting)
+    const cleanPhone = identifier.replace(/[\s\-\(\)\+]/g, '');
+    user = await usersCollection.findOne({ 
+      $or: [
+        { phone: identifier },
+        { phone: cleanPhone },
+        { phone: `+91${cleanPhone}` }
+      ]
+    });
+  }
+  
+  // Also try username
   if (!user) {
     user = await usersCollection.findOne({ 
-      phone: identifier 
+      username: identifier.toLowerCase() 
     });
   }
   

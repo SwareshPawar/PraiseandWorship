@@ -507,11 +507,13 @@
                 method: 'POST',
                 requiresAuth: false,
                 testFn: async (baseUrl) => {
+                    // Use the email from the login form (should be a registered user)
+                    const email = document.getElementById('testEmail').value || 'test@example.com';
                     const response = await fetch(`${baseUrl}/api/forgot-password`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            identifier: 'test@example.com',
+                            identifier: email,
                             method: 'email'
                         })
                     });

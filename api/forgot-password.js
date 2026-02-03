@@ -169,10 +169,18 @@ module.exports = async (req, res) => {
     await client.connect();
     const db = client.db('PraiseAndWorship');
     
+    console.log(`🔍 Searching for user with identifier: "${identifier}"`);
+    
     // Find user
     const user = await findUserForPasswordReset(db, identifier);
+    
+    console.log(`🔍 User search result:`, user ? `Found user: ${user.email}` : 'Not found');
+    
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ 
+        error: 'User not found',
+        debug: `No user found with identifier: ${identifier}` 
+      });
     }
     
     console.log(`✅ User found: ${user.firstName || 'Unknown'}`);

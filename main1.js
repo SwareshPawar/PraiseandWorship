@@ -10236,10 +10236,11 @@ async function initiatePasswordReset(identifier, method) {
         // Use Render for password reset (primary backend)
         const passwordResetUrl = `${API_BASE_URL_RENDER}/api/forgot-password`;
         console.log('📡 Sending request to:', passwordResetUrl);
+        console.log('📦 Request body:', { identifier, method });
         
         const response = await fetch(passwordResetUrl, {
             method: 'POST',
-            mode: 'cors',
+            credentials: 'omit', // Don't send credentials for CORS
             headers: {
                 'Content-Type': 'application/json'
             },

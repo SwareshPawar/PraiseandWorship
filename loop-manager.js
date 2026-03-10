@@ -87,13 +87,24 @@ function showAuthenticationWarning() {
 }
 
 /**
- * Load song metadata (taals, times, genres from main.js)
+ * Load song metadata (taals, times, genres from loops metadata)
  */
 async function loadSongMetadata() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/song-metadata`);
+        const response = await fetch(`${API_BASE_URL}/api/loops/metadata`);
         if (response.ok) {
-            songMetadata = await response.json();
+            const loopsData = await response.json();
+            // Extract the metadata we need for dropdowns
+            songMetadata = {
+                taals: loopsData.supportedTaals || [],
+                times: loopsData.supportedTimeSignatures || [],
+                genres: loopsData.supportedGenres || [],
+                musicalGenres: loopsData.supportedGenres || [], // Use same as genres (already clean)
+                rhythmSets: loopsData.rhythmSets || [],
+                rhythmFamilies: Array.from(new Set(
+                    (loopsData.rhythmSets || []).map(set => set.rhythmFamily)
+                )).sort()
+            };
             populateDropdowns();
         } else {
             showAlert('uploadAlert', 'Failed to load song metadata', 'error');

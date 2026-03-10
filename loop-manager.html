@@ -463,7 +463,7 @@
                 
                 <div id="uploadAlert" class="alert"></div>
 
-                <form id="uploadForm">
+                <form id="uploadForm" onsubmit="return false;">
                     <div class="form-group">
                         <label>Rhythm Family</label>
                         <select id="rhythmFamilyInput" required>
@@ -513,47 +513,69 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Upload Single Loop File</label>
+                        <label>Upload Individual Loop Files</label>
                         <small style="color: #666; display: block; margin-bottom: 10px;">
-                            Upload one file at a time. Specify type and number for each file.
+                            Upload each file separately. Files will be renamed automatically.
                         </small>
                         
-                        <div class="upload-slot" style="flex-direction: column; align-items: stretch; padding: 20px; gap: 15px;">
-                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                <div style="flex: 1; min-width: 150px;">
-                                    <label style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">Loop Type</label>
-                                    <select id="singleLoopType" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px;">
-                                        <option value="">Select Type</option>
-                                        <option value="loop">Loop</option>
-                                        <option value="fill">Fill</option>
-                                    </select>
-                                </div>
-                                <div style="flex: 1; min-width: 150px;">
-                                    <label style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">Loop Number</label>
-                                    <select id="singleLoopNumber" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px;">
-                                        <option value="">Select Number</option>
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
-                                <div style="flex: 1; min-width: 250px;">
-                                    <label style="display: block; margin-bottom: 5px; font-size: 0.9em; color: #555;">Audio File</label>
-                                    <input type="file" id="singleLoopFile" accept="audio/*" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; background: white;">
-                                </div>
-                                <button type="button" class="btn-small btn-upload" id="singleUploadBtn" onclick="uploadSingleLoop()" style="padding: 12px 24px; font-size: 14px;">
-                                    <i class="fas fa-upload"></i> Upload File
-                                </button>
-                            </div>
-                            
-                            <div id="singleUploadStatus" class="upload-status" style="text-align: center; min-height: 20px;"></div>
-                            
-                            <div id="singleFilenamePreview" style="background: #e8f1ff; padding: 12px; border-radius: 6px; font-family: 'Courier New', monospace; font-size: 0.9em; color: #1e429f; display: none; margin-top: 5px;">
-                                <strong>Will be saved as:</strong> <span id="singleFilenameText"></span>
-                            </div>
+                        <!-- Loop 1 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-music"></i> Loop 1</label>
+                            <input type="file" id="loopFile1" accept="audio/wav" onchange="handleIndividualUpload(1, 'loop')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn1" onclick="uploadSingleFile(1, 'loop')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status1"></span>
+                        </div>
+
+                        <!-- Loop 2 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-music"></i> Loop 2</label>
+                            <input type="file" id="loopFile2" accept="audio/wav" onchange="handleIndividualUpload(2, 'loop')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn2" onclick="uploadSingleFile(2, 'loop')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status2"></span>
+                        </div>
+
+                        <!-- Loop 3 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-music"></i> Loop 3</label>
+                            <input type="file" id="loopFile3" accept="audio/wav" onchange="handleIndividualUpload(3, 'loop')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn3" onclick="uploadSingleFile(3, 'loop')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status3"></span>
+                        </div>
+
+                        <!-- Fill 1 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-drumstick-bite"></i> Fill 1</label>
+                            <input type="file" id="loopFile4" accept="audio/wav" onchange="handleIndividualUpload(1, 'fill')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn4" onclick="uploadSingleFile(1, 'fill')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status4"></span>
+                        </div>
+
+                        <!-- Fill 2 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-drumstick-bite"></i> Fill 2</label>
+                            <input type="file" id="loopFile5" accept="audio/wav" onchange="handleIndividualUpload(2, 'fill')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn5" onclick="uploadSingleFile(2, 'fill')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status5"></span>
+                        </div>
+
+                        <!-- Fill 3 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-drumstick-bite"></i> Fill 3</label>
+                            <input type="file" id="loopFile6" accept="audio/wav" onchange="handleIndividualUpload(3, 'fill')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn6" onclick="uploadSingleFile(3, 'fill')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status6"></span>
                         </div>
                     </div>
 

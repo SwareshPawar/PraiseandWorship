@@ -21,13 +21,15 @@ module.exports = async (req, res) => {
       
       if (!weights) {
         weights = {
-          key: 1.5,
-          category: 2.0,
-          genre: 1.8,
-          mood: 1.6,
-          artist: 1.4,
-          vocal: 1.2,
-          tempo: 1.0
+          language: 10,
+          scale: 15,
+          timeSignature: 10,
+          taal: 15,
+          tempo: 10,
+          genre: 15,
+          vocal: 10,
+          mood: 10,
+          rhythmCategory: 5
         };
       }
       

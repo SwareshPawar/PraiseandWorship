@@ -4350,6 +4350,49 @@ body.dark-mode .modal-content {
                 overflow-y: auto;
             }
 
+        /* Song Structure Tags Styles */
+        .song-structure-tags {
+            margin: 10px 0;
+            padding: 12px;
+            background: var(--light-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+        }
+
+        .structure-tags-header {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 8px;
+        }
+
+        .structure-tags-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .structure-tag-btn {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .structure-tag-btn:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .structure-tag-btn:active {
+            transform: translateY(0);
+            background: var(--primary-color);
+        }
+
         /* Manual Song Form Styles */
         .manual-song-form {
             display: flex;
@@ -5492,6 +5535,44 @@ body.dark-mode .modal-content {
 .admin-tab-content:target,
 .admin-tab-content.active {
     display: block;
+}
+
+.feature-managers-wrap {
+    padding: 8px 0;
+}
+
+.feature-manager-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.feature-manager-card {
+    display: block;
+    text-decoration: none;
+    border: 1px solid var(--song-item-border);
+    background: var(--song-item-bg);
+    color: var(--song-item-text);
+    border-radius: 8px;
+    padding: 14px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.feature-manager-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px var(--song-item-shadow);
+    border-color: var(--accent-color);
+}
+
+.feature-manager-card h4 {
+    margin: 0 0 6px 0;
+    color: var(--title-color);
+}
+
+.feature-manager-card p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--song-meta-color);
 }
 
 /* Dropdown text */

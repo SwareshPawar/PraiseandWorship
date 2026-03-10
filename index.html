@@ -483,6 +483,7 @@ async function saveRecommendationWeightsToBackend(weights) {
                 <button class="admin-tab" id="weightsTab" title="Recommendation Weights - Configure song recommendation algorithm parameters" aria-label="Recommendation Weights Tab">Recommendation Weights</button>
                 <button class="admin-tab" id="duplicateDetectionTab" title="Duplicate Detection - Find and manage duplicate songs in database" aria-label="Duplicate Detection Tab">Duplicate Detection</button>
                 <button class="admin-tab" id="backendMgmtTab" title="Backend Management - Switch between Vercel and Render deployments for all users" aria-label="Backend Management Tab">Backend Management</button>
+                <button class="admin-tab" id="featureManagersTab" title="Feature Managers - Open loops and rhythm managers" aria-label="Feature Managers Tab">Feature Managers</button>
             </div>
             <div class="admin-tab-content" id="userMgmtTabContent">
                 <div class="notification" id="adminNotification"></div>
@@ -541,6 +542,10 @@ async function saveRecommendationWeightsToBackend(weights) {
                             <tr>
                                 <td style="padding:10px 8px;">Mood</td>
                                 <td style="padding:10px 8px;"><input type="number" id="weightMood" min="0" max="100" step="5" required style="width:60px;"></td>
+                            </tr>
+                            <tr>
+                                <td style="padding:10px 8px;">Rhythm Category</td>
+                                <td style="padding:10px 8px;"><input type="number" id="weightRhythmCategory" min="0" max="100" step="5" required style="width:60px;"></td>
                             </tr>
                         </tbody>
                     </table>
@@ -612,6 +617,25 @@ async function saveRecommendationWeightsToBackend(weights) {
                     </ul>
                 </div>
             </div>
+            <div class="admin-tab-content" id="featureManagersTabContent" style="display:none;">
+                <div class="feature-managers-wrap">
+                    <div class="notification" id="featureManagersNotification">Slice 4 enabled: manager write operations are available for admin users on local backend. Serverless runtime keeps write paths disabled.</div>
+                    <div class="feature-manager-grid">
+                        <a class="feature-manager-card" href="loop-manager.html" target="_blank" rel="noopener noreferrer">
+                            <h4>Loop Manager</h4>
+                            <p>View loop metadata, rhythm set grouping, and file completeness.</p>
+                        </a>
+                        <a class="feature-manager-card" href="rhythm-sets-manager.html" target="_blank" rel="noopener noreferrer">
+                            <h4>Rhythm Sets Manager</h4>
+                            <p>View rhythm set coverage, mapped songs, and completion status.</p>
+                        </a>
+                        <a class="feature-manager-card" href="melodic-loops-manager.html" target="_blank" rel="noopener noreferrer">
+                            <h4>Melodic Loops Manager</h4>
+                            <p>View atmosphere and tanpura availability by key.</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -667,7 +691,32 @@ async function saveRecommendationWeightsToBackend(weights) {
                     </div>
                     <div class="multiselect-selected" id="selectedGenres"></div>
                 </div>
+                <label for="songRhythmFamily">Rhythm Family:</label>
+                <select id="songRhythmFamily">
+                    <option value="">Auto-assign from recommendation</option>
+                </select>
+                <label for="songRhythmSetNo">Set No:</label>
+                <input type="number" id="songRhythmSetNo" min="1" step="1" placeholder="e.g., 1">
+                <label for="songRhythmSetIdPreview">Rhythm Set ID:</label>
+                <input type="text" id="songRhythmSetIdPreview" readonly placeholder="Auto-assigned by server">
+                <label for="songRhythmCategory">Rhythm Category:</label>
+                <select id="songRhythmCategory">
+                    <option value="">Select Rhythm Category</option>
+                </select>
                 <label for="songLyrics">Lyrics:</label>
+                <div class="song-structure-tags">
+                    <div class="structure-tags-header">Quick Tags:</div>
+                    <div class="structure-tags-buttons">
+                        <button type="button" class="structure-tag-btn" data-tag="[Verse 1]" data-target="songLyrics">Verse 1</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Verse 2]" data-target="songLyrics">Verse 2</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Chorus]" data-target="songLyrics">Chorus</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Bridge]" data-target="songLyrics">Bridge</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Pre-Chorus]" data-target="songLyrics">Pre-Chorus</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Intro]" data-target="songLyrics">Intro</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Outro]" data-target="songLyrics">Outro</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Instrumental]" data-target="songLyrics">Instrumental</button>
+                    </div>
+                </div>
                 <textarea id="songLyrics" required></textarea>
                 <button type="submit" class="btn btn-primary" title="Add Song - Create new song with all details and lyrics" aria-label="Add Song">Add Song</button>
             </form>
@@ -727,7 +776,32 @@ async function saveRecommendationWeightsToBackend(weights) {
                     </div>
                     <div class="multiselect-selected" id="editSelectedGenres"></div>
                 </div>
+                <label for="editSongRhythmFamily">Rhythm Family:</label>
+                <select id="editSongRhythmFamily">
+                    <option value="">Auto-assign from recommendation</option>
+                </select>
+                <label for="editSongRhythmSetNo">Set No:</label>
+                <input type="number" id="editSongRhythmSetNo" min="1" step="1" placeholder="e.g., 1">
+                <label for="editSongRhythmSetIdPreview">Rhythm Set ID:</label>
+                <input type="text" id="editSongRhythmSetIdPreview" readonly placeholder="Auto-assigned by server">
+                <label for="editSongRhythmCategory">Rhythm Category:</label>
+                <select id="editSongRhythmCategory">
+                    <option value="">Select Rhythm Category</option>
+                </select>
                 <label for="editSongLyrics">Lyrics:</label>
+                <div class="song-structure-tags">
+                    <div class="structure-tags-header">Quick Tags:</div>
+                    <div class="structure-tags-buttons">
+                        <button type="button" class="structure-tag-btn" data-tag="[Verse 1]" data-target="editSongLyrics">Verse 1</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Verse 2]" data-target="editSongLyrics">Verse 2</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Chorus]" data-target="editSongLyrics">Chorus</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Bridge]" data-target="editSongLyrics">Bridge</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Pre-Chorus]" data-target="editSongLyrics">Pre-Chorus</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Intro]" data-target="editSongLyrics">Intro</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Outro]" data-target="editSongLyrics">Outro</button>
+                        <button type="button" class="structure-tag-btn" data-tag="[Instrumental]" data-target="editSongLyrics">Instrumental</button>
+                    </div>
+                </div>
                 <textarea id="editSongLyrics" required></textarea>
                 <button type="submit" class="btn btn-primary" title="Save Changes - Update song with modified details" aria-label="Save Changes">Save Changes</button>
             </form>

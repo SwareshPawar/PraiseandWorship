@@ -178,6 +178,7 @@ app.get('/api/recommendation-weights', async (req, res) => {
         genre: 13,
         vocal: 8,
         mood: 10,
+        rhythmCategory: 0,
         lastModified: null
       });
     }
@@ -192,18 +193,18 @@ app.get('/api/recommendation-weights', async (req, res) => {
 // Update recommendation weights config (admin only)
 app.put('/api/recommendation-weights', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    const { language, scale, timeSignature, taal, tempo, genre, vocal, mood } = req.body;
-    if ([language, scale, timeSignature, taal, tempo, genre, vocal, mood].some(v => typeof v !== 'number')) {
+    const { language, scale, timeSignature, taal, tempo, genre, vocal, mood, rhythmCategory } = req.body;
+    if ([language, scale, timeSignature, taal, tempo, genre, vocal, mood, rhythmCategory].some(v => typeof v !== 'number')) {
       return res.status(400).json({ error: 'All weights must be numbers' });
     }
-    const total = language + scale + timeSignature + taal + tempo + genre + vocal + mood;
+    const total = language + scale + timeSignature + taal + tempo + genre + vocal + mood + rhythmCategory;
     if (total !== 100) {
       return res.status(400).json({ error: 'Total must be 100' });
     }
     const lastModified = new Date().toISOString();
     await db.collection('config').updateOne(
       { _id: 'weights' },
-      { $set: { language, scale, timeSignature, taal, tempo, genre, vocal, mood, lastModified } },
+      { $set: { language, scale, timeSignature, taal, tempo, genre, vocal, mood, rhythmCategory, lastModified } },
       { upsert: true }
     );
     res.json({ message: 'Recommendation weights updated', lastModified });

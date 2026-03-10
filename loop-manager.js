@@ -283,6 +283,64 @@ function populateRhythmFamilyDropdown(rhythmSets) {
   }
 }
 
+function populateTimeSignatureDropdown(timeSignatures) {
+  const select = document.getElementById('timeSignature');
+  if (!select) return;
+
+  const currentValue = select.value;
+  select.innerHTML = '<option value="">Time Signature</option>';
+  
+  if (Array.isArray(timeSignatures) && timeSignatures.length > 0) {
+    timeSignatures.forEach(time => {
+      const option = document.createElement('option');
+      option.value = time;
+      option.textContent = time;
+      select.appendChild(option);
+    });
+  } else {
+    // Default time signatures if none provided
+    ['4/4', '3/4', '6/8', '7/8'].forEach(time => {
+      const option = document.createElement('option');
+      option.value = time;
+      option.textContent = time;
+      select.appendChild(option);
+    });
+  }
+
+  if (currentValue) {
+    select.value = currentValue;
+  }
+}
+
+function populateGenreDropdown(genres) {
+  const select = document.getElementById('genre');
+  if (!select) return;
+
+  const currentValue = select.value;
+  select.innerHTML = '<option value="">Genre</option>';
+  
+  if (Array.isArray(genres) && genres.length > 0) {
+    genres.forEach(genre => {
+      const option = document.createElement('option');
+      option.value = genre.toLowerCase();
+      option.textContent = genre.charAt(0).toUpperCase() + genre.slice(1);
+      select.appendChild(option);
+    });
+  } else {
+    // Default genres if none provided
+    ['acoustic', 'rock', 'rd pattern', 'qawalli', 'blues', 'bollywood', 'classical', 'dholak'].forEach(genre => {
+      const option = document.createElement('option');
+      option.value = genre;
+      option.textContent = genre.charAt(0).toUpperCase() + genre.slice(1);
+      select.appendChild(option);
+    });
+  }
+
+  if (currentValue) {
+    select.value = currentValue;
+  }
+}
+
 async function loadData() {
   setInfo('Loading metadata...');
   try {
@@ -294,6 +352,8 @@ async function loadData() {
     const payload = await response.json();
     const loops = Array.isArray(payload.loops) ? payload.loops : [];
     const rhythmSets = Array.isArray(payload.rhythmSets) ? payload.rhythmSets : [];
+    const timeSignatures = Array.isArray(payload.supportedTimeSignatures) ? payload.supportedTimeSignatures : [];
+    const genres = Array.isArray(payload.supportedGenres) ? payload.supportedGenres : [];
     const sets = buildSetMap(loops);
     const complete = sets.filter(set => COMPLETE_KEYS.every(k => set.files.has(k))).length;
 
@@ -303,6 +363,8 @@ async function loadData() {
     document.getElementById('statBackend').textContent = ACTIVE_API_BASE_URL.includes('vercel') ? 'Vercel' : ACTIVE_API_BASE_URL.includes('render') ? 'Render' : 'Local';
 
     populateRhythmFamilyDropdown(rhythmSets);
+    populateTimeSignatureDropdown(timeSignatures);
+    populateGenreDropdown(genres);
     renderRows(loops);
     setInfo('Loaded. Upload/replace/delete enabled for admins.');
   } catch (error) {

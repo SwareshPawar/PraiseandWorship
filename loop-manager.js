@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', async () => {
  * Check if user is authenticated
  */
 function isAuthenticated() {
-    const token = localStorage.getItem('jwtToken');
+    const token = localStorage.getItem('pw_jwtToken');
     return token && token.length > 0;
 }
 
@@ -191,30 +191,21 @@ function setupEventListeners() {
     document.getElementById('rhythmFamilyInput').addEventListener('change', () => {
         syncTaalWithRhythmFamily();
         updateFilenamePreview();
-        updateSingleFilenamePreview();
     });
     document.getElementById('rhythmSetNoInput').addEventListener('input', () => {
         updateFilenamePreview();
-        updateSingleFilenamePreview();
     });
     document.getElementById('timeInput').addEventListener('change', () => {
         updateFilenamePreview();
-        updateSingleFilenamePreview();
     });
     document.getElementById('tempoInput').addEventListener('change', () => {
         updateFilenamePreview();
-        updateSingleFilenamePreview();
     });
     document.getElementById('genreInput').addEventListener('change', () => {
         updateFilenamePreview();
-        updateSingleFilenamePreview();
     });
 
-    // Single upload listeners
-    document.getElementById('singleLoopType').addEventListener('change', updateSingleFilenamePreview);
-    document.getElementById('singleLoopNumber').addEventListener('change', updateSingleFilenamePreview);
-
-    // Upload form submission
+    // Upload form submission (deprecated)
     document.getElementById('uploadForm').addEventListener('submit', handleUpload);
 }
 
@@ -287,147 +278,42 @@ function updateFilenamePreview() {
 }
 
 /**
- * Update filename preview for single upload
+ * Handle individual file upload slot
+ * Enables/disables upload button when file is selected
  */
-function updateSingleFilenamePreview() {
-    const rhythmFamily = document.getElementById('rhythmFamilyInput').value;
-    const rhythmSetNo = document.getElementById('rhythmSetNoInput').value;
-    const taal = normalizeRhythmFamily(rhythmFamily);
-    const time = document.getElementById('timeInput').value.replace('/', '_');
-    const tempo = document.getElementById('tempoInput').value;
-    const genre = document.getElementById('genreInput').value;
-    const loopType = document.getElementById('singleLoopType').value;
-    const loopNumber = document.getElementById('singleLoopNumber').value;
+function handleIndividualUpload(slotNumber, type) {
+    const fileInput = document.getElementById(`loopFile${getSlotId(slotNumber, type)}`);
+    const uploadBtn = document.getElementById(`uploadBtn${getSlotId(slotNumber, type)}`);
     
-    const previewDiv = document.getElementById('singleFilenamePreview');
-    const previewText = document.getElementById('singleFilenameText');
-    const rhythmSetId = buildRhythmSetId(rhythmFamily, rhythmSetNo);
-    
-    if (rhythmSetId && time && tempo && genre && loopType && loopNumber) {
-        const filename = `${taal}_${time}_${tempo}_${genre}_${loopType.toUpperCase()}${loopNumber}.wav`;
-        previewText.textContent = filename;
-        previewDiv.style.display = 'block';
-    } else {
-        previewDiv.style.display = 'none';
-    }
-}
-
-/**
- * Upload single loop file with user-specified type and number
- */
-async function uploadSingleLoop() {
-    const fileInput = document.getElementById('singleLoopFile');
-    const loopType = document.getElementById('singleLoopType').value;
-    const loopNumber = document.getElementById('singleLoopNumber').value;
-    const statusDiv = document.getElementById('singleUploadStatus');
-    const uploadBtn = document.getElementById('singleUploadBtn');
-    
-    const file = fileInput.files[0];
-    if (!file) {
-        statusDiv.textContent = '⚠️ Please select a file';
-        statusDiv.className = 'upload-status error';
-        return;
-    }
-    
-    // Get form values
-    const rhythmFamily = document.getElementById('rhythmFamilyInput').value;
-    const rhythmSetNo = document.getElementById('rhythmSetNoInput').value;
-    const taal = normalizeRhythmFamily(rhythmFamily);
-    const time = document.getElementById('timeInput').value;
-    const tempo = document.getElementById('tempoInput').value;
-    const genre = document.getElementById('genreInput').value;
-    const description = document.getElementById('descriptionInput').value;
-    const rhythmSetId = buildRhythmSetId(rhythmFamily, rhythmSetNo);
-    
-    // Validate
-    if (!rhythmSetId || !time || !tempo || !genre) {
-        statusDiv.textContent = '⚠️ Please fill rhythm family, set no, time, tempo, and genre';
-        statusDiv.className = 'upload-status error';
-        return;
-    }
-    
-    if (!loopType || !loopNumber) {
-        statusDiv.textContent = '⚠️ Please select loop type and number';
-        statusDiv.className = 'upload-status error';
-        return;
-    }
-    
-    // Show uploading state
-    statusDiv.textContent = '⏳ Uploading...';
-    statusDiv.className = 'upload-status uploading';
-    uploadBtn.disabled = true;
-    
-    try {
-        // Convert file to base64
-        const base64Audio = await fileToBase64(file);
+    if (fileInput.files.length > 0) {
+        // Check if all conditions are selected
+        const rhythmFamily = document.getElementById('rhythmFamilyInput').value;
+        const rhythmSetNo = document.getElementById('rhythmSetNoInput').value;
+        const time = document.getElementById('timeInput').value;
+        const tempo = document.getElementById('tempoInput').value;
+        const genre = document.getElementById('genreInput').value;
+        const rhythmSetId = buildRhythmSetId(rhythmFamily, rhythmSetNo);
         
-        // Create payload
-        const payload = {
-            audioBase64: base64Audio,
-            rhythmFamily: rhythmFamily,
-            rhythmSetNo: parseInt(rhythmSetNo, 10),
-            taal: taal,
-            timeSignature: time,
-            tempo: tempo,
-            genre: genre,
-            type: loopType,
-            number: parseInt(loopNumber, 10),
-            description: description
-        };
-        
-        // Upload to server
-        const response = await fetch(`${API_BASE_URL}/api/loops/upload-single`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
-            },
-            body: JSON.stringify(payload)
-        });
-        
-        if (response.ok) {
-            const result = await response.json();
-            statusDiv.textContent = `✅ Success! Saved as: ${result.filename}`;
-            statusDiv.className = 'upload-status success';
-            
-            // Clear the form
-            fileInput.value = '';
-            document.getElementById('singleLoopType').value = '';
-            document.getElementById('singleLoopNumber').value = '';
-            updateSingleFilenamePreview();
-            
-            // Reload loops metadata
-            await loadLoopsMetadata();
-            showAlert('uploadAlert', `Loop uploaded successfully: ${result.filename}`, 'success');
+        if (rhythmSetId && time && tempo && genre) {
+            uploadBtn.disabled = false;
         } else {
-            const error = await response.json();
-            statusDiv.textContent = `❌ Error: ${error.error || 'Upload failed'}`;
-            statusDiv.className = 'upload-status error';
-            showAlert('uploadAlert', error.error || 'Upload failed', 'error');
+            uploadBtn.disabled = true;
+            showAlert('uploadAlert', 'Please select rhythm family, set no, time signature, tempo, and genre first', 'warning');
         }
-    } catch (error) {
-        console.error('Upload error:', error);
-        statusDiv.textContent = `❌ Error: ${error.message}`;
-        statusDiv.className = 'upload-status error';
-        showAlert('uploadAlert', `Upload failed: ${error.message}`, 'error');
-    } finally {
-        uploadBtn.disabled = false;
+    } else {
+        uploadBtn.disabled = true;
     }
 }
 
 /**
- * Convert file to base64
+ * Get slot ID (1-6) from number and type
  */
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            const base64 = reader.result.split(',')[1];
-            resolve(base64);
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-    });
+function getSlotId(number, type) {
+    if (type === 'loop') {
+        return number; // 1, 2, 3
+    } else {
+        return number + 3; // 4, 5, 6
+    }
 }
 
 /**
@@ -520,7 +406,7 @@ async function uploadSingleFile(slotNumber, type) {
         const response = await fetch(`${API_BASE_URL}/api/loops/upload-single`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                'Authorization': `Bearer ${localStorage.getItem('pw_jwtToken')}`
             },
             body: formData
         });
@@ -748,7 +634,7 @@ async function replaceLoop(loopId, file) {
         const response = await fetch(`${API_BASE_URL}/api/loops/${loopId}/replace`, {
             method: 'PUT',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                'Authorization': `Bearer ${localStorage.getItem('pw_jwtToken')}`
             },
             body: formData
         });
@@ -787,7 +673,7 @@ async function deleteLoop(loopId) {
         const response = await fetch(`${API_BASE_URL}/api/loops/${loopId}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${localStorage.getItem('jwtToken')}`
+                'Authorization': `Bearer ${localStorage.getItem('pw_jwtToken')}`
             }
         });
 

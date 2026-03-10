@@ -109,6 +109,10 @@ const {
 // Import loop helpers
 const {
   buildRhythmSetIndexFromMetadata,
+  buildRhythmSetId,
+  normalizeRhythmFamily,
+  normalizeRhythmSetNo,
+  parseRhythmSetId,
   readLoopsMetadataSafe,
   listMelodicLoops
 } = require('./api/_loops');
@@ -1099,11 +1103,90 @@ app.get('/api/rhythm-sets', authMiddleware, async (req, res) => {
 // GET /api/melodic-loops - Get melodic loops (atmosphere/tanpura)
 app.get('/api/melodic-loops', async (req, res) => {
   try {
-    const melodicLoops = listMelodicLoops();
+    const { loopsDir } = readLoopsMetadataSafe();
+    const melodicLoops = listMelodicLoops(loopsDir);
     res.json(melodicLoops);
   } catch (error) {
     console.error('Melodic loops API error:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/rhythm-sets - Create a new rhythm set
+app.post('/api/rhythm-sets', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const rhythmFamily = normalizeRhythmFamily(req.body?.rhythmFamily || '');
+    const rhythmSetNo = normalizeRhythmSetNo(req.body?.rhythmSetNo || req.body?.setNo);
+    const rhythmSetId = buildRhythmSetId(rhythmFamily, rhythmSetNo);
+
+    if (!rhythmSetId) {
+      return res.status(400).json({ error: 'rhythmFamily and positive rhythmSetNo are required' });
+    }
+
+    const rhythmSetsCollection = db.collection('RhythmSets');
+    const existing = await rhythmSetsCollection.findOne({ rhythmSetId });
+    if (existing) {
+      return res.status(409).json({ error: `Rhythm set ${rhythmSetId} already exists` });
+    }
+
+    const now = new Date().toISOString();
+    const doc = {
+      rhythmSetId,
+      rhythmFamily,
+      rhythmSetNo,
+      status: req.body?.status || 'active',
+      notes: req.body?.notes || '',
+      createdAt: now,
+      updatedAt: now,
+      createdBy: req.user.firstName || req.user.username,
+      updatedBy: req.user.firstName || req.user.username,
+      mappedSongCount: 0
+    };
+
+    await rhythmSetsCollection.insertOne(doc);
+    res.status(201).json(doc);
+  } catch (err) {
+    console.error('Rhythm set creation error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /api/rhythm-sets/:rhythmSetId - Update a rhythm set
+app.put('/api/rhythm-sets/:rhythmSetId', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const parsed = parseRhythmSetId(req.params.rhythmSetId);
+    if (!parsed) {
+      return res.status(400).json({ error: 'Invalid rhythmSetId format. Expected family_setNo' });
+    }
+
+    const rhythmSetsCollection = db.collection('RhythmSets');
+    const existing = await rhythmSetsCollection.findOne({ rhythmSetId: parsed.rhythmSetId });
+    if (!existing) {
+      return res.status(404).json({ error: 'Rhythm set not found' });
+    }
+
+    const updates = {
+      updatedAt: new Date().toISOString(),
+      updatedBy: req.user.firstName || req.user.username
+    };
+
+    if (typeof req.body?.status === 'string' && req.body.status.trim()) {
+      updates.status = req.body.status.trim();
+    }
+    if (typeof req.body?.notes === 'string') {
+      updates.notes = req.body.notes;
+    }
+
+    await rhythmSetsCollection.updateOne(
+      { rhythmSetId: parsed.rhythmSetId },
+      { $set: updates }
+    );
+
+    const updated = await rhythmSetsCollection.findOne({ rhythmSetId: parsed.rhythmSetId });
+    res.json(updated);
+  } catch (err) {
+    console.error('Rhythm set update error:', err);
+    res.status(500).json({ error: err.message });
   }
 });
 

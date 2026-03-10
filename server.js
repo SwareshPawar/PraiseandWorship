@@ -37,7 +37,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Allow cookies/auth headers for cross-origin requests
 }));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' })); // Increase JSON payload limit for loop uploads
 app.use(express.static('.'));
 
 // Initialize connection for serverless

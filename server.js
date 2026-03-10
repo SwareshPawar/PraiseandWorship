@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
 const app = express();
@@ -103,6 +105,13 @@ const {
   findUserForPasswordReset,
   resetUserPassword
 } = require('./utils/auth');
+
+// Import loop helpers
+const {
+  buildRhythmSetIndexFromMetadata,
+  readLoopsMetadataSafe,
+  listMelodicLoops
+} = require('./api/_loops');
 
 function authMiddleware(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -988,6 +997,119 @@ app.post('/api/my-setlists/remove-song', authMiddleware, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ============================================================================
+// LOOP MANAGEMENT API
+// ============================================================================
+
+// GET /api/loops/metadata - Get loops metadata
+app.get('/api/loops/metadata', async (req, res) => {
+  try {
+    const { metadata } = readLoopsMetadataSafe();
+
+    const rhythmSets = buildRhythmSetIndexFromMetadata(metadata).map(set => ({
+      rhythmSetId: set.rhythmSetId,
+      rhythmFamily: set.rhythmFamily,
+      rhythmSetNo: set.rhythmSetNo,
+      fileCount: set.loopCount
+    }));
+
+    const payload = {
+      ...metadata,
+      loops: Array.isArray(metadata.loops) ? metadata.loops : [],
+      rhythmSets,
+      tempoRanges: metadata.tempoRanges || {
+        slow: { min: 0, max: 80, label: 'Slow' },
+        medium: { min: 80, max: 120, label: 'Medium' },
+        fast: { min: 120, max: 999, label: 'Fast' }
+      },
+      supportedTaals: Array.isArray(metadata.supportedTaals) ? metadata.supportedTaals : [],
+      supportedGenres: Array.isArray(metadata.supportedGenres) ? metadata.supportedGenres : [],
+      supportedTimeSignatures: Array.isArray(metadata.supportedTimeSignatures) ? metadata.supportedTimeSignatures : []
+    };
+
+    res.json(payload);
+  } catch (error) {
+    console.error('Loops metadata API error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/rhythm-sets - Get rhythm sets with loop file info
+app.get('/api/rhythm-sets', authMiddleware, async (req, res) => {
+  try {
+    const { metadata } = readLoopsMetadataSafe();
+    const metadataSets = buildRhythmSetIndexFromMetadata(metadata);
+    const metadataMap = new Map(metadataSets.map(set => [set.rhythmSetId, set]));
+
+    const rhythmSetsCollection = db.collection('RhythmSets');
+    const dbSets = await rhythmSetsCollection
+      .find({})
+      .sort({ rhythmFamily: 1, rhythmSetNo: 1 })
+      .toArray();
+
+    const songCounts = await songsCollection.aggregate([
+      { $match: { rhythmSetId: { $exists: true, $nin: [null, ''] } } },
+      { $group: { _id: '$rhythmSetId', count: { $sum: 1 } } }
+    ]).toArray();
+    const songCountMap = new Map(songCounts.map(entry => [String(entry._id), entry.count]));
+
+    const merged = dbSets.map(set => {
+      const loopSet = metadataMap.get(set.rhythmSetId);
+      const fileKeys = loopSet ? Object.keys(loopSet.files || {}) : [];
+      return {
+        ...set,
+        mappedSongCount: songCountMap.get(String(set.rhythmSetId)) || 0,
+        availableFiles: fileKeys,
+        isComplete: ['loop1', 'loop2', 'loop3', 'fill1', 'fill2', 'fill3'].every(k => fileKeys.includes(k))
+      };
+    });
+
+    // Include loop-only rhythm sets that may not be persisted yet
+    metadataSets.forEach(loopSet => {
+      if (!merged.some(set => set.rhythmSetId === loopSet.rhythmSetId)) {
+        const fileKeys = Object.keys(loopSet.files || {});
+        merged.push({
+          rhythmSetId: loopSet.rhythmSetId,
+          rhythmFamily: loopSet.rhythmFamily,
+          rhythmSetNo: loopSet.rhythmSetNo,
+          status: 'active',
+          mappedSongCount: songCountMap.get(String(loopSet.rhythmSetId)) || 0,
+          availableFiles: fileKeys,
+          isComplete: ['loop1', 'loop2', 'loop3', 'fill1', 'fill2', 'fill3'].every(k => fileKeys.includes(k)),
+          source: 'loops-metadata'
+        });
+      }
+    });
+
+    merged.sort((a, b) => {
+      if (a.rhythmFamily !== b.rhythmFamily) {
+        return String(a.rhythmFamily).localeCompare(String(b.rhythmFamily));
+      }
+      return (a.rhythmSetNo || 0) - (b.rhythmSetNo || 0);
+    });
+
+    res.json(merged);
+  } catch (err) {
+    console.error('Rhythm sets API error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/melodic-loops - Get melodic loops (atmosphere/tanpura)
+app.get('/api/melodic-loops', async (req, res) => {
+  try {
+    const melodicLoops = listMelodicLoops();
+    res.json(melodicLoops);
+  } catch (error) {
+    console.error('Melodic loops API error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================================================
+// END LOOP MANAGEMENT API
+// ============================================================================
 
 // Start server - works for both local development and production (Render, etc.)
 async function startServer() {

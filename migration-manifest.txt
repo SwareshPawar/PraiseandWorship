@@ -1,0 +1,10 @@
+# One relative source file path per line.
+# Lines starting with # are comments.
+# Example entries:
+# api/register.js
+# api/login.js
+# api/_db.js
+# utils/auth.js
+# src/components/AdminPanel.jsx
+# src/services/songService.js
+# server/routes/users.js

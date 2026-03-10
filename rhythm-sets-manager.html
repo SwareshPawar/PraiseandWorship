@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rhythm Sets Manager</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+  <style>
+    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f5f7fa; color: #1f2937; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 4px 14px rgba(0,0,0,.08); margin-bottom: 16px; }
+    .header h1 { margin: 0 0 8px 0; color: #2f7bd7; }
+    .hint { color: #6b7280; font-size: .92rem; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .btn { background: #2f7bd7; color: #fff; border: none; border-radius: 8px; padding: 9px 12px; cursor: pointer; }
+    .btn.secondary { background: #6b7280; text-decoration: none; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.06); }
+    .card .v { font-size: 1.6rem; font-weight: 700; color: #2f7bd7; }
+    .msg { margin: 10px 0; padding: 10px 12px; border-radius: 8px; background: #e8f1ff; color: #1e429f; }
+    .table { background: #fff; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,.06); overflow: auto; }
+    .editor { background: #fff; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,.06); padding: 14px; margin-bottom: 14px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .row input, .row select { padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; min-width: 150px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f8fafc; position: sticky; top: 0; }
+    .ok { color: #166534; font-weight: 600; }
+    .warn { color: #b45309; font-weight: 600; }
+    .main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .panel { background: #fff; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,.06); padding: 16px; }
+    .panel h2 { margin: 0 0 12px 0; color: #2f7bd7; font-size: 1.1rem; }
+    .song-table-wrap { max-height: 300px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 12px; }
+    .song-table-wrap table { margin: 0; }
+    .song-row { cursor: pointer; }
+    .song-row:hover { background: #f8fafc; }
+    .song-row.selected { background: #e8f1ff; }
+    .current-song { background: #f8fafc; border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: .9rem; }
+    .current-song.selected { background: #e8f1ff; border: 2px solid #2f7bd7; }
+    .current-song strong { color: #2f7bd7; }
+    .grow { flex: 1; }
+    .btn-warning { background: #f59e0b; }
+    .btn-success { background: #10b981; }
+    .small-note { font-size: .85rem; color: #6b7280; margin-bottom: 10px; }
+    .preview-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .preview-buttons .btn { padding: 8px 11px; font-size: .85rem; }
+    .preview-play i { margin-right: 4px; }
+    @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>Rhythm Sets Manager</h1>
+      <div class="hint">Slice 4 mode: create/save/recompute is enabled for admin users. Database-backed operations require configured MongoDB.</div>
+    </div>
+
+    <div class="toolbar">
+      <button id="refreshBtn" class="btn">Refresh</button>
+      <a href="index.html" class="btn secondary">Back to App</a>
+    </div>
+
+    <div class="stats">
+      <div class="card"><div>Total Rhythm Sets</div><div class="v" id="statTotal">0</div></div>
+      <div class="card"><div>Complete Sets</div><div class="v" id="statComplete">0</div></div>
+      <div class="card"><div>Mapped Songs</div><div class="v" id="statMapped">0</div></div>
+      <div class="card"><div>Backend</div><div class="v" id="statBackend">-</div></div>
+    </div>
+
+    <div id="info" class="msg">Loading rhythm sets...</div>
+
+    <div class="main-grid">
+      <section class="panel">
+        <h2><i class="fas fa-link"></i> Song Mapping</h2>
+        <div class="row">
+          <input id="songSearchInput" class="grow" type="text" placeholder="Search songs by title, taal, or rhythm set...">
+        </div>
+        <div class="song-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Song</th>
+                <th>Current Rhythm Set</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="songsTableBody">
+              <tr><td colspan="3">Loading songs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="current-song" id="selectedSongCard">
+          Select a song to start mapping.
+        </div>
+
+        <div class="row">
+          <select id="mapperRhythmSetSelect" class="grow">
+            <option value="">-- Select Rhythm Set --</option>
+          </select>
+          <button id="recommendBtn" class="btn btn-warning">Recommend</button>
+          <button id="assignBtn" class="btn btn-success">Assign</button>
+        </div>
+        <div class="small-note" id="selectedSetMeta">Pick a rhythm set to preview and assign.</div>
+        
+        <div class="preview-buttons" id="previewButtons"></div>
+        <div class="row">
+          <button id="stopPreviewBtn" class="btn btn-secondary">Stop Preview</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2><i class="fas fa-sliders"></i> Rhythm Set Management</h2>
+        <div class="small-note" style="margin-bottom:10px;">
+          Create new rhythm sets below. Use format: family_setNo (e.g., keherwa_1).
+        </div>
+        <div class="row">
+          <input id="createFamily" placeholder="Rhythm family (e.g. keherwa)">
+          <input id="createSetNo" type="number" min="1" value="1" placeholder="Set no">
+          <select id="createStatus">
+            <option value="active">active</option>
+            <option value="inactive">inactive</option>
+            <option value="archived">archived</option>
+          </select>
+          <input id="createNotes" placeholder="Notes (optional)">
+          <button id="createBtn" class="btn" type="button">Create</button>
+        </div>
+      </section>
+    </div>
+
+    <div class="table">
+      <table>
+        <thead>
+          <tr>
+            <th>Rhythm Set</th>
+            <th>Family</th>
+            <th>Set No</th>
+            <th>Mapped Songs</th>
+            <th>Files</th>
+            <th>Status</th>
+            <th>Source</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </div>
+  <script src="rhythm-sets-manager.js"></script>
+</body>
+</html>

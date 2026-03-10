@@ -1,0 +1,37 @@
+# Curated source files for migrating Loops, Rhythms, and Chords Transpose from OldandNew.
+# Source repo expected: C:\Users\SwaResH\Documents\REPOS\OldandNew
+
+# Core frontend integration
+index.html
+styles.css
+main.js
+service-worker.js
+manifest.json
+
+# Loop/rhythm player modules
+loop-player-pad.js
+loop-player-pad-ui.js
+loop-player-pad-soundtouch.js
+loop-player-pad-tonejs.js
+loop-player.js
+loop-manager.html
+loop-manager.js
+melodic-loops-manager.html
+melodic-loops-manager.js
+rhythm-sets-manager.html
+rhythm-sets-manager.js
+normalize-loop-data.js
+
+# Backend reference and route logic (loop/rhythm/transposition-related)
+server.js
+api/index.js
+utils/auth.js
+
+# Loop metadata and loop audio assets
+loops/loops-metadata.json
+loops
+
+# Supporting docs and verification pages
+LOOP_PLAYER_DOCUMENTATION.md
+CHORD_ACCIDENTAL_NORMALIZATION.md
+test-transpose-priority.html

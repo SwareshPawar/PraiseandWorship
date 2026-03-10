@@ -1,9 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const app = express();
 let db;
@@ -38,6 +39,7 @@ app.use(cors({
   credentials: true // Allow cookies/auth headers for cross-origin requests
 }));
 app.use(express.json({ limit: '50mb' })); // Increase JSON payload limit for loop uploads
+app.use(express.urlencoded({ limit: '50mb', extended: true })); // Increase URL-encoded payload limit
 app.use(express.static('.'));
 
 // Initialize connection for serverless
@@ -824,6 +826,136 @@ app.delete('/api/my-setlists/:id', authMiddleware, async (req, res) => {
   }
 });
 
+// Smart Setlists endpoints
+app.get('/api/smart-setlists', authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Return:
+    // 1. All admin-created smart setlists (visible to everyone)
+    // 2. User's own smart setlists (visible only to creator)
+    const smartSetlists = await db.collection('SmartSetlists').find({
+      $or: [
+        { isAdminCreated: true },
+        { createdBy: userId }
+      ]
+    }).sort({ createdAt: -1 }).toArray();
+
+    res.json(smartSetlists);
+  } catch (err) {
+    console.error('Error fetching smart setlists:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/smart-setlists', authMiddleware, async (req, res) => {
+  try {
+    const { name, description, conditions, songs } = req.body;
+    const userId = req.user.id;
+    const isAdmin = req.user.isAdmin === true;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Smart setlist name is required' });
+    }
+
+    const smartSetlist = {
+      name: name.trim(),
+      description: description || '',
+      conditions: conditions || {},
+      songs: songs || [],
+      createdAt: new Date().toISOString(),
+      createdBy: userId,
+      createdByUsername: req.user.username,
+      isAdminCreated: isAdmin,
+      updatedAt: new Date().toISOString()
+    };
+
+    const result = await db.collection('SmartSetlists').insertOne(smartSetlist);
+    const insertedSetlist = await db.collection('SmartSetlists').findOne({ _id: result.insertedId });
+    res.status(201).json(insertedSetlist);
+  } catch (err) {
+    console.error('Error creating smart setlist:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/smart-setlists/:id', authMiddleware, async (req, res) => {
+  try {
+    const setlistId = req.params.id;
+    const { name, description, conditions, songs } = req.body;
+    const userId = req.user.id;
+    const isAdmin = req.user.isAdmin === true;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Smart setlist name is required' });
+    }
+
+    const idQuery = ObjectId.isValid(setlistId)
+      ? { $or: [{ _id: new ObjectId(setlistId) }, { _id: setlistId }] }
+      : { _id: setlistId };
+
+    const existingSetlist = await db.collection('SmartSetlists').findOne(idQuery);
+    if (!existingSetlist) {
+      return res.status(404).json({ error: 'Smart setlist not found' });
+    }
+
+    // Allow edit if: user is creator OR (user is admin AND setlist was created by admin)
+    const canEdit = existingSetlist.createdBy === userId || (isAdmin && existingSetlist.isAdminCreated);
+    if (!canEdit) {
+      return res.status(403).json({ error: 'You do not have permission to edit this smart setlist' });
+    }
+
+    const updateData = {
+      name: name.trim(),
+      description: description || '',
+      conditions: conditions || {},
+      songs: songs || [],
+      updatedAt: new Date().toISOString(),
+      updatedBy: req.user.firstName || req.user.username
+    };
+
+    await db.collection('SmartSetlists').updateOne(
+      idQuery,
+      { $set: updateData }
+    );
+
+    const updatedSetlist = await db.collection('SmartSetlists').findOne(idQuery);
+    res.json(updatedSetlist);
+  } catch (err) {
+    console.error('Error updating smart setlist:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/smart-setlists/:id', authMiddleware, async (req, res) => {
+  try {
+    const setlistId = req.params.id;
+    const userId = req.user.id;
+    const isAdmin = req.user.isAdmin === true;
+
+    const idQuery = ObjectId.isValid(setlistId)
+      ? { $or: [{ _id: new ObjectId(setlistId) }, { _id: setlistId }] }
+      : { _id: setlistId };
+
+    const existingSetlist = await db.collection('SmartSetlists').findOne(idQuery);
+    if (!existingSetlist) {
+      return res.status(404).json({ error: 'Smart setlist not found' });
+    }
+
+    // Allow delete if: user is creator OR (user is admin AND setlist was created by admin)
+    const canDelete = existingSetlist.createdBy === userId || (isAdmin && existingSetlist.isAdminCreated);
+    if (!canDelete) {
+      return res.status(403).json({ error: 'You do not have permission to delete this smart setlist' });
+    }
+
+    await db.collection('SmartSetlists').deleteOne(idQuery);
+    res.json({ success: true, message: 'Smart setlist deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting smart setlist:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Add song to global setlist
 app.post('/api/global-setlists/add-song', authMiddleware, requireAdmin, async (req, res) => {
   try {
@@ -1007,6 +1139,34 @@ app.post('/api/my-setlists/remove-song', authMiddleware, async (req, res) => {
 // LOOP MANAGEMENT API
 // ============================================================================
 
+// Multer configuration for loop uploads
+const loopsDir = path.join(__dirname, 'loops');
+const loopUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      // Ensure directory exists
+      if (!fs.existsSync(loopsDir)) {
+        fs.mkdirSync(loopsDir, { recursive: true });
+      }
+      cb(null, loopsDir);
+    },
+    filename: (req, file, cb) => {
+      // Keep original filename temporarily (will be renamed after upload)
+      cb(null, file.originalname);
+    }
+  }),
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'audio/wav' || file.mimetype === 'audio/x-wav' || file.mimetype === 'audio/wave') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only WAV files are allowed'));
+    }
+  },
+  limits: {
+    fileSize: 50 * 1024 * 1024 // 50MB limit
+  }
+});
+
 // GET /api/loops/metadata - Get loops metadata
 app.get('/api/loops/metadata', async (req, res) => {
   try {
@@ -1037,6 +1197,176 @@ app.get('/api/loops/metadata', async (req, res) => {
   } catch (error) {
     console.error('Loops metadata API error:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/loops/upload-single - Upload a single loop/fill file
+app.post('/api/loops/upload-single', authMiddleware, loopUpload.single('file'), async (req, res) => {
+  try {
+    const { timeSignature, tempo, genre, type, number, description } = req.body;
+    const requestedTaal = req.body?.taal || '';
+    const rhythmFamily = normalizeRhythmFamily(req.body?.rhythmFamily || requestedTaal);
+    const taal = rhythmFamily || normalizeRhythmFamily(requestedTaal);
+    const rhythmSetNo = normalizeRhythmSetNo(req.body?.rhythmSetNo || req.body?.setNo || 1) || 1;
+    const rhythmSetId = buildRhythmSetId(rhythmFamily, rhythmSetNo);
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Validate required fields
+    if (!rhythmFamily || !timeSignature || !tempo || !genre || !type || !number) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    if (!rhythmSetId) {
+      return res.status(400).json({ error: 'Invalid rhythmFamily/rhythmSetNo combination' });
+    }
+
+    const metadataPath = path.join(loopsDir, 'loops-metadata.json');
+    let metadata;
+
+    try {
+      if (fs.existsSync(metadataPath)) {
+        metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'));
+      } else {
+        metadata = {
+          version: '2.0',
+          loops: [],
+          tempoRanges: {
+            slow: { min: 0, max: 80, label: 'Slow' },
+            medium: { min: 80, max: 120, label: 'Medium' },
+            fast: { min: 120, max: 999, label: 'Fast' }
+          },
+          supportedTaals: ['keherwa', 'dadra', 'rupak', 'jhaptal', 'teental', 'ektaal', 'sitarkhani'],
+          supportedGenres: ['acoustic', 'rock', 'rd', 'qawalli', 'blues', 'folk', 'classical'],
+          supportedTimeSignatures: ['4/4', '3/4', '6/8', '7/8', '5/4', '6/4', '2/4', '9/8']
+        };
+      }
+    } catch (err) {
+      console.error('Error reading metadata:', err);
+      return res.status(500).json({ error: 'Failed to read loop metadata' });
+    }
+
+    // Generate correct filename based on naming convention
+    const taalSanitized = taal.replace(/[\/\\:*?"<>|]/g, '_').replace(/\s+/g, '_').trim();
+    const timeFormatted = timeSignature.replace(/[\/\\:*?"<>|]/g, '_').replace(/\s+/g, '_').trim();
+    const tempoSanitized = tempo.replace(/[\/\\:*?"<>|]/g, '_').replace(/\s+/g, '_').trim();
+    const genreSanitized = genre.replace(/[\/\\:*?"<>|]/g, '_').replace(/\s+/g, '_').trim();
+    
+    const basePattern = `${taalSanitized}_${timeFormatted}_${tempoSanitized}_${genreSanitized}`;
+    const typeUpper = type.toUpperCase();
+    const correctFilename = `${basePattern}_${typeUpper}${number}.wav`;
+
+    // Rename uploaded file
+    const oldPath = file.path;
+    const newPath = path.join(loopsDir, correctFilename);
+
+    try {
+      // If file with same name exists, delete it first
+      if (fs.existsSync(newPath) && oldPath !== newPath) {
+        fs.unlinkSync(newPath);
+      }
+
+      // Rename file
+      if (oldPath !== newPath) {
+        fs.renameSync(oldPath, newPath);
+      }
+    } catch (err) {
+      console.error('Error moving file:', err);
+      return res.status(500).json({ error: 'Failed to save uploaded file' });
+    }
+
+    // Create metadata entry
+    const loopId = `${basePattern}_${type}${number}`;
+    const loopEntry = {
+      id: loopId,
+      filename: correctFilename,
+      type: type,
+      number: parseInt(number),
+      rhythmFamily,
+      rhythmSetNo,
+      rhythmSetId,
+      conditions: {
+        taal: taal,
+        timeSignature: timeSignature,
+        tempo: tempo,
+        genre: genre
+      },
+      metadata: {
+        duration: 0,
+        uploadedAt: new Date().toISOString(),
+        uploadedBy: req.user.username || req.user.email || 'admin',
+        description: description || ''
+      }
+    };
+
+    // Remove existing entry with same ID if exists
+    metadata.loops = metadata.loops.filter(loop => loop.id !== loopId);
+    
+    // Add new entry
+    metadata.loops.push(loopEntry);
+
+    // Save updated metadata
+    try {
+      fs.writeFileSync(metadataPath, JSON.stringify(metadata, null, 2));
+    } catch (err) {
+      console.error('Error writing metadata:', err);
+      return res.status(500).json({ error: 'Failed to update loop metadata' });
+    }
+
+    // Auto-create rhythm set document in database
+    try {
+      const rhythmSetsCollection = db.collection('RhythmSets');
+      const now = new Date().toISOString();
+      await rhythmSetsCollection.updateOne(
+        { rhythmSetId },
+        {
+          $setOnInsert: {
+            rhythmSetId,
+            rhythmFamily,
+            rhythmSetNo,
+            createdAt: now,
+            createdBy: req.user.username || req.user.email || 'admin',
+            status: 'active',
+            mappedSongCount: 0
+          },
+          $set: {
+            updatedAt: now,
+            updatedBy: req.user.username || req.user.email || 'admin',
+            lastSource: 'loop-upload-single'
+          }
+        },
+        { upsert: true }
+      );
+    } catch (dbErr) {
+      console.error('Could not auto-create rhythm set document:', dbErr);
+    }
+
+    res.json({
+      success: true,
+      filename: correctFilename,
+      id: loopId,
+      pattern: basePattern,
+      rhythmSetId
+    });
+  } catch (error) {
+    console.error('Error uploading single loop:', error);
+    
+    // Clean up uploaded file if it exists
+    if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (cleanupErr) {
+        console.error('Error cleaning up uploaded file:', cleanupErr);
+      }
+    }
+    
+    res.status(500).json({ 
+      error: 'Internal server error',
+      message: error.message
+    });
   }
 });
 

@@ -38,6 +38,26 @@
       "destination": "/api/recommendation-weights.js"
     },
     {
+      "source": "/api/loops/metadata",
+      "destination": "/api/loops-metadata.js"
+    },
+    {
+      "source": "/api/loops/:path*",
+      "destination": "/api/loops.js"
+    },
+    {
+      "source": "/api/song-metadata",
+      "destination": "/api/song-metadata.js"
+    },
+    {
+      "source": "/api/rhythm-sets/:path*",
+      "destination": "/api/rhythm-sets.js"
+    },
+    {
+      "source": "/api/melodic-loops/:path*",
+      "destination": "/api/melodic-loops.js"
+    },
+    {
       "source": "/api/users/:path*",
       "destination": "/api/users.js"
     },
@@ -48,6 +68,10 @@
     {
       "source": "/api/my-setlists/:path*",
       "destination": "/api/my-setlists.js"
+    },
+    {
+      "source": "/api/smart-setlists/:path*",
+      "destination": "/api/smart-setlists.js"
     }
   ],
   "headers": [

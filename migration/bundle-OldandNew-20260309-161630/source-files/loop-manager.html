@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loop Manager - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-card i {
+            font-size: 2em;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .panel h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group select,
+        .form-group input[type="file"],
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .filename-preview {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            color: #667eea;
+            border-left: 4px solid #667eea;
+        }
+
+        .filename-preview .label {
+            font-size: 0.85em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .upload-slot {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .upload-slot .slot-label {
+            min-width: 80px;
+            font-weight: 600;
+            color: #4a5568;
+            margin: 0;
+        }
+
+        .upload-slot input[type="file"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 13px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 600;
+        }
+
+        .btn-upload {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-upload:hover:not(:disabled) {
+            background: #5568d3;
+        }
+
+        .btn-upload:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+
+        .upload-status {
+            min-width: 100px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .upload-status.success {
+            color: #48bb78;
+        }
+
+        .upload-status.error {
+            color: #f56565;
+        }
+
+        .upload-status.uploading {
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+
+        .loops-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        .loops-table thead th {
+            text-align: left;
+            padding: 12px;
+            color: #667eea;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+
+        .loops-table tbody tr {
+            background: #f9fafb;
+            transition: all 0.3s;
+        }
+
+        .loops-table tbody tr:hover {
+            background: #f3f4f6;
+            transform: scale(1.01);
+        }
+
+        .loops-table tbody td {
+            padding: 15px 12px;
+        }
+
+        .loops-table tbody tr td:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+
+        .loops-table tbody tr td:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-loop {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .badge-fill {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+
+        .badge-tempo-slow {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-tempo-medium {
+            background: #fde68a;
+            color: #78350f;
+        }
+
+        .badge-tempo-fast {
+            background: #fecaca;
+            color: #7f1d1d;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #48bb78;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #f56565;
+        }
+
+        .alert-info {
+            background: #bee3f8;
+            color: #2c5282;
+            border-left: 4px solid #4299e1;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .loading i {
+            font-size: 3em;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .conditions-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .audio-preview {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .play-btn {
+            background: none;
+            border: none;
+            font-size: 1.3em;
+            color: #667eea;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.2);
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-drum"></i> Loop Manager</h1>
+            <p>Manage rhythm loop files with deterministic mapping (Rhythm Family + Set No)</p>
+            <p style="margin-top: 10px; font-size: 0.9em; color: #999;">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Note:</strong> You must be logged in to upload or delete loops. 
+                <a href="index.html" style="color: #667eea; text-decoration: underline;">Go to Main App</a>
+            </p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-music"></i>
+                <div class="number" id="totalLoops">0</div>
+                <div class="label">Total Loop Sets</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-drum"></i>
+                <div class="number" id="totalTaals">0</div>
+                <div class="label">Rhythm Families</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-guitar"></i>
+                <div class="number" id="totalGenres">0</div>
+                <div class="label">Genres</div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-file-audio"></i>
+                <div class="number" id="totalFiles">0</div>
+                <div class="label">Audio Files</div>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Upload Panel -->
+            <div class="panel">
+                <h2><i class="fas fa-upload"></i> Upload New Loop Set</h2>
+                
+                <div id="uploadAlert" class="alert"></div>
+
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label>Rhythm Family</label>
+                        <select id="rhythmFamilyInput" required>
+                            <option value="">Loading rhythm families...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Set No</label>
+                        <input type="number" id="rhythmSetNoInput" min="1" step="1" value="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Taal (Rhythmic Cycle - Auto from Rhythm Family)</label>
+                        <select id="taalInput" required>
+                            <option value="">Auto from Rhythm Family</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Time Signature</label>
+                        <select id="timeInput" required>
+                            <option value="">Loading time signatures...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Tempo Category</label>
+                        <select id="tempoInput" required>
+                            <option value="">Select Tempo</option>
+                            <option value="slow">Slow (&lt; 80 BPM)</option>
+                            <option value="medium">Medium (80-120 BPM)</option>
+                            <option value="fast">Fast (&gt; 120 BPM)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Genre</label>
+                        <select id="genreInput" required>
+                            <option value="">Loading genres...</option>
+                        </select>
+                    </div>
+
+                    <div class="filename-preview">
+                        <div class="label">Generated Filename Pattern:</div>
+                        <div id="filenamePreview">Select all conditions above</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Individual Loop Files</label>
+                        <small style="color: #666; display: block; margin-bottom: 10px;">
+                            Upload each file separately. Files will be renamed automatically.
+                        </small>
+                        
+                        <!-- Loop 1 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-music"></i> Loop 1</label>
+                            <input type="file" id="loopFile1" accept="audio/wav" onchange="handleIndividualUpload(1, 'loop')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn1" onclick="uploadSingleFile(1, 'loop')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status1"></span>
+                        </div>
+
+                        <!-- Loop 2 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-music"></i> Loop 2</label>
+                            <input type="file" id="loopFile2" accept="audio/wav" onchange="handleIndividualUpload(2, 'loop')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn2" onclick="uploadSingleFile(2, 'loop')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status2"></span>
+                        </div>
+
+                        <!-- Loop 3 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-music"></i> Loop 3</label>
+                            <input type="file" id="loopFile3" accept="audio/wav" onchange="handleIndividualUpload(3, 'loop')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn3" onclick="uploadSingleFile(3, 'loop')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status3"></span>
+                        </div>
+
+                        <!-- Fill 1 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-drumstick-bite"></i> Fill 1</label>
+                            <input type="file" id="loopFile4" accept="audio/wav" onchange="handleIndividualUpload(1, 'fill')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn4" onclick="uploadSingleFile(1, 'fill')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status4"></span>
+                        </div>
+
+                        <!-- Fill 2 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-drumstick-bite"></i> Fill 2</label>
+                            <input type="file" id="loopFile5" accept="audio/wav" onchange="handleIndividualUpload(2, 'fill')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn5" onclick="uploadSingleFile(2, 'fill')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status5"></span>
+                        </div>
+
+                        <!-- Fill 3 -->
+                        <div class="upload-slot">
+                            <label class="slot-label"><i class="fas fa-drumstick-bite"></i> Fill 3</label>
+                            <input type="file" id="loopFile6" accept="audio/wav" onchange="handleIndividualUpload(3, 'fill')">
+                            <button type="button" class="btn-small btn-upload" id="uploadBtn6" onclick="uploadSingleFile(3, 'fill')" disabled>
+                                <i class="fas fa-upload"></i> Upload
+                            </button>
+                            <span class="upload-status" id="status6"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description (Optional)</label>
+                        <textarea id="descriptionInput" rows="3" placeholder="Add notes about this loop set..."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loops List Panel -->
+            <div class="panel">
+                <h2><i class="fas fa-list"></i> Existing Loops</h2>
+                
+                <div id="loopsAlert" class="alert"></div>
+
+                <div id="loadingIndicator" class="loading">
+                    <i class="fas fa-circle-notch"></i>
+                    <p>Loading loops...</p>
+                </div>
+
+                <div id="loopsTableContainer" style="display: none; overflow-x: auto;">
+                    <table class="loops-table">
+                        <thead>
+                            <tr>
+                                <th>File</th>
+                                <th>Type</th>
+                                <th>Rhythm Set</th>
+                                <th>Preview</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loopsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="loop-manager.js"></script>
+</body>
+</html>

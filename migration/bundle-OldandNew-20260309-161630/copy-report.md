@@ -1,0 +1,112 @@
+# Migration Bundle Report
+
+- Source repo: C:\Users\SwaResH\Documents\REPOS\OldandNew
+- Manifest: C:\Users\SwaResH\Documents\REPOS\PraiseandWorship\migration-manifest-oldandnew-loops-rhythm-transpose.txt
+- Generated: 2026-03-09T16:16:31
+- Copied files: 100
+- Missing entries: 0
+
+## Copied
+- api/index.js
+- CHORD_ACCIDENTAL_NORMALIZATION.md
+- index.html
+- LOOP_PLAYER_DOCUMENTATION.md
+- loop-manager.html
+- loop-manager.js
+- loop-player-pad-soundtouch.js
+- loop-player-pad-tonejs.js
+- loop-player-pad-ui.js
+- loop-player-pad.js
+- loop-player.js
+- loops/loops-metadata.json
+- loops\3_4_3_4_slow_drum_slow_FILL1.wav
+- loops\3_4_3_4_slow_drum_slow_FILL2.wav
+- loops\3_4_3_4_slow_drum_slow_FILL3.wav
+- loops\3_4_3_4_slow_drum_slow_LOOP1.wav
+- loops\3_4_3_4_slow_drum_slow_LOOP2.wav
+- loops\3_4_3_4_slow_drum_slow_LOOP3.wav
+- loops\congo_6_8_slow_acoustic_FILL1.wav
+- loops\congo_6_8_slow_acoustic_FILL2.wav
+- loops\congo_6_8_slow_acoustic_FILL3.wav
+- loops\congo_6_8_slow_acoustic_LOOP1.wav
+- loops\congo_6_8_slow_acoustic_LOOP2.wav
+- loops\congo_6_8_slow_acoustic_LOOP3.wav
+- loops\dadra_3_4_medium_dholak_FILL1.wav
+- loops\dadra_3_4_medium_dholak_FILL2.wav
+- loops\dadra_3_4_medium_dholak_FILL3.wav
+- loops\dadra_3_4_medium_dholak_LOOP1.wav
+- loops\dadra_3_4_medium_dholak_LOOP2.wav
+- loops\dadra_3_4_medium_dholak_LOOP3.wav
+- loops\dadra_3_4_slow_ghazal_LOOP1.wav
+- loops\deepchandi_14_8_slow_classical_FILL1.wav
+- loops\deepchandi_14_8_slow_classical_FILL2.wav
+- loops\deepchandi_14_8_slow_classical_LOOP1.wav
+- loops\deepchandi_14_8_slow_classical_LOOP2.wav
+- loops\keherwa_4_4_fast_dholak_FILL1.wav
+- loops\keherwa_4_4_fast_dholak_FILL2.wav
+- loops\keherwa_4_4_fast_dholak_FILL3.wav
+- loops\keherwa_4_4_fast_dholak_LOOP1.wav
+- loops\keherwa_4_4_fast_dholak_LOOP2.wav
+- loops\keherwa_4_4_fast_dholak_LOOP3.wav
+- loops\keherwa_4_4_medium_dholak_FILL1.wav
+- loops\keherwa_4_4_medium_dholak_FILL2.wav
+- loops\keherwa_4_4_medium_dholak_FILL3.wav
+- loops\keherwa_4_4_medium_dholak_LOOP1.wav
+- loops\keherwa_4_4_medium_dholak_LOOP2.wav
+- loops\keherwa_4_4_medium_dholak_LOOP3.wav
+- loops\keherwa_4_4_slow_bollywood_FILL1.wav
+- loops\keherwa_4_4_slow_bollywood_FILL2.wav
+- loops\keherwa_4_4_slow_bollywood_FILL3.wav
+- loops\keherwa_4_4_slow_bollywood_LOOP1.wav
+- loops\keherwa_4_4_slow_bollywood_LOOP2.wav
+- loops\keherwa_4_4_slow_bollywood_LOOP3.wav
+- loops\loops-metadata.json
+- loops\melodies\atmosphere\atmosphere_A.wav
+- loops\melodies\atmosphere\atmosphere_A#.wav
+- loops\melodies\atmosphere\atmosphere_B.wav
+- loops\melodies\atmosphere\atmosphere_C.wav
+- loops\melodies\atmosphere\atmosphere_C#.wav
+- loops\melodies\atmosphere\atmosphere_D.wav
+- loops\melodies\atmosphere\atmosphere_D#.wav
+- loops\melodies\atmosphere\atmosphere_E.wav
+- loops\melodies\atmosphere\atmosphere_F.wav
+- loops\melodies\atmosphere\atmosphere_F#.wav
+- loops\melodies\atmosphere\atmosphere_G.wav
+- loops\melodies\atmosphere\atmosphere_G#.wav
+- loops\melodies\tanpura\tanpura_A.wav
+- loops\melodies\tanpura\tanpura_A#.wav
+- loops\melodies\tanpura\tanpura_B.wav
+- loops\melodies\tanpura\tanpura_C.wav
+- loops\melodies\tanpura\tanpura_C#.wav
+- loops\melodies\tanpura\tanpura_D.wav
+- loops\melodies\tanpura\tanpura_D#.wav
+- loops\melodies\tanpura\tanpura_E.wav
+- loops\melodies\tanpura\tanpura_F.wav
+- loops\melodies\tanpura\tanpura_F#.wav
+- loops\melodies\tanpura\tanpura_G.wav
+- loops\rd pattern_3_4_slow_acoustic_FILL1.wav
+- loops\rd pattern_3_4_slow_acoustic_FILL2.wav
+- loops\rd pattern_3_4_slow_acoustic_LOOP1.wav
+- loops\rd pattern_3_4_slow_acoustic_LOOP2.wav
+- loops\rock_4_4_medium_rock_FILL1.wav
+- loops\rock_4_4_medium_rock_FILL2.wav
+- loops\rock_4_4_medium_rock_FILL3.wav
+- loops\rock_4_4_medium_rock_LOOP1.wav
+- loops\rock_4_4_medium_rock_LOOP2.wav
+- loops\rock_4_4_medium_rock_LOOP3.wav
+- loops\temp_melodic_1771313307017_3spymyqrt.wav
+- main.js
+- manifest.json
+- melodic-loops-manager.html
+- melodic-loops-manager.js
+- normalize-loop-data.js
+- rhythm-sets-manager.html
+- rhythm-sets-manager.js
+- server.js
+- service-worker.js
+- styles.css
+- test-transpose-priority.html
+- utils/auth.js
+
+## Missing
+- (none)

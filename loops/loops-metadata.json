@@ -1198,6 +1198,48 @@
       "rhythmFamily": "congo",
       "rhythmSetNo": 1,
       "rhythmSetId": "congo_1"
+    },
+    {
+      "id": "6beat_4_4_slow_acoustic_loop1",
+      "filename": "6beat_4_4_slow_acoustic_LOOP1.wav",
+      "type": "loop",
+      "number": 1,
+      "rhythmFamily": "6beat",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "6beat_1",
+      "conditions": {
+        "taal": "6beat",
+        "timeSignature": "4/4",
+        "tempo": "slow",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-10T08:08:55.155Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": ""
+      }
+    },
+    {
+      "id": "6beat_4_4_slow_acoustic_loop2",
+      "filename": "6beat_4_4_slow_acoustic_LOOP2.wav",
+      "type": "loop",
+      "number": 2,
+      "rhythmFamily": "6beat",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "6beat_1",
+      "conditions": {
+        "taal": "6beat",
+        "timeSignature": "4/4",
+        "tempo": "slow",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-10T08:09:05.669Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": ""
+      }
     }
   ],
   "tempoRanges": {

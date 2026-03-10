@@ -1,0 +1,60 @@
+[
+  {
+    "file": "index.html",
+    "missing": [
+      "button#cancelRemoveAdmin",
+      "button#confirmDeleteSong",
+      "button#confirmRemoveAdmin",
+      "input#globalSelectAllNewSongs",
+      "input#globalSelectAllOldSongs",
+      "input#manualSongChords",
+      "input#mySelectAllNewSongs",
+      "input#mySelectAllOldSongs",
+      "input#rhythmSetFamilyInput",
+      "input#rhythmSetNoInput",
+      "input#rhythmSetNotesInput",
+      "select#rhythmSetStatusInput",
+      "select#toggleButtonsVisibility"
+    ],
+    "extra": [
+      "button#backendMgmtTab",
+      "button#checkHealthBtn",
+      "button#duplicateDetectionTab",
+      "button#featureManagersTab",
+      "button#switchToRenderBtn",
+      "button#switchToVercelBtn",
+      "input#globalSelectAllPraiseSongs",
+      "input#globalSelectAllWorshipSongs",
+      "input#mySelectAllPraiseSongs",
+      "input#mySelectAllWorshipSongs"
+    ],
+    "missingCount": 13,
+    "extraCount": 10
+  },
+  {
+    "file": "loop-manager.html",
+    "missing": [],
+    "extra": [],
+    "missingCount": 0,
+    "extraCount": 0
+  },
+  {
+    "file": "rhythm-sets-manager.html",
+    "missing": [
+      "button#refreshAllBtn"
+    ],
+    "extra": [
+      "button#createBtn",
+      "button#refreshBtn"
+    ],
+    "missingCount": 1,
+    "extraCount": 2
+  },
+  {
+    "file": "melodic-loops-manager.html",
+    "missing": [],
+    "extra": [],
+    "missingCount": 0,
+    "extraCount": 0
+  }
+]

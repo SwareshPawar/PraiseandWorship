@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Context-Aware Transpose System Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { border: 1px solid #ccc; padding: 15px; margin: 10px 0; }
+        .result { font-weight: bold; color: #0066cc; }
+        .expected { color: #009900; }
+        .actual { color: #cc0000; }
+        .pass { background-color: #e8f5e8; }
+        .fail { background-color: #ffe8e8; }
+        .context { font-style: italic; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Context-Aware Transpose System Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Scenario</h2>
+        <p><strong>Song:</strong> "Amazing Grace" (ID: 123)</p>
+        <p><strong>Original Key:</strong> C</p>
+        <p><strong>User Personal Transpose:</strong> +2 (to D)</p>
+        <p><strong>Global Setlist "Sunday Morning" Transpose:</strong> -1 (to B♭)</p>
+        <p><strong>User Setlist "My Worship" Transpose:</strong> None (uses user transpose)</p>
+    </div>
+
+    <div class="test-section">
+        <h2>NEW Expected Behavior (Context-Based)</h2>
+        <ul>
+            <li><strong>Opening Context 'all-songs':</strong> Always use user's personal transpose (+2, key = D)</li>
+            <li><strong>Opening Context 'global-setlist':</strong> Use global setlist transpose if exists, otherwise user transpose</li>
+            <li><strong>Opening Context 'user-setlist':</strong> Always use user's personal transpose (+2, key = D)</li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        // Mock data for testing
+        const mockSong = { id: 123, title: "Amazing Grace", key: "C" };
+        const mockUserTranspose = { 123: 2 }; // +2
+        
+        const mockGlobalSetlist = {
+            _id: "sunday-morning",
+            name: "Sunday Morning",
+            songTransposes: { 123: -1 } // -1
+        };
+
+        // Mock transpose chord function
+        function transposeChord(chord, semitones) {
+            const chromaticScale = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+            const currentIndex = chromaticScale.indexOf(chord);
+            if (currentIndex === -1) return chord;
+            const newIndex = (currentIndex + semitones + 12) % 12;
+            return chromaticScale[newIndex];
+        }
+
+        // Test the NEW context-based transpose logic
+        function testContextBasedTranspose(openingContext, currentViewingSetlist, song, userTranspose) {
+            let transposeLevel = 0;
+            
+            // Context-based transpose logic based on where the song was opened from
+            if (openingContext === 'global-setlist' && currentViewingSetlist && currentViewingSetlist.songTransposes && song.id in currentViewingSetlist.songTransposes) {
+                // Song opened from global setlist - use global setlist transpose
+                transposeLevel = currentViewingSetlist.songTransposes[song.id] || 0;
+            } else if (openingContext === 'user-setlist' || openingContext === 'all-songs') {
+                // Song opened from user setlist or all songs - use user's personal transpose
+                if (song.id && typeof userTranspose[song.id] === 'number') {
+                    transposeLevel = userTranspose[song.id];
+                }
+            } else {
+                // Default case - use user's personal transpose
+                if (song.id && typeof userTranspose[song.id] === 'number') {
+                    transposeLevel = userTranspose[song.id];
+                }
+            }
+            
+            const finalKey = transposeLevel !== 0 ? transposeChord(song.key, transposeLevel) : song.key;
+            return { transposeLevel, finalKey };
+        }
+
+        // Run tests
+        const tests = [
+            {
+                name: "Song Opened from All Songs",
+                openingContext: 'all-songs',
+                currentViewingSetlist: null,
+                expected: { transposeLevel: 2, finalKey: 'D' },
+                description: "Should always use user personal transpose"
+            },
+            {
+                name: "Song Opened from Global Setlist (with global transpose)",
+                openingContext: 'global-setlist',
+                currentViewingSetlist: mockGlobalSetlist,
+                expected: { transposeLevel: -1, finalKey: 'B' },
+                description: "Should use global setlist transpose"
+            },
+            {
+                name: "Song Opened from Global Setlist (no global transpose)",
+                openingContext: 'global-setlist',
+                currentViewingSetlist: { _id: "empty", name: "Empty", songTransposes: {} },
+                expected: { transposeLevel: 2, finalKey: 'D' },
+                description: "Should fallback to user personal transpose"
+            },
+            {
+                name: "Song Opened from User Setlist",
+                openingContext: 'user-setlist',
+                currentViewingSetlist: { _id: "my-setlist", name: "My Worship", songs: [123] },
+                expected: { transposeLevel: 2, finalKey: 'D' },
+                description: "Should always use user personal transpose"
+            },
+            {
+                name: "Song Opened from Search Results",
+                openingContext: 'all-songs',
+                currentViewingSetlist: mockGlobalSetlist, // Even if global setlist is active
+                expected: { transposeLevel: 2, finalKey: 'D' },
+                description: "Should use user transpose regardless of active setlist"
+            }
+        ];
+
+        const resultsDiv = document.getElementById('test-results');
+        
+        tests.forEach((test, index) => {
+            const actual = testContextBasedTranspose(test.openingContext, test.currentViewingSetlist, mockSong, mockUserTranspose);
+            const passed = actual.transposeLevel === test.expected.transposeLevel && actual.finalKey === test.expected.finalKey;
+            
+            const testDiv = document.createElement('div');
+            testDiv.className = passed ? 'pass' : 'fail';
+            testDiv.innerHTML = `
+                <h3>Test ${index + 1}: ${test.name}</h3>
+                <p class="context"><strong>Opening Context:</strong> ${test.openingContext}</p>
+                <p class="context">${test.description}</p>
+                <p><strong>Expected:</strong> <span class="expected">Transpose ${test.expected.transposeLevel}, Key ${test.expected.finalKey}</span></p>
+                <p><strong>Actual:</strong> <span class="actual">Transpose ${actual.transposeLevel}, Key ${actual.finalKey}</span></p>
+                <p><strong>Result:</strong> <span class="result">${passed ? '✅ PASS' : '❌ FAIL'}</span></p>
+            `;
+            resultsDiv.appendChild(testDiv);
+        });
+    </script>
+</body>
+</html>

@@ -27,13 +27,24 @@ let ACTIVE_API_BASE_URL = getApiBaseCandidates()[0] || API_BASE_URL_VERCEL;
 
 // Constants
 const RHYTHM_FILE_ORDER = ['loop1', 'loop2', 'loop3', 'fill1', 'fill2', 'fill3'];
+const DEFAULT_RECOMMENDATION_WEIGHTS = {
+  taal: 15,
+  timeSignature: 10,
+  tempo: 10,
+  genre: 15,
+  mood: 10,
+  rhythmCategory: 5
+};
 
 // Global state
 let allSongs = [];
 let allRhythmSets = [];
 let selectedSong = null;
 let loopsByRhythmSet = new Map();
+let rhythmSetTraitsById = new Map();
 let currentAudio = null;
+let recommendationWeights = { ...DEFAULT_RECOMMENDATION_WEIGHTS };
+let recommendationWeightsLoaded = false;
 
 async function fetchWithBackendFallback(path, options = {}) {
   const candidates = getApiBaseCandidates();
@@ -75,6 +86,65 @@ function parseJwt(token) {
 function isAdminToken(token) {
   const payload = parseJwt(token);
   return Boolean(payload && (payload.isAdmin === true || payload.isAdmin === 'true'));
+}
+
+let alertClearTimer = null;
+
+function getAuthToken() {
+  return getToken();
+}
+
+function isAuthenticated() {
+  return Boolean(getAuthToken());
+}
+
+function showAlert(message, type = 'info') {
+  setInfo(message);
+  const infoEl = document.getElementById('info');
+  if (infoEl) infoEl.dataset.level = String(type || 'info');
+}
+
+function clearAlertAfter(delayMs = 3000) {
+  if (alertClearTimer) {
+    clearTimeout(alertClearTimer);
+  }
+  const delay = Number.isFinite(Number(delayMs)) ? Math.max(0, Number(delayMs)) : 3000;
+  alertClearTimer = setTimeout(() => setInfo(''), delay);
+}
+
+function applyThemeFromStorage() {
+  const isDarkMode = localStorage.getItem('pw_darkMode') === 'true';
+  document.body.classList.toggle('dark-mode', isDarkMode);
+  document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+}
+
+function resolveApiPath(url) {
+  if (!url) return '/';
+
+  if (/^https?:\/\//i.test(url)) {
+    try {
+      const parsed = new URL(url);
+      return `${parsed.pathname}${parsed.search || ''}`;
+    } catch {
+      return String(url);
+    }
+  }
+
+  return String(url).startsWith('/') ? String(url) : `/${String(url)}`;
+}
+
+async function authFetch(url, options = {}) {
+  const token = getAuthToken();
+  const headers = { ...(options.headers || {}) };
+
+  if (token && !headers.Authorization && !headers.authorization) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
+  return fetchWithBackendFallback(resolveApiPath(url), {
+    ...options,
+    headers
+  });
 }
 
 function renderRows(items) {
@@ -327,6 +397,288 @@ function filterSongs() {
   });
 }
 
+function normalizeToken(value) {
+  return String(value || '').trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function splitToTokenSet(value) {
+  const tokens = new Set();
+  if (Array.isArray(value)) {
+    value.forEach(item => {
+      splitToTokenSet(item).forEach(token => tokens.add(token));
+    });
+    return tokens;
+  }
+
+  const text = normalizeToken(value);
+  if (!text) return tokens;
+
+  text
+    .split(/[,/|;]+/)
+    .map(part => normalizeToken(part))
+    .filter(Boolean)
+    .forEach(token => tokens.add(token));
+
+  return tokens;
+}
+
+function normalizeTimeSignature(value) {
+  const text = normalizeToken(value).replace(/\s+/g, '');
+  if (!text) return '';
+  if (text === 'c' || text === 'common') return '4/4';
+  if (text === 'cut' || text === 'cuttime') return '2/2';
+
+  const match = text.match(/^(\d+)\/(\d+)$/);
+  if (!match) return '';
+  return `${parseInt(match[1], 10)}/${parseInt(match[2], 10)}`;
+}
+
+function parseTimeSignatureComponents(value) {
+  const normalized = normalizeTimeSignature(value);
+  const match = normalized.match(/^(\d+)\/(\d+)$/);
+  if (!match) return null;
+  return {
+    numerator: parseInt(match[1], 10),
+    denominator: parseInt(match[2], 10)
+  };
+}
+
+function timeSignatureCompatibility(songTimeSignature, candidateTimeSignature) {
+  const a = parseTimeSignatureComponents(songTimeSignature);
+  const b = parseTimeSignatureComponents(candidateTimeSignature);
+  if (!a || !b) return 0;
+
+  if (a.numerator === b.numerator && a.denominator === b.denominator) return 1;
+
+  const pulseA = a.numerator * (4 / a.denominator);
+  const pulseB = b.numerator * (4 / b.denominator);
+  if (Math.abs(pulseA - pulseB) < 0.001) return 0.75;
+
+  if (a.numerator === b.numerator) return 0.5;
+  return 0;
+}
+
+function parseTempoValue(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  const text = normalizeToken(value);
+  if (!text) return null;
+  const match = text.match(/(\d+(?:\.\d+)?)/);
+  if (!match) return null;
+  const parsed = Number(match[1]);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeTempoBand(value) {
+  const numericTempo = parseTempoValue(value);
+  if (numericTempo !== null) {
+    if (numericTempo < 76) return 'slow';
+    if (numericTempo <= 120) return 'medium';
+    return 'fast';
+  }
+
+  const text = normalizeToken(value);
+  if (!text) return '';
+  if (/slow|lento|adagio/.test(text)) return 'slow';
+  if (/medium|moderate|mid/.test(text)) return 'medium';
+  if (/fast|quick|allegro|upbeat/.test(text)) return 'fast';
+  return '';
+}
+
+function tempoCompatibility(songTempo, candidateTempo) {
+  const songBand = normalizeTempoBand(songTempo);
+  const candidateBand = normalizeTempoBand(candidateTempo);
+
+  if (!songBand || !candidateBand) return 0;
+  if (songBand === candidateBand) return 1;
+
+  const order = ['slow', 'medium', 'fast'];
+  const distance = Math.abs(order.indexOf(songBand) - order.indexOf(candidateBand));
+  if (distance === 1) return 0.5;
+  return 0;
+}
+
+function overlapRatio(songTokens, candidateTokens) {
+  if (!songTokens.size || !candidateTokens.size) return 0;
+  let matches = 0;
+  songTokens.forEach(token => {
+    if (candidateTokens.has(token)) matches += 1;
+  });
+  return matches / songTokens.size;
+}
+
+function getWeight(key) {
+  const parsed = Number(recommendationWeights[key]);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+function getSetTraits(rhythmSet) {
+  const rhythmSetId = String(rhythmSet && rhythmSet.rhythmSetId ? rhythmSet.rhythmSetId : '').toLowerCase();
+  const metadataTraits = rhythmSetTraitsById.get(rhythmSetId);
+
+  const traits = {
+    taals: new Set(),
+    timeSignatures: new Set(),
+    tempos: new Set(),
+    genres: new Set(),
+    moods: new Set()
+  };
+
+  const family = normalizeRhythmFamily(rhythmSet && rhythmSet.rhythmFamily);
+  if (family) traits.taals.add(family);
+
+  const directTime = normalizeTimeSignature(rhythmSet && (rhythmSet.timeSignature || rhythmSet.time));
+  if (directTime) traits.timeSignatures.add(directTime);
+
+  const directTempo = normalizeTempoBand(rhythmSet && rhythmSet.tempo);
+  if (directTempo) traits.tempos.add(directTempo);
+
+  splitToTokenSet(rhythmSet && rhythmSet.genre).forEach(token => traits.genres.add(token));
+  splitToTokenSet(rhythmSet && rhythmSet.mood).forEach(token => traits.moods.add(token));
+
+  if (metadataTraits) {
+    metadataTraits.taals.forEach(token => traits.taals.add(token));
+    metadataTraits.timeSignatures.forEach(token => traits.timeSignatures.add(token));
+    metadataTraits.tempos.forEach(token => traits.tempos.add(token));
+    metadataTraits.genres.forEach(token => traits.genres.add(token));
+    metadataTraits.moods.forEach(token => traits.moods.add(token));
+  }
+
+  return traits;
+}
+
+function scoreRecommendation(song, rhythmSet) {
+  const reasons = [];
+  let weightedScore = 0;
+  let totalWeight = 0;
+
+  const traits = getSetTraits(rhythmSet);
+  const songTaal = normalizeRhythmFamily(song.taal || song.rhythmFamily || '');
+  if (songTaal) {
+    const taalWeight = getWeight('taal');
+    totalWeight += taalWeight;
+
+    let taalScore = 0;
+    if (traits.taals.has(songTaal)) {
+      taalScore = 1;
+      reasons.push(`taal match (${songTaal})`);
+    } else if ([...traits.taals].some(token => token.includes(songTaal) || songTaal.includes(token))) {
+      taalScore = 0.65;
+      reasons.push(`taal near-match (${songTaal})`);
+    }
+    weightedScore += taalWeight * taalScore;
+  }
+
+  const songTimeSignature = normalizeTimeSignature(song.timeSignature || song.time);
+  if (songTimeSignature) {
+    const timeWeight = getWeight('timeSignature');
+    totalWeight += timeWeight;
+
+    let bestTimeScore = 0;
+    traits.timeSignatures.forEach(candidate => {
+      bestTimeScore = Math.max(bestTimeScore, timeSignatureCompatibility(songTimeSignature, candidate));
+    });
+
+    weightedScore += timeWeight * bestTimeScore;
+    if (bestTimeScore >= 1) {
+      reasons.push(`time-signature match (${songTimeSignature})`);
+    } else if (bestTimeScore > 0) {
+      reasons.push(`time-signature compatible (${songTimeSignature})`);
+    }
+  }
+
+  const songTempo = song.tempo;
+  if (songTempo) {
+    const tempoWeight = getWeight('tempo');
+    totalWeight += tempoWeight;
+
+    let bestTempoScore = 0;
+    traits.tempos.forEach(candidate => {
+      bestTempoScore = Math.max(bestTempoScore, tempoCompatibility(songTempo, candidate));
+    });
+
+    weightedScore += tempoWeight * bestTempoScore;
+    if (bestTempoScore >= 1) {
+      reasons.push(`tempo match (${normalizeTempoBand(songTempo)})`);
+    } else if (bestTempoScore > 0) {
+      reasons.push(`tempo near-match (${normalizeTempoBand(songTempo)})`);
+    }
+  }
+
+  const songGenres = splitToTokenSet(song.genre || song.genres || song.subGenres);
+  if (songGenres.size) {
+    const genreWeight = getWeight('genre');
+    totalWeight += genreWeight;
+    const genreScore = overlapRatio(songGenres, traits.genres);
+    weightedScore += genreWeight * genreScore;
+    if (genreScore > 0) {
+      reasons.push(`genre overlap (${Math.round(genreScore * 100)}%)`);
+    }
+  }
+
+  const songMoods = splitToTokenSet(song.mood || song.moods);
+  if (songMoods.size) {
+    const moodWeight = getWeight('mood');
+    totalWeight += moodWeight;
+    const moodScore = overlapRatio(songMoods, traits.moods);
+    weightedScore += moodWeight * moodScore;
+    if (moodScore > 0) {
+      reasons.push(`mood overlap (${Math.round(moodScore * 100)}%)`);
+    }
+  }
+
+  const categoryWeight = getWeight('rhythmCategory');
+  if (categoryWeight > 0) {
+    totalWeight += categoryWeight;
+    const completeScore = rhythmSet.isComplete ? 1 : 0.35;
+    weightedScore += categoryWeight * completeScore;
+    if (rhythmSet.isComplete) {
+      reasons.push('complete loop pack (6/6)');
+    }
+  }
+
+  // Keep archived sets available for visibility but strongly deprioritize them.
+  if (String(rhythmSet.status || '').toLowerCase() === 'archived') {
+    weightedScore *= 0.2;
+    reasons.push('archived status penalty');
+  }
+
+  const normalizedScore = totalWeight > 0 ? weightedScore / totalWeight : 0;
+  return {
+    rhythmSet,
+    normalizedScore,
+    weightedScore,
+    totalWeight,
+    reasons
+  };
+}
+
+function calculateConfidence(topScore, runnerUpScore) {
+  const separation = Math.max(0, topScore - runnerUpScore);
+  const confidence = Math.round(Math.min(100, (topScore * 72 + separation * 28) * 100));
+  if (confidence >= 80) return { value: confidence, label: 'High' };
+  if (confidence >= 55) return { value: confidence, label: 'Medium' };
+  return { value: confidence, label: 'Low' };
+}
+
+async function ensureRecommendationWeightsLoaded() {
+  if (recommendationWeightsLoaded) return;
+
+  recommendationWeightsLoaded = true;
+  try {
+    const response = await fetchWithBackendFallback('/api/recommendation-weights');
+    if (!response.ok) return;
+    const payload = await response.json();
+    recommendationWeights = {
+      ...DEFAULT_RECOMMENDATION_WEIGHTS,
+      ...payload
+    };
+  } catch (error) {
+    console.warn('Using default recommendation weights:', error);
+  }
+}
+
 function renderRhythmSetSelect() {
   const select = document.getElementById('mapperRhythmSetSelect');
   select.innerHTML = '<option value="">-- Select Rhythm Set --</option>';
@@ -405,31 +757,39 @@ async function assignSelectedRhythmSet() {
   }
 }
 
-function recommendForSelectedSong() {
+async function recommendForSelectedSong() {
   if (!selectedSong) {
     setInfo('Please select a song first.');
     return;
   }
 
-  // Simple recommendation algorithm: match by taal
-  const songTaal = (selectedSong.taal || '').toLowerCase().trim();
-  
-  const compatibleSets = allRhythmSets.filter(rs => {
-    const family = (rs.rhythmFamily || '').toLowerCase();
-    return family.includes(songTaal) || songTaal.includes(family);
-  });
-  
-  if (compatibleSets.length === 0) {
-    setInfo(`No rhythm sets found matching taal "${selectedSong.taal}". Showing all active sets.`);
+  if (!allRhythmSets.length) {
+    setInfo('No rhythm sets available for recommendation.');
     return;
   }
-  
-  // Prefer complete sets
-  const completeSets = compatibleSets.filter(rs => rs.isComplete);
-  const recommended = completeSets.length > 0 ? completeSets[0] : compatibleSets[0];
-  
-  document.getElementById('mapperRhythmSetSelect').value = recommended.rhythmSetId;
-  setInfo(`✓ Recommended: ${recommended.rhythmSetId} (matches taal: ${selectedSong.taal})`);
+
+  await ensureRecommendationWeightsLoaded();
+
+  const scored = allRhythmSets
+    .map(rhythmSet => scoreRecommendation(selectedSong, rhythmSet))
+    .sort((a, b) => b.normalizedScore - a.normalizedScore);
+
+  const top = scored[0];
+  if (!top) {
+    setInfo('No recommendation available.');
+    return;
+  }
+
+  const runnerUp = scored[1];
+  const confidence = calculateConfidence(top.normalizedScore, runnerUp ? runnerUp.normalizedScore : 0);
+  const reasonText = top.reasons.length ? top.reasons.slice(0, 4).join(', ') : 'fallback to best available set';
+
+  document.getElementById('mapperRhythmSetSelect').value = top.rhythmSet.rhythmSetId;
+  updateSelectedSetMeta();
+  renderPreviewButtons(top.rhythmSet.rhythmSetId);
+
+  const scorePercent = Math.round(top.normalizedScore * 100);
+  setInfo(`✓ Recommended: ${top.rhythmSet.rhythmSetId} | Score: ${scorePercent}% | Confidence: ${confidence.label} (${confidence.value}%) | Why: ${reasonText}`);
 }
 
 function escapeHtml(text) {
@@ -476,6 +836,159 @@ function updateMappedStats() {
   document.getElementById('statMapped').textContent = String(mappedCount);
 }
 
+function setStats() {
+  document.getElementById('statTotal').textContent = String(allRhythmSets.length);
+  document.getElementById('statComplete').textContent = String(allRhythmSets.filter(item => item.isComplete).length);
+  document.getElementById('statBackend').textContent = ACTIVE_API_BASE_URL.includes('vercel') ? 'Vercel' : ACTIVE_API_BASE_URL.includes('render') ? 'Render' : 'Local';
+  updateMappedStats();
+}
+
+function renderRhythmSetsTable() {
+  renderRows(allRhythmSets);
+}
+
+async function loadRhythmSets() {
+  await loadData();
+  return allRhythmSets;
+}
+
+async function saveRhythmSetRow(row) {
+  if (!row) return;
+  const rhythmSetId = row.rhythmSetId || row.id || row.dataset?.id;
+  if (!rhythmSetId) return;
+  await saveRhythmSet(rhythmSetId);
+}
+
+function getRenamePayloadFromRow(row) {
+  if (!row) return null;
+
+  const oldRhythmSetId = String(row.rhythmSetId || row.id || row.dataset?.id || '').trim();
+  if (!oldRhythmSetId) return null;
+
+  const rhythmFamily = String(row.newRhythmFamily || row.rhythmFamily || '').trim();
+  const rawSetNo = row.newRhythmSetNo ?? row.rhythmSetNo ?? row.setNo;
+  const parsedSetNo = parseInt(rawSetNo, 10);
+  const status = row.status || getSelectedStatusFor(oldRhythmSetId) || 'active';
+  const notes = typeof row.notes === 'string' ? row.notes : '';
+
+  const body = {
+    status,
+    notes
+  };
+
+  if (rhythmFamily) body.rhythmFamily = rhythmFamily;
+  if (Number.isInteger(parsedSetNo) && parsedSetNo > 0) body.rhythmSetNo = parsedSetNo;
+
+  const nextRhythmSetId = buildRhythmSetId(rhythmFamily, parsedSetNo);
+  if (nextRhythmSetId && nextRhythmSetId !== oldRhythmSetId) {
+    body.newRhythmSetId = nextRhythmSetId;
+  }
+
+  return { oldRhythmSetId, body };
+}
+
+async function renameRhythmSetRow(row) {
+  const payload = getRenamePayloadFromRow(row);
+  if (!payload) {
+    setInfo('Rename failed: invalid rhythm set payload.');
+    return;
+  }
+
+  const token = getAuthToken();
+
+  try {
+    setInfo(`Renaming ${payload.oldRhythmSetId}...`);
+    const response = await authFetch(`/api/rhythm-sets/${encodeURIComponent(payload.oldRhythmSetId)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(payload.body)
+    });
+
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(body.error || `HTTP ${response.status}`);
+    }
+
+    setInfo(`Renamed to ${body.rhythmSetId || payload.oldRhythmSetId}.`);
+    await loadData();
+  } catch (error) {
+    setInfo(`Rename failed: ${error.message}`);
+  }
+}
+
+function wireEvents() {
+  const refreshButton = document.getElementById('refreshAllBtn') || document.getElementById('refreshBtn');
+  if (refreshButton && !refreshButton.dataset.boundClick) {
+    refreshButton.addEventListener('click', loadData);
+    refreshButton.dataset.boundClick = 'true';
+  }
+
+  const createButton = document.getElementById('createBtn');
+  if (createButton && !createButton.dataset.boundClick) {
+    createButton.addEventListener('click', createRhythmSet);
+    createButton.dataset.boundClick = 'true';
+  }
+
+  const rows = document.getElementById('rows');
+  if (rows && !rows.dataset.boundClick) {
+    rows.addEventListener('click', event => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const action = button.dataset.action;
+      const rhythmSetId = button.dataset.id;
+      if (action === 'save') {
+        saveRhythmSet(rhythmSetId);
+      }
+      if (action === 'recompute') {
+        recomputeRhythmSet(rhythmSetId);
+      }
+    });
+    rows.dataset.boundClick = 'true';
+  }
+
+  const songSearchInput = document.getElementById('songSearchInput');
+  if (songSearchInput && !songSearchInput.dataset.boundKeyup) {
+    songSearchInput.addEventListener('keyup', filterSongs);
+    songSearchInput.dataset.boundKeyup = 'true';
+  }
+
+  const assignBtn = document.getElementById('assignBtn');
+  if (assignBtn && !assignBtn.dataset.boundClick) {
+    assignBtn.addEventListener('click', assignSelectedRhythmSet);
+    assignBtn.dataset.boundClick = 'true';
+    assignBtn.disabled = true;
+  }
+
+  const recommendBtn = document.getElementById('recommendBtn');
+  if (recommendBtn && !recommendBtn.dataset.boundClick) {
+    recommendBtn.addEventListener('click', recommendForSelectedSong);
+    recommendBtn.dataset.boundClick = 'true';
+    recommendBtn.disabled = true;
+  }
+
+  const stopPreviewBtn = document.getElementById('stopPreviewBtn');
+  if (stopPreviewBtn && !stopPreviewBtn.dataset.boundClick) {
+    stopPreviewBtn.addEventListener('click', stopPreview);
+    stopPreviewBtn.dataset.boundClick = 'true';
+  }
+
+  const mapperRhythmSetSelect = document.getElementById('mapperRhythmSetSelect');
+  if (mapperRhythmSetSelect && !mapperRhythmSetSelect.dataset.boundChange) {
+    mapperRhythmSetSelect.addEventListener('change', event => {
+      updateSelectedSetMeta();
+      renderPreviewButtons(event.target.value);
+    });
+    mapperRhythmSetSelect.dataset.boundChange = 'true';
+  }
+}
+
+function initializeData() {
+  return loadData();
+}
+
 // ============================================
 // LOOPS METADATA AND AUDIO PREVIEW
 // ============================================
@@ -490,6 +1003,7 @@ async function loadLoopsMetadata() {
 
     const metadata = await response.json();
     const map = new Map();
+    const traitsMap = new Map();
     const loops = Array.isArray(metadata.loops) ? metadata.loops : [];
 
     loops.forEach(loop => {
@@ -504,9 +1018,35 @@ async function loadLoopsMetadata() {
       if (loop.filename && key) {
         map.get(rhythmSetId)[key] = loop.filename;
       }
+
+      if (!traitsMap.has(rhythmSetId)) {
+        traitsMap.set(rhythmSetId, {
+          taals: new Set(),
+          timeSignatures: new Set(),
+          tempos: new Set(),
+          genres: new Set(),
+          moods: new Set()
+        });
+      }
+
+      const traits = traitsMap.get(rhythmSetId);
+      const conditions = loop && loop.conditions ? loop.conditions : {};
+
+      const taal = normalizeRhythmFamily(conditions.taal || loop.rhythmFamily || '');
+      if (taal) traits.taals.add(taal);
+
+      const timeSignature = normalizeTimeSignature(conditions.timeSignature || loop.timeSignature || loop.time || '');
+      if (timeSignature) traits.timeSignatures.add(timeSignature);
+
+      const tempoBand = normalizeTempoBand(conditions.tempo || loop.tempo || '');
+      if (tempoBand) traits.tempos.add(tempoBand);
+
+      splitToTokenSet(conditions.genre || loop.genre || '').forEach(token => traits.genres.add(token));
+      splitToTokenSet(conditions.mood || loop.mood || '').forEach(token => traits.moods.add(token));
     });
 
     loopsByRhythmSet = map;
+    rhythmSetTraitsById = traitsMap;
   } catch (error) {
     console.error('Failed to load loops metadata:', error);
   }
@@ -649,37 +1189,7 @@ async function loadData() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Existing event listeners
-  document.getElementById('refreshBtn').addEventListener('click', loadData);
-  document.getElementById('createBtn').addEventListener('click', createRhythmSet);
-  document.getElementById('rows').addEventListener('click', event => {
-    const button = event.target.closest('button[data-action]');
-    if (!button) return;
-    const action = button.dataset.action;
-    const rhythmSetId = button.dataset.id;
-    if (action === 'save') {
-      saveRhythmSet(rhythmSetId);
-    }
-    if (action === 'recompute') {
-      recomputeRhythmSet(rhythmSetId);
-    }
-  });
-  
-  // New song assignment event listeners
-  document.getElementById('songSearchInput').addEventListener('keyup', filterSongs);
-  document.getElementById('assignBtn').addEventListener('click', assignSelectedRhythmSet);
-  document.getElementById('recommendBtn').addEventListener('click', recommendForSelectedSong);
-  document.getElementById('stopPreviewBtn').addEventListener('click', stopPreview);
-  
-  // Rhythm set dropdown change - show preview buttons and metadata
-  document.getElementById('mapperRhythmSetSelect').addEventListener('change', (e) => {
-    updateSelectedSetMeta();
-    renderPreviewButtons(e.target.value);
-  });
-  
-  // Initialize buttons as disabled
-  document.getElementById('assignBtn').disabled = true;
-  document.getElementById('recommendBtn').disabled = true;
-  
-  loadData();
+  applyThemeFromStorage();
+  wireEvents();
+  initializeData();
 });

@@ -49,7 +49,6 @@ class LoopPlayerPad {
             this.gainNode = this.audioContext.createGain();
             this.gainNode.connect(this.audioContext.destination);
             this.gainNode.gain.value = this.volumeLevel;
-            console.log('Web Audio API initialized');
         }
         
         if (this.audioContext.state === 'suspended') {
@@ -81,7 +80,6 @@ class LoopPlayerPad {
                 const arrayBuffer = await response.arrayBuffer();
                 this.audioBuffers.set(name, arrayBuffer);
                 
-                console.log(`Loaded ${name} from ${url}`);
             } catch (error) {
                 console.error(`Error loading ${name}:`, error);
                 if (this.onError) this.onError(error);
@@ -89,7 +87,6 @@ class LoopPlayerPad {
         });
 
         await Promise.all(loadPromises);
-        console.log(`All loops loaded successfully (${this.audioBuffers.size} files)`);
     }
 
     /**
@@ -146,7 +143,6 @@ class LoopPlayerPad {
         shifter.connect(this.gainNode);
         
         const calculatedDuration = node.duration / this.playbackRate;
-        console.log(`Playing ${name} with tempo ${this.playbackRate}x, duration: ${calculatedDuration.toFixed(2)}s`);
         
         this.loopDuration = calculatedDuration;
         
@@ -290,7 +286,6 @@ class LoopPlayerPad {
      */
     setPlaybackRate(rate) {
         this.playbackRate = Math.max(0.5, Math.min(2.0, rate));
-        console.log(`Tempo changed to ${(this.playbackRate * 100).toFixed(0)}% (pitch preserved)`);
     }
 
     /**
@@ -320,3 +315,4 @@ class LoopPlayerPad {
         }
     }
 }
+

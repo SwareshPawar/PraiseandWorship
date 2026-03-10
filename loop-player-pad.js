@@ -87,7 +87,6 @@ class LoopPlayerPad {
             this.melodicPads.tanpura.gainNode.connect(this.audioContext.destination);
             this.melodicPads.tanpura.gainNode.gain.value = this.tanpuraVolume;
             
-            console.log('Web Audio API initialized with melodic pad support');
             
             // Decode any already-loaded samples (both rhythmic and melodic)
             await this._decodeLoadedSamples();
@@ -113,7 +112,6 @@ class LoopPlayerPad {
                 const decodePromise = this.audioContext.decodeAudioData(rawData.slice())
                     .then(audioBuffer => {
                         this.audioBuffers.set(name, audioBuffer);
-                        console.log(`Decoded sample: ${name}, duration: ${audioBuffer.duration.toFixed(2)}s`);
                     })
                     .catch(error => {
                         console.warn(`Failed to decode sample ${name}:`, error);
@@ -124,7 +122,6 @@ class LoopPlayerPad {
         
         if (decodePromises.length > 0) {
             await Promise.all(decodePromises);
-            console.log(`✅ Decoded ${decodePromises.length} samples`);
         }
     }
 
@@ -137,13 +134,11 @@ class LoopPlayerPad {
     needsLoopReload(songId, loopMap) {
         // Always reload if song ID changed
         if (this.currentSongId !== songId) {
-            console.log('🔄 Song ID changed:', this.currentSongId, '→', songId);
             return true;
         }
         
         // Check if loop files changed
         if (!this.currentLoopSet) {
-            console.log('🔄 No previous loop set');
             return true;
         }
         
@@ -153,7 +148,6 @@ class LoopPlayerPad {
         
         const changed = currentUrls !== newUrls;
         if (changed) {
-            console.log('🔄 Loop set changed:', currentUrls, '→', newUrls);
         }
         
         return changed;
@@ -183,13 +177,11 @@ class LoopPlayerPad {
         const needsReload = this.needsLoopReload(songId, loopMap);
         
         if (!needsReload && this.rawAudioData.size > 0) {
-            console.log('✅ Loops already loaded for this song');
             return;
         }
         
         // If currently playing, queue reload for next play
         if (needsReload && this.isPlaying) {
-            console.log('🔄 Different song/loops detected - queueing reload for next play');
             this.pendingLoopReload = { loopMap, songId };
             // Don't interrupt current playback
             return;
@@ -202,7 +194,6 @@ class LoopPlayerPad {
         
         // Clear old data if reloading
         if (needsReload) {
-            console.log('🗑️ Clearing old loop data');
             this.rawAudioData.clear();
             this.audioBuffers.clear();
         }
@@ -213,7 +204,6 @@ class LoopPlayerPad {
                 const response = await fetch(url);
                 const arrayBuffer = await response.arrayBuffer();
                 this.rawAudioData.set(name, arrayBuffer);
-                console.log(`Fetched: ${name}, size: ${(arrayBuffer.byteLength / 1024).toFixed(2)} KB`);
             } catch (error) {
                 console.error(`Failed to fetch ${name}:`, error);
                 throw error;
@@ -222,7 +212,6 @@ class LoopPlayerPad {
 
         await Promise.all(loadPromises);
         
-        console.log(`Successfully fetched ${this.rawAudioData.size} loop files for song ${songId}`);
     }
     
     /**
@@ -243,13 +232,11 @@ class LoopPlayerPad {
             throw new Error('AudioContext not initialized');
         }
         
-        console.log('Decoding audio buffers...');
         
         const decodePromises = Array.from(this.rawAudioData.entries()).map(async ([name, arrayBuffer]) => {
             try {
                 const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer);
                 this.audioBuffers.set(name, audioBuffer);
-                console.log(`Decoded: ${name}, duration: ${audioBuffer.duration.toFixed(2)}s`);
             } catch (error) {
                 console.warn(`Failed to decode ${name}:`, error.message);
                 // Don't throw - continue with other files
@@ -265,7 +252,6 @@ class LoopPlayerPad {
             this.loopDuration = loop1Buffer.duration;
         }
         
-        console.log(`Successfully decoded ${this.audioBuffers.size} audio buffers`);
     }
 
     /**
@@ -277,7 +263,6 @@ class LoopPlayerPad {
             return false;
         }
         
-        console.log('🔄 Applying pending loop reload');
         const { loopMap, songId } = this.pendingLoopReload;
         this.pendingLoopReload = null;
         
@@ -286,7 +271,6 @@ class LoopPlayerPad {
         this.currentLoopSet = loopMap ? { ...loopMap } : null;
         
         // Clear old samples
-        console.log('🗑️ Clearing old loop data for reload');
         this.rawAudioData.clear();
         this.audioBuffers.clear();
         
@@ -296,7 +280,6 @@ class LoopPlayerPad {
                 const response = await fetch(url);
                 const arrayBuffer = await response.arrayBuffer();
                 this.rawAudioData.set(name, arrayBuffer);
-                console.log(`Fetched: ${name}, size: ${(arrayBuffer.byteLength / 1024).toFixed(2)} KB`);
             } catch (error) {
                 console.error(`Failed to fetch ${name}:`, error);
                 throw error;
@@ -304,7 +287,6 @@ class LoopPlayerPad {
         });
         
         await Promise.all(loadPromises);
-        console.log(`✅ Reloaded ${this.rawAudioData.size} loop files for song ${songId}`);
         
         return true;
     }
@@ -317,7 +299,6 @@ class LoopPlayerPad {
         
         // Check and apply pending reload first
         if (this.pendingLoopReload) {
-            console.log('🔄 Detected pending reload - applying before play');
             await this._applyPendingReload();
         }
         
@@ -351,7 +332,6 @@ class LoopPlayerPad {
      * @private
      */
     async _initializeAllSamples() {
-        console.log('🔄 Initializing all audio samples...');
         
         // Initialize Web Audio API with silent gain
         await this._initializeSilent();
@@ -365,7 +345,6 @@ class LoopPlayerPad {
         // Restore proper volume levels
         this._restoreVolumeFromSilent();
         
-        console.log('✅ All audio samples initialized and ready');
     }
 
     /**
@@ -390,7 +369,6 @@ class LoopPlayerPad {
             this.melodicPads.tanpura.gainNode.connect(this.audioContext.destination);
             this.melodicPads.tanpura.gainNode.gain.value = 0;
             
-            console.log('🔇 Web Audio API initialized silently');
         }
         
         if (this.audioContext.state === 'suspended') {
@@ -425,7 +403,6 @@ class LoopPlayerPad {
         const availableTypes = Object.keys(availability).filter(type => availability[type]);
         
         if (availableTypes.length > 0) {
-            console.log(`🎵 Loading melodic samples: ${availableTypes.join(', ')}`);
             await this.loadMelodicSamples(false, availableTypes);
         }
     }
@@ -444,7 +421,6 @@ class LoopPlayerPad {
         if (this.melodicPads.tanpura.gainNode) {
             this.melodicPads.tanpura.gainNode.gain.value = this.tanpuraVolume;
         }
-        console.log('🔊 Volume levels restored');
     }
 
     /**
@@ -558,11 +534,9 @@ class LoopPlayerPad {
         this.currentTranspose = transpose;
         const newKey = this._getEffectiveKey();
         
-        console.log(`🎹 Set song key: ${key}, transpose: ${transpose} → Effective key: ${newKey}`);
         
         // If key changed and samples should be reloaded
         if (reloadSamples && oldKey !== newKey) {
-            console.log(`🔄 Key changed from ${oldKey} to ${newKey} - reloading melodic samples`);
             
             // Stop all melodic pads
             this._stopAllMelodicPads();
@@ -578,7 +552,6 @@ class LoopPlayerPad {
             // Reload samples for new key (availability check will happen in UI)
             try {
                 await this.loadMelodicSamples(true, ['atmosphere', 'tanpura']);
-                console.log(`✅ Reloaded melodic samples for key ${newKey}`);
             } catch (error) {
                 console.warn(`Failed to reload melodic samples:`, error);
             }
@@ -663,7 +636,6 @@ class LoopPlayerPad {
         const availability = {};
         const baseUrl = this._getMelodicBaseUrl();
         
-        console.log(`🔍 Checking melodic availability for key: ${effectiveKey}`);
         
         // Map to check enharmonic equivalents (e.g., Eb = D#)
         const enharmonicMap = {
@@ -681,36 +653,29 @@ class LoopPlayerPad {
                 keysToTry.push(enharmonicMap[effectiveKey]);
             }
             
-            console.log(`  Checking ${sampleType}: trying keys [${keysToTry.join(', ')}]`);
             
             for (const keyToCheck of keysToTry) {
                 // URL encode the key to handle # symbol (e.g., D# becomes D%23)
                 const encodedKey = encodeURIComponent(keyToCheck);
                 const url = `${baseUrl}/loops/melodies/${sampleType}/${sampleType}_${encodedKey}.wav`;
-                console.log(`  🔗 Trying URL: ${url}`);
                 try {
                     // Use HEAD for lightweight check
                     const response = await fetch(url, { method: 'HEAD' });
                     if (response.ok) {
                         availability[sampleType] = true;
-                        console.log(`  ✅ ${sampleType}_${keyToCheck}.wav: Available (effective key: ${effectiveKey})`);
                         return; // Found it, stop trying other keys
                     } else {
-                        console.log(`  ⚠️ ${sampleType}_${keyToCheck}.wav: ${response.status} ${response.statusText}`);
                     }
                 } catch (error) {
-                    console.log(`  ❌ ${sampleType}_${keyToCheck}.wav: Error - ${error.message}`);
                     // Continue to next key
                 }
             }
             
             // If we get here, neither key worked
             availability[sampleType] = false;
-            console.log(`  ❌ ${sampleType}: Not Available (tried all enharmonic equivalents)`);
         });
         
         await Promise.all(checkPromises);
-        console.log(`📊 Melodic availability result:`, availability);
         return availability;
     }
 
@@ -725,7 +690,6 @@ class LoopPlayerPad {
         const tanpuraKey = `tanpura_${effectiveKey}`;
         const baseUrl = this._getMelodicBaseUrl();
 
-        console.log(`Loading melodic samples for key: ${effectiveKey}, types: ${sampleTypes.join(', ')}`);
 
         // Map to check enharmonic equivalents (e.g., Eb = D#)
         const enharmonicMap = {
@@ -767,7 +731,6 @@ class LoopPlayerPad {
                     const response = await fetch(url, { method: 'HEAD' });
                     if (response.ok) {
                         foundUrl = url;
-                        console.log(`Found melodic sample: ${sampleType}_${keyToCheck}.wav (for effective key: ${effectiveKey})`);
                         break;
                     }
                 } catch (error) {
@@ -789,11 +752,9 @@ class LoopPlayerPad {
                 const decodePromises = needsDecode.map(sampleName => this._decodeMelodicSample(sampleName));
                 if (decodePromises.length > 0) {
                     await Promise.all(decodePromises);
-                    console.log(`Decoded ${decodePromises.length} cached melodic samples for key: ${effectiveKey}`);
                 }
             }
 
-            console.log('Requested melodic samples already loaded or not available for this key');
             return;
         }
 
@@ -806,7 +767,6 @@ class LoopPlayerPad {
                 }
                 const arrayBuffer = await response.arrayBuffer();
                 this.rawAudioData.set(name, arrayBuffer);
-                console.log(`Fetched melodic sample: ${name}, size: ${(arrayBuffer.byteLength / 1024).toFixed(2)} KB`);
                 return { success: true, name };
             } catch (error) {
                 console.warn(`Failed to fetch melodic sample ${name}:`, error);
@@ -825,10 +785,8 @@ class LoopPlayerPad {
         const successful = results.filter(r => r.success);
         const failed = results.filter(r => !r.success);
         if (successful.length > 0) {
-            console.log(`✅ Successfully loaded ${successful.length} melodic samples`);
         }
         if (failed.length > 0) {
-            console.log(`❌ Failed to load ${failed.length} melodic samples:`, failed.map(f => f.name));
         }
         
         // If audio context is initialized, decode immediately
@@ -855,7 +813,6 @@ class LoopPlayerPad {
         try {
             const audioBuffer = await this.audioContext.decodeAudioData(rawData);
             this.audioBuffers.set(sampleName, audioBuffer);
-            console.log(`Decoded melodic sample: ${sampleName}, duration: ${audioBuffer.duration.toFixed(2)}s`);
         } catch (error) {
             console.warn(`Failed to decode melodic sample ${sampleName}:`, error.message);
         }
@@ -880,7 +837,6 @@ class LoopPlayerPad {
             if (this.onMelodicPadToggle) {
                 this.onMelodicPadToggle('atmosphere', false);
             }
-            console.log(`Stopped atmosphere pad`);
         }
         
         // Stop tanpura pad if playing
@@ -897,7 +853,6 @@ class LoopPlayerPad {
             if (this.onMelodicPadToggle) {
                 this.onMelodicPadToggle('tanpura', false);
             }
-            console.log(`Stopped tanpura pad`);
         }
     }
 
@@ -1013,7 +968,6 @@ class LoopPlayerPad {
         pad.source.start();
         pad.isPlaying = true;
         
-        console.log(`Started ${padType} pad (key: ${effectiveKey})`);
     }
 
     /**
@@ -1034,7 +988,6 @@ class LoopPlayerPad {
         }
         
         pad.isPlaying = false;
-        console.log(`Stopped ${padType} pad`);
     }
 
     /**
@@ -1050,7 +1003,6 @@ class LoopPlayerPad {
             return;
         }
 
-        console.log(`Starting playback of ${name}`);
         
         // Stop current source if any
         if (this.currentSource) {
@@ -1075,7 +1027,6 @@ class LoopPlayerPad {
         
         // Start playback
         this.currentSource.start();
-        console.log(`Playing ${name}, duration: ${buffer.duration}s, playbackRate: ${this.playbackRate}`);
 
         // Calculate duration accounting for playback rate
         const duration = buffer.duration / this.playbackRate;
@@ -1195,3 +1146,4 @@ class LoopPlayerPad {
         this.audioBuffers.clear();
     }
 }
+

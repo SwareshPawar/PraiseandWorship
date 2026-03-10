@@ -1035,6 +1035,7 @@
         .song-preview-transpose {
             display: flex;
             align-items: center;
+            flex-wrap: wrap;
             gap: 12px;
             margin-bottom: 10px;
             padding: 10px;
@@ -1068,18 +1069,38 @@
         }
 
         .preview-transpose-btn {
-            width: 36px;
-            height: 36px;
-            border: 1px solid var(--song-item-border);
-            background: var(--background-color);
-            color: var(--text-color);
-            border-radius: 4px;
-            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 5px;
+            min-width: 38px;
+            height: 38px;
+            padding: 0 10px;
+            border: 1px solid var(--song-item-border);
+            background: var(--background-color);
+            color: var(--text-color);
+            border-radius: 8px;
+            cursor: pointer;
             transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .preview-transpose-btn i {
             font-size: 0.9rem;
+        }
+
+        .preview-transpose-btn span {
+            font-size: 0.8rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .preview-transpose-btn.transpose-down,
+        .preview-transpose-btn.transpose-up {
+            min-width: 38px;
+            padding: 0;
         }
 
         .preview-transpose-btn:hover {
@@ -1092,6 +1113,7 @@
             background: var(--btn-secondary-bg);
             color: var(--btn-text-light);
             border-color: var(--btn-secondary-bg);
+            min-width: 72px;
         }
 
         .preview-transpose-btn.preview-reset:hover {
@@ -1102,6 +1124,7 @@
             background: var(--accent-color);
             color: var(--btn-text-light);
             border-color: var(--accent-color);
+            min-width: 72px;
         }
 
         .preview-transpose-btn.preview-save:hover {
@@ -1185,12 +1208,14 @@
             .song-preview-transpose {
                 flex-direction: row;
                 align-items: center;
-                gap: 3px;
-                padding: 4px 5px;
+                gap: 6px;
+                padding: 8px;
+                flex-wrap: wrap;
             }
             
             .preview-transpose-label {
                 font-size: 0.75rem;
+                width: 100%;
             }
             
             .preview-transpose-controls {
@@ -1200,9 +1225,25 @@
             }
             
             .preview-transpose-btn {
-                width: 30px;
-                height: 32px;
-                font-size: 0.8rem;
+                min-width: 34px;
+                height: 34px;
+                font-size: 0.75rem;
+                padding: 0 7px;
+            }
+
+            .preview-transpose-btn span {
+                font-size: 0.65rem;
+            }
+
+            .preview-transpose-btn.transpose-down,
+            .preview-transpose-btn.transpose-up {
+                min-width: 34px;
+                padding: 0;
+            }
+
+            .preview-transpose-btn.preview-reset,
+            .preview-transpose-btn.preview-save {
+                min-width: 62px;
             }
 
             /* Keep favorite button on the right even on mobile */
@@ -1239,7 +1280,7 @@
             height: 100%;
             background: var(--light-bg);
             box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-            z-index: 950;
+            z-index: 1240;
             transition: right 0.3s ease;
             overflow-y: auto;
             padding: 12px;
@@ -1350,6 +1391,7 @@
         position: fixed;
         right: 20px;
         top: 80px;
+        bottom: auto;
         width: 36px;
         height: 36px;
         border-radius: 50%;
@@ -1360,7 +1402,7 @@
         justify-content: center;
         cursor: pointer;
         box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        z-index: 900;
+        z-index: 1250;
         transition: all 0.3s;
         border: none;
     }
@@ -1368,6 +1410,74 @@
         .toggle-suggested-songs:hover {
             transform: scale(1.1);
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .floating-stop-btn {
+            position: fixed;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+            transition: all 0.3s ease;
+            z-index: 1260;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .floating-stop-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.5);
+            background: linear-gradient(135deg, #c0392b, #a93226);
+        }
+
+        .floating-stop-btn:active {
+            transform: scale(0.96);
+        }
+
+        .floating-stop-btn i {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+
+        .floating-stop-btn span {
+            font-size: 9px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            max-width: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .floating-stop-btn {
+                right: 15px;
+                width: 60px;
+                height: 60px;
+            }
+
+            .floating-stop-btn i {
+                font-size: 18px;
+            }
+
+            .floating-stop-btn span {
+                font-size: 8px;
+                max-width: 50px;
+            }
         }
 
 
@@ -4845,35 +4955,48 @@ body.dark-mode .modal-content {
         /* Auto-scroll controls */
         .auto-scroll-controls {
             position: fixed;
-            bottom: 20px;
+            bottom: 194px;
             right: 20px;
             display: flex;
             gap: 10px;
-            z-index: 1000;
+            z-index: 1260;
+            pointer-events: none;
         }
 
         .auto-scroll-btn {
-            width: 36px;
-            height: 36px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: var(--accent-color);
+            background: linear-gradient(135deg, var(--primary-color), #0d6efd);
             color: white;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
             border: none;
+            pointer-events: auto;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
             .auto-scroll-btn:hover {
                 transform: scale(1.1);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+            }
+
+            .auto-scroll-btn:active {
+                transform: scale(0.95);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                background: linear-gradient(135deg, #0056b3, var(--primary-color));
             }
 
             .auto-scroll-btn.active {
-                background: var(--secondary-color);
+                background: linear-gradient(135deg, var(--secondary-color), #ff7a18);
             }
 
         /* Notification */
@@ -4984,7 +5107,7 @@ body.dark-mode .modal-content {
         /* Keep screen on button */
         .keep-screen-on {
             position: fixed;
-            bottom: 70px;
+            bottom: 122px;
             right: 20px;
             width: 36px;
             height: 36px;
@@ -4998,7 +5121,7 @@ body.dark-mode .modal-content {
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
             transition: all 0.3s ease;
             border: none;
-            z-index: 1000;
+            z-index: 1260;
         }
 
             .keep-screen-on:hover {
@@ -5008,6 +5131,62 @@ body.dark-mode .modal-content {
 
             .keep-screen-on.active {
                 background: var(--secondary-color);
+            }
+
+            /* Mobile Navigation Replica Buttons (panel-toggle mirrors) */
+            .mobile-nav-container {
+                display: flex;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 2000;
+                flex-direction: column;
+                gap: 10px;
+                pointer-events: none;
+            }
+
+            .mobile-nav-btn {
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                border: none;
+                background: linear-gradient(135deg, var(--primary-color), #0d6efd);
+                color: white;
+                font-size: 1.2rem;
+                cursor: pointer;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                touch-action: manipulation;
+                -webkit-tap-highlight-color: transparent;
+                pointer-events: auto;
+                user-select: none;
+                -webkit-user-select: none;
+            }
+
+            .mobile-nav-btn:hover {
+                transform: scale(1.1);
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+            }
+
+            .mobile-nav-btn:active {
+                transform: scale(0.95);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+                background: linear-gradient(135deg, #0056b3, var(--primary-color));
+            }
+
+            .mobile-nav-sidebar {
+                background: linear-gradient(135deg, var(--primary-color), #28a745) !important;
+            }
+
+            .mobile-nav-songs {
+                background: linear-gradient(135deg, var(--primary-color), #17a2b8) !important;
+            }
+
+            .mobile-nav-both {
+                background: linear-gradient(135deg, var(--primary-color), #6f42c1) !important;
             }
 
         /* Favorite button */
@@ -5505,7 +5684,14 @@ body.dark-mode .modal-content {
     
     .toggle-suggested-songs {
         right: 10px;
-        bottom: 180px;
+        top: 80px;
+        bottom: auto;
+        width: 36px;
+        height: 36px;
+    }
+
+    .mobile-nav-btn.mobile-nav-both {
+        display: none !important;
     }
     
     /* Individual toggle button positioning now handled by JavaScript */
@@ -5546,13 +5732,26 @@ body.dark-mode .modal-content {
     }
     
     .auto-scroll-controls {
-        bottom: 194px; /* Mobile: above 3 nav buttons */
+        bottom: 194px;
         right: 20px;
+    }
+
+    .auto-scroll-btn {
+        width: 48px;
+        height: 48px;
+    }
+
+    .mobile-nav-container {
+        display: flex;
+        right: 20px;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 20px);
     }
     
     .keep-screen-on {
-        bottom: 130px;
-        right: 10px;
+        bottom: calc(env(safe-area-inset-bottom, 0px) + 54px);
+        right: 12px;
+        width: 44px;
+        height: 44px;
     }
 
     /* Admin Panel Mobile Optimizations */

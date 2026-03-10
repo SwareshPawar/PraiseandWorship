@@ -17,9 +17,26 @@ module.exports = async (req, res) => {
   try {
     const { db } = await connectToDatabase();
     const songsCollection = db.collection('PraiseAndWorships');
+    const deletedSongsCollection = db.collection('DeletedSongs');
+    const pathWithoutQuery = (req.url || '').split('?')[0];
+    const pathParts = pathWithoutQuery.split('/').filter(Boolean);
+    const lastPart = pathParts[pathParts.length - 1] || 'songs';
 
     // GET: Fetch all songs (public)
     if (req.method === 'GET') {
+      if (lastPart === 'deleted') {
+        const { since } = req.query;
+        if (!since) {
+          return res.status(200).json([]);
+        }
+
+        const deletedSongs = await deletedSongsCollection.find({
+          deletedAt: { $gt: since }
+        }).toArray();
+
+        return res.status(200).json(deletedSongs.map(doc => doc.songId));
+      }
+
       const { since } = req.query;
       let query = {};
       
@@ -106,9 +123,7 @@ module.exports = async (req, res) => {
         return res.status(auth.status).json({ error: auth.error });
       }
 
-      // Extract ID from URL path
-      const pathParts = req.url.split('/');
-      const id = pathParts[pathParts.length - 1].split('?')[0];
+      const id = lastPart;
       
       const updateData = req.body;
       updateData.updatedAt = new Date().toISOString();
@@ -138,7 +153,7 @@ module.exports = async (req, res) => {
             }
           }
         } catch (err) {
-          console.log('Not a valid ObjectId');
+          // Ignore ObjectId parsing errors and keep numeric ID flow
         }
       } else {
         updatedSong = await songsCollection.findOne({ id: parseInt(id) });
@@ -163,33 +178,48 @@ module.exports = async (req, res) => {
         return res.status(adminCheck.status).json({ error: adminCheck.error });
       }
 
-      // Check if deleting all songs or specific song
-      const pathParts = req.url.split('/');
-      const lastPart = pathParts[pathParts.length - 1].split('?')[0];
-      
       // If last part is 'songs', delete all
       if (lastPart === 'songs') {
+        const allSongs = await songsCollection.find({}, { projection: { id: 1, _id: 1 } }).toArray();
         await songsCollection.deleteMany({});
+
+        if (allSongs.length > 0) {
+          const deletedAt = new Date().toISOString();
+          const deletionRecords = allSongs.map(song => ({
+            songId: song.id !== undefined ? song.id : String(song._id),
+            deletedAt
+          }));
+          await deletedSongsCollection.insertMany(deletionRecords);
+        }
+
         return res.status(200).json({ message: 'All songs deleted' });
       }
       
       // Otherwise delete specific song
       const id = lastPart;
-      let result = await songsCollection.deleteOne({ id: parseInt(id) });
-      
-      if (result.deletedCount === 0) {
+      let songToDelete = await songsCollection.findOne({ id: parseInt(id, 10) });
+
+      if (!songToDelete) {
         try {
           const { ObjectId } = require('mongodb');
           if (ObjectId.isValid(id)) {
-            result = await songsCollection.deleteOne({ _id: new ObjectId(id) });
+            songToDelete = await songsCollection.findOne({ _id: new ObjectId(id) });
           }
         } catch (err) {
-          console.log('Not a valid ObjectId');
+          // Ignore ObjectId parsing errors and keep numeric ID flow
         }
       }
-      
-      if (result.deletedCount === 0) {
+
+      if (!songToDelete) {
         return res.status(404).json({ error: 'Song not found' });
+      }
+
+      const result = await songsCollection.deleteOne({ _id: songToDelete._id });
+      if (result.deletedCount > 0) {
+        await deletedSongsCollection.insertOne({
+          songId: songToDelete.id !== undefined ? songToDelete.id : String(songToDelete._id),
+          deletedAt: new Date().toISOString()
+        });
       }
       
       return res.status(200).json({ message: 'Song deleted' });

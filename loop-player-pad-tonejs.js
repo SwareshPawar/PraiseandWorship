@@ -45,7 +45,6 @@ class LoopPlayerPad {
         if (!this.players) {
             // Start Tone.js audio context
             await Tone.start();
-            console.log('Tone.js audio context started');
         }
     }
 
@@ -76,7 +75,6 @@ class LoopPlayerPad {
             this.players = new Tone.Players({
                 urls: loopMap,
                 onload: () => {
-                    console.log('All loops loaded successfully');
                     
                     // Set initial loop duration
                     const loop1Player = this.players.player('loop1');
@@ -331,3 +329,4 @@ class LoopPlayerPad {
         }
     }
 }
+

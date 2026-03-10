@@ -84,7 +84,7 @@
 
 <script>
 // Recommendation weights: loaded from backend or localStorage fallback
-let WEIGHTS = JSON.parse(localStorage.getItem('pw_recommendationWeights')) || {
+let BOOT_WEIGHTS = JSON.parse(localStorage.getItem('pw_recommendationWeights')) || {
     language: 20,
     scale: 25,
     timeSignature: 20,
@@ -101,7 +101,7 @@ async function fetchRecommendationWeights() {
         const res = await fetch(`${API_BASE_URL}/api/recommendation-weights`);
         if (res.ok) {
             const data = await res.json();
-            WEIGHTS = data;
+            BOOT_WEIGHTS = data;
             localStorage.setItem('pw_recommendationWeights', JSON.stringify(data));
         }
     } catch (e) { /* fallback to local */ }
@@ -120,7 +120,7 @@ async function saveRecommendationWeightsToBackend(weights) {
         if (res.ok) {
             const data = await res.json();
             localStorage.setItem('pw_recommendationWeights', JSON.stringify(weights));
-            WEIGHTS = weights;
+            BOOT_WEIGHTS = weights;
             return { success: true, message: data.message || 'Weights updated' };
         } else {
             const err = await res.json();
@@ -228,6 +228,13 @@ async function saveRecommendationWeightsToBackend(weights) {
             </form>
         </div>
     </div>
+
+    <!-- Floating Stop Button -->
+    <div id="floatingStopBtn" class="floating-stop-btn" style="display: none;" title="Stop currently playing song">
+        <i class="fas fa-stop"></i>
+        <span id="floatingStopText">Stop</span>
+    </div>
+
     <!-- Loading spinner removed -->
     <div class="app-container">
         <button class="panel-toggle draggable" id="toggle-sidebar" title="Show/Hide Sidebar Panel - Contains navigation, setlists, and settings" aria-label="Toggle Sidebar Panel"><i class="fas fa-home"></i></button>
@@ -1508,12 +1515,26 @@ async function saveRecommendationWeightsToBackend(weights) {
 </body>
 <script>
 window.addEventListener('DOMContentLoaded', async () => {
+    async function waitForInit(maxWaitMs = 6000, intervalMs = 50) {
+        const start = Date.now();
+        while (Date.now() - start < maxWaitMs) {
+            if (typeof window.init === 'function') return window.init;
+            await new Promise(resolve => setTimeout(resolve, intervalMs));
+        }
+        return null;
+    }
+
     try {
         // Show loading immediately on page load
         if (typeof showLoading === 'function') {
             showLoading(0);
         }
-        await init();
+        const initFn = await waitForInit();
+        if (initFn) {
+            await initFn();
+        } else {
+            throw new Error('window.init is not available');
+        }
     } catch (e) {
         console.error('App failed to initialize:', e);
         if (typeof hideLoading === 'function') {

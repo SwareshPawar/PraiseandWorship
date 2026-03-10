@@ -19,6 +19,12 @@ let loopsMetadataCache = null;
 // Make loop player instance globally accessible for floating stop button
 window.getLoopPlayerInstance = () => loopPlayerInstance;
 
+function getSongIdentifier(song) {
+    if (!song || typeof song !== 'object') return '';
+    const id = song.id || song._id;
+    return id === undefined || id === null ? '' : String(id);
+}
+
 /**
  * Load loops metadata (cached)
  */
@@ -57,24 +63,25 @@ function getTempoCategory(bpm) {
  * @returns {number} - Transpose level in semitones
  */
 function getTransposeLevel(song) {
-    if (!song || !song.id) return 0;
+    const songId = getSongIdentifier(song);
+    if (!songId) return 0;
     
     let transposeLevel = 0;
     
     // Priority: Global setlist transpose > User transpose
     if (typeof currentSetlistType !== 'undefined' && currentSetlistType === 'global' && 
         typeof currentViewingSetlist !== 'undefined' && currentViewingSetlist && 
-        currentViewingSetlist.songTransposes && song.id in currentViewingSetlist.songTransposes) {
+        currentViewingSetlist.songTransposes && songId in currentViewingSetlist.songTransposes) {
         // Use global setlist transpose (admin-set)
-        transposeLevel = currentViewingSetlist.songTransposes[song.id] || 0;
+        transposeLevel = currentViewingSetlist.songTransposes[songId] || 0;
     } else {
         // Use user's personal transpose
         try {
             const localTranspose = JSON.parse(localStorage.getItem('transposeCache') || '{}');
-            if (song.id && typeof localTranspose[song.id] === 'number') {
-                transposeLevel = localTranspose[song.id];
-            } else if (typeof window.userData !== 'undefined' && window.userData && window.userData.transpose && song.id in window.userData.transpose) {
-                transposeLevel = window.userData.transpose[song.id] || 0;
+            if (typeof localTranspose[songId] === 'number') {
+                transposeLevel = localTranspose[songId];
+            } else if (typeof window.userData !== 'undefined' && window.userData && window.userData.transpose && songId in window.userData.transpose) {
+                transposeLevel = window.userData.transpose[songId] || 0;
             }
         } catch (e) {
             console.warn('Error reading transpose cache:', e);
@@ -156,16 +163,11 @@ function areTimeSignaturesEquivalent(time1, time2) {
 async function findMatchingLoopSet(song) {
     const metadata = await getLoopsMetadata();
     if (!metadata || !metadata.loops || metadata.loops.length === 0) {
-        console.log('🔍 Loop resolve: No metadata or loops available');
         return null;
     }
 
     const rhythmSetId = String(song?.rhythmSetId || '').trim().toLowerCase();
     if (!rhythmSetId) {
-        console.log('🔍 Loop resolve: Song has no rhythmSetId, player will stay hidden', {
-            songId: song?.id,
-            title: song?.title
-        });
         return null;
     }
 
@@ -179,12 +181,6 @@ async function findMatchingLoopSet(song) {
         return `${family}_${setNo}`;
     };
 
-    console.log('🔍 Loop resolve for song:', {
-        songId: song.id,
-        title: song.title,
-        rhythmSetId,
-        availableLoops: metadata.loops.length
-    });
 
     // Group loops by rhythm set id for strict deterministic resolution.
     const loopSets = {};
@@ -207,7 +203,6 @@ async function findMatchingLoopSet(song) {
 
     const resolvedSet = loopSets[rhythmSetId];
     if (!resolvedSet) {
-        console.log(`❌ Loop resolve: rhythmSetId ${rhythmSetId} not found in metadata`);
         return null;
     }
 
@@ -360,7 +355,6 @@ async function updateMelodicPadAvailability(songId, effectiveKey) {
         return;
     }
     
-    console.log(`🔄 Updating melodic pad availability for song ${songId}, key ${effectiveKey}`);
     
     // Check availability for current key
     const melodicAvailability = await loopPlayerInstance.checkMelodicAvailability(['atmosphere', 'tanpura']);
@@ -383,12 +377,10 @@ async function updateMelodicPadAvailability(songId, effectiveKey) {
                 pad.disabled = false;
                 pad.classList.remove('loop-pad-disabled');
                 pad.title = `${melodicType} in key ${effectiveKey} (click to play)`;
-                console.log(`✅ Enabled ${melodicType} pad for key ${effectiveKey}`);
             } else {
                 pad.disabled = true;
                 pad.classList.add('loop-pad-disabled');
                 pad.title = `${melodicType}_${effectiveKey}.wav not available`;
-                console.log(`❌ Disabled ${melodicType} pad - file not available for key ${effectiveKey}`);
             }
         }
     });
@@ -404,48 +396,37 @@ window.updateMelodicPadAvailability = updateMelodicPadAvailability;
  * Initialize loop player for a song
  */
 async function initializeLoopPlayer(songId) {
-    console.log('🎵 Initializing loop player for song:', songId);
-    
-    // Check if songs array exists
-    if (typeof songs === 'undefined') {
-        console.log('❌ Songs array not available');
+
+    const normalizedSongId = songId === undefined || songId === null ? '' : String(songId);
+    const songList = Array.isArray(songs) ? songs : (Array.isArray(window.songs) ? window.songs : []);
+    if (!songList.length) {
         return;
     }
-    
+
     // Check if song is in the songs array
-    const song = songs.find(s => s.id == songId);
+    const song = songList.find(s => {
+        const candidateId = getSongIdentifier(s);
+        return candidateId && candidateId === normalizedSongId;
+    });
     if (!song) {
-        console.log('❌ Song not found in songs array:', songId);
         return;
     }
     
-    console.log('🎵 Found song for loop resolve:', { 
-        id: song.id, 
-        title: song.title, 
-        rhythmSetId: song.rhythmSetId
-    });
     
     // Find matching loop set for this song
     const matchResult = await findMatchingLoopSet(song);
     
     if (!matchResult) {
-        console.log('❌ No matching loop set found for song:', songId);
         const container = document.getElementById(`loopPlayerContainer-${songId}`);
         if (container) container.style.display = 'none';
         return;
     }
     
-    console.log('✅ Found mapped rhythm set:', matchResult.rhythmSetId);
     
     // Calculate effective key for melodic pads
     const transposeLevel = getTransposeLevel(song);
     const effectiveKey = getEffectiveKey(song, transposeLevel);
     
-    console.log('🎹 Key calculation:', {
-        originalKey: song.key || 'unknown',
-        transposeLevel: transposeLevel,
-        effectiveKey: effectiveKey
-    });
     
     // Update key indicators in UI
     const atmosphereKeyIndicator = document.getElementById(`atmosphere-key-${songId}`);
@@ -463,11 +444,9 @@ async function initializeLoopPlayer(songId) {
     // Show the container
     const container = document.getElementById(`loopPlayerContainer-${songId}`);
     if (!container) {
-        console.log('❌ Loop container element not found:', `loopPlayerContainer-${songId}`);
         return;
     }
     container.style.display = 'block';
-    console.log('✅ Loop player container shown for song:', songId);
     
     // Restore expand/collapse state from localStorage
     const isExpanded = localStorage.getItem('loopPlayerExpanded') === 'true';
@@ -482,10 +461,8 @@ async function initializeLoopPlayer(songId) {
             loopToggleBtn.classList.add('expanded');
             loopToggleIcon.className = 'fas fa-chevron-up';
             loopToggleBtn.title = 'Collapse Rhythm Pads';
-            console.log('🔓 Loop player restored to expanded state');
         } else {
             // Keep collapsed (default state from HTML)
-            console.log('🔒 Loop player remains collapsed');
         }
     }
     
@@ -581,7 +558,6 @@ async function initializeLoopPlayer(songId) {
             return acc;
         }, {});
         
-        console.log('🔊 Loading loops from:', loopMap);
         
         // Load loops with song ID for tracking
         await loopPlayerInstance.loadLoops(loopMap, songId);
@@ -1682,3 +1658,4 @@ const loopPlayerStyles = `
 }
 </style>
 `;
+

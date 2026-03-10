@@ -9,6 +9,7 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 let db;
 let songsCollection;
+let deletedSongsCollection;
 
 const uri = process.env.MONGODB_URI;
 const client = new MongoClient(uri, {
@@ -47,26 +48,19 @@ let isConnected = false;
 
 async function connectToDatabase() {
   if (isConnected && db) {
-    console.log('Database already connected, reusing connection');
     return;
   }
   
   try {
-    console.log('Attempting to connect to MongoDB...');
-    console.log('MongoDB URI available:', !!uri);
-    console.log('All environment variables:', Object.keys(process.env).filter(key => !key.includes('PATH')));
-    
     if (!uri) {
-      console.error('MONGODB_URI environment variable is not set');
-      console.error('Available env vars (filtered):', Object.keys(process.env).filter(key => key.includes('MONGO') || key.includes('JWT') || key.includes('PORT')));
       throw new Error('MONGODB_URI environment variable is not set - please configure it in your Render dashboard');
     }
     
     await client.connect();
     db = client.db('PraiseAndWorship');
     songsCollection = db.collection('PraiseAndWorships');
+    deletedSongsCollection = db.collection('DeletedSongs');
     isConnected = true;
-    console.log('Successfully connected to MongoDB');
   } catch (err) {
     console.error('Failed to connect to MongoDB:', err);
     isConnected = false;
@@ -82,10 +76,8 @@ app.use(async (req, res, next) => {
     if (process.env.NODE_ENV !== 'production' && db) {
       return next();
     }
-    
-    console.log('DB Middleware - Before connection check. DB exists:', !!db, 'isConnected:', isConnected);
+
     await connectToDatabase();
-    console.log('DB Middleware - After connection. DB exists:', !!db);
     if (!db) {
       throw new Error('Database connection failed - db is still undefined');
     }
@@ -115,9 +107,296 @@ const {
   normalizeRhythmFamily,
   normalizeRhythmSetNo,
   parseRhythmSetId,
+  readWritableLoopsMetadata,
+  writeLoopsMetadata,
   readLoopsMetadataSafe,
   listMelodicLoops
 } = require('./api/_loops');
+
+const CANONICAL_CHROMATIC = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
+const NOTE_TO_INDEX = {
+  C: 0,
+  'C#': 1,
+  Db: 1,
+  D: 2,
+  'D#': 3,
+  Eb: 3,
+  E: 4,
+  Fb: 4,
+  'E#': 5,
+  F: 5,
+  'F#': 6,
+  Gb: 6,
+  G: 7,
+  'G#': 8,
+  Ab: 8,
+  A: 9,
+  'A#': 10,
+  Bb: 10,
+  B: 11,
+  Cb: 11
+};
+const KEY_VARIANTS_BY_CANONICAL = {
+  C: ['C'],
+  'C#': ['C#', 'Db'],
+  D: ['D'],
+  Eb: ['Eb', 'D#'],
+  E: ['E', 'Fb'],
+  F: ['F', 'E#'],
+  'F#': ['F#', 'Gb'],
+  G: ['G'],
+  'G#': ['G#', 'Ab'],
+  A: ['A'],
+  Bb: ['Bb', 'A#'],
+  B: ['B', 'Cb']
+};
+const CHORD_LINE_REGEX = /^(\s*[A-G](?:#|b)?(?:[a-zA-Z0-9+#]*)?(?:\/[A-G](?:#|b)?)?[\s\-\/\|]*)+$/i;
+const CHORD_TOKEN_REGEX = /([A-G](?:#|b)?(?:[a-zA-Z0-9+#]*)?(?:\/[A-G](?:#|b)?)?)/gi;
+const INLINE_CHORD_REGEX = /([\[(])([A-G](?:#|b)?(?:[a-zA-Z0-9+#]*)?(?:\/[A-G](?:#|b)?)?)([\])])/gi;
+
+function normalizeBaseNote(note) {
+  if (!note || typeof note !== 'string') return note;
+  const normalizedInput = note.charAt(0).toUpperCase() + note.slice(1);
+  const index = NOTE_TO_INDEX[normalizedInput];
+  if (index === undefined) return note;
+  return CANONICAL_CHROMATIC[index];
+}
+
+function normalizeMelodicKey(key) {
+  if (!key || typeof key !== 'string') return key;
+  const trimmed = key.trim();
+  const match = trimmed.match(/^([A-Ga-g][#b]?)(.*)$/);
+  if (!match) return trimmed;
+  return `${normalizeBaseNote(match[1])}${match[2] || ''}`;
+}
+
+function normalizeChordToken(chordToken) {
+  if (!chordToken || typeof chordToken !== 'string') return chordToken;
+
+  if (chordToken.includes('/')) {
+    const [base, bass] = chordToken.split('/');
+    const normalizedBase = normalizeChordToken(base);
+    const normalizedBass = bass ? normalizeChordToken(bass) : '';
+    return normalizedBass ? `${normalizedBase}/${normalizedBass}` : normalizedBase;
+  }
+
+  const match = chordToken.match(/^([A-Ga-g][#b]?)(.*)$/);
+  if (!match) return chordToken;
+  return `${normalizeBaseNote(match[1])}${match[2] || ''}`;
+}
+
+function normalizeManualChords(manualChords) {
+  if (!manualChords || typeof manualChords !== 'string') return manualChords;
+  return manualChords
+    .split(',')
+    .map(chord => normalizeChordToken(chord.trim()))
+    .filter(Boolean)
+    .join(', ');
+}
+
+function normalizeLyricsChords(lyrics) {
+  if (!lyrics || typeof lyrics !== 'string') return lyrics;
+  return lyrics
+    .split('\n')
+    .map(line => {
+      const trimmed = line.trim();
+      if (!trimmed) return line;
+
+      if (CHORD_LINE_REGEX.test(trimmed)) {
+        return line.replace(CHORD_TOKEN_REGEX, chord => normalizeChordToken(chord));
+      }
+
+      return line.replace(INLINE_CHORD_REGEX, (match, open, chord, close) => {
+        return `${open}${normalizeChordToken(chord)}${close}`;
+      });
+    })
+    .join('\n');
+}
+
+function expandKeyFilterVariants(keys) {
+  const expanded = new Set();
+  (Array.isArray(keys) ? keys : []).forEach(key => {
+    if (typeof key !== 'string' || !key.trim()) return;
+
+    const normalizedKey = normalizeMelodicKey(key);
+    const match = normalizedKey.match(/^([A-G][#b]?)(m?)$/);
+    if (!match) {
+      expanded.add(normalizedKey);
+      return;
+    }
+
+    const root = match[1];
+    const suffix = match[2] || '';
+    const variants = KEY_VARIANTS_BY_CANONICAL[root] || [root];
+    variants.forEach(variantRoot => expanded.add(`${variantRoot}${suffix}`));
+  });
+
+  return Array.from(expanded);
+}
+
+function normalizeRhythmCategory(value) {
+  if (typeof value !== 'string') return '';
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) return '';
+  if (normalized === 'indian') return 'Indian';
+  if (normalized === 'western') return 'Western';
+  if (normalized === 'others' || normalized === 'other') return 'Others';
+  return '';
+}
+
+function getTempoCategoryFromValue(tempoValue) {
+  if (tempoValue === null || tempoValue === undefined) return '';
+  if (typeof tempoValue === 'string') {
+    const normalized = tempoValue.trim().toLowerCase();
+    if (['slow', 'medium', 'fast'].includes(normalized)) return normalized;
+  }
+
+  const parsedTempo = parseInt(tempoValue, 10);
+  if (!Number.isFinite(parsedTempo)) return '';
+  if (parsedTempo < 80) return 'slow';
+  if (parsedTempo > 120) return 'fast';
+  return 'medium';
+}
+
+function getSongGenreList(song) {
+  if (!song || typeof song !== 'object') return [];
+  const genres = Array.isArray(song.genres)
+    ? song.genres
+    : (song.genre ? [song.genre] : []);
+
+  return genres
+    .map(genre => String(genre || '').trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function isEquivalentTimeSignature(left, right) {
+  if (!left || !right) return false;
+  if (left === right) return true;
+
+  const map = {
+    '6/8': ['3/4'],
+    '3/4': ['6/8', '9/8'],
+    '9/8': ['3/4'],
+    '12/8': ['4/4'],
+    '4/4': ['12/8']
+  };
+
+  return Array.isArray(map[left]) && map[left].includes(right);
+}
+
+function resolveSongRhythmSelection(songPayload, recommendation) {
+  const parsedFromId = parseRhythmSetId(songPayload && songPayload.rhythmSetId || '');
+
+  const rhythmFamily = normalizeRhythmFamily(
+    songPayload && (songPayload.rhythmFamily || songPayload.taal)
+      || (parsedFromId && parsedFromId.rhythmFamily)
+      || (recommendation && recommendation.rhythmFamily)
+      || ''
+  );
+
+  const rhythmSetNo = normalizeRhythmSetNo(
+    songPayload && (songPayload.rhythmSetNo || songPayload.setNo)
+      || (parsedFromId && parsedFromId.rhythmSetNo)
+      || (recommendation && recommendation.rhythmSetNo)
+      || null
+  );
+
+  const rhythmSetId = buildRhythmSetId(rhythmFamily, rhythmSetNo);
+  return {
+    rhythmFamily,
+    rhythmSetNo,
+    rhythmSetId,
+    recommendation: recommendation
+      ? {
+          score: recommendation.score,
+          reason: recommendation.reason,
+          at: new Date().toISOString()
+        }
+      : null
+  };
+}
+
+async function bootstrapRhythmSetsFromMetadata() {
+  if (!db) {
+    return { insertedOrUpdated: 0 };
+  }
+
+  const { metadata } = readLoopsMetadataSafe();
+  const sets = buildRhythmSetIndexFromMetadata(metadata);
+  if (!sets.length) {
+    return { insertedOrUpdated: 0 };
+  }
+
+  const rhythmSetsCollection = db.collection('RhythmSets');
+  const actor = 'system';
+  const now = new Date().toISOString();
+
+  await Promise.all(sets.map(set => rhythmSetsCollection.updateOne(
+    { rhythmSetId: set.rhythmSetId },
+    {
+      $setOnInsert: {
+        rhythmSetId: set.rhythmSetId,
+        rhythmFamily: set.rhythmFamily,
+        rhythmSetNo: set.rhythmSetNo,
+        status: 'active',
+        notes: '',
+        createdAt: now,
+        createdBy: actor
+      },
+      $set: {
+        updatedAt: now,
+        updatedBy: actor,
+        lastSource: 'bootstrap-rhythm-metadata'
+      }
+    },
+    { upsert: true }
+  )));
+
+  return { insertedOrUpdated: sets.length };
+}
+
+async function renameRhythmSetInLoopsMetadata(oldRhythmSetId, newRhythmFamily, newRhythmSetNo, newRhythmSetId) {
+  if (!oldRhythmSetId || !newRhythmSetId) {
+    return { updatedLoops: 0 };
+  }
+
+  const writable = readWritableLoopsMetadata();
+  const metadata = writable.metadata || { loops: [] };
+  let updatedLoops = 0;
+
+  const loops = Array.isArray(metadata.loops) ? metadata.loops : [];
+  metadata.loops = loops.map(loop => {
+    if (String(loop.rhythmSetId || '') !== String(oldRhythmSetId)) {
+      return loop;
+    }
+
+    updatedLoops += 1;
+    return {
+      ...loop,
+      rhythmFamily: newRhythmFamily,
+      rhythmSetNo: newRhythmSetNo,
+      rhythmSetId: newRhythmSetId,
+      conditions: {
+        ...(loop.conditions || {}),
+        taal: newRhythmFamily
+      }
+    };
+  });
+
+  if (!updatedLoops || !writable.metadataPath) {
+    return { updatedLoops };
+  }
+
+  metadata.rhythmSets = buildRhythmSetIndexFromMetadata(metadata).map(set => ({
+    rhythmSetId: set.rhythmSetId,
+    rhythmFamily: set.rhythmFamily,
+    rhythmSetNo: set.rhythmSetNo,
+    fileCount: set.loopCount
+  }));
+
+  writeLoopsMetadata(metadata, writable.metadataPath);
+  return { updatedLoops };
+}
 
 function authMiddleware(req, res, next) {
   const authHeader = req.headers['authorization'];
@@ -311,8 +590,6 @@ app.get('/api/debug/db', async (req, res) => {
 // User login
 app.post('/api/login', async (req, res) => {
   try {
-    // Additional debug logging
-    console.log('Login attempt - DB status:', !!db);
     if (!db) {
       console.error('Database not connected in login endpoint');
       return res.status(500).json({ error: 'Database connection not available' });
@@ -335,53 +612,40 @@ app.post('/api/login', async (req, res) => {
 app.post('/api/forgot-password', async (req, res) => {
   try {
     const { identifier, method } = req.body; // identifier can be email or phone, method is 'email' or 'sms'
-    
-    console.log(`🔐 Password reset request for ${identifier} via ${method}`);
-    
+
     if (!identifier || !method) {
-      console.log('❌ Missing required fields');
       return res.status(400).json({ error: 'Email/phone and method are required' });
     }
     
     if (!['email', 'sms'].includes(method)) {
-      console.log('❌ Invalid method');
       return res.status(400).json({ error: 'Method must be email or sms' });
     }
     
     // Find user
     const user = await findUserForPasswordReset(db, identifier);
     if (!user) {
-      console.log(`❌ User not found for identifier: ${identifier}`);
       return res.status(404).json({ error: 'User not found' });
     }
-    
-    console.log(`✅ User found: ${user.firstName || 'Unknown'} (${user.email || user.phone})`);
-    
+
     // Generate OTP
     const otp = generateOTP();
-    console.log(`🔢 Generated OTP: ${otp}`);
     
     // Store OTP in database
     await storeOTP(db, identifier, otp, method);
-    console.log(`💾 OTP stored in database`);
     
     // Send OTP based on method
     if (method === 'email') {
       if (!user.email) {
-        console.log('❌ No email associated with account');
         return res.status(400).json({ error: 'No email associated with this account' });
       }
       await sendEmailOTP(user.email, otp, user.firstName);
     } else if (method === 'sms') {
       if (!user.phone) {
-        console.log('❌ No phone associated with account');
         return res.status(400).json({ error: 'No phone number associated with this account' });
       }
       await sendSMSOTP(user.phone, otp, user.firstName);
     }
-    
-    console.log(`✅ OTP sent successfully via ${method}`);
-    
+
     res.json({ 
       message: `OTP sent successfully via ${method}`,
       method,
@@ -391,18 +655,7 @@ app.post('/api/forgot-password', async (req, res) => {
     });
     
   } catch (err) {
-    console.error('❌ Forgot password error:', err);
-    console.error('Error stack:', err.stack);
-    
-    // Debug environment variables in production
-    console.log('🔧 Debug Info:');
-    console.log('- NODE_ENV:', process.env.NODE_ENV);
-    console.log('- EMAIL_USER configured:', !!process.env.EMAIL_USER);
-    console.log('- EMAIL_PASSWORD configured:', !!process.env.EMAIL_PASSWORD);
-    console.log('- EMAIL_SERVICE:', process.env.EMAIL_SERVICE);
-    console.log('- TWILIO_ACCOUNT_SID configured:', !!process.env.TWILIO_ACCOUNT_SID);
-    console.log('- TWILIO_AUTH_TOKEN configured:', !!process.env.TWILIO_AUTH_TOKEN);
-    console.log('- MONGODB_URI configured:', !!process.env.MONGODB_URI);
+    console.error('Forgot password error:', err);
     
     // Send appropriate error response
     let errorMessage = err.message || 'Failed to send OTP';
@@ -441,8 +694,7 @@ app.post('/api/reset-password', async (req, res) => {
     res.json(result);
     
   } catch (err) {
-    console.error('❌ Reset password error:', err);
-    console.error('Error stack:', err.stack);
+    console.error('Reset password error:', err);
     
     let errorMessage = err.message || 'Failed to reset password';
     
@@ -491,11 +743,27 @@ app.get('/api/songs', async (req, res) => {
   }
 });
 
+app.get('/api/songs/deleted', async (req, res) => {
+  try {
+    const { since } = req.query;
+    if (!since) {
+      return res.json([]);
+    }
+
+    const deletedSongs = await deletedSongsCollection.find({
+      deletedAt: { $gt: since }
+    }).toArray();
+
+    const deletedIds = deletedSongs.map(doc => doc.songId);
+    res.json(deletedIds);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Protected: only logged-in users can add, update, or delete songs
 app.post('/api/songs', authMiddleware, async (req, res) => {
   try {
-    console.log('DEBUG /api/songs POST req.user:', req.user);
-    console.log('DEBUG /api/songs POST req.body:', req.body);
     if (typeof req.body.id !== 'number') {
       const last = await songsCollection.find().sort({ id: -1 }).limit(1).toArray();
       req.body.id = last.length ? last[0].id + 1 : 1;
@@ -548,7 +816,6 @@ app.post('/api/songs', authMiddleware, async (req, res) => {
 });
 
 app.put('/api/songs/:id', authMiddleware, async (req, res) => {
-  console.log('DEBUG /api/songs/:id req.user:', req.user);
   try {
     const { id } = req.params;
     // Always set updatedAt to now on edit
@@ -579,7 +846,7 @@ app.put('/api/songs/:id', authMiddleware, async (req, res) => {
           }
         }
       } catch (err) {
-        console.log('Not a valid ObjectId, skipping _id lookup');
+        // Ignore ObjectId parsing errors and keep numeric ID flow
       }
     } else {
       updatedSong = await songsCollection.findOne({ id: parseInt(id) });
@@ -598,34 +865,25 @@ app.put('/api/songs/:id', authMiddleware, async (req, res) => {
 app.delete('/api/songs/:id', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    console.log(`🗑️ DELETE request for song ID: ${id} (type: ${typeof id})`);
-    
-    // Try numeric id first
-    let result = await songsCollection.deleteOne({ id: parseInt(id) });
-    console.log(`   First attempt (numeric id): ${result.deletedCount} deleted`);
-    
-    // If not found, try with MongoDB _id as fallback
-    if (result.deletedCount === 0) {
-      try {
-        const ObjectId = require('mongodb').ObjectId;
-        if (ObjectId.isValid(id)) {
-          console.log(`   Trying _id as ObjectId fallback...`);
-          result = await songsCollection.deleteOne({ _id: new ObjectId(id) });
-          console.log(`   Second attempt (_id): ${result.deletedCount} deleted`);
-        }
-      } catch (err) {
-        console.log('   Not a valid ObjectId, skipping _id lookup');
-      }
+
+    let songToDelete = await songsCollection.findOne({ id: parseInt(id, 10) });
+    if (!songToDelete && ObjectId.isValid(id)) {
+      songToDelete = await songsCollection.findOne({ _id: new ObjectId(id) });
     }
-    
-    if (result.deletedCount === 0) {
-      // Log all songs with their IDs for debugging
-      const allSongs = await songsCollection.find({}).limit(5).toArray();
-      console.log(`   ❌ Song not found. Sample songs in DB:`, allSongs.map(s => ({ id: s.id, _id: s._id, title: s.title })));
+
+    if (!songToDelete) {
       return res.status(404).json({ error: 'Song not found' });
     }
-    
-    console.log(`   ✅ Song deleted successfully`);
+
+    const result = await songsCollection.deleteOne({ _id: songToDelete._id });
+    if (result.deletedCount > 0) {
+      const trackedId = songToDelete.id !== undefined ? songToDelete.id : String(songToDelete._id);
+      await deletedSongsCollection.insertOne({
+        songId: trackedId,
+        deletedAt: new Date().toISOString()
+      });
+    }
+
     res.json({ message: 'Song deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -634,7 +892,18 @@ app.delete('/api/songs/:id', authMiddleware, requireAdmin, async (req, res) => {
 
 app.delete('/api/songs', authMiddleware, requireAdmin, async (req, res) => {
   try {
+    const allSongs = await songsCollection.find({}, { projection: { id: 1, _id: 1 } }).toArray();
     await songsCollection.deleteMany({});
+
+    if (allSongs.length > 0) {
+      const deletedAt = new Date().toISOString();
+      const deletionRecords = allSongs.map(song => ({
+        songId: song.id !== undefined ? song.id : String(song._id),
+        deletedAt
+      }));
+      await deletedSongsCollection.insertMany(deletionRecords);
+    }
+
     res.json({ message: 'All songs deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -989,17 +1258,10 @@ app.post('/api/global-setlists/add-song', authMiddleware, requireAdmin, async (r
 app.post('/api/global-setlists/remove-song', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { setlistId, songId } = req.body;
-    console.log('Removing song from global setlist:', { setlistId, songId });
     if (!setlistId || !songId) {
       return res.status(400).json({ error: 'Setlist ID and song ID are required' });
     }
-    
-    // First, let's check what the setlist looks like before removal
-    const setlistBefore = await db.collection('GlobalSetlists').findOne(
-      { _id: new (require('mongodb').ObjectId)(setlistId) }
-    );
-    console.log('Setlist before removal:', setlistBefore ? setlistBefore.songs : 'not found');
-    
+
     // Try to remove song ID directly (for new format)
     let result = await db.collection('GlobalSetlists').updateOne(
       { _id: new (require('mongodb').ObjectId)(setlistId) },
@@ -1019,15 +1281,7 @@ app.post('/api/global-setlists/remove-song', authMiddleware, requireAdmin, async
         }
       );
     }
-    
-    console.log('Remove result:', result);
-    
-    // Check what the setlist looks like after removal
-    const setlistAfter = await db.collection('GlobalSetlists').findOne(
-      { _id: new (require('mongodb').ObjectId)(setlistId) }
-    );
-    console.log('Setlist after removal:', setlistAfter ? setlistAfter.songs : 'not found');
-    
+
     if (result.matchedCount === 0) {
       return res.status(404).json({ error: 'Global setlist not found' });
     }
@@ -1078,18 +1332,11 @@ app.post('/api/my-setlists/remove-song', authMiddleware, async (req, res) => {
   try {
     const { setlistId, songId } = req.body;
     const userId = req.user.id;
-    console.log('Removing song from personal setlist:', { setlistId, songId, userId });
-    
+
     if (!setlistId || !songId) {
       return res.status(400).json({ error: 'Setlist ID and song ID are required' });
     }
-    
-    // First, let's check what the setlist looks like before removal
-    const setlistBefore = await db.collection('MySetlists').findOne(
-      { _id: new (require('mongodb').ObjectId)(setlistId), userId }
-    );
-    console.log('Personal setlist before removal:', setlistBefore ? setlistBefore.songs : 'not found');
-    
+
     // Try to remove song ID directly (for new format)
     let result = await db.collection('MySetlists').updateOne(
       { 
@@ -1115,15 +1362,7 @@ app.post('/api/my-setlists/remove-song', authMiddleware, async (req, res) => {
         }
       );
     }
-    
-    console.log('Remove result:', result);
-    
-    // Check what the setlist looks like after removal
-    const setlistAfter = await db.collection('MySetlists').findOne(
-      { _id: new (require('mongodb').ObjectId)(setlistId), userId }
-    );
-    console.log('Personal setlist after removal:', setlistAfter ? setlistAfter.songs : 'not found');
-    
+
     if (result.matchedCount === 0) {
       return res.status(404).json({ error: 'Personal setlist not found' });
     }
@@ -1141,27 +1380,32 @@ app.post('/api/my-setlists/remove-song', authMiddleware, async (req, res) => {
 
 // Multer configuration for loop uploads
 const loopsDir = path.join(__dirname, 'loops');
+
+function destination(req, file, cb) {
+  if (!fs.existsSync(loopsDir)) {
+    fs.mkdirSync(loopsDir, { recursive: true });
+  }
+  cb(null, loopsDir);
+}
+
+function filename(req, file, cb) {
+  cb(null, file.originalname);
+}
+
+function fileFilter(req, file, cb) {
+  if (file.mimetype === 'audio/wav' || file.mimetype === 'audio/x-wav' || file.mimetype === 'audio/wave') {
+    cb(null, true);
+  } else {
+    cb(new Error('Only WAV files are allowed'));
+  }
+}
+
 const loopUpload = multer({
   storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      // Ensure directory exists
-      if (!fs.existsSync(loopsDir)) {
-        fs.mkdirSync(loopsDir, { recursive: true });
-      }
-      cb(null, loopsDir);
-    },
-    filename: (req, file, cb) => {
-      // Keep original filename temporarily (will be renamed after upload)
-      cb(null, file.originalname);
-    }
+    destination,
+    filename
   }),
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype === 'audio/wav' || file.mimetype === 'audio/x-wav' || file.mimetype === 'audio/wave') {
-      cb(null, true);
-    } else {
-      cb(new Error('Only WAV files are allowed'));
-    }
-  },
+  fileFilter,
   limits: {
     fileSize: 50 * 1024 * 1024 // 50MB limit
   }
@@ -1528,25 +1772,13 @@ app.put('/api/rhythm-sets/:rhythmSetId', authMiddleware, requireAdmin, async (re
 // Start server - works for both local development and production (Render, etc.)
 async function startServer() {
   try {
-    console.log('🚀 Starting server...');
-    console.log('📋 Environment Check:');
-    console.log('- NODE_ENV:', process.env.NODE_ENV || 'development');
-    console.log('- PORT:', process.env.PORT || 3001);
-    console.log('- MONGODB_URI configured:', !!process.env.MONGODB_URI);
-    console.log('- MONGODB_URI preview:', process.env.MONGODB_URI ? process.env.MONGODB_URI.substring(0, 50) + '...' : 'NOT SET');
-    console.log('- EMAIL_USER:', process.env.EMAIL_USER || 'NOT SET');
-    console.log('- EMAIL_SERVICE:', process.env.EMAIL_SERVICE || 'NOT SET');
-    
     await connectToDatabase();
     const PORT = process.env.PORT || 3001;
     app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
-      console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
-      console.log('📡 Server is ready to accept requests');
+      console.log(`Server running on port ${PORT}`);
     });
   } catch (err) {
-    console.error('❌ Failed to start server:', err);
-    console.error('Error stack:', err.stack);
+    console.error('Failed to start server:', err);
     process.exit(1);
   }
 }

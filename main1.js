@@ -78,6 +78,45 @@ const PW_TIME_GENRE_MAP = {
     "16/8": ["TeenTaal"]
 };
 
+const DEFAULT_RECOMMENDATION_WEIGHTS = {
+    language: 20,
+    scale: 25,
+    timeSignature: 20,
+    taal: 15,
+    tempo: 5,
+    genre: 5,
+    vocal: 5,
+    mood: 5,
+    rhythmCategory: 0
+};
+
+let recommendationWeights = (() => {
+    try {
+        const stored = JSON.parse(
+            localStorage.getItem('pw_recommendationWeights')
+            || localStorage.getItem('recommendationWeights')
+            || '{}'
+        );
+        return { ...DEFAULT_RECOMMENDATION_WEIGHTS, ...(stored || {}) };
+    } catch {
+        return { ...DEFAULT_RECOMMENDATION_WEIGHTS };
+    }
+})();
+
+function setRecommendationWeightsState(nextWeights) {
+    recommendationWeights = {
+        ...DEFAULT_RECOMMENDATION_WEIGHTS,
+        ...(nextWeights || {})
+    };
+
+    // Keep compatibility for legacy code that still reads window/global WEIGHTS.
+    globalThis.PW_RECOMMENDATION_WEIGHTS = recommendationWeights;
+    globalThis.WEIGHTS = recommendationWeights;
+    return recommendationWeights;
+}
+
+setRecommendationWeightsState(recommendationWeights);
+
 // --- CHORD TYPES: single source of truth ---
 const PW_CHORD_TYPES = [
     // Longest patterns first to prevent partial matches
@@ -152,6 +191,29 @@ const PW_CHORD_TYPE_REGEX = PW_CHORD_TYPES.join("|");
 const PW_CHORD_REGEX = new RegExp(`([A-G](?:#|b)?)(?:${PW_CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?`, "gi");
 const PW_CHORD_LINE_REGEX = new RegExp(`^(\\s*[A-G](?:#|b)?(?:${PW_CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?[\\s\\-\\/\\|]*)+$`, "i");
 const PW_INLINE_CHORD_REGEX = new RegExp(`[\\[(]([A-G](?:#|b)?(?:${PW_CHORD_TYPE_REGEX})?(?:\\/[A-G](?:#|b)?)?)[\\])]`, "gi");
+
+function dedupeElementById(id) {
+    const selector = `[id="${id}"]`;
+    const matches = document.querySelectorAll(selector);
+    if (!matches || matches.length <= 1) return;
+
+    // Keep first match in document order and remove extras.
+    for (let i = 1; i < matches.length; i += 1) {
+        matches[i].remove();
+    }
+}
+
+function dedupeFixedControls() {
+    [
+        'toggle-sidebar',
+        'toggle-songs',
+        'toggle-all-panels',
+        'toggleSuggestedSongs',
+        'toggleAutoScroll',
+        'keepScreenOnBtn',
+        'floatingStopBtn'
+    ].forEach(dedupeElementById);
+}
 
 // Chord Normalization Functions
 function normalizeBaseNote(note) {
@@ -351,6 +413,12 @@ window.dataCache = {
         userdata: null,
         'global-setlists': null,
         'my-setlists': null
+    },
+    lastSyncTimestamp: {
+        songs: null,
+        userdata: null,
+        'global-setlists': null,
+        'my-setlists': null
     }
 };
 
@@ -360,6 +428,7 @@ window.dataCache = {
 try {
     const storedSongs = localStorage.getItem('pw_songs');
     const storedSongsTimestamp = localStorage.getItem('pw_songsTimestamp');
+    const storedSyncTimestamp = localStorage.getItem('pw_songsSyncTimestamp');
 
     function isCacheFresh(type, timestamp) {
         if (!timestamp) return false;
@@ -372,11 +441,15 @@ try {
         if (isCacheFresh('songs', storedSongsTimestamp)) {
             window.dataCache.songs = JSON.parse(storedSongs);
             window.dataCache.lastFetch.songs = parseInt(storedSongsTimestamp);
+            if (storedSyncTimestamp) {
+                window.dataCache.lastSyncTimestamp.songs = storedSyncTimestamp;
+            }
         } else {
             const cacheAge = Date.now() - parseInt(storedSongsTimestamp);
             const expiry = CACHE_EXPIRY.songs;
             localStorage.removeItem('pw_songs');
             localStorage.removeItem('pw_songsTimestamp');
+            localStorage.removeItem('pw_songsSyncTimestamp');
         }
     } else {
         // No cached songs found, will fetch from API
@@ -601,10 +674,17 @@ function updateSongInCache(song, isNewSong = false) {
         }
     }
     
+    const songTimestamp = song.updatedAt || song.createdAt || new Date().toISOString();
+    const currentSyncTime = window.dataCache.lastSyncTimestamp.songs;
+    if (!currentSyncTime || songTimestamp > currentSyncTime) {
+        window.dataCache.lastSyncTimestamp.songs = songTimestamp;
+    }
+
     // Update localStorage with validation
     try {
     localStorage.setItem('pw_songs', JSON.stringify(window.dataCache.songs));
     localStorage.setItem('pw_songsTimestamp', Date.now().toString());
+    localStorage.setItem('pw_songsSyncTimestamp', window.dataCache.lastSyncTimestamp.songs || new Date().toISOString());
         return true;
     } catch (error) {
         console.error(`❌ Failed to update localStorage:`, error);
@@ -656,11 +736,13 @@ document.addEventListener('scroll', schedulePrefetch);
 // Disable Live Server WebSocket if it's causing delays
 
 // Global loading functions
-function showLoading(percent) {
+function showLoading(percent, message = null) {
     const overlay = document.getElementById('loadingOverlay');
     const percentEl = document.getElementById('loadingPercent');
+    const messageEl = document.getElementById('loadingMessage');
     if (overlay) overlay.style.display = 'flex';
     if (percentEl && typeof percent === 'number') percentEl.textContent = percent + '%';
+    if (messageEl && message) messageEl.textContent = message;
     
     // Safety timeout - hide loading after 30 seconds max
     clearTimeout(window.loadingTimeout);
@@ -701,163 +783,189 @@ function getCurrentFilterValues() {
     };
 }
 
+// Global progress tracking system for entire app initialization
+const loadingTasks = {
+    // Song loading phase: 0-70%
+    spinnerInit: { weight: 3, completed: false },
+    fetchSongs: { weight: 30, completed: false },
+    processSongs: { weight: 12, completed: false },
+    populateDropdowns: { weight: 7, completed: false },
+    loadUserData: { weight: 10, completed: false },
+    renderSongs: { weight: 8, completed: false },
+    // Setlist loading phase: 70-80%
+    loadSetlists: { weight: 10, completed: false },
+    // UI setup phase: 80-95%
+    setupUI: { weight: 15, completed: false },
+    // Final phase: 95-100%
+    finalSetup: { weight: 5, completed: false }
+};
+
+let currentProgress = 0;
+
+function resetLoadingProgress() {
+    Object.keys(loadingTasks).forEach((key) => {
+        loadingTasks[key].completed = false;
+    });
+    currentProgress = 0;
+}
+
+// Global progress update function - callable from any initialization phase
+function updateProgress(taskName, customPercent = null) {
+    if (customPercent !== null) {
+        const task = loadingTasks[taskName];
+        if (task) {
+            const taskProgress = (customPercent / 100) * task.weight;
+            currentProgress = Object.keys(loadingTasks).reduce((total, key) => {
+                if (key === taskName) return total + taskProgress;
+                return total + (loadingTasks[key].completed ? loadingTasks[key].weight : 0);
+            }, 0);
+        }
+    } else if (loadingTasks[taskName]) {
+        loadingTasks[taskName].completed = true;
+        currentProgress = Object.keys(loadingTasks).reduce((total, key) => {
+            return total + (loadingTasks[key].completed ? loadingTasks[key].weight : 0);
+        }, 0);
+    }
+
+    const roundedProgress = Math.min(100, Math.round(currentProgress));
+
+    let message = 'Initializing...';
+    if (roundedProgress < 70) {
+        message = 'Loading songs...';
+    } else if (roundedProgress < 80) {
+        message = 'Loading setlists...';
+    } else if (roundedProgress < 95) {
+        message = 'Setting up UI...';
+    } else if (roundedProgress < 100) {
+        message = 'Finalizing...';
+    } else {
+        message = 'Ready!';
+    }
+
+    showLoading(roundedProgress, message);
+}
+
 // Global songs loading function with progress tracking
 async function loadSongsWithProgress(forceRefresh = false) {
     try {
-        // Enhanced progress tracking system
-        const loadingTasks = {
-            spinnerInit: { weight: 5, completed: false },
-            fetchSongs: { weight: 40, completed: false },
-            processSongs: { weight: 15, completed: false },
-            populateDropdowns: { weight: 10, completed: false },
-            loadUserData: { weight: 15, completed: false },
-            renderSongs: { weight: 10, completed: false },
-            finalSetup: { weight: 5, completed: false }
-        };
-
-        let currentProgress = 0;
-
-        function updateProgress(taskName, customPercent = null) {
-            if (customPercent !== null) {
-                // For tasks that want to report custom progress
-                const task = loadingTasks[taskName];
-                if (task) {
-                    const taskProgress = (customPercent / 100) * task.weight;
-                    currentProgress = Object.keys(loadingTasks).reduce((total, key) => {
-                        if (key === taskName) return total + taskProgress;
-                        return total + (loadingTasks[key].completed ? loadingTasks[key].weight : 0);
-                    }, 0);
-                }
-            } else {
-                // Mark task as completed
-                if (loadingTasks[taskName]) {
-                    loadingTasks[taskName].completed = true;
-                    currentProgress = Object.keys(loadingTasks).reduce((total, key) => {
-                        return total + (loadingTasks[key].completed ? loadingTasks[key].weight : 0);
-                    }, 0);
-                }
-            }
-            
-            const roundedProgress = Math.min(100, Math.round(currentProgress));
-            showLoading(roundedProgress);
-            
-            // Only hide loading when all tasks are truly complete
-            if (roundedProgress >= 100) {
-                setTimeout(hideLoading, 500);
-            }
-        }
-
         updateProgress('spinnerInit');
         
-        // Check if songs are already cached
-        if (window.dataCache.songs && !forceRefresh) {
-            songs = window.dataCache.songs;
-            
-            // Simulate realistic progress for cached data
-            updateProgress('fetchSongs', 50);
-            await new Promise(resolve => setTimeout(resolve, 150));
-            
-            updateProgress('fetchSongs'); // Mark as completed
-            
-            updateProgress('processSongs', 50);
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            updateProgress('processSongs'); // Mark as completed
-            
-            updateProgress('loadUserData', 50);
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            updateProgress('loadUserData'); // Mark as completed
-            
-            // Still render the songs even from cache
-            if (typeof renderSongs === 'function') {
-                try {
-                    const filters = getCurrentFilterValues();
-                    renderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
-                } catch (err) {
-                    console.warn('Error rendering cached songs:', err);
+        const hasCachedSongs = Array.isArray(window.dataCache.songs) && window.dataCache.songs.length > 0;
+        const lastSyncTime = window.dataCache.lastSyncTimestamp.songs;
+        const shouldDeltaSync = hasCachedSongs && !!lastSyncTime && !forceRefresh;
+
+        let syncSuccessful = false;
+
+        if (shouldDeltaSync) {
+            songs = window.dataCache.songs.slice();
+            window.songs = songs;
+
+            updateProgress('fetchSongs', 20);
+            await new Promise(resolve => setTimeout(resolve, 80));
+
+            try {
+                const [deltaSongsResponse, deletedIdsResponse] = await Promise.all([
+                    authFetch(`${API_BASE_URL}/api/songs?since=${encodeURIComponent(lastSyncTime)}`),
+                    authFetch(`${API_BASE_URL}/api/songs/deleted?since=${encodeURIComponent(lastSyncTime)}`)
+                ]);
+
+                updateProgress('fetchSongs', 60);
+
+                if (deltaSongsResponse.ok && deletedIdsResponse.ok) {
+                    const deltaSongs = await deltaSongsResponse.json();
+                    const deletedIds = await deletedIdsResponse.json();
+
+                    updateProgress('fetchSongs');
+                    updateProgress('processSongs', 30);
+
+                    const songMap = new Map(songs.map(song => [String(song.id), song]));
+                    (Array.isArray(deltaSongs) ? deltaSongs : []).forEach(song => {
+                        if (!song || song.id === undefined || song.id === null) return;
+                        songMap.set(String(song.id), song);
+                    });
+
+                    updateProgress('processSongs', 70);
+
+                    const deletedSet = new Set((Array.isArray(deletedIds) ? deletedIds : []).map(id => String(id)));
+                    songs = Array.from(songMap.values()).filter(song => !deletedSet.has(String(song.id)));
+
+                    window.songs = songs;
+                    window.dataCache.songs = songs;
+                    window.dataCache.lastFetch.songs = Date.now();
+                    window.dataCache.lastSyncTimestamp.songs = new Date().toISOString();
+
+                    localStorage.setItem('pw_songs', JSON.stringify(songs));
+                    localStorage.setItem('pw_songsTimestamp', Date.now().toString());
+                    localStorage.setItem('pw_songsSyncTimestamp', window.dataCache.lastSyncTimestamp.songs);
+
+                    updateProgress('processSongs');
+                    syncSuccessful = true;
+                }
+            } catch (err) {
+                console.warn('Delta sync failed, falling back to full sync:', err);
+            }
+        }
+
+        if (!syncSuccessful) {
+            let response;
+            try {
+                updateProgress('fetchSongs', 10);
+                await new Promise(resolve => setTimeout(resolve, 100));
+
+                response = await cachedFetch(`${API_BASE_URL}/api/songs`, true);
+
+                updateProgress('fetchSongs', 80);
+                await new Promise(resolve => setTimeout(resolve, 50));
+            } catch (err) {
+                console.error('Error fetching songs:', err);
+                hideLoading();
+                return;
+            }
+
+            if (!response.ok) {
+                hideLoading();
+                return;
+            }
+
+            updateProgress('fetchSongs');
+
+            let allSongs = [];
+            try {
+                updateProgress('processSongs', 20);
+                await new Promise(resolve => setTimeout(resolve, 50));
+
+                allSongs = await response.json();
+
+                updateProgress('processSongs', 60);
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (e) {
+                console.error('Error processing songs JSON:', e);
+                hideLoading();
+                return;
+            }
+
+            const seen = new Set();
+            const unique = [];
+            for (const s of allSongs) {
+                const key = String(s.id);
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    unique.push(s);
                 }
             }
-            
-            updateProgress('renderSongs', 50);
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            if (typeof updateSongCount === 'function') {
-                try {
-                    updateSongCount();
-                } catch (err) {
-                    console.warn('Error updating song count:', err);
-                }
-            }
-            
-            updateProgress('renderSongs'); // Mark as completed
-            
-            // Populate dropdowns for cached data
-            updateProgress('populateDropdowns', 50);
-            await new Promise(resolve => setTimeout(resolve, 50));
-            updateProgress('populateDropdowns'); // Mark as completed
-            
-            updateProgress('finalSetup'); // Mark as completed
-            
-            return songs;
+
+            window.songs = unique;
+            songs = unique;
+
+            window.dataCache.songs = unique;
+            window.dataCache.lastFetch.songs = Date.now();
+            window.dataCache.lastSyncTimestamp.songs = new Date().toISOString();
+
+            localStorage.setItem('pw_songs', JSON.stringify(unique));
+            localStorage.setItem('pw_songsTimestamp', Date.now().toString());
+            localStorage.setItem('pw_songsSyncTimestamp', window.dataCache.lastSyncTimestamp.songs);
+            updateProgress('processSongs');
         }
-        
-        let response;
-        try {
-            // Real API call - report progress during fetch
-            updateProgress('fetchSongs', 10);
-            await new Promise(resolve => setTimeout(resolve, 100)); // Small delay to show progress
-            
-            response = await cachedFetch(`${API_BASE_URL}/api/songs`, forceRefresh);
-            
-            updateProgress('fetchSongs', 80);
-            await new Promise(resolve => setTimeout(resolve, 50)); // Small delay to show progress
-        } catch (err) {
-            console.error('Error fetching songs:', err);
-            hideLoading();
-            return;
-        }
-        
-        if (!response.ok) {
-            hideLoading();
-            return;
-        }
-        
-        updateProgress('fetchSongs'); // Mark fetch as complete
-        
-        let allSongs = [];
-        try {
-            updateProgress('processSongs', 20);
-            await new Promise(resolve => setTimeout(resolve, 50));
-            
-            allSongs = await response.json();
-            
-            updateProgress('processSongs', 60);
-            await new Promise(resolve => setTimeout(resolve, 100));
-        } catch (e) {
-            console.error('Error processing songs JSON:', e);
-            hideLoading();
-            return;
-        }
-        
-        // Deduplicate
-        const seen = new Set();
-        const unique = [];
-        for (const s of allSongs) {
-            if (!seen.has(s.id)) {
-                seen.add(s.id);
-                unique.push(s);
-            }
-        }
-        window.songs = unique;
-        songs = unique; // Also set the global variable
-        console.log('loadSongsWithProgress completed. Set global songs to:', songs.length, 'songs');
-        // Update both cache and localStorage
-        window.dataCache.songs = unique;
-        window.dataCache.lastFetch.songs = Date.now();
-    localStorage.setItem('pw_songs', JSON.stringify(unique));
-    localStorage.setItem('pw_songsTimestamp', Date.now().toString());
-        updateProgress('processSongs'); // Mark processing as complete
         
         // Load user data if authenticated
         if (currentUser && currentUser.id) {
@@ -900,15 +1008,7 @@ async function loadSongsWithProgress(forceRefresh = false) {
         await new Promise(resolve => setTimeout(resolve, 50));
         updateProgress('populateDropdowns'); // Mark as completed
         
-        // Final setup tasks
-        updateProgress('finalSetup');
-        
-        // Ensure loading is hidden when complete
-        setTimeout(() => {
-            hideLoading();
-        }, 200);
-        
-        return unique;
+        return songs;
         
     } catch (error) {
         console.error('Error in loadSongsWithProgress:', error);
@@ -920,6 +1020,15 @@ async function loadSongsWithProgress(forceRefresh = false) {
 
 // Merge all DOMContentLoaded logic into one handler
 document.addEventListener('DOMContentLoaded', () => {
+    dedupeFixedControls();
+
+    // Create mobile replica panel toggles immediately, even before async init completes.
+    addMobileTouchNavigation();
+    if (!window.__pwMobileNavResizeBound) {
+        window.__pwMobileNavResizeBound = true;
+        window.addEventListener('resize', addMobileTouchNavigation);
+    }
+
     // Always fetch latest weights on app load
     fetchRecommendationWeights();
     
@@ -960,7 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Use window.init() for all initialization - no direct song loading here
     if (!initializationState.isInitialized && !initializationState.isInitializing) {
         // Show loading immediately
-        showLoading(0);
+        showLoading(0, 'Initializing...');
         window.init();
     }
 
@@ -2546,6 +2655,12 @@ window.init = async function init() {
     try {
         await initializationState.initPromise;
         initializationState.isInitialized = true;
+    } catch (error) {
+        console.error('Initialization failed:', error);
+        hideLoading();
+        if (typeof showNotification === 'function') {
+            showNotification('Failed to load app. Please refresh the page.');
+        }
     } finally {
         initializationState.isInitializing = false;
     }
@@ -2553,7 +2668,16 @@ window.init = async function init() {
     return initializationState.initPromise;
 };
 
+// Backward compatibility: some cached/legacy HTML still calls bare init().
+if (typeof globalThis.init !== 'function') {
+    globalThis.init = (...args) => window.init(...args);
+}
+
 async function performInitialization() {
+    // Show loader immediately at 0%
+    resetLoadingProgress();
+    showLoading(0, 'Initializing...');
+
     // Check backend health first (important for cross-origin setup)
     const backendHealthy = await checkBackendHealth();
     
@@ -2588,16 +2712,16 @@ async function performInitialization() {
     }
     
     // Always show loading and load songs - let loadSongsWithProgress handle caching
-    console.log('� Loading songs with progress indication...');
     await loadSongsWithProgress();
     
-    console.log('After song loading - Global songs length:', songs.length);
-    
-    // Load setlists efficiently
+    // Load setlists efficiently (70-80%)
+    updateProgress('loadSetlists', 20);
     await loadGlobalSetlists();
+    updateProgress('loadSetlists', 50);
     if (jwtToken && isJwtValid(jwtToken)) {
         await loadMySetlists();
     }
+    updateProgress('loadSetlists', 90);
     
     // Ensure setlist folders have initial content
     renderGlobalSetlists();
@@ -2606,26 +2730,41 @@ async function performInitialization() {
     
     // Populate setlist dropdown after setlists are loaded
     populateSetlistDropdown();
+    updateProgress('loadSetlists');
     
     // Update button states after loading setlist data
     setTimeout(() => {
         updateAllSetlistButtonStates();
     }, 500); // Small delay to ensure dropdown is populated
     
-    // Settings and UI
+    // Settings and UI setup (80-95%)
+    updateProgress('setupUI', 10);
     loadSettings();
     addEventListeners();
     addPanelToggles();
+    updateProgress('setupUI', 30);
+    addMobileTouchNavigation();
+
+    if (!window.__pwMobileNavResizeBound) {
+        window.__pwMobileNavResizeBound = true;
+        window.addEventListener('resize', () => {
+            addMobileTouchNavigation();
+        });
+    }
+    updateProgress('setupUI', 50);
+
     renderSongs('Praise', '', '', '', '');
     applyLyricsBackground(document.getElementById('PraiseTab').classList.contains('active'));
     // connectWebSocket(); // Removed - not needed and may cause delays
     updateSongCount();
+    updateProgress('setupUI', 70);
     initScreenWakeLock();
     setupModalClosing();
     setupSuggestedSongsClosing();
     setupModals();
     setupSmartSetlistHandlers();
     setupWindowCloseConfirmation();
+    updateProgress('setupUI', 90);
     function resolvePreviewContextFromCurrentView(defaultContext = 'all-songs') {
         if (currentSetlistType === 'global') return 'global-setlist';
         if (currentSetlistType === 'my') return 'user-setlist';
@@ -2665,6 +2804,16 @@ async function performInitialization() {
     });
     // Admin panel button
     if (typeof updateAdminPanelBtn === 'function') updateAdminPanelBtn();
+
+    updateProgress('setupUI');
+
+    // Final setup (95-100%)
+    updateProgress('finalSetup', 50);
+    updateProgress('finalSetup');
+
+    setTimeout(() => {
+        hideLoading();
+    }, 300);
 }
 
 // --- JWT expiry helpers: must be at the very top ---
@@ -2981,15 +3130,15 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
     // Load weights into form
     async function loadWeightsToForm() {
         await fetchRecommendationWeights();
-        document.getElementById('weightLanguage').value = WEIGHTS.language;
-        document.getElementById('weightScale').value = WEIGHTS.scale;
-        document.getElementById('weightTimeSignature').value = WEIGHTS.timeSignature;
-        document.getElementById('weightTaal').value = WEIGHTS.taal;
-        document.getElementById('weightTempo').value = WEIGHTS.tempo;
-        document.getElementById('weightGenre').value = WEIGHTS.genre;
-        document.getElementById('weightVocal').value = WEIGHTS.vocal;
-        document.getElementById('weightMood').value = WEIGHTS.mood;
-        document.getElementById('weightRhythmCategory').value = WEIGHTS.rhythmCategory ?? 0;
+        document.getElementById('weightLanguage').value = recommendationWeights.language;
+        document.getElementById('weightScale').value = recommendationWeights.scale;
+        document.getElementById('weightTimeSignature').value = recommendationWeights.timeSignature;
+        document.getElementById('weightTaal').value = recommendationWeights.taal;
+        document.getElementById('weightTempo').value = recommendationWeights.tempo;
+        document.getElementById('weightGenre').value = recommendationWeights.genre;
+        document.getElementById('weightVocal').value = recommendationWeights.vocal;
+        document.getElementById('weightMood').value = recommendationWeights.mood;
+        document.getElementById('weightRhythmCategory').value = recommendationWeights.rhythmCategory ?? 0;
     }
     
     function showAdminPanelModal() {
@@ -3466,6 +3615,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                 
                 // Remove from localStorage
                 localStorage.setItem('pw_songs', JSON.stringify(songs));
+                localStorage.setItem('pw_songsTimestamp', Date.now().toString());
+                window.dataCache.lastSyncTimestamp.songs = new Date().toISOString();
+                localStorage.setItem('pw_songsSyncTimestamp', window.dataCache.lastSyncTimestamp.songs);
                 
                 showNotification('Song deleted successfully');
                 
@@ -4572,6 +4724,484 @@ window.viewSingleLyrics = function(songId, otherId) {
         if (tempoMinInput) tempoMinInput.value = conditions.tempoMin ?? '';
         if (tempoMaxInput) tempoMaxInput.value = conditions.tempoMax ?? '';
     }
+
+    function provided(value) {
+        return value !== undefined && value !== null && String(value).trim() !== '';
+    }
+
+    function findSongById(songId) {
+        const targetId = getComparableId(songId);
+        if (!targetId) return null;
+        return songs.find(song => (
+            getComparableId(song && song.id) === targetId
+            || getComparableId(song && song._id) === targetId
+        )) || null;
+    }
+
+    function cleanChordName(chordName) {
+        const raw = String(chordName || '').replace(/[\[\](){}]/g, '').trim();
+        return normalizeChordAccidentals(raw);
+    }
+
+    function getRootNote(chordName) {
+        const cleaned = cleanChordName(chordName);
+        const match = String(cleaned || '').match(/^([A-G](?:#|b)?)/i);
+        if (!match) return '';
+        return normalizeBaseNote(match[1].charAt(0).toUpperCase() + match[1].slice(1));
+    }
+
+    function extractDistinctChords(text) {
+        const source = String(text || '');
+        if (!source.trim()) return [];
+
+        const regex = new RegExp(PW_CHORD_REGEX.source, 'gi');
+        const matches = source.match(regex) || [];
+        const distinct = new Set();
+
+        matches.forEach(token => {
+            const cleaned = cleanChordName(token);
+            if (provided(cleaned)) distinct.add(cleaned);
+        });
+
+        return Array.from(distinct);
+    }
+
+    function insertTextAtCursor(textarea, text) {
+        if (!textarea) return;
+        const startPos = textarea.selectionStart;
+        const endPos = textarea.selectionEnd;
+        const currentValue = textarea.value;
+        const scrollTop = textarea.scrollTop;
+
+        const beforeText = currentValue.substring(0, startPos);
+        const afterText = currentValue.substring(endPos);
+
+        let insertText = String(text || '');
+        if (beforeText && !beforeText.endsWith('\n')) {
+            insertText = `\n${insertText}`;
+        }
+
+        textarea.value = `${beforeText}${insertText}${afterText}`;
+
+        const newPos = startPos + insertText.length;
+        textarea.focus();
+        textarea.setSelectionRange(newPos, newPos);
+        textarea.scrollTop = scrollTop;
+    }
+
+    function setupSongStructureTags() {
+        document.querySelectorAll('.structure-tag-btn').forEach(button => {
+            if (button.dataset.boundStructureTag === 'true') return;
+            button.dataset.boundStructureTag = 'true';
+
+            button.addEventListener('click', event => {
+                event.preventDefault();
+                const tag = button.getAttribute('data-tag');
+                const targetId = button.getAttribute('data-target');
+                const textarea = document.getElementById(targetId);
+                if (textarea && provided(tag)) {
+                    insertTextAtCursor(textarea, tag);
+                }
+            });
+        });
+    }
+
+    function createSongItem(song) {
+        return createSetlistSongElement(song);
+    }
+
+    function populateMultiselect(dropdownId, inputId, selectedId, values) {
+        setMultiselectSelections(dropdownId, values || []);
+        const selections = document.getElementById(dropdownId)?._selections || new Set();
+        updateSelectedDisplay(inputId, selectedId, selections);
+    }
+
+    function updateSmartSetlistForm(smartSetlist) {
+        if (!smartSetlist) return;
+
+        const setlistIdInput = document.getElementById('smartSetlistId');
+        const nameInput = document.getElementById('smartSetlistName');
+        const descriptionInput = document.getElementById('smartSetlistDescription');
+
+        if (setlistIdInput) setlistIdInput.value = smartSetlist.id || smartSetlist._id || '';
+        if (nameInput) nameInput.value = smartSetlist.name || '';
+        if (descriptionInput) descriptionInput.value = smartSetlist.description || '';
+
+        applySmartSetlistConditionsToForm(smartSetlist.conditions || {});
+    }
+
+    function scanSongsWithConditions(conditions = {}) {
+        return getSongsMatchingSmartConditions(conditions);
+    }
+
+    async function renderSetlists() {
+        await Promise.all([
+            renderGlobalSetlists(),
+            renderMySetlists(),
+            renderSmartSetlists()
+        ]);
+    }
+
+    function handleSetlistClick(setlistOrId, type = 'my') {
+        const normalizedType = String(type || 'my').toLowerCase();
+        const setlistId = typeof setlistOrId === 'object'
+            ? getComparableId(setlistOrId._id || setlistOrId.id)
+            : getComparableId(setlistOrId);
+
+        if (!setlistId) return;
+
+        if (normalizedType === 'global') {
+            showGlobalSetlistInMainSection(setlistId);
+            return;
+        }
+
+        if (normalizedType === 'smart') {
+            showSmartSetlistInMainSection(setlistId);
+            return;
+        }
+
+        const setlist = findSetlistById(mySetlists, setlistId);
+        if (setlist) {
+            openSetlistInMainSection(setlist, 'my');
+        }
+    }
+
+    function restoreNormalView() {
+        const showAll = document.getElementById('showAll');
+        if (showAll) {
+            showAll.click();
+            return;
+        }
+
+        const praiseTab = document.getElementById('PraiseTab');
+        if (praiseTab) praiseTab.click();
+    }
+
+    function toggleTheme() {
+        isDarkMode = !isDarkMode;
+        localStorage.setItem('pw_darkMode', isDarkMode ? 'true' : 'false');
+        applyTheme(isDarkMode);
+
+        const themeToggleBtn = document.getElementById('themeToggle');
+        if (themeToggleBtn) {
+            themeToggleBtn.setAttribute('aria-pressed', String(isDarkMode));
+            themeToggleBtn.innerHTML = isDarkMode
+                ? '<i class="fas fa-sun"></i><span>Light Mode</span>'
+                : '<i class="fas fa-moon"></i><span>Dark Mode</span>';
+        }
+    }
+
+    function createSmartSetlist() {
+        updateSmartSetlistForm({ id: '', name: '', description: '', conditions: {} });
+
+        const modalTitle = document.getElementById('smartSetlistModalTitle');
+        const submitButton = document.getElementById('smartSetlistSubmit');
+        const scanResults = document.getElementById('scanResults');
+        const songResults = document.getElementById('smartSongsResults');
+
+        if (modalTitle) modalTitle.textContent = 'Create Smart Setlist';
+        if (submitButton) submitButton.textContent = 'Create Smart Setlist';
+        if (scanResults) scanResults.style.display = 'none';
+        if (songResults) songResults.style.display = 'none';
+
+        if (typeof smartSetlistScanResults !== 'undefined') {
+            smartSetlistScanResults = [];
+        }
+
+        if (typeof initializeSmartSetlistMultiselects === 'function') {
+            initializeSmartSetlistMultiselects();
+        }
+
+        openModal('smartSetlistModal');
+    }
+
+    async function loadRhythmSets(forceRefresh = false) {
+        if (!forceRefresh && Array.isArray(loadRhythmSets._cache)) {
+            return loadRhythmSets._cache;
+        }
+
+        try {
+            const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            loadRhythmSets._cache = Array.isArray(data) ? data : [];
+            return loadRhythmSets._cache;
+        } catch (error) {
+            console.warn('Failed to load rhythm sets:', error);
+            return [];
+        }
+    }
+
+    function renderRhythmSetsTable(rows = [], targetId = 'rhythmSetsTableBody') {
+        const tbody = document.getElementById(targetId);
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        (rows || []).forEach(item => {
+            const tr = document.createElement('tr');
+            tr.dataset.id = item.rhythmSetId || '';
+            tr.innerHTML = `
+                <td>${item.rhythmSetId || '-'}</td>
+                <td>${item.rhythmFamily || '-'}</td>
+                <td>${item.rhythmSetNo || '-'}</td>
+                <td>${item.status || 'active'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function saveRhythmSetRow(row) {
+        const rhythmSetId = getComparableId(row?.rhythmSetId || row?.id || row?.dataset?.id);
+        if (!rhythmSetId) return;
+
+        const body = {
+            status: row?.status || row?.dataset?.status || 'active'
+        };
+
+        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${encodeURIComponent(rhythmSetId)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to save rhythm set (${response.status})`);
+        }
+
+        showRhythmSetsNotification(`Saved ${rhythmSetId}`, 'success');
+    }
+
+    async function recomputeRhythmSetRow(row) {
+        const rhythmSetId = getComparableId(row?.rhythmSetId || row?.id || row?.dataset?.id);
+        if (!rhythmSetId) return;
+
+        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${encodeURIComponent(rhythmSetId)}/recompute`, {
+            method: 'PUT'
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to recompute rhythm set (${response.status})`);
+        }
+
+        showRhythmSetsNotification(`Recomputed ${rhythmSetId}`, 'success');
+    }
+
+    function showRhythmSetsNotification(message, type = 'info') {
+        showNotification(message, type);
+    }
+
+    async function hydrateRhythmFamilies() {
+        const rhythmSets = await loadRhythmSets();
+        const families = Array.from(new Set(
+            rhythmSets
+                .map(item => String(item?.rhythmFamily || '').trim())
+                .filter(Boolean)
+        )).sort((a, b) => a.localeCompare(b));
+
+        ['songTaal', 'editSongTaal'].forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (!select || select.options.length > 1) return;
+
+            families.forEach(family => {
+                const option = document.createElement('option');
+                option.value = family;
+                option.textContent = family;
+                select.appendChild(option);
+            });
+        });
+
+        return families;
+    }
+
+    async function createRhythmSetFromForm(formValues = null) {
+        const payload = formValues || {
+            rhythmFamily: document.getElementById('rhythmSetFamilyInput')?.value || '',
+            rhythmSetNo: document.getElementById('rhythmSetNoInput')?.value || '',
+            status: document.getElementById('rhythmSetStatusInput')?.value || 'active',
+            notes: document.getElementById('rhythmSetNotesInput')?.value || ''
+        };
+
+        if (!provided(payload.rhythmFamily) || !provided(payload.rhythmSetNo)) {
+            showRhythmSetsNotification('Rhythm family and set number are required.', 'error');
+            return null;
+        }
+
+        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data.error || `Failed to create rhythm set (${response.status})`);
+        }
+
+        showRhythmSetsNotification(`Created ${data.rhythmSetId || 'rhythm set'}`, 'success');
+        return data;
+    }
+
+    function createMobileNavButtons() {
+        const sidebar = document.querySelector('.sidebar');
+        const songsSection = document.querySelector('.songs-section');
+        if (!sidebar || !songsSection) return null;
+
+        const isMobile = window.innerWidth <= 768;
+
+        // Remove any stale containers, then rebuild once.
+        document.querySelectorAll('.mobile-nav-container').forEach((node) => node.remove());
+
+        const mobileNavContainer = document.createElement('div');
+        mobileNavContainer.id = 'mobileNavButtons';
+        mobileNavContainer.className = 'mobile-nav-container';
+        const bothPanelsButton = isMobile ? '' : `
+            <button class="mobile-nav-btn mobile-nav-both" title="Toggle Both Panels" aria-label="Toggle Both Panels">
+                <i class="fas fa-eye"></i>
+            </button>`;
+        mobileNavContainer.innerHTML = `
+            <button class="mobile-nav-btn mobile-nav-sidebar" title="Toggle Sidebar" aria-label="Toggle Sidebar">
+                <i class="fas fa-home"></i>
+            </button>
+            <button class="mobile-nav-btn mobile-nav-songs" title="Toggle Songs" aria-label="Toggle Songs">
+                <i class="fas fa-list"></i>
+            </button>
+            ${bothPanelsButton}
+        `;
+        document.body.appendChild(mobileNavContainer);
+
+        const syncBothIcon = () => {
+            const bothIcon = mobileNavContainer.querySelector('.mobile-nav-both i');
+            if (!bothIcon) return;
+            const areBothHidden = sidebar.classList.contains('hidden') && songsSection.classList.contains('hidden');
+            bothIcon.className = areBothHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+        };
+
+        const sidebarBtn = mobileNavContainer.querySelector('.mobile-nav-sidebar');
+        const songsBtn = mobileNavContainer.querySelector('.mobile-nav-songs');
+        const bothBtn = mobileNavContainer.querySelector('.mobile-nav-both');
+
+        if (sidebarBtn) {
+            sidebarBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                sidebar.classList.toggle('hidden');
+                if (!sidebar.classList.contains('hidden')) {
+                    songsSection.classList.add('hidden');
+                }
+                syncBothIcon();
+                updatePositions();
+            });
+        }
+
+        if (songsBtn) {
+            songsBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                songsSection.classList.toggle('hidden');
+                if (!songsSection.classList.contains('hidden')) {
+                    sidebar.classList.add('hidden');
+                }
+                syncBothIcon();
+                updatePositions();
+            });
+        }
+
+        if (bothBtn) {
+            bothBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const areBothHidden = sidebar.classList.contains('hidden') && songsSection.classList.contains('hidden');
+                sidebar.classList.toggle('hidden', !areBothHidden);
+                songsSection.classList.toggle('hidden', !areBothHidden);
+                syncBothIcon();
+                updatePositions();
+            });
+        }
+
+        syncBothIcon();
+        return mobileNavContainer;
+    }
+
+    function handleSwipeGesture(direction) {
+        const normalized = String(direction || '').toLowerCase();
+
+        if (normalized === 'back' && currentHistoryPosition > 0) {
+            history.back();
+            return;
+        }
+
+        if (normalized === 'home' || normalized === 'up') {
+            const showAll = document.getElementById('showAll');
+            if (showAll) showAll.click();
+            return;
+        }
+
+        if (normalized === 'setlist' || normalized === 'down') {
+            const showSetlist = document.getElementById('showSetlist');
+            if (showSetlist) showSetlist.click();
+        }
+    }
+
+    function addMobileTouchNavigation() {
+        return createMobileNavButtons();
+    }
+
+    function initializeFloatingStopButton() {
+        const floatingStopBtn = document.getElementById('floatingStopBtn');
+        if (!floatingStopBtn || floatingStopBtn.dataset.boundClick === 'true') return;
+
+        floatingStopBtn.dataset.boundClick = 'true';
+        floatingStopBtn.addEventListener('click', stopCurrentlyPlayingSong);
+    }
+
+    function showFloatingStopButton(songId, songTitle) {
+        currentlyPlayingSongs.add(songId);
+        currentPlayingSongId = songId;
+
+        const floatingStopBtn = document.getElementById('floatingStopBtn');
+        const floatingStopText = document.getElementById('floatingStopText');
+        if (!floatingStopBtn) return;
+
+        if (floatingStopText) {
+            const title = String(songTitle || 'Song');
+            floatingStopText.textContent = title.length > 12 ? `${title.slice(0, 12)}...` : title;
+        }
+
+        floatingStopBtn.style.display = 'flex';
+    }
+
+    function hideFloatingStopButton(songId) {
+        currentlyPlayingSongs.delete(songId);
+
+        if (currentPlayingSongId === songId) {
+            currentPlayingSongId = currentlyPlayingSongs.size
+                ? Array.from(currentlyPlayingSongs)[0]
+                : null;
+        }
+
+        if (!currentPlayingSongId) {
+            const floatingStopBtn = document.getElementById('floatingStopBtn');
+            if (floatingStopBtn) floatingStopBtn.style.display = 'none';
+        }
+    }
+
+    function stopCurrentlyPlayingSong() {
+        const loopPlayer = window.getLoopPlayerInstance && window.getLoopPlayerInstance();
+        if (loopPlayer) {
+            if (loopPlayer.isPlaying && typeof loopPlayer.pause === 'function') {
+                loopPlayer.pause();
+            }
+            if (typeof loopPlayer.stopAllMelodicPads === 'function') {
+                loopPlayer.stopAllMelodicPads();
+            }
+        }
+
+        if (currentPlayingSongId) {
+            hideFloatingStopButton(currentPlayingSongId);
+        }
+    }
+
+    window.showFloatingStopButton = showFloatingStopButton;
+    window.hideFloatingStopButton = hideFloatingStopButton;
+    window.stopCurrentlyPlayingSong = stopCurrentlyPlayingSong;
+    initializeFloatingStopButton();
 
     // Function to update all setlist button states based on current setlist data
     function updateAllSetlistButtonStates() {
@@ -7054,6 +7684,8 @@ window.viewSingleLyrics = function(songId, otherId) {
         // Auto-scroll and chord variables
     let autoScrollInterval = null;
     let isUserScrolling = false;
+    let isAutoScrollEnabled = false;
+    let autoScrollDirection = 'down';
     // Use global PW_CHORDS, PW_CHORD_TYPES, PW_CHORD_TYPE_REGEX, CHORD_LINE_REGEX, INLINE_CHORD_REGEX
         
         let currentlyPlayingSongs = new Set();
@@ -7388,8 +8020,20 @@ window.viewSingleLyrics = function(songId, otherId) {
         function applyToggleButtonsVisibility(visibility) {
             const toggleButtons = document.querySelectorAll('.panel-toggle.draggable');
 
+            // Settings should only control legacy draggable panel toggles.
             toggleButtons.forEach(button => {
+                if (button.closest('.mobile-nav-container')) return;
                 button.style.display = visibility === 'hide' ? 'none' : '';
+            });
+
+            // Keep stationary mobile replica toggles independent from the hide/show setting.
+            const mobileNavContainer = document.querySelector('.mobile-nav-container');
+            if (mobileNavContainer) {
+                mobileNavContainer.style.display = 'flex';
+            }
+
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                btn.style.display = 'flex';
             });
         }
     
@@ -7513,6 +8157,11 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
     
             localStorage.setItem('pw_songs', JSON.stringify(songs));
+            localStorage.setItem('pw_songsTimestamp', Date.now().toString());
+            if (window.dataCache && window.dataCache.lastSyncTimestamp) {
+                window.dataCache.lastSyncTimestamp.songs = new Date().toISOString();
+                localStorage.setItem('pw_songsSyncTimestamp', window.dataCache.lastSyncTimestamp.songs);
+            }
             const embedded = document.getElementById('embeddedSongs');
             if (embedded) {
                 embedded.textContent = JSON.stringify(songs, null, 2);
@@ -8128,6 +8777,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             
             // Clear all local storage
             localStorage.removeItem('pw_songs');
+            localStorage.removeItem('pw_songsTimestamp');
+            localStorage.removeItem('pw_songsSyncTimestamp');
             localStorage.removeItem('pw_favorites');
             localStorage.removeItem('pw_searchHistory');
             localStorage.removeItem('pw_darkMode');
@@ -8297,26 +8948,26 @@ window.viewSingleLyrics = function(songId, otherId) {
                     currentSong.genres || (currentSong.genre ? [currentSong.genre] : []),
                     song.genres || (song.genre ? [song.genre] : [])
                 );
-                score += WEIGHTS.language * details.languageScore;
+                score += recommendationWeights.language * details.languageScore;
                 details.languages = getLanguagesFromGenres(song.genres || (song.genre ? [song.genre] : []));
 
                 // 2. Scale relationships
                 if (currentSong.key && song.key) {
                     if (currentSong.key === song.key) {
-                        score += WEIGHTS.scale;
+                        score += recommendationWeights.scale;
                         details.scalePriority = 4;
                     } 
                     else if ((isCurrentMajor && song.key === HARMONIC_RELATIONS[currentSong.key]?.[2]) ||
                             (isCurrentMinor && currentSong.key === HARMONIC_RELATIONS[song.key]?.[2])) {
-                        score += WEIGHTS.scale * 0.9;
+                        score += recommendationWeights.scale * 0.9;
                         details.scalePriority = 3;
                     }
                     else if (HARMONIC_RELATIONS[currentSong.key]?.includes(song.key)) {
-                        score += WEIGHTS.scale * 0.8;
+                        score += recommendationWeights.scale * 0.8;
                         details.scalePriority = 2;
                     }
                     else if (details.sameScaleType) {
-                        score += WEIGHTS.scale * 0.5;
+                        score += recommendationWeights.scale * 0.5;
                         details.scalePriority = 1;
                     }
                 }
@@ -8326,44 +8977,44 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const songTime = song.time || song.timeSignature;
                 if (currentTime === songTime) {
                     details.timeMatchType = 'exact';
-                    score += WEIGHTS.timeSignature;
+                    score += recommendationWeights.timeSignature;
                 } 
                 else if (TIME_SIGNATURE_COMPATIBILITY[currentTime]?.includes(songTime)) {
                     details.timeMatchType = 'compatible';
-                    score += WEIGHTS.timeSignature * 0.9;
+                    score += recommendationWeights.timeSignature * 0.9;
                 }
 
                 // 4. Taal match
                 details.taalMatch = currentSong.taal === song.taal;
-                if (details.taalMatch) score += WEIGHTS.taal;
+                if (details.taalMatch) score += recommendationWeights.taal;
 
                 // 5. Tempo similarity
                 details.tempoSimilarity = getTempoSimilarity(currentSong.tempo, song.tempo);
-                score += WEIGHTS.tempo * details.tempoSimilarity;
+                score += recommendationWeights.tempo * details.tempoSimilarity;
 
                 // 6. Non-language genres
                 details.genreMatch = getGenreMatchScore(
                     currentSong.genres || (currentSong.genre ? [currentSong.genre] : []),
                     song.genres || (song.genre ? [song.genre] : [])
                 );
-                score += WEIGHTS.genre * details.genreMatch;
+                score += recommendationWeights.genre * details.genreMatch;
 
                 // 7. Vocal tags match
                 details.vocalScore = getVocalMatchScore(
                     currentSong.genres || (currentSong.genre ? [currentSong.genre] : []),
                     song.genres || (song.genre ? [song.genre] : [])
                 );
-                score += WEIGHTS.vocal * details.vocalScore;
+                score += recommendationWeights.vocal * details.vocalScore;
 
                 // 8. Mood match
                 details.moodScore = getMoodMatchScore(currentSong.mood, song.mood);
-                score += WEIGHTS.mood * details.moodScore;
+                score += recommendationWeights.mood * details.moodScore;
 
                 // 9. Rhythm category match (Indian/Western/Others)
                 const currentRhythmCategory = normalizeRhythmCategoryValue(currentSong.rhythmCategory || '');
                 const songRhythmCategory = normalizeRhythmCategoryValue(song.rhythmCategory || '');
                 details.rhythmCategoryScore = (currentRhythmCategory && songRhythmCategory && currentRhythmCategory === songRhythmCategory) ? 1 : 0;
-                score += (WEIGHTS.rhythmCategory || 0) * details.rhythmCategoryScore;
+                score += (recommendationWeights.rhythmCategory || 0) * details.rhythmCategoryScore;
 
                 return {
                     ...song,
@@ -8439,7 +9090,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 if (res.ok) {
                     const data = await res.json();
                     localStorage.setItem('pw_recommendationWeights', JSON.stringify(weights));
-                    WEIGHTS = weights;
+                    setRecommendationWeightsState(weights);
                     return { success: true, message: data.message || 'Weights updated' };
                 } else {
                     const err = await res.json();
@@ -8456,9 +9107,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const res = await authFetch(`${API_BASE_URL}/api/recommendation-weights`);
                 if (res.ok) {
                     const data = await res.json();
-                    const localLastModified = WEIGHTS.lastModified || localStorage.getItem('pw_recommendationWeightsLastModified');
+                    const localLastModified = recommendationWeights.lastModified || localStorage.getItem('pw_recommendationWeightsLastModified');
                     if (!localLastModified || !data.lastModified || data.lastModified !== localLastModified) {
-                        WEIGHTS = data;
+                        setRecommendationWeightsState(data);
                         localStorage.setItem('pw_recommendationWeights', JSON.stringify(data));
                         localStorage.setItem('pw_recommendationWeightsLastModified', data.lastModified || '');
                     }
@@ -8472,11 +9123,11 @@ window.viewSingleLyrics = function(songId, otherId) {
             
             if (suggestedSongsDrawerOpen) {
                 drawer.classList.remove('open');
-                toggleBtn.style.right = '20px';
+                if (toggleBtn) toggleBtn.style.right = '';
             } else {
                 showSuggestedSongs();
                 drawer.classList.add('open');
-                toggleBtn.style.right = '370px';
+                if (toggleBtn) toggleBtn.style.right = '';
             }
             
             suggestedSongsDrawerOpen = !suggestedSongsDrawerOpen;
@@ -8487,7 +9138,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             const toggleBtn = document.getElementById('toggleSuggestedSongs');
             
             drawer.classList.remove('open');
-            toggleBtn.style.right = '20px';
+            if (toggleBtn) toggleBtn.style.right = '';
             suggestedSongsDrawerOpen = false;
         }
     
@@ -8620,6 +9271,16 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
     
         async function showPreview(song, fromHistory = false, openingContext = 'all-songs') {
+            if (!song || typeof song !== 'object') return;
+
+            // Setlist payloads can carry _id without id; normalize once for preview + loop player wiring.
+            const previewSongId = song.id || song._id;
+            if (!previewSongId) {
+                showNotification('Unable to open song preview: missing song ID');
+                return;
+            }
+            song = { ...song, id: previewSongId };
+
             // Function to get display name for createdBy/updatedBy fields
             function getDisplayName(createdBy) {
                 // If it looks like a user ID (ObjectId format), try to get the firstName from currentUser
@@ -9091,22 +9752,30 @@ window.viewSingleLyrics = function(songId, otherId) {
         function setupAutoScroll() {
             isUserScrolling = false;
             songPreviewEl.scrollTop = 0;
+            const shouldResumeAutoScroll = isAutoScrollEnabled;
+
             if (autoScrollInterval) {
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
             }
-            if (toggleAutoScrollBtn) {
+
+            if (shouldResumeAutoScroll) {
+                startAutoScroll(autoScrollDirection);
+            } else if (toggleAutoScrollBtn) {
                 toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
                 toggleAutoScrollBtn.classList.remove('active');
             }
         }
     
         function startAutoScroll(direction = 'down') {
+            autoScrollDirection = direction === 'up' ? 'up' : 'down';
+            isAutoScrollEnabled = true;
+
             if (autoScrollInterval) {
                 clearInterval(autoScrollInterval);
             }
             
-            const scrollStep = direction === 'down' ? 20 : -20;
+            const scrollStep = autoScrollDirection === 'down' ? 20 : -20;
             if (toggleAutoScrollBtn) {
                 toggleAutoScrollBtn.innerHTML = '<i class="fas fa-pause"></i>';
                 toggleAutoScrollBtn.classList.add('active');
@@ -9119,18 +9788,17 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const maxScroll = previewHeight - viewportHeight;
                 const currentScroll = songPreviewEl.scrollTop;
                 
-                if ((direction === 'down' && currentScroll >= maxScroll - 10) || 
-                    (direction === 'up' && currentScroll <= 10)) {
-                    clearInterval(autoScrollInterval);
-                    autoScrollInterval = null;
-                    if (toggleAutoScrollBtn) {
-                        toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
-                        toggleAutoScrollBtn.classList.remove('active');
-                    }
+                // Keep auto-scroll running until manually stopped.
+                if (autoScrollDirection === 'down' && currentScroll >= maxScroll - 10) {
+                    songPreviewEl.scrollTop = 0;
+                    return;
+                }
+                if (autoScrollDirection === 'up' && currentScroll <= 10) {
+                    songPreviewEl.scrollTop = Math.max(maxScroll, 0);
                     return;
                 }
                 
-                const targetScroll = direction === 'down' 
+                const targetScroll = autoScrollDirection === 'down' 
                     ? Math.min(currentScroll + scrollStep, maxScroll)
                     : Math.max(currentScroll + scrollStep, 0);
                     
@@ -9152,6 +9820,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             if (autoScrollInterval) {
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
+                isAutoScrollEnabled = false;
                 toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
                 toggleAutoScrollBtn.classList.remove('active');
             } else {
@@ -10700,22 +11369,27 @@ window.viewSingleLyrics = function(songId, otherId) {
             });
     
             // Settings
-            const settingsBtn = document.createElement("button");
-            settingsBtn.id = "settingsBtn";
-            settingsBtn.textContent = "🛠 Settings";
-            settingsBtn.className = "sidebar-settings-btn"; // Optional: for styling
+            let settingsBtn = document.getElementById("settingsBtn");
+            if (!settingsBtn) {
+                settingsBtn = document.createElement("button");
+                settingsBtn.id = "settingsBtn";
+                settingsBtn.textContent = "🛠 Settings";
+                settingsBtn.className = "sidebar-settings-btn";
 
-            const sidebar = document.querySelector(".sidebar");
-            if (sidebar) {
-                // Place at the bottom of sidebar
-                sidebar.appendChild(settingsBtn);
+                const sidebar = document.querySelector(".sidebar");
+                if (sidebar) {
+                    sidebar.appendChild(settingsBtn);
+                }
             }
-    
-            settingsBtn.addEventListener("click", () => {
+
+            if (settingsBtn && settingsBtn.dataset.boundClick !== 'true') {
+                settingsBtn.dataset.boundClick = 'true';
+                settingsBtn.addEventListener("click", () => {
                 document.getElementById("sidebarHeaderInput").value = document.querySelector(".sidebar-header h2").textContent;
                 document.getElementById("setlistTextInput").value = ""; // No longer using showSetlist element
                 document.getElementById("settingsModal").style.display = "flex";
-            });
+                });
+            }
     
             const settingsForm = document.getElementById("settingsForm");
             if (settingsForm) {
@@ -11137,19 +11811,40 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             if (saved) {
                 const pos = JSON.parse(saved);
-                // Clamp to viewport
-                let top = parseInt(pos.top) || minPadding;
-                let left = parseInt(pos.left) || '';
-                let right = parseInt(pos.right) || '';
-                let bottom = parseInt(pos.bottom) || '';
+                const savedTop = parseInt(pos.top, 10);
+                const savedLeft = parseInt(pos.left, 10);
+                const savedRight = parseInt(pos.right, 10);
+                const savedBottom = parseInt(pos.bottom, 10);
 
-                // Clamp left/top to avoid offscreen
+                let top;
+                let left;
+
+                if (Number.isFinite(savedTop)) {
+                    top = savedTop;
+                } else if (Number.isFinite(savedBottom)) {
+                    top = window.innerHeight - btnSize - savedBottom;
+                } else {
+                    top = minPadding;
+                }
+
+                if (Number.isFinite(savedLeft)) {
+                    left = savedLeft;
+                } else if (Number.isFinite(savedRight)) {
+                    left = window.innerWidth - btnSize - savedRight;
+                } else {
+                    left = window.innerWidth - btnSize - minPadding;
+                }
+
                 top = Math.max(minPadding, Math.min(top, window.innerHeight - btnSize - minPadding));
-                if (left !== '') left = Math.max(minPadding, Math.min(left, window.innerWidth - btnSize - minPadding));
-                el.style.top = top + 'px';
-                el.style.left = left !== '' ? left + 'px' : '';
-                el.style.right = right !== '' ? right + 'px' : '';
-                el.style.bottom = bottom !== '' ? bottom + 'px' : '';
+                left = Math.max(minPadding, Math.min(left, window.innerWidth - btnSize - minPadding));
+
+                el.style.top = `${top}px`;
+                el.style.left = `${left}px`;
+                el.style.right = '';
+                el.style.bottom = '';
+
+                // Persist normalized on-screen coordinates so future loads stay visible.
+                savePosition();
             } else {
                 // Default: position vertically on right edge, centered
                 const centerY = Math.floor(window.innerHeight / 2);

@@ -61,7 +61,6 @@ class LoopPlayer {
         .then(arrayBuffer => this.audioContext.decodeAudioData(arrayBuffer))
         .then(audioBuffer => {
           this.audioBuffers.set(loopType, audioBuffer);
-          console.log(`Loaded loop: ${loopType} (${audioBuffer.duration.toFixed(2)}s)`);
         })
         .catch(err => {
           console.error(`Error loading ${loopType}:`, err);
@@ -72,7 +71,6 @@ class LoopPlayer {
     }
     
     await Promise.all(loadPromises);
-    console.log(`Loaded ${this.audioBuffers.size} loops`);
   }
 
   /**
@@ -132,7 +130,6 @@ class LoopPlayer {
       this.onLoopChange(loopType);
     }
     
-    console.log(`Playing: ${loopType} at ${this.playbackRate}x speed`);
   }
 
   /**
@@ -259,3 +256,4 @@ class LoopPlayer {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = LoopPlayer;
 }
+

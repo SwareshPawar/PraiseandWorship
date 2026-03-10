@@ -1,14 +1,14 @@
 // Enhanced Progressive Web App Service Worker for Praise & Worship Songs
-const CACHE_NAME = 'pw-ocean-v2.3-SMART-FALLBACK';
-const STATIC_CACHE = 'pw-static-v2.3-SMART-FALLBACK';
-const API_CACHE = 'pw-api-v2.3-SMART-FALLBACK';
+const CACHE_NAME = 'pw-ocean-v2.4-SMART-FALLBACK';
+const STATIC_CACHE = 'pw-static-v2.4-SMART-FALLBACK';
+const API_CACHE = 'pw-api-v2.4-SMART-FALLBACK';
 
 // Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [
   './',
   './index.html',
   './styles.css', 
-  './main.js',
+  './main1.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -16,7 +16,7 @@ const STATIC_RESOURCES = [
   '/',
   '/index.html',
   '/styles.css',
-  '/main.js', 
+  '/main1.js', 
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'
@@ -118,6 +118,12 @@ self.addEventListener('fetch', (event) => {
   
   // Handle localhost API requests with regular network first strategy
   if (isLocalApi) {
+    event.respondWith(networkFirstStrategy(request));
+    return;
+  }
+
+  // Prefer fresh HTML so startup scripts do not run from stale cache.
+  if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(networkFirstStrategy(request));
     return;
   }

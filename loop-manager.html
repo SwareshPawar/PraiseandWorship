@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loop Manager</title>
+  <style>
+    body { font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; margin: 0; background: #f5f7fa; color: #1f2937; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 20px; }
+    .header { background: #fff; border-radius: 12px; padding: 18px; box-shadow: 0 4px 14px rgba(0,0,0,.08); margin-bottom: 16px; }
+    .header h1 { margin: 0 0 8px 0; color: #2f7bd7; }
+    .hint { color: #6b7280; font-size: .92rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 16px; }
+    .card { background: #fff; border-radius: 10px; padding: 14px; box-shadow: 0 3px 12px rgba(0,0,0,.06); }
+    .card .v { font-size: 1.6rem; font-weight: 700; color: #2f7bd7; }
+    .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+    .btn { background: #2f7bd7; color: #fff; border: none; border-radius: 8px; padding: 9px 12px; cursor: pointer; }
+    .btn.secondary { background: #6b7280; }
+    .msg { margin: 10px 0; padding: 10px 12px; border-radius: 8px; display: none; }
+    .msg.info { display: block; background: #e8f1ff; color: #1e429f; }
+    .table { background: #fff; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,.06); overflow: auto; }
+    .editor { background: #fff; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,.06); padding: 14px; margin-bottom: 14px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .row input, .row select { padding: 8px; border: 1px solid #d1d5db; border-radius: 8px; min-width: 150px; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { border-bottom: 1px solid #e5e7eb; padding: 10px; text-align: left; }
+    th { background: #f8fafc; position: sticky; top: 0; }
+    .ok { color: #166534; font-weight: 600; }
+    .warn { color: #b45309; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <h1>Loop Manager</h1>
+      <div class="hint">Slice 4 mode: admin upload/replace/delete is enabled on local backend. Serverless runtime returns a write-disabled response.</div>
+    </div>
+
+    <div class="stats">
+      <div class="card"><div>Total Loops</div><div class="v" id="statLoops">0</div></div>
+      <div class="card"><div>Rhythm Sets</div><div class="v" id="statSets">0</div></div>
+      <div class="card"><div>Complete Sets</div><div class="v" id="statComplete">0</div></div>
+      <div class="card"><div>Backend</div><div class="v" id="statBackend">-</div></div>
+    </div>
+
+    <div class="toolbar">
+      <button id="refreshBtn" class="btn">Refresh</button>
+      <a href="index.html" class="btn secondary" style="text-decoration:none;">Back to App</a>
+    </div>
+
+    <div id="info" class="msg info">Loading metadata...</div>
+
+    <div class="table">
+      <table>
+        <thead>
+          <tr>
+            <th>Loop Id</th>
+            <th>Rhythm Set</th>
+            <th>Type</th>
+            <th>No</th>
+            <th>Filename</th>
+            <th>Conditions</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <div class="editor">
+      <h3 style="margin-top:0;">Upload Single Loop</h3>
+      <div class="row">
+        <select id="rhythmFamily">
+          <option value="">Select Rhythm Family</option>
+        </select>
+        <input id="rhythmSetNo" type="number" min="1" value="1" placeholder="Set no">
+        <input id="timeSignature" placeholder="Time signature (e.g. 4/4)">
+        <select id="tempo">
+          <option value="">Tempo</option>
+          <option value="slow">slow</option>
+          <option value="medium">medium</option>
+          <option value="fast">fast</option>
+        </select>
+        <input id="genre" placeholder="Genre (e.g. acoustic)">
+      </div>
+      <div class="row">
+        <select id="loopType">
+          <option value="">Type</option>
+          <option value="loop">loop</option>
+          <option value="fill">fill</option>
+        </select>
+        <input id="loopNumber" type="number" min="1" max="3" value="1" placeholder="Number">
+        <input id="loopFile" type="file" accept="audio/*">
+        <button id="uploadBtn" class="btn" type="button">Upload</button>
+      </div>
+    </div>
+  </div>
+  <script src="loop-manager.js"></script>
+</body>
+</html>

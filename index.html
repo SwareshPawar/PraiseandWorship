@@ -241,11 +241,6 @@ async function saveRecommendationWeightsToBackend(weights) {
         <button class="panel-toggle draggable" id="toggle-songs" title="Show/Hide Songs List Panel - Browse and filter songs by category" aria-label="Toggle Songs Panel"><i class="fas fa-list"></i></button>
         <button class="panel-toggle draggable" id="toggle-all-panels" title="Show/Hide All Panels - Toggle both sidebar and songs panels at once" aria-label="Toggle All Panels"><i class="fas fa-eye-slash"></i></button>
 
-        <!-- Auto-scroll controls -->
-        <div class="auto-scroll-controls">
-            <button class="auto-scroll-btn" id="toggleAutoScroll" title="Auto Scroll - Automatically scroll through song lyrics at set speed" aria-label="Toggle Auto Scroll"><i class="fas fa-play"></i></button>
-        </div>
-
         <!-- Keep screen on button -->
         <!-- <button class="keep-screen-on" id="keepScreenOnBtn" title="Keep Screen On"><i class="fa fa-sign-language"></i></button> -->
 
@@ -961,10 +956,11 @@ async function saveRecommendationWeightsToBackend(weights) {
                         </select>
                     </div>
                     <div class="settings-group">
-                        <label for="toggleButtonsVisibility">Show Toggle Buttons:</label>
+                        <label for="toggleButtonsVisibility">Toggle Buttons Visibility:</label>
                         <select id="toggleButtonsVisibility">
                             <option value="hide" selected>Hide</option>
                             <option value="show">Show</option>
+                            <option value="hide-all">Hide All (including mobile stationary)</option>
                         </select>
                     </div>
                 </div>

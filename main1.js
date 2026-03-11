@@ -3037,7 +3037,6 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
     const toggleSidebarBtn = document.getElementById('toggle-sidebar');
     const toggleSongsBtn = document.getElementById('toggle-songs');
     const toggleAllPanelsBtn = document.getElementById('toggle-all-panels');
-    const toggleAutoScrollBtn = document.getElementById('toggleAutoScroll');
     const keepScreenOnBtn = document.getElementById('keepScreenOnBtn');
     const editSetlistSectionBtn = document.getElementById('editSetlistSectionBtn');
     const resequenceSetlistSectionBtn = document.getElementById('resequenceSetlistSectionBtn');
@@ -5083,6 +5082,168 @@ window.viewSingleLyrics = function(songId, otherId) {
         return data;
     }
 
+    const MOBILE_PANEL_STATE_KEY = 'pw_mobileLastOpenedPanel';
+
+    function getMobilePanelState(sidebar, songsSection) {
+        const isSidebarHidden = sidebar?.classList.contains('hidden');
+        const isSongsHidden = songsSection?.classList.contains('hidden');
+
+        if (!isSidebarHidden && isSongsHidden) return 'home';
+        if (isSidebarHidden && !isSongsHidden) return 'songs';
+        return null;
+    }
+
+    function persistMobilePanelState(sidebar, songsSection) {
+        if (window.innerWidth > 768 || !sidebar || !songsSection) return;
+        const state = getMobilePanelState(sidebar, songsSection);
+        if (state) {
+            localStorage.setItem(MOBILE_PANEL_STATE_KEY, state);
+        }
+    }
+
+    function applySavedMobilePanelState(sidebar, songsSection) {
+        if (window.innerWidth > 768 || !sidebar || !songsSection) return false;
+
+        const savedState = localStorage.getItem(MOBILE_PANEL_STATE_KEY);
+        switch (savedState) {
+            case 'songs':
+                sidebar.classList.add('hidden');
+                songsSection.classList.remove('hidden');
+                return true;
+            case 'home':
+                sidebar.classList.remove('hidden');
+                songsSection.classList.add('hidden');
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    function ensureMobilePanelStateObserver(sidebar, songsSection) {
+        if (!sidebar || !songsSection || window.__pwMobilePanelStateObserverBound) return;
+
+        const observer = new MutationObserver(() => {
+            persistMobilePanelState(sidebar, songsSection);
+        });
+
+        observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+        observer.observe(songsSection, { attributes: true, attributeFilter: ['class'] });
+
+        window.__pwMobilePanelStateObserverBound = true;
+        window.__pwMobilePanelStateObserver = observer;
+
+        persistMobilePanelState(sidebar, songsSection);
+    }
+
+    function setMobilePanelVisibility(panel) {
+        const sidebar = document.querySelector('.sidebar');
+        const songsSection = document.querySelector('.songs-section');
+        const previewSection = document.querySelector('.preview-section');
+
+        if (!sidebar || !songsSection || window.innerWidth > 768) return;
+
+        const normalizedPanel = panel === 'songs' ? 'songs' : 'home';
+
+        if (normalizedPanel === 'songs') {
+            songsSection.classList.remove('hidden');
+            sidebar.classList.add('hidden');
+            if (previewSection) previewSection.classList.remove('full-width');
+        } else {
+            sidebar.classList.remove('hidden');
+            songsSection.classList.add('hidden');
+            if (previewSection) previewSection.classList.add('full-width');
+        }
+
+        persistMobilePanelState(sidebar, songsSection);
+    }
+
+    function openRememberedMobilePanel() {
+        const rememberedPanel = localStorage.getItem(MOBILE_PANEL_STATE_KEY) === 'songs' ? 'songs' : 'home';
+        setMobilePanelVisibility(rememberedPanel);
+    }
+
+    function openAlternateMobilePanel() {
+        const sidebar = document.querySelector('.sidebar');
+        const songsSection = document.querySelector('.songs-section');
+        if (!sidebar || !songsSection || window.innerWidth > 768) return;
+
+        const currentState = getMobilePanelState(sidebar, songsSection);
+        if (currentState === 'songs') {
+            setMobilePanelVisibility('home');
+        } else {
+            setMobilePanelVisibility('songs');
+        }
+    }
+
+    function openSuggestedSongsDrawerFromSwipe() {
+        const drawer = document.getElementById('suggestedSongsDrawer');
+        if (!drawer || window.innerWidth > 768) return;
+
+        if (!drawer.classList.contains('open')) {
+            if (typeof toggleSuggestedSongsDrawer === 'function') {
+                toggleSuggestedSongsDrawer();
+            } else {
+                document.getElementById('toggleSuggestedSongs')?.click();
+            }
+        }
+    }
+
+    function ensureMobilePanelSwipeGestures() {
+        if (window.__pwMobilePanelSwipeBound) return;
+
+        const EDGE_ZONE_PX = 32;
+        const MIN_HORIZONTAL_SWIPE_PX = 72;
+        const MAX_SWIPE_DURATION_MS = 500;
+
+        let swipeStartX = 0;
+        let swipeStartY = 0;
+        let swipeStartTime = 0;
+
+        // Edge swipes avoid conflicts with normal vertical scrolling in the song/lyrics area.
+        document.addEventListener('touchstart', (e) => {
+            if (window.innerWidth > 768 || e.touches.length !== 1) return;
+
+            const target = e.target;
+            if (target && target.closest && target.closest('input, textarea, select, .modal, .modal-content')) {
+                return;
+            }
+
+            const touch = e.touches[0];
+            swipeStartX = touch.clientX;
+            swipeStartY = touch.clientY;
+            swipeStartTime = Date.now();
+        }, { passive: true });
+
+        document.addEventListener('touchend', (e) => {
+            if (window.innerWidth > 768 || e.changedTouches.length !== 1) return;
+
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - swipeStartX;
+            const dy = touch.clientY - swipeStartY;
+            const dt = Date.now() - swipeStartTime;
+
+            if (dt > MAX_SWIPE_DURATION_MS || Math.abs(dx) < MIN_HORIZONTAL_SWIPE_PX) return;
+            if (Math.abs(dx) <= Math.abs(dy) * 1.2) return;
+
+            const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+            const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+            const fromLeftEdge = swipeStartX <= EDGE_ZONE_PX;
+            const fromRightEdge = viewportWidth > 0 && swipeStartX >= (viewportWidth - EDGE_ZONE_PX);
+
+            if (fromLeftEdge && dx > 0) {
+                const isUpperHalf = viewportHeight > 0 ? swipeStartY <= (viewportHeight / 2) : true;
+                setMobilePanelVisibility(isUpperHalf ? 'home' : 'songs');
+                return;
+            }
+
+            if (fromRightEdge && dx < 0) {
+                openSuggestedSongsDrawerFromSwipe();
+            }
+        }, { passive: true });
+
+        window.__pwMobilePanelSwipeBound = true;
+    }
+
     function createMobileNavButtons() {
         const sidebar = document.querySelector('.sidebar');
         const songsSection = document.querySelector('.songs-section');
@@ -5170,19 +5331,20 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
 
         if (normalized === 'home' || normalized === 'up') {
-            const showAll = document.getElementById('showAll');
-            if (showAll) showAll.click();
+            setMobilePanelVisibility('home');
             return;
         }
 
         if (normalized === 'setlist' || normalized === 'down') {
-            const showSetlist = document.getElementById('showSetlist');
-            if (showSetlist) showSetlist.click();
+            setMobilePanelVisibility('songs');
         }
     }
 
     function addMobileTouchNavigation() {
-        return createMobileNavButtons();
+        const nav = createMobileNavButtons();
+        applyToggleButtonsVisibility(normalizeToggleButtonsVisibility(localStorage.getItem('toggleButtonsVisibility') || 'hide'));
+        ensureMobilePanelSwipeGestures();
+        return nav;
     }
 
     function initializeFloatingStopButton() {
@@ -8011,6 +8173,14 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
     
 
+        function normalizeToggleButtonsVisibility(value) {
+            const normalized = String(value || '').trim().toLowerCase();
+            if (normalized === 'show' || normalized === 'hide-all') {
+                return normalized;
+            }
+            return 'hide';
+        }
+
         function loadSettings() {
             const savedHeader = localStorage.getItem("sidebarHeader");
             if (savedHeader) document.querySelector(".sidebar-header h2").textContent = savedHeader;
@@ -8031,7 +8201,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
             const previewMargin = localStorage.getItem("previewMargin") || "40";
             const savedAutoScrollSpeed = localStorage.getItem("autoScrollSpeed") || "1500";
-            const toggleButtonsVisibility = localStorage.getItem("toggleButtonsVisibility") || "hide";
+            const toggleButtonsVisibility = normalizeToggleButtonsVisibility(localStorage.getItem("toggleButtonsVisibility") || "hide");
 
             document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}%`);
             document.documentElement.style.setProperty('--songs-panel-width', `${songsPanelWidth}%`);
@@ -8060,22 +8230,25 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
 
         function applyToggleButtonsVisibility(visibility) {
+            const normalizedVisibility = normalizeToggleButtonsVisibility(visibility);
+            const showDraggableButtons = normalizedVisibility === 'show';
+            const showStationaryMobileButtons = normalizedVisibility !== 'hide-all';
             const toggleButtons = document.querySelectorAll('.panel-toggle.draggable');
 
-            // Settings should only control legacy draggable panel toggles.
+            // Legacy draggable panel toggles appear only in explicit "show" mode.
             toggleButtons.forEach(button => {
                 if (button.closest('.mobile-nav-container')) return;
-                button.style.display = visibility === 'hide' ? 'none' : '';
+                button.style.display = showDraggableButtons ? '' : 'none';
             });
 
-            // Keep stationary mobile replica toggles independent from the hide/show setting.
+            // Stationary mobile panel toggles can be hidden via the "hide-all" mode.
             const mobileNavContainer = document.querySelector('.mobile-nav-container');
             if (mobileNavContainer) {
-                mobileNavContainer.style.display = 'flex';
+                mobileNavContainer.style.display = showStationaryMobileButtons ? 'flex' : 'none';
             }
 
             document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
-                btn.style.display = 'flex';
+                btn.style.display = showStationaryMobileButtons ? 'flex' : 'none';
             });
         }
     
@@ -8151,12 +8324,23 @@ window.viewSingleLyrics = function(songId, otherId) {
                 sidebar.classList.remove('hidden');
                 songsSection.classList.remove('hidden');
             } else {
-                sidebar.classList.add('hidden');
-                songsSection.classList.add('hidden');
+                const restored = applySavedMobilePanelState(sidebar, songsSection);
+                if (!restored) {
+                    sidebar.classList.remove('hidden');
+                    songsSection.classList.add('hidden');
+                    persistMobilePanelState(sidebar, songsSection);
+                }
+                ensureMobilePanelStateObserver(sidebar, songsSection);
             }
             updatePositions();
     
-            window.addEventListener('resize', updatePositions);
+            window.addEventListener('resize', () => {
+                updatePositions();
+                if (window.innerWidth <= 768) {
+                    ensureMobilePanelStateObserver(sidebar, songsSection);
+                    persistMobilePanelState(sidebar, songsSection);
+                }
+            });
         }
     
         function updatePositions() {
@@ -8177,7 +8361,15 @@ window.viewSingleLyrics = function(songId, otherId) {
             } else {
                 document.querySelector('.songs-section').style.left = '0';
                 document.querySelector('.preview-section').style.marginLeft = '0';
-                document.querySelector('.preview-section').classList.add('full-width');
+                const songsPanel = document.querySelector('.songs-section');
+                const previewSection = document.querySelector('.preview-section');
+                if (songsPanel && previewSection) {
+                    if (songsPanel.classList.contains('hidden')) {
+                        previewSection.classList.add('full-width');
+                    } else {
+                        previewSection.classList.remove('full-width');
+                    }
+                }
             }
         }
     
@@ -9513,6 +9705,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                 <i class="fas fa-save"></i>
                 <span>Save</span>
             </button>
+            <button class="auto-scroll-btn" id="toggleAutoScroll" title="Auto Scroll - Automatically scroll through song lyrics at set speed" aria-label="Toggle Auto Scroll">
+                <i class="fas fa-play"></i>
+            </button>
         </div>
 
         <!-- AUDIT SECTION -->
@@ -9792,6 +9987,12 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
     
         function setupAutoScroll() {
+            const autoScrollButton = document.getElementById('toggleAutoScroll');
+            if (autoScrollButton && autoScrollButton.dataset.autoScrollBound !== 'true') {
+                autoScrollButton.dataset.autoScrollBound = 'true';
+                autoScrollButton.addEventListener('click', toggleAutoScroll);
+            }
+
             isUserScrolling = false;
             songPreviewEl.scrollTop = 0;
             const shouldResumeAutoScroll = isAutoScrollEnabled;
@@ -9803,9 +10004,9 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             if (shouldResumeAutoScroll) {
                 startAutoScroll(autoScrollDirection);
-            } else if (toggleAutoScrollBtn) {
-                toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
-                toggleAutoScrollBtn.classList.remove('active');
+            } else if (autoScrollButton) {
+                autoScrollButton.innerHTML = '<i class="fas fa-play"></i>';
+                autoScrollButton.classList.remove('active');
             }
         }
     
@@ -9818,9 +10019,10 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
             
             const scrollStep = autoScrollDirection === 'down' ? 20 : -20;
-            if (toggleAutoScrollBtn) {
-                toggleAutoScrollBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                toggleAutoScrollBtn.classList.add('active');
+            const autoScrollButton = document.getElementById('toggleAutoScroll');
+            if (autoScrollButton) {
+                autoScrollButton.innerHTML = '<i class="fas fa-pause"></i>';
+                autoScrollButton.classList.add('active');
             }
             
             autoScrollInterval = setInterval(() => {
@@ -9859,16 +10061,21 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
     
         function toggleAutoScroll() {
+            const autoScrollButton = document.getElementById('toggleAutoScroll');
             if (autoScrollInterval) {
                 clearInterval(autoScrollInterval);
                 autoScrollInterval = null;
                 isAutoScrollEnabled = false;
-                toggleAutoScrollBtn.innerHTML = '<i class="fas fa-play"></i>';
-                toggleAutoScrollBtn.classList.remove('active');
+                if (autoScrollButton) {
+                    autoScrollButton.innerHTML = '<i class="fas fa-play"></i>';
+                    autoScrollButton.classList.remove('active');
+                }
             } else {
                 startAutoScroll('down');
-                toggleAutoScrollBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                toggleAutoScrollBtn.classList.add('active');
+                if (autoScrollButton) {
+                    autoScrollButton.innerHTML = '<i class="fas fa-pause"></i>';
+                    autoScrollButton.classList.add('active');
+                }
             }
         }
     
@@ -10581,7 +10788,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             const newAutoScrollSpeed = document.getElementById("autoScrollSpeedInput").value;
             const sessionResetOption = document.getElementById("sessionResetOption").value;
             const toggleButtonsVisibilityEl = document.getElementById("toggleButtonsVisibility");
-            const toggleButtonsVisibility = toggleButtonsVisibilityEl ? toggleButtonsVisibilityEl.value : "hide";
+            const toggleButtonsVisibility = normalizeToggleButtonsVisibility(toggleButtonsVisibilityEl ? toggleButtonsVisibilityEl.value : "hide");
 
             document.querySelector(".sidebar-header h2").textContent = newHeader;
 
@@ -11280,9 +11487,6 @@ window.viewSingleLyrics = function(songId, otherId) {
             // Preview scrolling
             songPreviewEl.addEventListener('wheel', handleUserScroll, { passive: true });
             songPreviewEl.addEventListener('touchmove', handleUserScroll, { passive: true });
-            
-            // Auto-scroll controls
-            toggleAutoScrollBtn.addEventListener('click', toggleAutoScroll);
             
             // Keep screen on button
             //keepScreenOnBtn.addEventListener('click', toggleScreenWakeLock);
@@ -12092,39 +12296,6 @@ window.viewSingleLyrics = function(songId, otherId) {
         window.editSong = editSong;
         window.openDeleteSongModal = openDeleteSongModal;
     
-        // --- Mobile edge swipe gesture logic ---
-        let touchStartX = 0;
-        let touchStartY = 0;
-        let touchStartTime = 0;
-
-        document.addEventListener('touchstart', function(e) {
-            if (e.touches.length !== 1) return;
-            const touch = e.touches[0];
-            touchStartX = touch.clientX;
-            touchStartY = touch.clientY;
-            touchStartTime = Date.now();
-        }, { passive: true });
-
-        document.addEventListener('touchend', function(e) {
-            if (e.changedTouches.length !== 1) return;
-            const touch = e.changedTouches[0];
-            const dx = touch.clientX - touchStartX;
-            const dy = touch.clientY - touchStartY;
-            const dt = Date.now() - touchStartTime;
-
-            // Only trigger if swipe starts near left edge (within 30px)
-            if (touchStartX < 30 && Math.abs(dx) > 60 && dt < 500) {
-                // Swipe right from left edge
-                if (dy < -40) {
-                    // Swipe up: open home page from top
-                    document.getElementById('showAll').click();
-                } else if (dy > 40) {
-                    // Swipe down: open song list from bottom
-                    document.getElementById('showSetlist').click();
-                }
-            }
-        }, { passive: true });
-
         async function removeAdminRole(userId) {
     const jwtToken = localStorage.getItem('pw_jwtToken');
     

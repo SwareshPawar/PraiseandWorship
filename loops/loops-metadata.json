@@ -1240,6 +1240,132 @@
         "uploadedBy": "swareshpawar@gmail.com",
         "description": ""
       }
+    },
+    {
+      "id": "swaresh_4_4_slow_acoustic_fill3",
+      "filename": "swaresh_4_4_slow_acoustic_FILL3.wav",
+      "type": "fill",
+      "number": 3,
+      "rhythmFamily": "swaresh",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "swaresh_1",
+      "conditions": {
+        "taal": "swaresh",
+        "timeSignature": "4/4",
+        "tempo": "slow",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-11T05:42:51.806Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": ""
+      }
+    },
+    {
+      "id": "swaresh_4_4_slow_acoustic_fill2",
+      "filename": "swaresh_4_4_slow_acoustic_FILL2.wav",
+      "type": "fill",
+      "number": 2,
+      "rhythmFamily": "swaresh",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "swaresh_1",
+      "conditions": {
+        "taal": "swaresh",
+        "timeSignature": "4/4",
+        "tempo": "slow",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-11T05:42:52.335Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": ""
+      }
+    },
+    {
+      "id": "swaresh_4_4_slow_acoustic_fill1",
+      "filename": "swaresh_4_4_slow_acoustic_FILL1.wav",
+      "type": "fill",
+      "number": 1,
+      "rhythmFamily": "swaresh",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "swaresh_1",
+      "conditions": {
+        "taal": "swaresh",
+        "timeSignature": "4/4",
+        "tempo": "slow",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-11T05:42:52.713Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": ""
+      }
+    },
+    {
+      "id": "swaresh_4_4_slow_acoustic_loop3",
+      "filename": "swaresh_4_4_slow_acoustic_LOOP3.wav",
+      "type": "loop",
+      "number": 3,
+      "rhythmFamily": "swaresh",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "swaresh_1",
+      "conditions": {
+        "taal": "swaresh",
+        "timeSignature": "4/4",
+        "tempo": "slow",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-11T05:42:53.194Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": ""
+      }
+    },
+    {
+      "id": "swaresh_4_4_slow_acoustic_loop2",
+      "filename": "swaresh_4_4_slow_acoustic_LOOP2.wav",
+      "type": "loop",
+      "number": 2,
+      "rhythmFamily": "swaresh",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "swaresh_1",
+      "conditions": {
+        "taal": "swaresh",
+        "timeSignature": "4/4",
+        "tempo": "slow",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-11T05:42:53.639Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": ""
+      }
+    },
+    {
+      "id": "swaresh_4_4_slow_acoustic_loop1",
+      "filename": "swaresh_4_4_slow_acoustic_LOOP1.wav",
+      "type": "loop",
+      "number": 1,
+      "rhythmFamily": "swaresh",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "swaresh_1",
+      "conditions": {
+        "taal": "swaresh",
+        "timeSignature": "4/4",
+        "tempo": "slow",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-11T05:42:54.150Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": ""
+      }
     }
   ],
   "tempoRanges": {

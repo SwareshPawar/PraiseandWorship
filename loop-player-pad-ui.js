@@ -901,7 +901,7 @@ const loopPlayerStyles = `
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1px;
-    color: var(--accent-color);
+    color: var(--text-color);
     position: relative;
     z-index: 1;
 }
@@ -910,7 +910,8 @@ const loopPlayerStyles = `
     margin: 0;
     font-size: 1.1em;
     font-weight: 600;
-    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    color: var(--text-color);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.2);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -935,13 +936,30 @@ const loopPlayerStyles = `
 
 .loop-player-status {
     font-size: 0.9em;
-    background: rgba(197, 177, 148, 0.2);
-    color: var(--accent-color);
+    background: rgba(5, 68, 94, 0.14);
+    color: var(--text-color);
     padding: 6px 12px;
     border-radius: 8px;
-    border: 1px solid rgba(197, 177, 148, 0.3);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    font-weight: 500;
+    border: 1px solid rgba(5, 68, 94, 0.35);
+    text-shadow: 0 1px 1px rgba(0,0,0,0.15);
+    font-weight: 600;
+}
+
+body.dark-mode .loop-player-header {
+    color: #e8f1f7;
+}
+
+body.dark-mode .loop-player-header h4 {
+    color: #e8f1f7;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+}
+
+body.dark-mode .loop-player-status {
+    background: rgba(159, 194, 204, 0.2);
+    color: #f2f7fb;
+    border: 1px solid rgba(190, 213, 224, 0.55);
+    text-shadow: 0 1px 2px rgba(0,0,0,0.35);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
 }
 
 .loop-player-toggle-btn {
@@ -1014,7 +1032,7 @@ const loopPlayerStyles = `
     border: 2px solid rgba(197, 177, 148, 0.4);
     border-radius: 10px;
     padding: 20px 10px;
-    color: var(--accent-color);
+    color: var(--text-color);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1071,6 +1089,12 @@ const loopPlayerStyles = `
     animation: activePadGlow 2s ease-in-out infinite alternate;
 }
 
+.loop-pad.loop-pad-active .pad-number,
+.loop-pad.loop-pad-active .pad-label {
+    color: #ffffff;
+    opacity: 1;
+}
+
 @keyframes activePadGlow {
     0% { box-shadow: 0 0 20px rgba(243, 156, 18, 0.4), 0 4px 8px rgba(0,0,0,0.3); }
     100% { box-shadow: 0 0 25px rgba(243, 156, 18, 0.6), 0 4px 8px rgba(0,0,0,0.3); }
@@ -1082,6 +1106,50 @@ const loopPlayerStyles = `
         rgba(62, 63, 41, 0.2) 50%, 
         rgba(45, 44, 40, 0.2) 100%);
     border-color: var(--secondary-color);
+}
+
+.loop-pad-fill.loop-pad-active {
+    background: linear-gradient(135deg,
+        rgba(240, 120, 40, 0.45) 0%,
+        rgba(220, 95, 30, 0.45) 45%,
+        rgba(180, 70, 20, 0.5) 100%);
+    border-color: #ffb266;
+    box-shadow:
+        0 0 0 2px rgba(255, 178, 102, 0.5),
+        0 0 24px rgba(220, 95, 30, 0.55),
+        0 4px 8px rgba(0,0,0,0.3);
+}
+
+body.dark-mode .loop-pad {
+    background: linear-gradient(145deg,
+        rgba(82, 102, 120, 0.28) 0%,
+        rgba(45, 58, 71, 0.34) 100%);
+    border-color: rgba(159, 191, 209, 0.45);
+    color: #e9f2f8;
+}
+
+body.dark-mode .loop-pad:hover {
+    border-color: #b8d7ea;
+    color: #ffffff;
+    box-shadow:
+        0 8px 16px rgba(0,0,0,0.35),
+        0 0 0 1px rgba(184, 215, 234, 0.35);
+}
+
+body.dark-mode .loop-pad-fill {
+    background: linear-gradient(145deg,
+        rgba(126, 88, 57, 0.34) 0%,
+        rgba(84, 58, 39, 0.42) 100%);
+    border-color: rgba(230, 170, 121, 0.55);
+    color: #ffe6d1;
+}
+
+body.dark-mode .loop-pad-fill.loop-pad-active {
+    border-color: #ffd1a3;
+    box-shadow:
+        0 0 0 2px rgba(255, 209, 163, 0.45),
+        0 0 26px rgba(224, 122, 55, 0.6),
+        0 4px 8px rgba(0,0,0,0.35);
 }
 
 .loop-pad-fill:hover {
@@ -1115,7 +1183,7 @@ const loopPlayerStyles = `
 
 .pad-label {
     font-size: 0.85em;
-    opacity: 0.9;
+    opacity: 1;
     text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 

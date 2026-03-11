@@ -134,32 +134,40 @@ const PW_CHORD_TYPES = [
 
 // Dynamic API base URL for local/dev/prod (Global scope)
 const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
-const API_BASE_URL_VERCEL = 'https://praiseand-worship.vercel.app';
-let API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-        ? 'http://localhost:3001'
-        : API_BASE_URL_RENDER; // Use Render as primary backend (fully functional)
+const IS_LOCALHOST = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const IS_GITHUB_PAGES = window.location.hostname.endsWith('github.io');
+const API_BASE_URL_VERCEL = window.location.hostname.includes('vercel.app')
+    ? window.location.origin
+    : 'https://praiseand-worship.vercel.app';
+let API_BASE_URL = IS_LOCALHOST
+    ? 'http://localhost:3001'
+    : (IS_GITHUB_PAGES ? API_BASE_URL_VERCEL : window.location.origin); // Same-origin API on Vercel/custom domain
 
 // Admin-configurable backend switching for production
 function getStoredBackend() {
-    return localStorage.getItem('pw_admin_backend') || 'render'; // Default to Render (Vercel incomplete)
+    return localStorage.getItem('pw_admin_backend') || 'vercel'; // Default to Vercel (single-function backend)
 }
 
 function setBackend(backend) {
-    if (backend === 'vercel') {
+    if (backend === 'render') {
+        API_BASE_URL = API_BASE_URL_RENDER;
+    } else if (IS_LOCALHOST) {
+        API_BASE_URL = 'http://localhost:3001';
+    } else if (IS_GITHUB_PAGES) {
         API_BASE_URL = API_BASE_URL_VERCEL;
     } else {
-        API_BASE_URL = API_BASE_URL_RENDER;
+        API_BASE_URL = window.location.origin;
     }
     localStorage.setItem('pw_admin_backend', backend);
     console.log('🔄 Backend switched to:', backend.toUpperCase(), '- URL:', API_BASE_URL);
 }
 
 // Initialize backend based on stored preference (production only)
-if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+if (!IS_LOCALHOST) {
     setBackend(getStoredBackend());
 }
 // Frontend: GitHub Pages (https://swareshpawar.github.io/PraiseandWorship/)
-// Backend: Render (https://praiseandworship.onrender.com) - Vercel incomplete
+// Backend: Vercel same-origin (or Vercel hosted API for GitHub Pages), Render fallback
 
 console.log('API_BASE_URL:', API_BASE_URL);
 
@@ -303,6 +311,26 @@ function updateRhythmSetIdPreview(familyInputId, setNoInputId, previewInputId) {
 
     const previewValue = buildRhythmSetIdValue(familyEl.value, setNoEl.value);
     previewEl.value = previewValue || '';
+}
+
+function bindRhythmSetPreviewSync(familyInputId, setNoInputId, previewInputId) {
+    const familyEl = document.getElementById(familyInputId);
+    const setNoEl = document.getElementById(setNoInputId);
+    if (!familyEl || !setNoEl) return;
+
+    const listenerKey = `_rhythmPreviewBound_${previewInputId}`;
+
+    if (!familyEl[listenerKey]) {
+        familyEl.addEventListener('change', () => updateRhythmSetIdPreview(familyInputId, setNoInputId, previewInputId));
+        familyEl[listenerKey] = true;
+    }
+
+    if (!setNoEl[listenerKey]) {
+        setNoEl.addEventListener('input', () => updateRhythmSetIdPreview(familyInputId, setNoInputId, previewInputId));
+        setNoEl[listenerKey] = true;
+    }
+
+    updateRhythmSetIdPreview(familyInputId, setNoInputId, previewInputId);
 }
 
 function populateRhythmFamilyDropdown(dropdownId, rhythmFamilies) {
@@ -499,43 +527,47 @@ async function authFetch(url, options = {}) {
         };
     }
 
-    // If localhost, use it directly. Otherwise, try Render backend first (reliable), then Vercel as fallback
+    // If localhost, use it directly. Otherwise, try selected backend first, then fall back.
     const isLocalhost = url.includes('localhost') || url.includes('127.0.0.1');
-    const backendsToTry = isLocalhost ? [API_BASE_URL] : [API_BASE_URL_RENDER, API_BASE_URL_VERCEL];
+    const backendsToTry = isLocalhost
+        ? [API_BASE_URL]
+        : Array.from(new Set([API_BASE_URL, API_BASE_URL_VERCEL, API_BASE_URL_RENDER]));
     
     let lastError = null;
     for (const backendUrl of backendsToTry) {
         let fetchUrl = url;
-        if (!isLocalhost && (url.startsWith(API_BASE_URL_RENDER) || url.startsWith(API_BASE_URL_VERCEL))) {
+        if (!isLocalhost && url.includes('/api/')) {
             fetchUrl = backendUrl + url.substring(url.indexOf('/api/'));
         }
         try {
             const controller = new AbortController();
-            const timeoutDuration = isLocalhost ? 30000 : (backendUrl === API_BASE_URL_RENDER ? 60000 : 10000);
+            const timeoutDuration = isLocalhost ? 30000 : (backendUrl === API_BASE_URL_RENDER ? 60000 : 15000);
             const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
             const fetchOptions = { ...buildFetchOptions(fetchUrl), signal: controller.signal };
             const response = await fetch(fetchUrl, fetchOptions);
             clearTimeout(timeoutId);
             if (response.ok) {
                 if (!isLocalhost) {
-                    if (backendUrl === API_BASE_URL_RENDER) {
-                        throttledShowNotification('✅ Connected to Render backend (Primary)', 'success', 2000);
-                    } else {
-                        throttledShowNotification('⚠️ Using Vercel backend (Fallback)', 'warning', 3000);
-                    }
+                    const isRender = backendUrl === API_BASE_URL_RENDER;
+                    const message = isRender
+                        ? '⚠️ Using Render backend (Fallback)'
+                        : '✅ Connected to Vercel backend (Primary)';
+                    const level = isRender ? 'warning' : 'success';
+                    const duration = isRender ? 3000 : 2000;
+                    throttledShowNotification(message, level, duration);
                 }
                 return response;
             } else {
                 lastError = new Error(`Backend error (${response.status}) from ${backendUrl}`);
                 console.warn(`❌ ${backendUrl} returned ${response.status}${isLocalhost ? '' : ', trying next backend...'}`);
-                // If not localhost and Render fails, try Vercel next
+                // If not localhost, try next configured backend
                 if (!isLocalhost) continue;
                 else break;
             }
         } catch (error) {
             lastError = error;
             console.warn(`❌ ${backendUrl} failed: ${error.message}${isLocalhost ? '' : ', trying next backend...'}`);
-            // If not localhost and Render fails, try Vercel next
+            // If not localhost, try next configured backend
             if (!isLocalhost) continue;
             else break;
         }
@@ -1090,6 +1122,11 @@ document.addEventListener('DOMContentLoaded', () => {
     populateDropdown('editSongArtist', PW_ARTISTS);
     populateDropdown('songMood', PW_MOODS);
     populateDropdown('editSongMood', PW_MOODS);
+    populateRhythmCategoryDropdown('songRhythmCategory');
+    populateRhythmCategoryDropdown('editSongRhythmCategory');
+    bindRhythmSetPreviewSync('songRhythmFamily', 'songRhythmSetNo', 'songRhythmSetIdPreview');
+    bindRhythmSetPreviewSync('editSongRhythmFamily', 'editSongRhythmSetNo', 'editSongRhythmSetIdPreview');
+    hydrateRhythmFamilies().catch((err) => console.warn('Failed to hydrate rhythm families:', err));
 
     // Genre multiselect (lazy setup; only once each)
     setupGenreMultiselect('songGenre', 'genreDropdown', 'selectedGenres');
@@ -1156,6 +1193,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function openAddSong() {
         const modal = document.getElementById('addSongModal');
         if (modal) modal.style.display = 'flex';
+
+        hydrateRhythmFamilies().catch(() => {});
+        const addRhythmFamily = document.getElementById('songRhythmFamily');
+        const addRhythmSetNo = document.getElementById('songRhythmSetNo');
+        const addRhythmCategory = document.getElementById('songRhythmCategory');
+        if (addRhythmFamily) addRhythmFamily.value = '';
+        if (addRhythmSetNo) addRhythmSetNo.value = '';
+        if (addRhythmCategory) addRhythmCategory.value = '';
+        updateRhythmSetIdPreview('songRhythmFamily', 'songRhythmSetNo', 'songRhythmSetIdPreview');
     }
     ['addSongBelowFavoritesBtn', 'openAddSongModal'].forEach(id => {
         const btn = document.getElementById(id);
@@ -4993,22 +5039,18 @@ window.viewSingleLyrics = function(songId, otherId) {
     async function hydrateRhythmFamilies() {
         const rhythmSets = await loadRhythmSets();
         const families = Array.from(new Set(
-            rhythmSets
-                .map(item => String(item?.rhythmFamily || '').trim())
-                .filter(Boolean)
+            [
+                ...PW_TAALS,
+                ...rhythmSets.map(item => String(item?.rhythmFamily || '').trim())
+            ].filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
 
-        ['songTaal', 'editSongTaal'].forEach(selectId => {
-            const select = document.getElementById(selectId);
-            if (!select || select.options.length > 1) return;
-
-            families.forEach(family => {
-                const option = document.createElement('option');
-                option.value = family;
-                option.textContent = family;
-                select.appendChild(option);
-            });
-        });
+        populateRhythmFamilyDropdown('songRhythmFamily', families);
+        populateRhythmFamilyDropdown('editSongRhythmFamily', families);
+        populateRhythmCategoryDropdown('songRhythmCategory');
+        populateRhythmCategoryDropdown('editSongRhythmCategory');
+        updateRhythmSetIdPreview('songRhythmFamily', 'songRhythmSetNo', 'songRhythmSetIdPreview');
+        updateRhythmSetIdPreview('editSongRhythmFamily', 'editSongRhythmSetNo', 'editSongRhythmSetIdPreview');
 
         return families;
     }
@@ -10432,6 +10474,36 @@ window.viewSingleLyrics = function(songId, otherId) {
             document.getElementById('editSongTime').value = song.time || song.timeSignature;
             // Populate Taal dropdown with correct options for the song's time signature and select the song's taal
             updateTaalDropdown('editSongTime', 'editSongTaal', song.taal);
+
+            const knownRhythmFamilies = Array.from(new Set([
+                ...PW_TAALS,
+                ...((loadRhythmSets._cache || []).map(item => String(item?.rhythmFamily || '').trim()).filter(Boolean)),
+                String(song.rhythmFamily || '').trim()
+            ].filter(Boolean))).sort((a, b) => a.localeCompare(b));
+            populateRhythmFamilyDropdown('editSongRhythmFamily', knownRhythmFamilies);
+            populateRhythmCategoryDropdown('editSongRhythmCategory');
+
+            const editRhythmFamily = String(song.rhythmFamily || '').trim();
+            const rhythmSetNoFromSong = parseInt(song.rhythmSetNo, 10);
+            const rhythmSetNoFromIdMatch = String(song.rhythmSetId || '').match(/_(\d+)$/);
+            const editRhythmSetNo = Number.isInteger(rhythmSetNoFromSong) && rhythmSetNoFromSong > 0
+                ? rhythmSetNoFromSong
+                : (rhythmSetNoFromIdMatch ? parseInt(rhythmSetNoFromIdMatch[1], 10) : '');
+
+            const editRhythmFamilyEl = document.getElementById('editSongRhythmFamily');
+            const editRhythmSetNoEl = document.getElementById('editSongRhythmSetNo');
+            const editRhythmCategoryEl = document.getElementById('editSongRhythmCategory');
+            const editRhythmSetIdPreviewEl = document.getElementById('editSongRhythmSetIdPreview');
+            if (editRhythmFamilyEl) editRhythmFamilyEl.value = editRhythmFamily;
+            if (editRhythmSetNoEl) editRhythmSetNoEl.value = editRhythmSetNo || '';
+            if (editRhythmCategoryEl) {
+                editRhythmCategoryEl.value = normalizeRhythmCategoryValue(song.rhythmCategory || '');
+            }
+            updateRhythmSetIdPreview('editSongRhythmFamily', 'editSongRhythmSetNo', 'editSongRhythmSetIdPreview');
+            if (editRhythmSetIdPreviewEl && !editRhythmSetIdPreviewEl.value && song.rhythmSetId) {
+                editRhythmSetIdPreviewEl.value = song.rhythmSetId;
+            }
+
             // Render correct genre options for multiselect
             renderGenreOptions('editGenreDropdown');
             setupGenreMultiselect('editSongGenre', 'editGenreDropdown', 'editSelectedGenres');
@@ -10899,6 +10971,14 @@ window.viewSingleLyrics = function(songId, otherId) {
                 document.querySelectorAll('#genreDropdown .multiselect-option').forEach(opt => {
                     opt.classList.remove('selected');
                 });
+                hydrateRhythmFamilies().catch(() => {});
+                const addRhythmFamily = document.getElementById('songRhythmFamily');
+                const addRhythmSetNo = document.getElementById('songRhythmSetNo');
+                const addRhythmCategory = document.getElementById('songRhythmCategory');
+                if (addRhythmFamily) addRhythmFamily.value = '';
+                if (addRhythmSetNo) addRhythmSetNo.value = '';
+                if (addRhythmCategory) addRhythmCategory.value = '';
+                updateRhythmSetIdPreview('songRhythmFamily', 'songRhythmSetNo', 'songRhythmSetIdPreview');
             });
     
             document.querySelectorAll('.close-modal').forEach(button => {
@@ -10973,6 +11053,12 @@ window.viewSingleLyrics = function(songId, otherId) {
                     const artistDropdown = document.getElementById('artistDropdown');
                     const selectedMoods = Array.from(moodDropdown._moodSelections || []);
                     const selectedArtists = Array.from(artistDropdown._artistSelections || []);
+                    const songRhythmFamily = document.getElementById('songRhythmFamily')?.value || '';
+                    const songRhythmSetNoRaw = parseInt(document.getElementById('songRhythmSetNo')?.value, 10);
+                    const songRhythmSetNo = Number.isInteger(songRhythmSetNoRaw) && songRhythmSetNoRaw > 0 ? songRhythmSetNoRaw : null;
+                    const songRhythmSetId = buildRhythmSetIdValue(songRhythmFamily, songRhythmSetNo)
+                        || (document.getElementById('songRhythmSetIdPreview')?.value || '');
+                    const songRhythmCategory = normalizeRhythmCategoryValue(document.getElementById('songRhythmCategory')?.value || '');
                     
                     const newSong = {
                         title: title,
@@ -10983,6 +11069,10 @@ window.viewSingleLyrics = function(songId, otherId) {
                         tempo: document.getElementById('songTempo').value,
                         time: document.getElementById('songTime').value,
                         taal: document.getElementById('songTaal').value,
+                        rhythmFamily: songRhythmFamily,
+                        rhythmSetNo: songRhythmSetNo,
+                        rhythmSetId: songRhythmSetId,
+                        rhythmCategory: songRhythmCategory,
                         genres: selectedGenres,
                         lyrics: lyrics,
                         createdBy: (currentUser && currentUser.username) ? currentUser.username : undefined,
@@ -11069,6 +11159,12 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const editArtistDropdown = document.getElementById('editArtistDropdown');
                 const selectedMoods = Array.from(editMoodDropdown._moodSelections || []);
                 const selectedArtists = Array.from(editArtistDropdown._artistSelections || []);
+                const editSongRhythmFamily = document.getElementById('editSongRhythmFamily')?.value || '';
+                const editSongRhythmSetNoRaw = parseInt(document.getElementById('editSongRhythmSetNo')?.value, 10);
+                const editSongRhythmSetNo = Number.isInteger(editSongRhythmSetNoRaw) && editSongRhythmSetNoRaw > 0 ? editSongRhythmSetNoRaw : null;
+                const editSongRhythmSetId = buildRhythmSetIdValue(editSongRhythmFamily, editSongRhythmSetNo)
+                    || (document.getElementById('editSongRhythmSetIdPreview')?.value || '');
+                const editSongRhythmCategory = normalizeRhythmCategoryValue(document.getElementById('editSongRhythmCategory')?.value || '');
 
                 // Find the original song for missing fields
                 const original = songs.find(s => s.id == id) || {};
@@ -11083,6 +11179,10 @@ window.viewSingleLyrics = function(songId, otherId) {
                     tempo: document.getElementById('editSongTempo').value,
                     time: document.getElementById('editSongTime').value,
                     taal: document.getElementById('editSongTaal').value,
+                    rhythmFamily: editSongRhythmFamily,
+                    rhythmSetNo: editSongRhythmSetNo,
+                    rhythmSetId: editSongRhythmSetId,
+                    rhythmCategory: editSongRhythmCategory,
                     genres: selectedGenres,
                     lyrics: lyrics,
                     editSongLyrics: editSongLyrics,
@@ -12105,8 +12205,8 @@ async function initiatePasswordReset(identifier, method) {
     if (successEl) successEl.style.display = 'none';
     
     try {
-        // Use Render for password reset (primary backend)
-        const passwordResetUrl = `${API_BASE_URL_RENDER}/api/forgot-password`;
+        // Use currently selected backend (Vercel primary, Render fallback if switched)
+        const passwordResetUrl = `${API_BASE_URL}/api/forgot-password`;
         console.log('📡 Sending request to:', passwordResetUrl);
         console.log('📦 Request body:', { identifier, method });
         
@@ -12190,8 +12290,8 @@ async function verifyOtpAndResetPassword(otp, newPassword) {
     }
 
     try {
-        // Use Render for password reset completion
-        const response = await fetch(`${API_BASE_URL_RENDER}/api/reset-password`, {
+        // Use currently selected backend (Vercel primary, Render fallback if switched)
+        const response = await fetch(`${API_BASE_URL}/api/reset-password`, {
             method: 'POST',
             mode: 'cors',
             headers: {

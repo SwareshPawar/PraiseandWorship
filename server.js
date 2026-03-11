@@ -111,7 +111,7 @@ const {
   writeLoopsMetadata,
   readLoopsMetadataSafe,
   listMelodicLoops
-} = require('./api/_loops');
+} = require('./utils/loops');
 
 const CANONICAL_CHROMATIC = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
 const NOTE_TO_INDEX = {
@@ -314,6 +314,52 @@ function resolveSongRhythmSelection(songPayload, recommendation) {
         }
       : null
   };
+}
+
+async function ensureRhythmSetDocument({ rhythmSetId, rhythmFamily, rhythmSetNo }, actor = 'system', source = 'song') {
+  if (!db || !rhythmSetId) return;
+
+  const rhythmSetsCollection = db.collection('RhythmSets');
+  const now = new Date().toISOString();
+
+  await rhythmSetsCollection.updateOne(
+    { rhythmSetId },
+    {
+      $setOnInsert: {
+        rhythmSetId,
+        rhythmFamily,
+        rhythmSetNo,
+        status: 'active',
+        notes: '',
+        createdAt: now,
+        createdBy: actor,
+        mappedSongCount: 0
+      },
+      $set: {
+        updatedAt: now,
+        updatedBy: actor,
+        lastSource: source
+      }
+    },
+    { upsert: true }
+  );
+}
+
+async function recomputeRhythmSetDerivedMetadata(rhythmSetId) {
+  if (!db || !rhythmSetId) return;
+
+  const rhythmSetsCollection = db.collection('RhythmSets');
+  const mappedSongCount = await songsCollection.countDocuments({ rhythmSetId });
+
+  await rhythmSetsCollection.updateOne(
+    { rhythmSetId },
+    {
+      $set: {
+        mappedSongCount,
+        updatedAt: new Date().toISOString()
+      }
+    }
+  );
 }
 
 async function bootstrapRhythmSetsFromMetadata() {
@@ -764,6 +810,13 @@ app.get('/api/songs/deleted', async (req, res) => {
 // Protected: only logged-in users can add, update, or delete songs
 app.post('/api/songs', authMiddleware, async (req, res) => {
   try {
+    req.body.rhythmCategory = normalizeRhythmCategory(req.body.rhythmCategory || '');
+    const resolvedRhythm = resolveSongRhythmSelection(req.body, null);
+    req.body.rhythmFamily = resolvedRhythm.rhythmFamily;
+    req.body.rhythmSetNo = resolvedRhythm.rhythmSetNo;
+    req.body.rhythmSetId = resolvedRhythm.rhythmSetId;
+    req.body.rhythmRecommendation = resolvedRhythm.recommendation;
+
     if (typeof req.body.id !== 'number') {
       const last = await songsCollection.find().sort({ id: -1 }).limit(1).toArray();
       req.body.id = last.length ? last[0].id + 1 : 1;
@@ -800,6 +853,24 @@ app.post('/api/songs', authMiddleware, async (req, res) => {
     
     const result = await songsCollection.insertOne(req.body);
     const insertedSong = await songsCollection.findOne({ _id: result.insertedId });
+
+    if (insertedSong && insertedSong.rhythmSetId) {
+      const actor = req.user?.firstName || req.user?.username || 'system';
+      try {
+        await ensureRhythmSetDocument(
+          {
+            rhythmSetId: insertedSong.rhythmSetId,
+            rhythmFamily: insertedSong.rhythmFamily,
+            rhythmSetNo: insertedSong.rhythmSetNo
+          },
+          actor,
+          'song-create'
+        );
+        await recomputeRhythmSetDerivedMetadata(insertedSong.rhythmSetId);
+      } catch (rhythmErr) {
+        console.warn('Could not sync rhythm-set metadata after song creation:', rhythmErr.message);
+      }
+    }
     
     // Convert category back to capitalized for frontend compatibility (like GET does)
     const formattedSong = {
@@ -818,6 +889,38 @@ app.post('/api/songs', authMiddleware, async (req, res) => {
 app.put('/api/songs/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
+    const numericId = parseInt(id, 10);
+
+    let existingSongQuery = { id: numericId };
+    let existingSong = await songsCollection.findOne(existingSongQuery);
+
+    if (!existingSong && ObjectId.isValid(id)) {
+      existingSongQuery = { _id: new ObjectId(id) };
+      existingSong = await songsCollection.findOne(existingSongQuery);
+    }
+
+    if (!existingSong) {
+      return res.status(404).json({ error: 'Song not found' });
+    }
+
+    const incomingRhythmCategory = Object.prototype.hasOwnProperty.call(req.body, 'rhythmCategory')
+      ? req.body.rhythmCategory
+      : existingSong.rhythmCategory;
+    req.body.rhythmCategory = normalizeRhythmCategory(incomingRhythmCategory || '');
+
+    const mergedSong = { ...existingSong, ...req.body };
+    const resolvedRhythm = resolveSongRhythmSelection(mergedSong, null);
+    req.body.rhythmFamily = resolvedRhythm.rhythmFamily || existingSong.rhythmFamily || '';
+    req.body.rhythmSetNo = resolvedRhythm.rhythmSetNo || existingSong.rhythmSetNo || null;
+    req.body.rhythmSetId = resolvedRhythm.rhythmSetId || existingSong.rhythmSetId || '';
+    req.body.rhythmRecommendation = resolvedRhythm.recommendation || existingSong.rhythmRecommendation || null;
+
+    if (req.body.category === 'Praise') {
+      req.body.category = 'praise';
+    } else if (req.body.category === 'Worship') {
+      req.body.category = 'worship';
+    }
+
     // Always set updatedAt to now on edit
     req.body.updatedAt = new Date().toISOString();
     if (req.user && req.user.firstName) {
@@ -830,33 +933,49 @@ app.put('/api/songs/:id', authMiddleware, async (req, res) => {
       req.body.updatedBy = cap(req.user.username);
     }
     const update = { $set: req.body };
-    
-    // Try numeric id first, then _id as fallback
-    let result = await songsCollection.updateOne({ id: parseInt(id) }, update);
-    let updatedSong = null;
-    
-    if (result.matchedCount === 0) {
-      // Try with MongoDB _id as fallback
-      try {
-        const ObjectId = require('mongodb').ObjectId;
-        if (ObjectId.isValid(id)) {
-          result = await songsCollection.updateOne({ _id: new ObjectId(id) }, update);
-          if (result.matchedCount > 0) {
-            updatedSong = await songsCollection.findOne({ _id: new ObjectId(id) });
-          }
-        }
-      } catch (err) {
-        // Ignore ObjectId parsing errors and keep numeric ID flow
-      }
-    } else {
-      updatedSong = await songsCollection.findOne({ id: parseInt(id) });
-    }
-    
+
+    const result = await songsCollection.updateOne(existingSongQuery, update);
+    const updatedSong = await songsCollection.findOne(existingSongQuery);
+
     if (result.matchedCount === 0 || !updatedSong) {
       return res.status(404).json({ error: 'Song not found' });
     }
-    
-    res.json(updatedSong);
+
+    const actor = req.user?.firstName || req.user?.username || 'system';
+    const previousRhythmSetId = existingSong.rhythmSetId;
+    const nextRhythmSetId = updatedSong.rhythmSetId;
+
+    if (nextRhythmSetId) {
+      try {
+        await ensureRhythmSetDocument(
+          {
+            rhythmSetId: nextRhythmSetId,
+            rhythmFamily: updatedSong.rhythmFamily,
+            rhythmSetNo: updatedSong.rhythmSetNo
+          },
+          actor,
+          'song-update'
+        );
+        await recomputeRhythmSetDerivedMetadata(nextRhythmSetId);
+
+        if (previousRhythmSetId && previousRhythmSetId !== nextRhythmSetId) {
+          await recomputeRhythmSetDerivedMetadata(previousRhythmSetId);
+        }
+      } catch (rhythmErr) {
+        console.warn('Could not sync rhythm-set metadata after song update:', rhythmErr.message);
+      }
+    }
+
+    const formattedSong = {
+      ...updatedSong,
+      category: updatedSong.category === 'praise'
+        ? 'Praise'
+        : updatedSong.category === 'worship'
+          ? 'Worship'
+          : updatedSong.category
+    };
+
+    res.json(formattedSong);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -1761,6 +1880,28 @@ app.put('/api/rhythm-sets/:rhythmSetId', authMiddleware, requireAdmin, async (re
     res.json(updated);
   } catch (err) {
     console.error('Rhythm set update error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/rhythm-sets/:rhythmSetId/recompute', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const parsed = parseRhythmSetId(req.params.rhythmSetId);
+    if (!parsed) {
+      return res.status(400).json({ error: 'Invalid rhythmSetId format. Expected family_setNo' });
+    }
+
+    const rhythmSetsCollection = db.collection('RhythmSets');
+    const existing = await rhythmSetsCollection.findOne({ rhythmSetId: parsed.rhythmSetId });
+    if (!existing) {
+      return res.status(404).json({ error: 'Rhythm set not found' });
+    }
+
+    await recomputeRhythmSetDerivedMetadata(parsed.rhythmSetId);
+    const updated = await rhythmSetsCollection.findOne({ rhythmSetId: parsed.rhythmSetId });
+    res.json({ success: true, rhythmSet: updated });
+  } catch (err) {
+    console.error('Rhythm set recompute error:', err);
     res.status(500).json({ error: err.message });
   }
 });

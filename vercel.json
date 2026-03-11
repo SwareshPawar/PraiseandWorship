@@ -1,116 +1,34 @@
 {
-  "version": 2,
-  "installCommand": "npm install",
-  "buildCommand": null,
-  "devCommand": null,
-  "outputDirectory": ".",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/health",
-      "destination": "/api/health.js"
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
     },
     {
-      "source": "/api/songs/:path*",
-      "destination": "/api/songs.js"
-    },
-    {
-      "source": "/api/userdata",
-      "destination": "/api/userdata.js"
-    },
-    {
-      "source": "/api/register",
-      "destination": "/api/register.js"
-    },
-    {
-      "source": "/api/login",
-      "destination": "/api/login.js"
-    },
-    {
-      "source": "/api/forgot-password",
-      "destination": "/api/forgot-password.js"
-    },
-    {
-      "source": "/api/reset-password",
-      "destination": "/api/reset-password.js"
-    },
-    {
-      "source": "/api/recommendation-weights",
-      "destination": "/api/recommendation-weights.js"
-    },
-    {
-      "source": "/api/loops/metadata",
-      "destination": "/api/loops-metadata.js"
-    },
-    {
-      "source": "/api/loops/:path*",
-      "destination": "/api/loops.js"
-    },
-    {
-      "source": "/api/song-metadata",
-      "destination": "/api/song-metadata.js"
-    },
-    {
-      "source": "/api/rhythm-sets/:path*",
-      "destination": "/api/rhythm-sets.js"
-    },
-    {
-      "source": "/api/melodic-loops/:path*",
-      "destination": "/api/melodic-loops.js"
-    },
-    {
-      "source": "/api/users/:path*",
-      "destination": "/api/users.js"
-    },
-    {
-      "source": "/api/global-setlists/:path*",
-      "destination": "/api/global-setlists.js"
-    },
-    {
-      "source": "/api/my-setlists/:path*",
-      "destination": "/api/my-setlists.js"
-    },
-    {
-      "source": "/api/smart-setlists/:path*",
-      "destination": "/api/smart-setlists.js"
+      "source": "/((?!loops/).*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
     {
-      "source": "/manifest.json",
+      "source": "/loops/(.*)",
       "headers": [
         {
-          "key": "Content-Type",
-          "value": "application/manifest+json"
-        }
-      ]
-    },
-    {
-      "source": "/service-worker.js",
-      "headers": [
-        {
-          "key": "Content-Type", 
-          "value": "application/javascript"
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         },
         {
-          "key": "Service-Worker-Allowed",
-          "value": "/"
-        }
-      ]
-    },
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
         },
         {
-          "key": "X-Frame-Options", 
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, HEAD, OPTIONS"
         }
       ]
     }

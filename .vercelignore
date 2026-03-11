@@ -1,0 +1,2 @@
+api/*.js
+!api/index.js

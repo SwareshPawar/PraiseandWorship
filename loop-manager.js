@@ -7,12 +7,17 @@
 const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://localhost:3001'
     : (window.location.hostname.endsWith('github.io')
-        ? 'https://oldand-new.vercel.app'
+        ? 'https://praiseand-worship.vercel.app'
         : window.location.origin);
 
 let loopsMetadata = null;
 let songMetadata = null;
 let currentAudio = null;
+
+function getAuthHeaders() {
+    const token = localStorage.getItem('pw_jwtToken');
+    return token ? { 'Authorization': `Bearer ${token}` } : {};
+}
 
 function normalizeRhythmFamily(value) {
     if (typeof value !== 'string') return '';
@@ -91,24 +96,53 @@ function showAuthenticationWarning() {
  */
 async function loadSongMetadata() {
     try {
-        const response = await fetch(`${API_BASE_URL}/api/loops/metadata`);
-        if (response.ok) {
-            const loopsData = await response.json();
-            // Extract the metadata we need for dropdowns
-            songMetadata = {
-                taals: loopsData.supportedTaals || [],
-                times: loopsData.supportedTimeSignatures || [],
-                genres: loopsData.supportedGenres || [],
-                musicalGenres: loopsData.supportedGenres || [], // Use same as genres (already clean)
-                rhythmSets: loopsData.rhythmSets || [],
-                rhythmFamilies: Array.from(new Set(
-                    (loopsData.rhythmSets || []).map(set => set.rhythmFamily)
-                )).sort()
-            };
-            populateDropdowns();
-        } else {
+        const loopsResponse = await fetch(`${API_BASE_URL}/api/loops/metadata`, { cache: 'no-store' });
+        if (!loopsResponse.ok) {
             showAlert('uploadAlert', 'Failed to load song metadata', 'error');
+            return;
         }
+
+        const loopsData = await loopsResponse.json();
+
+        let rhythmSetsData = [];
+        try {
+            const rhythmSetsResponse = await fetch(`${API_BASE_URL}/api/rhythm-sets`, {
+                method: 'GET',
+                cache: 'no-store',
+                headers: {
+                    ...getAuthHeaders()
+                }
+            });
+
+            if (rhythmSetsResponse.ok) {
+                rhythmSetsData = await rhythmSetsResponse.json();
+            }
+        } catch (rhythmSetsError) {
+            console.warn('Could not load rhythm sets for family dropdown:', rhythmSetsError);
+        }
+
+        const familiesFromLoopMetadata = (loopsData.rhythmSets || [])
+            .map(set => normalizeRhythmFamily(set.rhythmFamily || set.conditions?.taal || ''));
+        const familiesFromRhythmSets = (rhythmSetsData || [])
+            .map(set => normalizeRhythmFamily(set.rhythmFamily || ''));
+        const familiesFromSupportedTaals = (loopsData.supportedTaals || [])
+            .map(taal => normalizeRhythmFamily(taal));
+
+        // Extract metadata for dropdowns and merge families across APIs.
+        songMetadata = {
+            taals: loopsData.supportedTaals || [],
+            times: loopsData.supportedTimeSignatures || [],
+            genres: loopsData.supportedGenres || [],
+            musicalGenres: loopsData.supportedGenres || [], // Use same as genres (already clean)
+            rhythmSets: loopsData.rhythmSets || [],
+            rhythmFamilies: Array.from(new Set([
+                ...familiesFromLoopMetadata,
+                ...familiesFromRhythmSets,
+                ...familiesFromSupportedTaals
+            ].filter(Boolean))).sort()
+        };
+
+        populateDropdowns();
     } catch (error) {
         console.error('Error loading song metadata:', error);
     }

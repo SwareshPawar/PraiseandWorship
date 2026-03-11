@@ -1509,34 +1509,4 @@ async function saveRecommendationWeightsToBackend(weights) {
     <i class="fa fa-random"></i>
 </button>
 </body>
-<script>
-window.addEventListener('DOMContentLoaded', async () => {
-    async function waitForInit(maxWaitMs = 6000, intervalMs = 50) {
-        const start = Date.now();
-        while (Date.now() - start < maxWaitMs) {
-            if (typeof window.init === 'function') return window.init;
-            await new Promise(resolve => setTimeout(resolve, intervalMs));
-        }
-        return null;
-    }
-
-    try {
-        // Show loading immediately on page load
-        if (typeof showLoading === 'function') {
-            showLoading(0);
-        }
-        const initFn = await waitForInit();
-        if (initFn) {
-            await initFn();
-        } else {
-            throw new Error('window.init is not available');
-        }
-    } catch (e) {
-        console.error('App failed to initialize:', e);
-        if (typeof hideLoading === 'function') {
-            hideLoading();
-        }
-    }
-});
-</script>
 </html>

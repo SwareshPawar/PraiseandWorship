@@ -1050,6 +1050,35 @@ async function loadSongsWithProgress(forceRefresh = false) {
     }
 }
 
+function showAuthChoiceModal() {
+    let modal = document.getElementById('authChoiceModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'authChoiceModal';
+        modal.className = 'modal';
+        modal.innerHTML = `
+            <div class="modal-content" style="text-align:center;">
+                <h3>Welcome!</h3>
+                <p>Please login or register to continue.</p>
+                <button id="authLoginBtn" class="btn btn-primary" style="margin:8px 0 8px 0;width:80%;">Login</button>
+                <button id="authRegisterBtn" class="btn btn-secondary" style="margin-bottom:8px;width:80%;">Register</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('authLoginBtn').onclick = () => {
+            modal.style.display = 'none';
+            const loginModal = document.getElementById('loginModal');
+            if (loginModal) loginModal.style.display = 'flex';
+        };
+        document.getElementById('authRegisterBtn').onclick = () => {
+            modal.style.display = 'none';
+            const registerModal = document.getElementById('registerModal');
+            if (registerModal) registerModal.style.display = 'flex';
+        };
+    }
+    modal.style.display = 'flex';
+}
+
 // Merge all DOMContentLoaded logic into one handler
 document.addEventListener('DOMContentLoaded', () => {
     dedupeFixedControls();
@@ -1098,8 +1127,25 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(() => {});
     }
 
-    // Use window.init() for all initialization - no direct song loading here
-    if (!initializationState.isInitialized && !initializationState.isInitializing) {
+    // Gate initialization for unauthenticated users (match Other repo behavior).
+    const token = localStorage.getItem('pw_jwtToken');
+    const isAuthenticated = token && isJwtValid(token);
+    if (!isAuthenticated) {
+        if (token && !isJwtValid(token)) {
+            localStorage.removeItem('pw_jwtToken');
+            localStorage.removeItem('pw_currentUser');
+            jwtToken = '';
+            currentUser = null;
+            window.jwtToken = '';
+            window.currentUser = null;
+        }
+
+        showLoading(0, 'Please sign in to continue');
+        setTimeout(() => {
+            hideLoading();
+            showAuthChoiceModal();
+        }, 500);
+    } else if (!initializationState.isInitialized && !initializationState.isInitializing) {
         // Show loading immediately
         showLoading(0, 'Initializing...');
         window.init();
@@ -1305,10 +1351,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Update UI without page reload
                     updateAuthButtons();
-                    await loadUserData();
-                    await loadMySetlists();
-                    renderMySetlists();
-                    renderSmartSetlists();
+
+                    if (!initializationState.isInitialized && !initializationState.isInitializing) {
+                        showLoading(0, 'Initializing...');
+                        await window.init();
+                    } else {
+                        await loadUserData();
+                        await loadMySetlists();
+                        renderMySetlists();
+                        renderSmartSetlists();
+                    }
                     
                     // Update mobile UI if on mobile view
                     if (typeof window.mobileApp !== 'undefined' && typeof window.mobileApp.refreshSetlists === 'function') {
@@ -1359,33 +1411,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }, 100);
 
-    if (!jwtToken || !isJwtValid(jwtToken)) {
-    // Show a modal with both Login and Register options
-    let modal = document.getElementById('authChoiceModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'authChoiceModal';
-        modal.className = 'modal';
-        modal.innerHTML = `
-            <div class="modal-content" style="text-align:center;">
-                <h3>Welcome!</h3>
-                <p>Please login or register to continue.</p>
-                <button id="authLoginBtn" class="btn btn-primary" style="margin:8px 0 8px 0;width:80%;">Login</button>
-                <button id="authRegisterBtn" class="btn btn-secondary" style="margin-bottom:8px;width:80%;">Register</button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-        document.getElementById('authLoginBtn').onclick = () => {
-            modal.style.display = 'none';
-            showLoginModal();
-        };
-        document.getElementById('authRegisterBtn').onclick = () => {
-            modal.style.display = 'none';
-            showRegisterModal();
-        };
-    }
-    modal.style.display = 'flex';
-}
 });
 
 
@@ -7822,8 +7847,13 @@ window.viewSingleLyrics = function(songId, otherId) {
                         setTimeout(() => { window.location.reload(); }, 500);
                     } else {
                         updateAuthButtons();
-                        await loadUserData();
-                        await loadMySetlists(); // Load user's setlists after login
+                        if (!initializationState.isInitialized && !initializationState.isInitializing) {
+                            showLoading(0, 'Initializing...');
+                            await window.init();
+                        } else {
+                            await loadUserData();
+                            await loadMySetlists(); // Load user's setlists after login
+                        }
                     }
                 } else {
                     showNotification(data.error || 'Login failed');

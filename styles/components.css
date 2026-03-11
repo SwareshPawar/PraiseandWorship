@@ -1,0 +1,339 @@
+body.ui-v2-shell .btn,
+body.ui-v2-shell .sidebar-btn,
+body.ui-v2-shell .theme-toggle {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    min-height: 30px;
+    padding: 5px 8px;
+    font-size: 0.82rem;
+}
+
+body.ui-v2-shell .compact-input,
+body.ui-v2-shell .compact-select,
+body.ui-v2-shell input,
+body.ui-v2-shell textarea,
+body.ui-v2-shell select {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
+    color: var(--input-text);
+    min-height: 34px;
+    padding: 6px 8px;
+    font-size: 0.82rem;
+}
+
+body.ui-v2-shell .compact-input:focus,
+body.ui-v2-shell .compact-select:focus,
+body.ui-v2-shell input:focus,
+body.ui-v2-shell textarea:focus,
+body.ui-v2-shell select:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
+}
+
+body.ui-v2-shell .sidebar-menu a,
+body.ui-v2-shell .sidebar-btn {
+    background: var(--sidebar-item-bg);
+    color: var(--sidebar-text-color);
+    border: 1px solid color-mix(in srgb, var(--border-color) 80%, #ffffff 20%);
+}
+
+body.ui-v2-shell .sidebar-menu a:hover,
+body.ui-v2-shell .sidebar-menu a.active,
+body.ui-v2-shell .sidebar-btn:hover {
+    background: var(--sidebar-item-hover-bg);
+    color: var(--sidebar-text-hover);
+}
+
+body.ui-v2-shell .sidebar-menu {
+    padding: var(--space-2);
+    gap: var(--space-2);
+    margin: 0;
+}
+
+body.ui-v2-shell .sidebar-header {
+    padding: 6px 8px;
+}
+
+body.ui-v2-shell .sidebar-header h2 {
+    margin: 0;
+}
+
+body.ui-v2-shell .sidebar-menu li {
+    margin: 0;
+    padding: 0;
+}
+
+body.ui-v2-shell .sidebar-menu a,
+body.ui-v2-shell .sidebar-btn {
+    margin: 0;
+    padding: 6px 8px;
+    min-height: 30px;
+}
+
+body.ui-v2-shell .setlist-folder {
+    background: color-mix(in srgb, var(--surface-0) 82%, var(--surface-1) 18%);
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-md);
+    padding: var(--space-1);
+    margin-top: var(--space-2);
+}
+
+body.ui-v2-shell .folder-header {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--panel-divider);
+    background: var(--surface-0);
+    color: var(--text-700);
+    font-weight: 600;
+    min-height: 32px;
+    font-size: 0.82rem;
+    padding: 4px 6px;
+}
+
+body.ui-v2-shell .folder-header:hover {
+    background: var(--interactive-soft);
+    color: var(--text-900);
+}
+
+body.ui-v2-shell .folder-icon {
+    color: var(--brand-500);
+}
+
+body.ui-v2-shell .setlist-folder-content {
+    margin-top: var(--space-1);
+    border-top: 1px dashed var(--panel-divider);
+    padding-top: var(--space-1);
+}
+
+body.ui-v2-shell #addSongBelowFavoritesBtn,
+body.ui-v2-shell #themeToggle,
+body.ui-v2-shell #adminPanelBtn,
+body.ui-v2-shell #logoutBtn,
+body.ui-v2-shell #userGreeting {
+    margin-top: 6px;
+}
+
+body.ui-v2-shell .sidebar-footer {
+    padding: 6px;
+    margin: 0;
+    gap: 6px;
+}
+
+body.ui-v2-shell .song-count {
+    gap: 4px;
+}
+
+body.ui-v2-shell .song-count > div {
+    margin: 2px 0;
+}
+
+body.ui-v2-shell .setlist-folder-content li {
+    margin-bottom: var(--space-1);
+}
+
+body.ui-v2-shell .setlist-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    min-width: 0;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--panel-divider);
+    background: var(--surface-0);
+    color: var(--text-900);
+    padding: 4px 6px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+body.ui-v2-shell .setlist-item > i {
+    flex: 0 0 auto;
+}
+
+body.ui-v2-shell .setlist-item > span {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    color: var(--text-900);
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.ui-v2-shell .setlist-item:hover {
+    background: var(--interactive-soft);
+    border-color: color-mix(in srgb, var(--brand-500) 35%, var(--panel-divider) 65%);
+}
+
+body.ui-v2-shell .setlist-item.active,
+body.ui-v2-shell .setlist-item.active > span {
+    color: var(--text-900);
+}
+
+body.ui-v2-shell .setlist-item i {
+    color: var(--brand-500);
+}
+
+body.ui-v2-shell .setlist-actions {
+    position: static;
+    top: auto;
+    right: auto;
+    margin-left: auto;
+    opacity: 1;
+    background: transparent;
+    border-radius: 0;
+    padding: 0;
+    backdrop-filter: none;
+    display: inline-flex;
+    align-items: center;
+    flex: 0 0 auto;
+    gap: var(--space-1);
+}
+
+body.ui-v2-shell .setlist-action-btn {
+    border: 1px solid var(--chip-border);
+    background: var(--chip-bg);
+    color: var(--chip-text);
+    border-radius: 6px;
+    min-height: 22px;
+    min-width: 22px;
+    padding: 0;
+}
+
+body.ui-v2-shell .setlist-action-btn:hover {
+    background: color-mix(in srgb, var(--brand-500) 20%, var(--chip-bg) 80%);
+}
+
+body.ui-v2-shell .custom-setlist-dropdown {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--panel-divider);
+    background: var(--surface-0);
+    box-shadow: var(--shadow-sm);
+}
+
+body.ui-v2-shell .dropdown-main-area,
+body.ui-v2-shell .dropdown-arrow {
+    background: transparent;
+    color: var(--text-700);
+}
+
+body.ui-v2-shell .dropdown-menu {
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+    background: var(--surface-0);
+}
+
+body.ui-v2-shell .dropdown-option {
+    border-bottom: 1px solid color-mix(in srgb, var(--panel-divider) 60%, transparent 40%);
+    color: var(--text-900);
+    padding: 6px 8px;
+    font-size: 0.8rem;
+}
+
+body.ui-v2-shell .dropdown-option:hover {
+    background: var(--interactive-soft);
+}
+
+body.ui-v2-shell .setlist-description-content {
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--surface-1) 92%, #ffffff 8%);
+    color: var(--text-700);
+    padding: 6px 8px;
+    font-size: 0.78rem;
+}
+
+body.ui-v2-shell .setlist-selector,
+body.ui-v2-shell .setlist-description-container,
+body.ui-v2-shell .sidebar-folder,
+body.ui-v2-shell .folder-content,
+body.ui-v2-shell .sidebar-footer .sidebar-footer {
+    margin: 0;
+    padding: 6px;
+    gap: 6px;
+}
+
+body.ui-v2-shell .sidebar-menu > li {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+body.ui-v2-shell .sidebar-menu > li.setlist-group-start {
+    margin-top: 6px;
+}
+
+body.ui-v2-shell .add-setlist-btn {
+    margin: 0;
+    padding: 4px 6px;
+}
+
+/* Keep icon-only controls circular across panels and setlist flows. */
+body.ui-v2-shell .panel-toggle.draggable,
+body.ui-v2-shell .mobile-nav-btn,
+body.ui-v2-shell .setlist-header-actions .setlist-action-btn,
+body.ui-v2-shell .setlist-actions .setlist-action-btn,
+body.ui-v2-shell .remove-from-setlist-btn,
+body.ui-v2-shell .song-header .favorite-btn,
+body.ui-v2-shell .song-preview-header .favorite-btn {
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+body.ui-v2-shell .setlist-header-actions .setlist-action-btn,
+body.ui-v2-shell .setlist-actions .setlist-action-btn,
+body.ui-v2-shell .remove-from-setlist-btn {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+}
+
+/* Sidebar setlist actions should stay subtle and occupy minimal width. */
+body.ui-v2-shell .sidebar .setlist-item {
+    position: relative;
+}
+
+body.ui-v2-shell .sidebar .setlist-item > span {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    word-break: break-word;
+    line-height: 1.15;
+}
+
+body.ui-v2-shell .sidebar .setlist-actions {
+    position: absolute;
+    top: 50%;
+    right: 3px;
+    transform: translateY(-50%);
+    margin-left: 0;
+    z-index: 2;
+    gap: 0;
+}
+
+body.ui-v2-shell .sidebar .setlist-actions .setlist-action-btn {
+    width: 14px;
+    height: 14px;
+    min-width: 14px;
+    min-height: 14px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--text-700);
+    opacity: 0.45;
+}
+
+body.ui-v2-shell .sidebar .setlist-item:hover .setlist-actions .setlist-action-btn,
+body.ui-v2-shell .sidebar .setlist-actions .setlist-action-btn:hover,
+body.ui-v2-shell .sidebar .setlist-actions .setlist-action-btn:focus-visible {
+    opacity: 1;
+    background: color-mix(in srgb, var(--interactive-soft) 70%, transparent 30%);
+}

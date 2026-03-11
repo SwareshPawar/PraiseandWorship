@@ -1,0 +1,124 @@
+:root {
+    --font-family: "Outfit", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
+    /* Core surfaces */
+    --app-bg: linear-gradient(135deg, #e5f1f8 0%, #eef7fb 50%, #f6fbff 100%);
+    --surface-0: #ffffff;
+    --surface-1: #f4f9fc;
+    --surface-2: #ecf4f9;
+
+    /* Brand and semantics */
+    --brand-600: #0e5f7d;
+    --brand-500: #1683a6;
+    --brand-400: #2ca2bf;
+    --success-500: #1d8f5f;
+    --danger-500: #c64545;
+    --warning-500: #bc7f2a;
+
+    /* Text and borders */
+    --text-900: #163342;
+    --text-700: #31586d;
+    --text-500: #4f7386;
+    --border-color: #cddfea;
+    --focus-ring: rgba(22, 131, 166, 0.24);
+
+    /* Elevation */
+    --shadow-sm: 0 2px 8px rgba(8, 43, 60, 0.08);
+    --shadow-md: 0 8px 24px rgba(8, 43, 60, 0.12);
+    --panel-shadow: 0 10px 24px rgba(8, 43, 60, 0.1);
+    --modal-shadow: 0 20px 48px rgba(8, 43, 60, 0.2);
+
+    /* Radius */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+
+    /* Compact spacing scale */
+    --space-1: 4px;
+    --space-2: 6px;
+    --space-3: 8px;
+    --space-4: 10px;
+    --space-5: 12px;
+    --space-6: 14px;
+
+    /* UI accents */
+    --chip-bg: #e1f0f7;
+    --chip-text: #0f4e66;
+    --chip-border: #b8d6e6;
+    --panel-divider: #d3e4ef;
+    --interactive-soft: #dff0f8;
+    --interactive-strong: #127896;
+
+    /* Legacy variable aliases consumed by existing app CSS */
+    --primary-color: var(--brand-600);
+    --secondary-color: var(--brand-500);
+    --accent-color: var(--brand-400);
+    --light-bg: #edf6fb;
+    --text-color: var(--text-900);
+    --song-item-bg: var(--surface-0);
+    --song-item-text: var(--text-900);
+    --song-item-border: var(--border-color);
+    --song-item-shadow: rgba(8, 43, 60, 0.1);
+    --song-item-text-bg: var(--surface-1);
+    --sidebar-text-color: var(--text-900);
+    --sidebar-item-bg: var(--surface-0);
+    --sidebar-item-hover-bg: #d8ecf6;
+    --sidebar-text-hover: var(--text-900);
+    --lyrics-bg-color: var(--surface-0);
+    --lyrics-text-color: var(--text-900);
+    --title-color: var(--text-900);
+    --input-bg: var(--surface-0);
+    --input-border: var(--border-color);
+    --input-text: var(--text-900);
+    --input-focus: var(--focus-ring);
+    --form-bg: var(--surface-0);
+}
+
+body.dark-mode {
+    --app-bg: linear-gradient(145deg, #0f1f29 0%, #132734 45%, #183242 100%);
+    --surface-0: #152634;
+    --surface-1: #1b3040;
+    --surface-2: #22394a;
+
+    --brand-600: #9bc8de;
+    --brand-500: #77b4cf;
+    --brand-400: #57a3c0;
+
+    --text-900: #e7f2f8;
+    --text-700: #c8dce8;
+    --text-500: #9eb9c9;
+    --border-color: #345367;
+    --focus-ring: rgba(120, 180, 206, 0.35);
+
+    --panel-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+
+    --chip-bg: #26495f;
+    --chip-text: #dff0f8;
+    --chip-border: #3d6882;
+    --panel-divider: #32556a;
+    --interactive-soft: #264f62;
+    --interactive-strong: #7dc0db;
+
+    --primary-color: var(--text-900);
+    --secondary-color: var(--brand-500);
+    --accent-color: var(--brand-400);
+    --light-bg: #122430;
+    --text-color: var(--text-900);
+    --song-item-bg: var(--surface-1);
+    --song-item-text: var(--text-900);
+    --song-item-border: var(--border-color);
+    --song-item-shadow: rgba(0, 0, 0, 0.3);
+    --song-item-text-bg: var(--surface-2);
+    --sidebar-text-color: var(--text-900);
+    --sidebar-item-bg: var(--surface-1);
+    --sidebar-item-hover-bg: #2a495c;
+    --sidebar-text-hover: var(--text-900);
+    --lyrics-bg-color: var(--surface-1);
+    --lyrics-text-color: var(--text-900);
+    --title-color: var(--text-900);
+    --input-bg: var(--surface-0);
+    --input-border: var(--border-color);
+    --input-text: var(--text-900);
+    --input-focus: var(--focus-ring);
+    --form-bg: var(--surface-0);
+}

@@ -1,0 +1,257 @@
+@media (max-width: 768px) {
+    body.ui-v2-shell .mobile-nav-container {
+        background: color-mix(in srgb, var(--surface-0) 85%, transparent 15%);
+        border: 1px solid var(--border-color);
+        border-radius: 999px;
+        box-shadow: var(--shadow-md);
+        padding: 4px;
+        gap: 4px;
+        backdrop-filter: blur(10px);
+    }
+
+    body.ui-v2-shell .mobile-nav-btn {
+        border-radius: 999px;
+        border: 1px solid var(--border-color);
+        background: var(--surface-0);
+        color: var(--text-color);
+    }
+
+    body.ui-v2-shell .sidebar,
+    body.ui-v2-shell .songs-section,
+    body.ui-v2-shell .preview-section {
+        border-radius: 0;
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+    }
+
+    body.ui-v2-shell .setlist-folder {
+        margin-top: 4px;
+        padding: 3px;
+    }
+
+    body.ui-v2-shell .folder-header {
+        min-height: 34px;
+        font-size: 0.78rem;
+    }
+
+    body.ui-v2-shell .song-item {
+        padding: 6px;
+        gap: 2px;
+    }
+
+    body.ui-v2-shell .song-actions {
+        gap: 2px;
+    }
+
+    body.ui-v2-shell .song-actions .btn {
+        min-height: 24px;
+        padding: 3px 4px;
+        font-size: 0.62rem;
+    }
+
+    body.ui-v2-shell .song-preview-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 3px;
+    }
+
+    body.ui-v2-shell .song-preview-actions .preview-action-btn {
+        min-height: 26px;
+        padding: 3px 4px;
+        font-size: 0.62rem;
+    }
+
+    body.ui-v2-shell .song-preview-transpose {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 3px;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    body.ui-v2-shell .song-preview-transpose > * {
+        flex: 0 0 auto;
+    }
+
+    body.ui-v2-shell .setlist-header-actions .setlist-action-btn,
+    body.ui-v2-shell .setlist-actions .setlist-action-btn,
+    body.ui-v2-shell .remove-from-setlist-btn {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-header {
+        min-height: 45px;
+        gap: 8px;
+        padding-right: 0;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-header-actions {
+        flex-wrap: nowrap;
+        gap: 1px;
+        position: static;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn {
+        width: 20px;
+        height: 20px;
+        min-width: 20px;
+        min-height: 50px;
+        font-size: 0;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn i {
+        font-size: 0.62rem;
+    }
+
+    body.ui-v2-shell .sidebar .setlist-actions .setlist-action-btn {
+        width: 13px;
+        height: 13px;
+        min-width: 13px;
+        min-height: 13px;
+        opacity: 0.42;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-songs-list {
+        gap: 2px;
+        margin: 2px 0;
+    }
+
+    body.ui-v2-shell #setlistSection {
+        padding: 1px;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-tabs {
+        gap: 1px;
+        margin: 0 0 1px;
+        padding: 3px;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-tab {
+        min-height: 20px;
+        padding: 1px 4px;
+        font-size: 0.68rem;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-content {
+        padding: 1px;
+        min-height: 0;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-song-item {
+        padding: 3px 4px;
+        gap: 2px;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-song-number {
+        width: 14px;
+        min-width: 14px;
+        flex: 0 0 14px;
+        font-size: 0.62rem;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-song-title {
+        font-size: 0.76rem;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-song-meta-row,
+    body.ui-v2-shell #setlistSection .setlist-song-meta {
+        font-size: 0.62rem;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-song-key,
+    body.ui-v2-shell #setlistSection .setlist-song-key-time,
+    body.ui-v2-shell #setlistSection .setlist-song-key-tempo {
+        padding: 0 2px;
+        font-size: 0.56rem;
+        min-height: 11px;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-song-actions {
+        right: 2px;
+    }
+
+    body.ui-v2-shell #setlistSection .remove-from-setlist-btn {
+        width: 15px;
+        height: 15px;
+        min-width: 15px;
+        min-height: 15px;
+        border: 1px solid color-mix(in srgb, var(--danger-500) 58%, transparent 42%);
+        background: color-mix(in srgb, var(--danger-500) 14%, transparent 86%);
+        opacity: 0.88;
+        font-size: 0.58rem;
+    }
+
+    body.ui-v2-shell .preview-transpose-btn.transpose-down,
+    body.ui-v2-shell .preview-transpose-btn.transpose-up,
+    body.ui-v2-shell .preview-transpose-btn.preview-reset,
+    body.ui-v2-shell .preview-transpose-btn.preview-save,
+    body.ui-v2-shell .auto-scroll-btn {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+    }
+
+    body.ui-v2-shell .song-preview-transpose .auto-scroll-btn {
+        margin-left: 0;
+    }
+
+    body.ui-v2-shell .preview-transpose-label {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 0;
+        padding-right: 2px;
+        gap: 0;
+    }
+
+    body.ui-v2-shell .preview-transpose-label span {
+        display: none;
+    }
+
+    body.ui-v2-shell .preview-transpose-display {
+        flex: 0 0 auto;
+        min-width: 28px;
+    }
+
+    body.ui-v2-shell .song-preview-transpose .preview-transpose-btn,
+    body.ui-v2-shell .song-preview-transpose .auto-scroll-btn {
+        display: inline-flex;
+        visibility: visible;
+    }
+
+    body.ui-v2-shell .preview-meta-row {
+        grid-template-columns: 66px 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    body.ui-v2-shell .song-preview-title {
+        font-size: 0.92rem;
+    }
+
+    body.ui-v2-shell .song-preview-metadata,
+    body.ui-v2-shell .song-preview-actions,
+    body.ui-v2-shell .song-preview-transpose,
+    body.ui-v2-shell .song-preview-audit {
+        margin-top: 4px;
+    }
+
+    body.ui-v2-shell .song-preview-audit {
+        padding: 2px 4px;
+        font-size: 0.6rem;
+        border-left-width: 2px;
+    }
+
+    body.ui-v2-shell .preview-meta-chip {
+        font-size: 0.66rem;
+        padding: 3px 6px;
+    }
+}

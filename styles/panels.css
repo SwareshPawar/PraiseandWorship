@@ -1,0 +1,670 @@
+body.ui-v2-shell .sticky-header {
+    background: color-mix(in srgb, var(--surface-2) 88%, #ffffff 12%);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    padding: 2px;
+}
+
+body.ui-v2-shell .sticky-header .tabs {
+    margin: 0 0 2px;
+    border-width: 1px;
+    border-radius: 4px;
+}
+
+body.ui-v2-shell .sticky-header .setlist-tab {
+    min-height: 22px;
+    padding: 2px 6px;
+    font-size: 0.68rem;
+    border-width: 1px;
+}
+
+body.ui-v2-shell .sticky-header .filters-row {
+    gap: 2px;
+}
+
+body.ui-v2-shell .sticky-header .filter-row-1 {
+    gap: 2px;
+    margin-top: 2px;
+}
+
+body.ui-v2-shell .sticky-header .filter-row-2 {
+    margin-top: 2px;
+    gap: 2px;
+}
+
+body.ui-v2-shell .sticky-header .compact-input,
+body.ui-v2-shell .sticky-header .compact-select,
+body.ui-v2-shell .sticky-header #searchInput {
+    min-height: 24px;
+    padding: 2px 6px;
+    font-size: 0.68rem;
+    border-width: 1px;
+}
+
+body.ui-v2-shell .sticky-header #searchInput {
+    padding-right: 20px;
+}
+
+body.ui-v2-shell .song-item {
+    background: var(--song-item-bg);
+    color: var(--song-item-text);
+    border: 1px solid var(--song-item-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    margin: 2px 0;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-height: 40px;
+    overflow: hidden;
+}
+
+body.ui-v2-shell .song-item:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    border-color: color-mix(in srgb, var(--brand-500) 40%, var(--border-color) 60%);
+    background: color-mix(in srgb, var(--surface-0) 88%, #d9eef8 12%);
+}
+
+body.ui-v2-shell .song-item.active-song {
+    border-left: 4px solid var(--brand-500);
+    background: color-mix(in srgb, var(--brand-500) 18%, var(--surface-0) 82%);
+    color: var(--text-color);
+}
+
+body.ui-v2-shell .song-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2px;
+}
+
+body.ui-v2-shell .song-title {
+    flex: 1 1 auto;
+    flex-grow: 1;
+    min-width: 0;
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-900);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+    margin-right: 6px;
+}
+
+body.ui-v2-shell .song-item .favorite-btn {
+    background: none;
+    border: none;
+    border-radius: 0;
+    width: auto;
+    height: auto;
+    min-width: 0;
+    min-height: 0;
+    color: var(--text-500);
+    padding: 0 3px;
+    font-size: 0.95rem;
+    flex-shrink: 0;
+}
+
+body.ui-v2-shell .song-item .favorite-btn.favorited,
+body.ui-v2-shell .song-item .favorite-btn:hover {
+    color: var(--danger-500);
+    background: transparent;
+}
+
+body.ui-v2-shell .song-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    margin: 0;
+    padding: 3px 0 0;
+    border-top: 1px solid var(--song-item-border);
+    border-radius: 0;
+    background: transparent;
+    color: var(--text-900);
+    font-size: 0.74rem;
+    line-height: 1.1;
+}
+
+body.ui-v2-shell .song-meta span {
+    background: color-mix(in srgb, var(--chip-bg) 65%, transparent 35%);
+    border: 1px solid var(--song-item-border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-900);
+}
+
+body.ui-v2-shell .song-item.active-song .song-meta,
+body.ui-v2-shell .song-item.active-song .song-meta span {
+    color: var(--text-900);
+}
+
+body.ui-v2-shell .song-actions {
+    display: flex;
+    gap: 2px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: stretch;
+    margin-top: 3px;
+    padding-top: 3px;
+    border-top: 1px solid var(--song-item-border);
+    width: 100%;
+    overflow: hidden;
+}
+
+body.ui-v2-shell .song-actions .btn {
+    flex: 1;
+    min-width: 0;
+    min-height: 22px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 3px 4px;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-weight: 600;
+}
+
+body.ui-v2-shell .setlist-songs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 2px 0;
+    padding: 0;
+}
+
+body.ui-v2-shell #setlistSection {
+    margin: 0;
+    padding: 2px;
+}
+
+body.ui-v2-shell #setlistSection .setlist-header {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 2px;
+    min-height: 44px;
+    margin-bottom: 2px;
+    padding: 0 0 2px;
+}
+
+body.ui-v2-shell #setlistSection .setlist-header h3 {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    width: 100%;
+}
+
+body.ui-v2-shell #setlistSection .setlist-header-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 2px;
+    position: static;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+    min-height: 24px;
+    border: 1px solid var(--chip-border);
+    background: color-mix(in srgb, var(--surface-0) 78%, var(--chip-bg) 22%);
+    color: var(--text-700);
+    padding: 0;
+    font-size: 0;
+    line-height: 1;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn i {
+    font-size: 0.68rem;
+}
+
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-edit-btn {
+    border-color: color-mix(in srgb, var(--warning-500) 68%, var(--chip-border) 32%);
+    background: color-mix(in srgb, var(--warning-500) 20%, transparent 80%);
+    color: color-mix(in srgb, var(--warning-500) 86%, #6d4a10 14%);
+}
+
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-delete-btn {
+    border-color: color-mix(in srgb, var(--danger-500) 68%, var(--chip-border) 32%);
+    background: color-mix(in srgb, var(--danger-500) 18%, transparent 82%);
+    color: color-mix(in srgb, var(--danger-500) 90%, #7a1111 10%);
+}
+
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn:hover,
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn:focus-visible {
+    background: color-mix(in srgb, var(--brand-500) 22%, var(--surface-0) 78%);
+    border-color: color-mix(in srgb, var(--brand-500) 45%, var(--chip-border) 55%);
+    color: var(--text-900);
+}
+
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-edit-btn:hover,
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-edit-btn:focus-visible {
+    background: color-mix(in srgb, var(--warning-500) 78%, transparent 22%);
+    border-color: color-mix(in srgb, var(--warning-500) 88%, #8f5f1e 12%);
+    color: #ffffff;
+}
+
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-delete-btn:hover,
+body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-delete-btn:focus-visible {
+    background: color-mix(in srgb, var(--danger-500) 85%, transparent 15%);
+    border-color: color-mix(in srgb, var(--danger-500) 92%, #7a1111 8%);
+    color: #ffffff;
+}
+
+body.ui-v2-shell #setlistSection .setlist-tabs {
+    margin: 0 0 1px;
+    gap: 1px;
+    padding: 0;
+    border-width: 1px;
+}
+
+body.ui-v2-shell #setlistSection .setlist-tab {
+    padding: 2px 5px;
+    min-height: 22px;
+    font-size: 0.7rem;
+    border-width: 1px;
+}
+
+body.ui-v2-shell #setlistSection .setlist-content {
+    margin: 0;
+    padding: 2px;
+    border-radius: 4px;
+    border-width: 1px;
+    min-height: 0;
+}
+
+body.ui-v2-shell #setlistSection #PraiseSetlistSongs,
+body.ui-v2-shell #setlistSection #WorshipSetlistSongs {
+    margin: 0;
+    padding: 0;
+}
+
+body.ui-v2-shell .setlist-song-item {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    position: relative;
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-sm);
+    background: var(--surface-0);
+    padding: 3px 5px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+body.ui-v2-shell .setlist-song-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+body.ui-v2-shell .setlist-song-number {
+    flex: 0 0 16px;
+    width: 16px;
+    min-width: 16px;
+    font-size: 0.66rem;
+    line-height: 1.1;
+}
+
+body.ui-v2-shell .setlist-song-details {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-right: 0;
+}
+
+body.ui-v2-shell .setlist-song-item.selected,
+body.ui-v2-shell .setlist-song-item:hover {
+    border-width: 1px;
+    border-color: color-mix(in srgb, var(--brand-500) 45%, var(--panel-divider) 55%);
+    background: color-mix(in srgb, var(--brand-500) 10%, var(--surface-0) 90%);
+}
+
+body.ui-v2-shell .setlist-song-title {
+    margin: 0;
+    font-weight: 700;
+    color: var(--text-900);
+    font-size: 0.8rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.ui-v2-shell .setlist-song-meta-row,
+body.ui-v2-shell .setlist-song-meta {
+    color: var(--text-700);
+    font-size: 0.64rem;
+    line-height: 1.1;
+}
+
+body.ui-v2-shell .setlist-song-meta-row {
+    margin-top: 1px;
+    gap: 1px;
+}
+
+body.ui-v2-shell #setlistSection .setlist-song-key,
+body.ui-v2-shell #setlistSection .setlist-song-key-time,
+body.ui-v2-shell #setlistSection .setlist-song-key-tempo {
+    padding: 0 3px;
+    margin: 0;
+    border-width: 1px;
+    border-radius: 2px;
+    font-size: 0.58rem;
+    line-height: 1.05;
+    min-height: 12px;
+    display: inline-flex;
+    align-items: center;
+}
+
+body.ui-v2-shell .setlist-song-actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    right: 3px;
+    transform: translateY(-50%);
+    flex: 0 0 auto;
+    z-index: 2;
+}
+
+body.ui-v2-shell .remove-from-setlist-btn {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+    border: 1px solid color-mix(in srgb, var(--danger-500) 58%, transparent 42%);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--danger-500) 14%, transparent 86%);
+    color: var(--danger-500);
+    opacity: 0.9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.62rem;
+    line-height: 1;
+    padding: 0;
+}
+
+body.ui-v2-shell .remove-from-setlist-btn:hover,
+body.ui-v2-shell .remove-from-setlist-btn:focus-visible {
+    opacity: 1;
+    background: color-mix(in srgb, var(--danger-500) 82%, transparent 18%);
+    color: #ffffff;
+}
+
+body.ui-v2-shell .song-preview-container {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+body.ui-v2-shell .song-slide {
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-lg);
+    background: var(--surface-0);
+    box-shadow: var(--shadow-sm);
+    padding: 6px;
+}
+
+body.ui-v2-shell .song-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    margin-bottom: 0;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--panel-divider);
+}
+
+body.ui-v2-shell .song-preview-header .favorite-btn {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    min-height: 26px;
+    padding: 0;
+    font-size: 0.78rem;
+}
+
+body.ui-v2-shell .song-preview-title {
+    font-size: clamp(0.9rem, 1.2vw, 1.16rem);
+    font-weight: 800;
+    color: var(--text-900);
+    margin: 0;
+}
+
+body.ui-v2-shell .song-preview-metadata {
+    margin-top: 4px;
+    margin-bottom: 0;
+    padding: 2px;
+    border: 0;
+    background: transparent;
+    display: grid;
+    gap: 3px;
+}
+
+body.ui-v2-shell .preview-meta-group {
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--surface-1) 88%, #ffffff 12%);
+    padding: 4px;
+}
+
+body.ui-v2-shell .preview-meta-group.primary-info {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+body.ui-v2-shell .preview-meta-label {
+    color: var(--text-500);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 700;
+}
+
+body.ui-v2-shell .preview-meta-value {
+    color: var(--text-900);
+    font-weight: 600;
+}
+
+body.ui-v2-shell .preview-key {
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+body.ui-v2-shell .preview-meta-chip {
+    border: 1px solid var(--chip-border);
+    border-radius: 999px;
+    background: var(--chip-bg);
+    color: var(--chip-text);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+body.ui-v2-shell .preview-meta-toggle {
+    border: 1px solid var(--chip-border);
+    border-radius: 999px;
+    background: var(--surface-0);
+    color: var(--text-700);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 6px;
+}
+
+body.ui-v2-shell .preview-meta-row {
+    display: grid;
+    grid-template-columns: 70px 1fr;
+    gap: 4px;
+    padding: 2px 0;
+}
+
+body.ui-v2-shell .song-preview-actions {
+    margin-top: 4px;
+    margin-bottom: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+}
+
+body.ui-v2-shell .preview-action-btn {
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-sm);
+    background: var(--surface-0);
+    color: var(--text-700);
+    min-height: 26px;
+    padding: 2px 4px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 0.7rem;
+}
+
+body.ui-v2-shell .preview-action-btn:hover {
+    border-color: color-mix(in srgb, var(--brand-500) 35%, var(--panel-divider) 65%);
+    background: var(--interactive-soft);
+}
+
+body.ui-v2-shell .preview-setlist-btn.add {
+    background: color-mix(in srgb, var(--success-500) 15%, var(--surface-0) 85%);
+}
+
+body.ui-v2-shell .preview-setlist-btn.remove,
+body.ui-v2-shell .preview-delete-btn {
+    background: color-mix(in srgb, var(--danger-500) 13%, var(--surface-0) 87%);
+}
+
+body.ui-v2-shell .song-preview-transpose {
+    margin-top: 4px;
+    margin-bottom: 0;
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--surface-1) 88%, #ffffff 12%);
+    padding: 4px;
+    display: grid;
+    grid-template-columns: auto repeat(6, minmax(0, auto));
+    gap: 3px;
+    align-items: center;
+}
+
+body.ui-v2-shell .preview-transpose-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.72rem;
+    color: var(--text-700);
+    font-weight: 700;
+    padding-right: 4px;
+}
+
+body.ui-v2-shell .preview-transpose-display {
+    min-width: 30px;
+    text-align: center;
+    font-weight: 800;
+    color: var(--text-900);
+    background: var(--surface-0);
+    border: 1px solid var(--chip-border);
+    border-radius: 8px;
+    padding: 3px 5px;
+    font-size: 0.78rem;
+}
+
+body.ui-v2-shell .preview-transpose-btn,
+body.ui-v2-shell .auto-scroll-btn {
+    border: 1px solid var(--chip-border);
+    border-radius: 8px;
+    background: var(--surface-0);
+    color: var(--text-700);
+    min-height: 26px;
+    padding: 3px 5px;
+    font-weight: 600;
+    font-size: 0.68rem;
+}
+
+body.ui-v2-shell .preview-transpose-btn.transpose-down,
+body.ui-v2-shell .preview-transpose-btn.transpose-up,
+body.ui-v2-shell .preview-transpose-btn.preview-reset,
+body.ui-v2-shell .preview-transpose-btn.preview-save,
+body.ui-v2-shell .auto-scroll-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+body.ui-v2-shell .preview-transpose-btn i,
+body.ui-v2-shell .auto-scroll-btn i {
+    display: block;
+    line-height: 1;
+    font-size: 0.72rem;
+}
+
+body.ui-v2-shell .preview-transpose-btn:hover,
+body.ui-v2-shell .auto-scroll-btn:hover {
+    background: var(--interactive-soft);
+    border-color: color-mix(in srgb, var(--brand-500) 40%, var(--chip-border) 60%);
+}
+
+body.ui-v2-shell .song-preview-audit {
+    margin-top: 4px;
+    margin-bottom: 0;
+    border-left: 2px solid var(--brand-500);
+    background: color-mix(in srgb, var(--surface-1) 78%, #ffffff 22%);
+    border-radius: 6px;
+    padding: 2px 5px;
+    color: var(--text-700);
+    font-size: 0.64rem;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.ui-v2-shell .song-lyrics {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background: var(--lyrics-bg-color);
+    color: var(--lyrics-text-color);
+    box-shadow: var(--shadow-sm);
+    padding: 6px;
+    font-size: 0.9rem;
+    line-height: 1.42;
+}

@@ -1,0 +1,350 @@
+body.ui-v2-shell .modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    background: rgba(9, 31, 44, 0.48);
+    backdrop-filter: blur(5px);
+    padding: 8px;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+}
+
+body.ui-v2-shell .modal-content {
+    background: var(--surface-0);
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--modal-shadow);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    width: min(760px, 96vw);
+    max-width: 96vw;
+    max-height: 92vh;
+    overflow: auto;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+body.ui-v2-shell .close-modal {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid var(--chip-border);
+    background: var(--surface-0);
+    color: var(--text-700);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+body.ui-v2-shell .close-modal:hover {
+    background: var(--interactive-soft);
+    color: var(--text-900);
+}
+
+body.ui-v2-shell .auth-modal-content {
+    width: min(430px, 95vw);
+    padding: 8px;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--panel-divider);
+    background: color-mix(in srgb, var(--surface-0) 90%, var(--surface-1) 10%);
+    box-shadow: var(--modal-shadow);
+}
+
+body.ui-v2-shell .auth-form {
+    display: grid;
+    gap: 8px;
+}
+
+body.ui-v2-shell .add-song-form,
+body.ui-v2-shell .edit-song-form,
+body.ui-v2-shell .manual-song-form {
+    display: grid;
+    gap: 6px;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body.ui-v2-shell .add-song-form > *,
+body.ui-v2-shell .edit-song-form > *,
+body.ui-v2-shell .manual-song-form > * {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+body.ui-v2-shell .add-song-form input,
+body.ui-v2-shell .add-song-form select,
+body.ui-v2-shell .add-song-form textarea,
+body.ui-v2-shell .edit-song-form input,
+body.ui-v2-shell .edit-song-form select,
+body.ui-v2-shell .edit-song-form textarea,
+body.ui-v2-shell .manual-song-form input,
+body.ui-v2-shell .manual-song-form select,
+body.ui-v2-shell .manual-song-form textarea {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+body.ui-v2-shell .multiselect-container,
+body.ui-v2-shell .multiselect-dropdown,
+body.ui-v2-shell .multiselect-selected,
+body.ui-v2-shell .song-structure-tags,
+body.ui-v2-shell .song-structure-tags-buttons,
+body.ui-v2-shell .modal-actions {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+body.ui-v2-shell .song-tempo-row,
+body.ui-v2-shell .modal-btn-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+body.ui-v2-shell .song-tempo-row > *,
+body.ui-v2-shell .modal-btn-row > * {
+    min-width: 0;
+}
+
+body.ui-v2-shell .song-tempo-row input {
+    flex: 1 1 200px;
+}
+
+body.ui-v2-shell .song-tempo-row .tap-tempo-btn {
+    flex: 0 0 auto;
+}
+
+body.ui-v2-shell .auth-form label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-700);
+}
+
+body.ui-v2-shell .auth-form input,
+body.ui-v2-shell .auth-form select {
+    min-height: 34px;
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-sm);
+    background: var(--input-bg);
+    color: var(--input-text);
+    padding: 6px 8px;
+    font-size: 0.8rem;
+}
+
+body.ui-v2-shell .auth-form input:focus,
+body.ui-v2-shell .auth-form select:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
+}
+
+body.ui-v2-shell #adminPanelModal .modal-content {
+    width: min(1220px, 96vw);
+    max-width: 96vw;
+    max-height: 88vh;
+    margin: 0 auto;
+    padding: 8px;
+    overflow: auto;
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--surface-0) 93%, var(--surface-1) 7%);
+    box-shadow: var(--modal-shadow);
+}
+
+body.ui-v2-shell #adminPanelModal h2 {
+    margin: 0 0 8px;
+    font-size: clamp(1rem, 1.35vw, 1.2rem);
+    font-weight: 800;
+    color: var(--text-900);
+}
+
+body.ui-v2-shell #adminPanelModal .admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--panel-divider);
+}
+
+body.ui-v2-shell #adminPanelModal .admin-tab {
+    border-radius: 999px;
+    border: 1px solid var(--panel-divider);
+    background: var(--surface-0);
+    color: var(--text-700);
+    font-weight: 700;
+    font-size: 0.74rem;
+    min-height: 30px;
+    padding: 4px 8px;
+}
+
+body.ui-v2-shell #adminPanelModal .admin-tab:hover {
+    background: var(--interactive-soft);
+    color: var(--text-900);
+}
+
+body.ui-v2-shell #adminPanelModal .admin-tab.active {
+    background: color-mix(in srgb, var(--brand-500) 18%, var(--surface-0) 82%);
+    border-color: color-mix(in srgb, var(--brand-500) 45%, var(--panel-divider) 55%);
+    color: var(--text-900);
+}
+
+body.ui-v2-shell #adminPanelModal .admin-tab-content {
+    display: none;
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--surface-1) 92%, #ffffff 8%);
+    padding: 8px;
+}
+
+body.ui-v2-shell #adminPanelModal .admin-tab-content.active {
+    display: block;
+}
+
+body.ui-v2-shell #adminPanelModal .notification {
+    border: 1px solid var(--chip-border);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--chip-bg) 65%, var(--surface-0) 35%);
+    color: var(--text-700);
+}
+
+body.ui-v2-shell #adminPanelModal .btn {
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--panel-divider);
+    min-height: 30px;
+    font-size: 0.76rem;
+    padding: 5px 8px;
+}
+
+body.ui-v2-shell #adminPanelModal #usersTable,
+body.ui-v2-shell #adminPanelModal #weightsTable {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--surface-0);
+}
+
+body.ui-v2-shell #adminPanelModal #usersTable th,
+body.ui-v2-shell #adminPanelModal #weightsTable th {
+    background: color-mix(in srgb, var(--surface-2) 88%, #ffffff 12%);
+    color: var(--text-700);
+    font-weight: 700;
+    font-size: 0.74rem;
+    border-bottom: 1px solid var(--panel-divider);
+    padding: 7px 6px;
+}
+
+body.ui-v2-shell #adminPanelModal #usersTable td,
+body.ui-v2-shell #adminPanelModal #weightsTable td {
+    border-bottom: 1px solid color-mix(in srgb, var(--panel-divider) 65%, transparent 35%);
+    color: var(--text-900);
+    padding: 6px;
+    font-size: 0.74rem;
+    background: var(--surface-0);
+}
+
+body.ui-v2-shell #adminPanelModal #weightsForm {
+    max-width: 560px;
+    margin: 0 auto;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+}
+
+body.ui-v2-shell #adminPanelModal #weightsTable input[type="number"] {
+    width: 56px;
+    min-height: 28px;
+    padding: 3px 5px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--input-text);
+}
+
+body.ui-v2-shell #adminPanelModal #weightsTable input[type="number"]:focus {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 1px;
+}
+
+body.ui-v2-shell #adminPanelModal .backend-status,
+body.ui-v2-shell #adminPanelModal .backend-info,
+body.ui-v2-shell #adminPanelModal .health-card,
+body.ui-v2-shell #adminPanelModal .feature-manager-quick-create,
+body.ui-v2-shell #adminPanelModal .feature-manager-card {
+    border: 1px solid var(--panel-divider);
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--surface-0) 92%, var(--surface-1) 8%);
+    color: var(--text-700);
+}
+
+body.ui-v2-shell #adminPanelModal .feature-manager-card:hover,
+body.ui-v2-shell #adminPanelModal .health-card:hover {
+    border-color: color-mix(in srgb, var(--brand-500) 42%, var(--panel-divider) 58%);
+    background: var(--interactive-soft);
+}
+
+@media (max-width: 768px) {
+    body.ui-v2-shell .modal {
+        padding: 8px;
+        align-items: flex-start;
+    }
+
+    body.ui-v2-shell .auth-modal-content {
+        width: min(430px, 98vw);
+        padding: 8px;
+    }
+
+    body.ui-v2-shell #adminPanelModal .modal-content {
+        width: 98vw;
+        max-width: 98vw;
+        max-height: 94vh;
+        padding: 8px 7px 8px;
+    }
+
+    body.ui-v2-shell #addSongModal .modal-content,
+    body.ui-v2-shell #editSongModal .modal-content,
+    body.ui-v2-shell #addManualSongModal .modal-content {
+        width: 98vw;
+        max-width: 98vw;
+        max-height: 94vh;
+    }
+
+    body.ui-v2-shell #adminPanelModal .admin-tabs {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    body.ui-v2-shell #adminPanelModal .admin-tab {
+        width: 100%;
+        justify-content: center;
+    }
+
+    body.ui-v2-shell #adminPanelModal .admin-tab-content {
+        padding: 7px 6px;
+    }
+
+    body.ui-v2-shell #adminPanelModal #usersTable,
+    body.ui-v2-shell #adminPanelModal #weightsTable {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    body.ui-v2-shell #adminPanelModal #usersTable th,
+    body.ui-v2-shell #adminPanelModal #usersTable td,
+    body.ui-v2-shell #adminPanelModal #weightsTable th,
+    body.ui-v2-shell #adminPanelModal #weightsTable td {
+        font-size: 0.7rem;
+        padding: 6px 5px;
+    }
+
+    body.ui-v2-shell #adminPanelModal .btn {
+        min-height: 32px;
+    }
+}

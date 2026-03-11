@@ -1,0 +1,54 @@
+body.ui-v2-shell .app-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background: transparent;
+}
+
+body.ui-v2-shell .sidebar,
+body.ui-v2-shell .songs-section,
+body.ui-v2-shell .preview-section {
+    border: 1px solid var(--border-color);
+    box-shadow: var(--panel-shadow);
+}
+
+body.ui-v2-shell .sidebar {
+    background: var(--surface-1);
+    color: var(--sidebar-text-color);
+}
+
+body.ui-v2-shell .songs-section {
+    background: var(--surface-2);
+    color: var(--text-color);
+}
+
+body.ui-v2-shell .preview-section {
+    background: var(--surface-0);
+    color: var(--text-color);
+    margin-left: calc(var(--sidebar-width) + var(--songs-panel-width) + var(--preview-margin-left));
+}
+
+body.ui-v2-shell .preview-section.full-width {
+    margin-left: var(--preview-margin-left);
+}
+
+body.ui-v2-shell .sidebar-header {
+    background: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-600) 100%);
+    color: #ffffff;
+    border-bottom: 1px solid color-mix(in srgb, var(--brand-600) 70%, #000000 30%);
+}
+
+body.ui-v2-shell .sidebar-header h2 {
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+@media (max-width: 768px) {
+    body.ui-v2-shell .preview-section {
+        margin-left: 0;
+    }
+
+    body.ui-v2-shell .songs-section {
+        left: 0;
+    }
+}

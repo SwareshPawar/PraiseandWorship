@@ -134,8 +134,15 @@ async function saveRecommendationWeightsToBackend(weights) {
     <!-- Auth0 script removed: now using local JWT auth -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Praise & Worship Songs</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-        <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css?v=20260311">
+    <link rel="stylesheet" href="styles.css?v=20260311">
+    <link rel="stylesheet" href="styles/tokens.css?v=20260311">
+    <link rel="stylesheet" href="styles/base.css?v=20260311">
+    <link rel="stylesheet" href="styles/layout-shell.css?v=20260311">
+    <link rel="stylesheet" href="styles/components.css?v=20260311">
+    <link rel="stylesheet" href="styles/panels.css?v=20260311">
+    <link rel="stylesheet" href="styles/modals-admin.css?v=20260311">
+    <link rel="stylesheet" href="styles/mobile.css?v=20260311">
         <script>
         // Theme toggle logic (used by sidebar button)
         function toggleTheme() {
@@ -143,7 +150,7 @@ async function saveRecommendationWeightsToBackend(weights) {
         }
         </script>
 </head>
-<body>
+<body class="ui-v2-shell">
     <!-- Login Modal -->
     <div class="modal" id="loginModal" style="display:none;">
         <div class="modal-content auth-modal-content">
@@ -286,10 +293,10 @@ async function saveRecommendationWeightsToBackend(weights) {
                 </div>
                 
                 <li><a href="#" id="showFavorites" title="View your favorite songs - Heart icon to add/remove favorites">Favorites</a></li>
-                <li><button id="addSongBelowFavoritesBtn" class="sidebar-btn" style="width:100%;margin-top:10px;" title="Add New Song - Create a new song entry with lyrics, key, tempo and other details" aria-label="Add New Song"><i class="fa fa-plus"></i> Add New Song</button></li>
+                <li><button id="addSongBelowFavoritesBtn" class="sidebar-btn" style="width:100%;" title="Add New Song - Create a new song entry with lyrics, key, tempo and other details" aria-label="Add New Song"><i class="fa fa-plus"></i> Add New Song</button></li>
 
                 <!-- Global Setlists Section -->
-                <li style="margin-top:15px;">
+                <li class="setlist-group-start">
                     <div class="setlist-folder">
                         <div class="folder-header" id="globalSetlistHeader">
                             <i class="fas fa-chevron-right folder-icon" id="globalSetlistIcon"></i>
@@ -370,7 +377,7 @@ async function saveRecommendationWeightsToBackend(weights) {
                         <div>Worship: <span id="WorshipCount">0</span></div>
                     </div>
 
-                    <button class="theme-toggle" id="themeToggle" style="width:100%;margin-top:10px;" title="Switch Theme - Toggle between light and dark mode for better reading" aria-label="Toggle Theme">
+                    <button class="theme-toggle" id="themeToggle" style="width:100%;" title="Switch Theme - Toggle between light and dark mode for better reading" aria-label="Toggle Theme">
                         <i class="fas fa-moon"></i>
                         <span>Dark Mode</span>
                     </button>
@@ -408,8 +415,8 @@ async function saveRecommendationWeightsToBackend(weights) {
                 </div>
                 <div class="filters-row">
                     <div class="search-container">
-                        <input type="text" id="searchInput" class="compact-input" placeholder="Search songs..."
-                               style="padding-right: 30px;" autocomplete="off">
+                           <input type="text" id="searchInput" class="compact-input" placeholder="Search songs..."
+                               autocomplete="off">
                         <span id="clearSearch" class="clear-search-btn" style="display: none;" title="Clear Search - Remove current search query and show all songs" aria-label="Clear Search">×</span>
                         <div id="searchHistoryDropdown" class="search-history-dropdown"></div>
                     </div>
@@ -427,7 +434,7 @@ async function saveRecommendationWeightsToBackend(weights) {
   <!-- Options will be populated by JS -->
                         </select>
                     </div>
-                    <div class="filter-row-2" style="margin-top:6px;">
+                    <div class="filter-row-2">
                         <select id="sortFilter" class="compact-select">
                             <option value="recent">Recently Added</option>
                             <option value="az">A-Z</option>
@@ -727,7 +734,7 @@ async function saveRecommendationWeightsToBackend(weights) {
                     <div class="multiselect-selected" id="selectedMoods"></div>
                 </div>
                 <label for="songTempo">Tempo (BPM):</label>
-                <div style="display:flex;align-items:center;gap:8px;">
+                <div class="song-tempo-row">
                     <input type="text" id="songTempo" placeholder="e.g., 80 BPM" >
                     <button type="button" id="tapTempoBtn" class="tap-tempo-btn" title="Tap Tempo - Click repeatedly to measure and set tempo in BPM" aria-label="Tap Tempo">Tap Tempo</button>
                 </div>
@@ -812,7 +819,7 @@ async function saveRecommendationWeightsToBackend(weights) {
                     <div class="multiselect-selected" id="editSelectedMoods"></div>
                 </div>
                 <label for="editSongTempo">Tempo (BPM):</label>
-                <div style="display:flex;align-items:center;gap:8px;">
+                <div class="song-tempo-row">
                     <input type="text" id="editSongTempo" placeholder="e.g., 80 BPM">
                     <button type="button" id="editTapTempoBtn" class="tap-tempo-btn" title="Tap Tempo - Click repeatedly to measure and set tempo in BPM" aria-label="Tap Tempo">Tap Tempo</button>
                 </div>

@@ -1238,7 +1238,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Add Song button(s)
     function openAddSong() {
         const modal = document.getElementById('addSongModal');
-        if (modal) modal.style.display = 'flex';
+        if (modal) {
+            modal.style.display = 'flex';
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) modalContent.scrollTop = 0;
+        }
 
         hydrateRhythmFamilies().catch(() => {});
         const addRhythmFamily = document.getElementById('songRhythmFamily');
@@ -3217,16 +3221,21 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         // Set active tab
         document.getElementById('userMgmtTab').classList.add('active');
         document.getElementById('userMgmtTabContent').classList.add('active');
+        document.getElementById('userMgmtTabContent').style.display = 'block';
         
         // Hide other tabs
         document.getElementById('weightsTab').classList.remove('active');
         document.getElementById('weightsTabContent').classList.remove('active');
+        document.getElementById('weightsTabContent').style.display = 'none';
         document.getElementById('duplicateDetectionTab').classList.remove('active');
         document.getElementById('duplicateDetectionTabContent').classList.remove('active');
+        document.getElementById('duplicateDetectionTabContent').style.display = 'none';
         document.getElementById('backendMgmtTab').classList.remove('active');
         document.getElementById('backendMgmtTabContent').classList.remove('active');
+        document.getElementById('backendMgmtTabContent').style.display = 'none';
         document.getElementById('featureManagersTab').classList.remove('active');
         document.getElementById('featureManagersTabContent').classList.remove('active');
+        document.getElementById('featureManagersTabContent').style.display = 'none';
         
         // Load users and set up functions
         loadUsers();
@@ -3273,7 +3282,10 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
             
             allContents.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) el.classList.remove('active');
+                if (el) {
+                    el.classList.remove('active');
+                    el.style.display = 'none';
+                }
             });
             
             // Set active tab
@@ -3287,6 +3299,7 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
             
             if (activeContent) {
                 activeContent.classList.add('active');
+                activeContent.style.display = 'block';
                 console.log(`✅ ${contentId} set to active`);
                 console.log(`Display style: ${getComputedStyle(activeContent).display}`);
             } else {
@@ -5554,7 +5567,6 @@ window.viewSingleLyrics = function(songId, otherId) {
             const li = document.createElement('li');
             li.innerHTML = `
                 <div class="setlist-item" data-setlist-id="${setlist._id}" data-type="global">
-                    <i class="fas fa-list"></i>
                     <span>${setlist.name}</span>
                     <div class="setlist-actions">
                         ${canManageGlobal ? `
@@ -5623,7 +5635,6 @@ window.viewSingleLyrics = function(songId, otherId) {
             const li = document.createElement('li');
             li.innerHTML = `
                 <div class="setlist-item" data-setlist-id="${setlist._id}" data-type="my">
-                    <i class="fas fa-list"></i>
                     <span>${setlist.name}</span>
                     <div class="setlist-actions">
                         <button class="setlist-action-btn edit-setlist" title="Edit">
@@ -5744,7 +5755,6 @@ window.viewSingleLyrics = function(songId, otherId) {
             const li = document.createElement('li');
             li.innerHTML = `
                 <div class="setlist-item" data-setlist-id="${setlistId}" data-type="smart">
-                    <i class="fas fa-magic"></i>
                     <span>${setlist.name}</span>
                     <div class="setlist-actions">
                         ${canManage ? `
@@ -5855,8 +5865,14 @@ window.viewSingleLyrics = function(songId, otherId) {
         const deleteSection = document.getElementById('deleteSection');
         const favoritesSection = document.getElementById('favoritesSection');
 
-        if (PraiseContent) PraiseContent.classList.remove('active');
-        if (WorshipContent) WorshipContent.classList.remove('active');
+        if (PraiseContent) {
+            PraiseContent.classList.remove('active');
+            PraiseContent.style.display = 'none';
+        }
+        if (WorshipContent) {
+            WorshipContent.classList.remove('active');
+            WorshipContent.style.display = 'none';
+        }
         if (setlistSection) setlistSection.style.display = 'block';
         if (deleteSection) deleteSection.style.display = 'none';
         if (favoritesSection) favoritesSection.style.display = 'none';
@@ -6599,7 +6615,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     </div>
                 </div>
                 <div class="setlist-song-actions">
-                    ${!isResequenceMode && (currentSetlistType === 'my' || (currentSetlistType === 'global' && currentUser && currentUser.isAdmin)) ? `<button class="remove-from-setlist-btn" data-song-id="${song._id || song.id}" title="Remove from setlist" type="button">×</button>` : ''}
+                    ${(currentSetlistType === 'my' || (currentSetlistType === 'global' && currentUser && currentUser.isAdmin)) ? `<button class="remove-from-setlist-btn" data-song-id="${song._id || song.id}" title="Remove from setlist" type="button">×</button>` : ''}
                 </div>`;
 
             // Add click handler for song info (not the remove button)
@@ -7263,6 +7279,8 @@ window.viewSingleLyrics = function(songId, otherId) {
         const modal = document.getElementById('addManualSongModal');
         if (modal) {
             modal.style.display = 'flex';
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent) modalContent.scrollTop = 0;
             document.getElementById('manualSongTitle').focus();
             // Clear existing results
             document.getElementById('existingSongsResults').style.display = 'none';
@@ -9729,11 +9747,9 @@ window.viewSingleLyrics = function(songId, otherId) {
             </button>
             <button class="preview-transpose-btn preview-reset" id="transposeReset" title="Reset Transpose">
                 <i class="fas fa-undo"></i>
-                <span>Reset</span>
             </button>
             <button class="preview-transpose-btn preview-save" id="saveTransposeBtn" title="Save Transpose">
                 <i class="fas fa-save"></i>
-                <span>Save</span>
             </button>
             <button class="auto-scroll-btn" id="toggleAutoScroll" title="Auto Scroll - Automatically scroll through song lyrics at set speed" aria-label="Toggle Auto Scroll">
                 <i class="fas fa-play"></i>
@@ -10762,6 +10778,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
             document.getElementById('editSongLyrics').value = song.lyrics;
             editSongModal.style.display = 'flex';
+            const editModalContent = editSongModal.querySelector('.modal-content');
+            if (editModalContent) editModalContent.scrollTop = 0;
         }
     
         function openDeleteSongModal(id) {
@@ -11204,6 +11222,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             // Song modals
             openAddSongModal.addEventListener('click', () => {
                 addSongModal.style.display = 'flex';
+                const addModalContent = addSongModal.querySelector('.modal-content');
+                if (addModalContent) addModalContent.scrollTop = 0;
                 document.getElementById('selectedGenres').innerHTML = '';
                 document.querySelectorAll('#genreDropdown .multiselect-option').forEach(opt => {
                     opt.classList.remove('selected');

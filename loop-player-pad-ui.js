@@ -491,13 +491,17 @@ async function initializeLoopPlayer(songId) {
         // Update active state on pads
         const allPads = container.querySelectorAll('.loop-pad');
         allPads.forEach(pad => {
-            if (padName && pad.dataset.loop === padName) {
+            const loopName = pad.dataset.loop;
+            if (!loopName) return;
+
+            if (padName && loopName === padName) {
                 pad.classList.add('loop-pad-active');
-            } else if (padName && !padName.startsWith('fill')) {
-                // Don't remove active from loops when fill is playing
-                if (pad.dataset.loop && pad.dataset.loop.startsWith('loop')) {
-                    pad.classList.remove('loop-pad-active');
-                }
+            } else if (loopName.startsWith('fill')) {
+                // Fill pads should only be active while that exact fill is playing.
+                pad.classList.remove('loop-pad-active');
+            } else if (padName && !padName.startsWith('fill') && loopName.startsWith('loop')) {
+                // When a loop is active, only keep that loop highlighted.
+                pad.classList.remove('loop-pad-active');
             }
         });
     };

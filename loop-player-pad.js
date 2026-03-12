@@ -34,12 +34,18 @@ class LoopPlayerPad {
             atmosphere: {
                 isPlaying: false,
                 source: null,
-                gainNode: null
+                sourceGainNode: null,
+                gainNode: null,
+                loopTimer: null,
+                activeSources: new Set()
             },
             tanpura: {
                 isPlaying: false,
                 source: null,
-                gainNode: null
+                sourceGainNode: null,
+                gainNode: null,
+                loopTimer: null,
+                activeSources: new Set()
             }
         };
         this.currentSongKey = null;
@@ -55,7 +61,9 @@ class LoopPlayerPad {
         this.volumeLevel = 0.8;
         this.playbackRate = 1.0; // 0.5-2.0
         this.atmosphereVolume = 0.5; // 50% volume for atmosphere pad (increased for prominence)
-        this.tanpuraVolume = 0.22; // 20% volume for tanpura pad (subtle but audible background drone)
+        this.tanpuraVolume = 0.19; // 19% volume for tanpura pad (subtle but audible background drone)
+        this.melodicLoopCrossfadeSeconds = 1.1;
+        this.melodicLoopFadeInSeconds = 0.8;
         
         // Timing
         this.loopDuration = 0;
@@ -898,36 +906,17 @@ class LoopPlayerPad {
      * @private
      */
     _stopAllMelodicPads() {
-        // Stop atmosphere pad if playing
-        const atmospherePad = this.melodicPads.atmosphere;
-        if (atmospherePad.isPlaying && atmospherePad.source) {
-            try {
-                atmospherePad.source.stop();
-            } catch (e) {
-                // Already stopped
-            }
-            atmospherePad.source = null;
-            atmospherePad.isPlaying = false;
-            
-            if (this.onMelodicPadToggle) {
-                this.onMelodicPadToggle('atmosphere', false);
-            }
+        const atmosphereWasPlaying = this.melodicPads.atmosphere.isPlaying;
+        const tanpuraWasPlaying = this.melodicPads.tanpura.isPlaying;
+
+        this._stopMelodicPad('atmosphere');
+        this._stopMelodicPad('tanpura');
+
+        if (atmosphereWasPlaying && this.onMelodicPadToggle) {
+            this.onMelodicPadToggle('atmosphere', false);
         }
-        
-        // Stop tanpura pad if playing
-        const tanpuraPad = this.melodicPads.tanpura;
-        if (tanpuraPad.isPlaying && tanpuraPad.source) {
-            try {
-                tanpuraPad.source.stop();
-            } catch (e) {
-                // Already stopped
-            }
-            tanpuraPad.source = null;
-            tanpuraPad.isPlaying = false;
-            
-            if (this.onMelodicPadToggle) {
-                this.onMelodicPadToggle('tanpura', false);
-            }
+        if (tanpuraWasPlaying && this.onMelodicPadToggle) {
+            this.onMelodicPadToggle('tanpura', false);
         }
     }
 
@@ -978,6 +967,127 @@ class LoopPlayerPad {
     }
 
     /**
+     * Get crossfade duration for melodic loops.
+     * @private
+     */
+    _getMelodicCrossfadeDuration(bufferDuration) {
+        const duration = Number(bufferDuration) || 0;
+        const minimum = 0.05;
+        const maxAllowed = Math.max(minimum, duration * 0.35);
+        return Math.min(this.melodicLoopCrossfadeSeconds, maxAllowed);
+    }
+
+    /**
+     * Register a melodic source for proper cleanup when it ends.
+     * @private
+     */
+    _registerMelodicSource(pad, source, sourceGainNode) {
+        const entry = { source, sourceGainNode };
+        if (!pad.activeSources) {
+            pad.activeSources = new Set();
+        }
+        pad.activeSources.add(entry);
+
+        source.onended = () => {
+            try {
+                source.disconnect();
+            } catch (e) {
+                // Already disconnected
+            }
+            try {
+                sourceGainNode.disconnect();
+            } catch (e) {
+                // Already disconnected
+            }
+
+            if (pad.activeSources) {
+                pad.activeSources.delete(entry);
+            }
+            if (pad.source === source) {
+                pad.source = null;
+                pad.sourceGainNode = null;
+            }
+        };
+    }
+
+    /**
+     * Create and start a melodic pad source with fade-in.
+     * @private
+     */
+    _startMelodicSource(padType, buffer, startTime, fadeInSeconds) {
+        const pad = this.melodicPads[padType];
+        const source = this.audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.loop = false;
+
+        const sourceGainNode = this.audioContext.createGain();
+        source.connect(sourceGainNode);
+        sourceGainNode.connect(pad.gainNode);
+
+        const now = this.audioContext.currentTime;
+        const safeStart = Math.max(startTime, now + 0.005);
+        const fadeIn = Math.max(0.01, fadeInSeconds || this.melodicLoopFadeInSeconds);
+
+        sourceGainNode.gain.cancelScheduledValues(now);
+        sourceGainNode.gain.setValueAtTime(0, safeStart);
+        sourceGainNode.gain.linearRampToValueAtTime(1, safeStart + fadeIn);
+
+        this._registerMelodicSource(pad, source, sourceGainNode);
+        source.start(safeStart);
+
+        return { source, sourceGainNode };
+    }
+
+    /**
+     * Schedule crossfade to the next melodic loop iteration.
+     * @private
+     */
+    _scheduleMelodicPadCrossfade(padType, buffer) {
+        const pad = this.melodicPads[padType];
+
+        if (pad.loopTimer) {
+            clearTimeout(pad.loopTimer);
+            pad.loopTimer = null;
+        }
+
+        if (!pad.isPlaying || !pad.source || !buffer) {
+            return;
+        }
+
+        const crossfadeSeconds = this._getMelodicCrossfadeDuration(buffer.duration);
+        const delayMs = Math.max(25, (buffer.duration - crossfadeSeconds) * 1000);
+
+        pad.loopTimer = setTimeout(() => {
+            if (!pad.isPlaying || !pad.source) {
+                return;
+            }
+
+            const now = this.audioContext.currentTime;
+            const fadeSeconds = this._getMelodicCrossfadeDuration(buffer.duration);
+            const oldSource = pad.source;
+            const oldSourceGain = pad.sourceGainNode;
+
+            const next = this._startMelodicSource(padType, buffer, now, fadeSeconds);
+            pad.source = next.source;
+            pad.sourceGainNode = next.sourceGainNode;
+
+            if (oldSource && oldSourceGain) {
+                oldSourceGain.gain.cancelScheduledValues(now);
+                oldSourceGain.gain.setValueAtTime(Math.max(0, oldSourceGain.gain.value), now);
+                oldSourceGain.gain.linearRampToValueAtTime(0, now + fadeSeconds);
+
+                try {
+                    oldSource.stop(now + fadeSeconds + 0.03);
+                } catch (e) {
+                    // Already stopped
+                }
+            }
+
+            this._scheduleMelodicPadCrossfade(padType, buffer);
+        }, delayMs);
+    }
+
+    /**
      * Start a melodic pad
      * @private
      * @param {string} padType - 'atmosphere' or 'tanpura'
@@ -1023,26 +1133,21 @@ class LoopPlayerPad {
         if (pad.gainNode) {
             pad.gainNode.gain.value = padType === 'atmosphere' ? this.atmosphereVolume : this.tanpuraVolume;
         }
-        
-        // Stop any existing source
-        if (pad.source) {
-            try {
-                pad.source.stop();
-            } catch (e) {
-                // Already stopped
-            }
-        }
 
-        // Create new looping source
-        pad.source = this.audioContext.createBufferSource();
-        pad.source.buffer = buffer;
-        pad.source.loop = true; // Enable looping
-        pad.source.connect(pad.gainNode);
-        
-        // Start playback
-        pad.source.start();
+        this._stopMelodicPad(padType);
+
+        const started = this._startMelodicSource(
+            padType,
+            buffer,
+            this.audioContext.currentTime,
+            this.melodicLoopFadeInSeconds
+        );
+
+        pad.source = started.source;
+        pad.sourceGainNode = started.sourceGainNode;
         pad.isPlaying = true;
-        
+
+        this._scheduleMelodicPadCrossfade(padType, buffer);
     }
 
     /**
@@ -1052,16 +1157,44 @@ class LoopPlayerPad {
      */
     _stopMelodicPad(padType) {
         const pad = this.melodicPads[padType];
-        
+
+        if (pad.loopTimer) {
+            clearTimeout(pad.loopTimer);
+            pad.loopTimer = null;
+        }
+
+        if (pad.activeSources && pad.activeSources.size > 0) {
+            const activeEntries = Array.from(pad.activeSources);
+            activeEntries.forEach(entry => {
+                try {
+                    entry.source.stop();
+                } catch (e) {
+                    // Already stopped
+                }
+                try {
+                    entry.source.disconnect();
+                } catch (e) {
+                    // Already disconnected
+                }
+                try {
+                    entry.sourceGainNode.disconnect();
+                } catch (e) {
+                    // Already disconnected
+                }
+                pad.activeSources.delete(entry);
+            });
+        }
+
         if (pad.source) {
             try {
                 pad.source.stop();
             } catch (e) {
                 // Already stopped
             }
-            pad.source = null;
         }
-        
+
+        pad.source = null;
+        pad.sourceGainNode = null;
         pad.isPlaying = false;
     }
 

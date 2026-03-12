@@ -38,7 +38,21 @@ try {
 }
 
 const PW_GENRES = [
-    "Praise", "Worship", "Hymns", "Hindi", "Marathi", "English", "Others"
+    "Praise",
+    "Worship",
+    "Hymns",
+    "Hindi",
+    "Marathi",
+    "English",
+    "Contemporary",
+    "Desi",
+    "Gospel",
+    "Meditative",
+    "Traditional",
+    "Celebration",
+    "Thanksgiving",
+    "Love",
+    "Others"
 ];
 
 const PW_VOCAL_TAGS = ['Male', 'Female', 'Duet'];
@@ -998,7 +1012,7 @@ async function loadSongsWithProgress(forceRefresh = false) {
             localStorage.setItem('pw_songsSyncTimestamp', window.dataCache.lastSyncTimestamp.songs);
             updateProgress('processSongs');
         }
-        
+
         // Load user data if authenticated
         if (currentUser && currentUser.id) {
             try {
@@ -6607,10 +6621,8 @@ window.viewSingleLyrics = function(songId, otherId) {
                     <span class="setlist-song-number">${index + 1}.</span>
                     <div class="setlist-song-details">
                         <div class="setlist-song-title">${song.title}</div>
-                        <div class="setlist-song-meta-row">
-                            ${displayKey ? `<div class="setlist-song-key"> ${displayKey}</div>` : ''}
-                            ${(song.time || song.timeSignature) ? `<span class="setlist-song-key-time">${song.time || song.timeSignature}</span>` : ''}
-                            ${song.tempo ? `<span class="setlist-song-key-tempo">${song.tempo} </span>` : ''}
+                        <div class="setlist-song-meta">
+                            ${displayKey || '-'} | ${song.tempo || '-'} | ${song.time || song.timeSignature || '-'} | ${song.taal || '-'}
                         </div>
                     </div>
                 </div>
@@ -8223,17 +8235,47 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         function normalizeToggleButtonsVisibility(value) {
             const normalized = String(value || '').trim().toLowerCase();
-            if (normalized === 'show' || normalized === 'hide-all') {
+            if (normalized === 'show' || normalized === 'hide-all' || normalized === 'draggable-only') {
                 return normalized;
             }
             return 'hide';
         }
 
+        function normalizePreviewLyricsSize(value) {
+            const normalized = String(value || '').trim().toLowerCase();
+            if (normalized === 'down-2' || normalized === 'down-1' || normalized === 'up-1' || normalized === 'up-2' || normalized === 'up-3') {
+                return normalized;
+            }
+            return 'default';
+        }
+
+        function resolvePreviewLyricsFontSize(size) {
+            switch (size) {
+                case 'down-2':
+                    return '0.78rem';
+                case 'down-1':
+                    return '0.84rem';
+                case 'up-1':
+                    return '0.96rem';
+                case 'up-2':
+                    return '1.02rem';
+                case 'up-3':
+                    return '1.12rem';
+                default:
+                    return '0.9rem';
+            }
+        }
+
+        function applyPreviewLyricsSize(size) {
+            const normalizedSize = normalizePreviewLyricsSize(size);
+            const fontSize = resolvePreviewLyricsFontSize(normalizedSize);
+            document.documentElement.style.setProperty('--preview-lyrics-font-size', fontSize);
+            return normalizedSize;
+        }
+
         function loadSettings() {
             const savedHeader = localStorage.getItem("sidebarHeader");
             if (savedHeader) document.querySelector(".sidebar-header h2").textContent = savedHeader;
-
-            const sessionResetOption = localStorage.getItem("sessionResetOption") || "manual";
 
             // Set default values for mobile/desktop in percentage
             let sidebarWidth = localStorage.getItem("sidebarWidth");
@@ -8247,9 +8289,10 @@ window.viewSingleLyrics = function(songId, otherId) {
                     songsPanelWidth = "20";
                 }
             }
-            const previewMargin = localStorage.getItem("previewMargin") || "40";
+            const previewMargin = localStorage.getItem("previewMargin") || "10";
             const savedAutoScrollSpeed = localStorage.getItem("autoScrollSpeed") || "1500";
             const toggleButtonsVisibility = normalizeToggleButtonsVisibility(localStorage.getItem("toggleButtonsVisibility") || "hide");
+            const previewLyricsSize = normalizePreviewLyricsSize(localStorage.getItem("previewLyricsSize") || "up-2");
 
             document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}%`);
             document.documentElement.style.setProperty('--songs-panel-width', `${songsPanelWidth}%`);
@@ -8258,15 +8301,19 @@ window.viewSingleLyrics = function(songId, otherId) {
             document.getElementById('panelWidthInput').value = sidebarWidth;
             document.getElementById('previewMarginInput').value = previewMargin;
             document.getElementById('autoScrollSpeedInput').value = savedAutoScrollSpeed;
-            document.getElementById("sessionResetOption").value = sessionResetOption;
             const toggleButtonsVisibilityEl = document.getElementById("toggleButtonsVisibility");
             if (toggleButtonsVisibilityEl) {
                 toggleButtonsVisibilityEl.value = toggleButtonsVisibility;
+            }
+            const previewLyricsSizeEl = document.getElementById("previewLyricsSize");
+            if (previewLyricsSizeEl) {
+                previewLyricsSizeEl.value = previewLyricsSize;
             }
             
             autoScrollSpeed = parseInt(savedAutoScrollSpeed);
 
             applyToggleButtonsVisibility(toggleButtonsVisibility);
+            applyPreviewLyricsSize(previewLyricsSize);
         }
     
             
@@ -8279,8 +8326,8 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         function applyToggleButtonsVisibility(visibility) {
             const normalizedVisibility = normalizeToggleButtonsVisibility(visibility);
-            const showDraggableButtons = normalizedVisibility === 'show';
-            const showStationaryMobileButtons = normalizedVisibility !== 'hide-all';
+            const showDraggableButtons = normalizedVisibility === 'show' || normalizedVisibility === 'draggable-only';
+            const showStationaryMobileButtons = normalizedVisibility === 'show' || normalizedVisibility === 'hide';
             const toggleButtons = document.querySelectorAll('.panel-toggle.draggable');
 
             // Legacy draggable panel toggles appear only in explicit "show" mode.
@@ -9336,7 +9383,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 div.innerHTML = `
                     <div class="suggested-song-title">${song.title}</div>
                     <div class="suggested-song-meta">
-                        Key: ${song.key} | Tempo: ${song.tempo} | Time: ${song.time || song.timeSignature} | Taal: ${song.taal}
+                        ${song.key || '-'} | ${song.tempo || '-'} | ${song.time || song.timeSignature || '-'} | ${song.taal || '-'}
                     </div>
                     <div class="suggested-song-mood">
                         Mood: ${song.mood || 'Not specified'}
@@ -10834,9 +10881,10 @@ window.viewSingleLyrics = function(songId, otherId) {
             const songsPanelWidth = document.getElementById("panelWidthInput").value;
             const previewMargin = document.getElementById("previewMarginInput").value;
             const newAutoScrollSpeed = document.getElementById("autoScrollSpeedInput").value;
-            const sessionResetOption = document.getElementById("sessionResetOption").value;
             const toggleButtonsVisibilityEl = document.getElementById("toggleButtonsVisibility");
             const toggleButtonsVisibility = normalizeToggleButtonsVisibility(toggleButtonsVisibilityEl ? toggleButtonsVisibilityEl.value : "hide");
+            const previewLyricsSizeEl = document.getElementById("previewLyricsSize");
+            const previewLyricsSize = normalizePreviewLyricsSize(previewLyricsSizeEl ? previewLyricsSizeEl.value : "up-2");
 
             document.querySelector(".sidebar-header h2").textContent = newHeader;
 
@@ -10850,11 +10898,12 @@ window.viewSingleLyrics = function(songId, otherId) {
             localStorage.setItem("songsPanelWidth", songsPanelWidth);
             localStorage.setItem("previewMargin", previewMargin);
             localStorage.setItem("autoScrollSpeed", newAutoScrollSpeed);
-            localStorage.setItem("sessionResetOption", sessionResetOption);
             localStorage.setItem("toggleButtonsVisibility", toggleButtonsVisibility);
+            localStorage.setItem("previewLyricsSize", previewLyricsSize);
             autoScrollSpeed = parseInt(newAutoScrollSpeed);
 
             applyToggleButtonsVisibility(toggleButtonsVisibility);
+            applyPreviewLyricsSize(previewLyricsSize);
         }
     
         function addEventListeners() {

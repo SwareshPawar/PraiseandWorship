@@ -2,47 +2,47 @@ body.ui-v2-shell .sticky-header {
     background: color-mix(in srgb, var(--surface-2) 88%, #ffffff 12%);
     border-bottom: 1px solid var(--border-color);
     box-shadow: var(--shadow-sm);
-    padding: 2px;
+    padding: 4px;
 }
 
 body.ui-v2-shell .sticky-header .tabs {
-    margin: 0 0 2px;
+    margin: 0 0 4px;
     border-width: 1px;
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
 body.ui-v2-shell .sticky-header .setlist-tab {
-    min-height: 22px;
-    padding: 2px 6px;
-    font-size: 0.68rem;
+    min-height: 26px;
+    padding: 3px 8px;
+    font-size: 0.74rem;
     border-width: 1px;
 }
 
 body.ui-v2-shell .sticky-header .filters-row {
-    gap: 2px;
+    gap: 4px;
 }
 
 body.ui-v2-shell .sticky-header .filter-row-1 {
-    gap: 2px;
-    margin-top: 2px;
+    gap: 4px;
+    margin-top: 3px;
 }
 
 body.ui-v2-shell .sticky-header .filter-row-2 {
-    margin-top: 2px;
-    gap: 2px;
+    margin-top: 3px;
+    gap: 4px;
 }
 
 body.ui-v2-shell .sticky-header .compact-input,
 body.ui-v2-shell .sticky-header .compact-select,
 body.ui-v2-shell .sticky-header #searchInput {
-    min-height: 24px;
-    padding: 2px 6px;
-    font-size: 0.68rem;
+    min-height: 28px;
+    padding: 3px 8px;
+    font-size: 0.74rem;
     border-width: 1px;
 }
 
 body.ui-v2-shell .sticky-header #searchInput {
-    padding-right: 20px;
+    padding-right: 22px;
 }
 
 body.ui-v2-shell .song-item {
@@ -200,13 +200,18 @@ body.ui-v2-shell #setlistSection .setlist-header {
 
 body.ui-v2-shell #setlistSection .setlist-header h3 {
     margin: 0;
-    font-size: 0.84rem;
-    line-height: 1.15;
+    font-size: 0.99rem;
+    line-height: 1.5;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
     width: 100%;
+}
+
+body.ui-v2-shell #setlistViewHeader {
+    font-size: 0.92rem;
+    line-height: 1.2;
 }
 
 body.ui-v2-shell #setlistSection .setlist-header-actions {
@@ -228,6 +233,7 @@ body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn {
     height: 24px;
     min-width: 24px;
     min-height: 24px;
+    border-radius: 999px;
     border: 1px solid var(--chip-border);
     background: color-mix(in srgb, var(--surface-0) 78%, var(--chip-bg) 22%);
     color: var(--text-700);
@@ -243,9 +249,9 @@ body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn i {
 }
 
 body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-edit-btn {
-    border-color: color-mix(in srgb, var(--warning-500) 68%, var(--chip-border) 32%);
-    background: color-mix(in srgb, var(--warning-500) 20%, transparent 80%);
-    color: color-mix(in srgb, var(--warning-500) 86%, #6d4a10 14%);
+    border-color: color-mix(in srgb, var(--warning-500) 82%, #6d4a10 18%);
+    background: color-mix(in srgb, var(--warning-500) 88%, #fff3cf 12%);
+    color: #2a1b00;
 }
 
 body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-delete-btn {
@@ -263,9 +269,9 @@ body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn:foc
 
 body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-edit-btn:hover,
 body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-edit-btn:focus-visible {
-    background: color-mix(in srgb, var(--warning-500) 78%, transparent 22%);
-    border-color: color-mix(in srgb, var(--warning-500) 88%, #8f5f1e 12%);
-    color: #ffffff;
+    background: color-mix(in srgb, var(--warning-500) 94%, #f4bf32 6%);
+    border-color: color-mix(in srgb, var(--warning-500) 92%, #8f5f1e 8%);
+    color: #201400;
 }
 
 body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-delete-btn:hover,
@@ -273,6 +279,26 @@ body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-delete-btn:foc
     background: color-mix(in srgb, var(--danger-500) 85%, transparent 15%);
     border-color: color-mix(in srgb, var(--danger-500) 92%, #7a1111 8%);
     color: #ffffff;
+}
+
+@media (min-width: 769px) {
+    body.ui-v2-shell #setlistSection .setlist-header-actions {
+        justify-content: center;
+        gap: 6px;
+        overflow-x: visible;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn {
+        width: 34px;
+        height: 34px;
+        min-width: 34px;
+        min-height: 34px;
+        border-radius: 999px;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn i {
+        font-size: 0.78rem;
+    }
 }
 
 body.ui-v2-shell #setlistSection .setlist-tabs {
@@ -335,7 +361,10 @@ body.ui-v2-shell .setlist-song-number {
 body.ui-v2-shell .setlist-song-details {
     flex: 1 1 auto;
     min-width: 0;
+    margin-left: 0;
+    padding-left: 0;
     padding-right: 0;
+    border-left: none;
 }
 
 body.ui-v2-shell .setlist-song-item.selected,
@@ -350,7 +379,7 @@ body.ui-v2-shell .setlist-song-title {
     font-weight: 700;
     color: var(--text-900);
     font-size: 0.8rem;
-    line-height: 1.1;
+    line-height: 1.5;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -361,6 +390,13 @@ body.ui-v2-shell .setlist-song-meta {
     color: var(--text-700);
     font-size: 0.64rem;
     line-height: 1.1;
+}
+
+body.ui-v2-shell .setlist-song-meta {
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 body.ui-v2-shell .setlist-song-meta-row {
@@ -410,6 +446,38 @@ body.ui-v2-shell .remove-from-setlist-btn {
     font-size: 0.62rem;
     line-height: 1;
     padding: 0;
+}
+
+body.ui-v2-shell .suggested-song-item {
+    padding: 6px 8px;
+    margin-bottom: 2px;
+}
+
+body.ui-v2-shell .suggested-song-title {
+    font-size: 0.90rem;
+    margin-bottom: 2px;
+    line-height: 1.1;
+}
+
+body.ui-v2-shell .suggested-song-meta {
+    font-size: 0.64rem;
+    line-height: 1.1;
+    margin-bottom: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.ui-v2-shell .suggested-song-mood {
+    font-size: 0.62rem;
+    margin: 1px 0;
+    line-height: 1.05;
+}
+
+body.ui-v2-shell .suggested-song-match {
+    margin-top: 2px;
+    padding: 2px 6px;
+    font-size: 0.62rem;
 }
 
 body.ui-v2-shell .remove-from-setlist-btn:hover,
@@ -500,6 +568,19 @@ body.ui-v2-shell .preview-key {
     font-weight: 800;
 }
 
+body.ui-v2-shell.dark-mode .preview-key,
+body.ui-v2-shell.dark-mode #current-key {
+    color: #f8ecc7;
+    background: color-mix(in srgb, var(--warning-500) 28%, var(--surface-0) 72%);
+    border: 1px solid color-mix(in srgb, var(--warning-500) 52%, var(--panel-divider) 48%);
+    border-radius: 999px;
+    padding: 1px 7px;
+    line-height: 1.1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
 body.ui-v2-shell .preview-meta-chip {
     border: 1px solid var(--chip-border);
     border-radius: 999px;
@@ -543,7 +624,7 @@ body.ui-v2-shell .preview-action-btn {
     border-radius: var(--radius-sm);
     background: var(--surface-0);
     color: var(--text-700);
-    min-height: 26px;
+    min-height: 40px;
     padding: 2px 4px;
     font-weight: 700;
     display: inline-flex;
@@ -558,13 +639,40 @@ body.ui-v2-shell .preview-action-btn:hover {
     background: var(--interactive-soft);
 }
 
-body.ui-v2-shell .preview-setlist-btn.add {
-    background: color-mix(in srgb, var(--success-500) 15%, var(--surface-0) 85%);
+body.ui-v2-shell .preview-setlist-btn.add,
+body.ui-v2-shell .preview-setlist-btn.remove {
+    background: color-mix(in srgb, var(--success-500) 26%, var(--surface-0) 74%);
+    border-color: color-mix(in srgb, var(--success-500) 60%, var(--panel-divider) 40%);
+    color: #8bd192;
 }
 
-body.ui-v2-shell .preview-setlist-btn.remove,
+body.ui-v2-shell .preview-setlist-btn.add:hover,
+body.ui-v2-shell .preview-setlist-btn.add:focus-visible,
+body.ui-v2-shell .preview-setlist-btn.remove:hover,
+body.ui-v2-shell .preview-setlist-btn.remove:focus-visible {
+    background: color-mix(in srgb, var(--success-500) 42%, var(--surface-0) 58%);
+    border-color: color-mix(in srgb, var(--success-500) 72%, var(--panel-divider) 28%);
+    color: #0a220e;
+}
+
 body.ui-v2-shell .preview-delete-btn {
-    background: color-mix(in srgb, var(--danger-500) 13%, var(--surface-0) 87%);
+    background: color-mix(in srgb, var(--danger-500) 54%, var(--surface-0) 47%);
+}
+
+body.ui-v2-shell .song-preview-actions .preview-action-btn.preview-edit-btn,
+body.ui-v2-shell #previewEditBtn {
+    background: color-mix(in srgb, var(--warning-500) 20%, #fff3cf 83%);
+    border-color: color-mix(in srgb, var(--warning-500) 17%, #6d4a10 -20%);
+    color: #896f41;
+}
+
+body.ui-v2-shell .song-preview-actions .preview-action-btn.preview-edit-btn:hover,
+body.ui-v2-shell .song-preview-actions .preview-action-btn.preview-edit-btn:focus-visible,
+body.ui-v2-shell #previewEditBtn:hover,
+body.ui-v2-shell #previewEditBtn:focus-visible {
+    background: color-mix(in srgb, var(--warning-500) 94%, #f4bf32 6%);
+    border-color: color-mix(in srgb, var(--warning-500) 92%, #8f5f1e 8%);
+    color: #201400;
 }
 
 body.ui-v2-shell .song-preview-transpose {
@@ -591,15 +699,22 @@ body.ui-v2-shell .preview-transpose-label {
 }
 
 body.ui-v2-shell .preview-transpose-display {
-    min-width: 30px;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
     text-align: center;
     font-weight: 800;
     color: var(--text-900);
     background: var(--surface-0);
     border: 1px solid var(--chip-border);
-    border-radius: 8px;
-    padding: 3px 5px;
-    font-size: 0.78rem;
+    border-radius: 999px;
+    padding: 0;
+    font-size: 0.74rem;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 body.ui-v2-shell .preview-transpose-btn,
@@ -637,10 +752,89 @@ body.ui-v2-shell .auto-scroll-btn i {
     font-size: 0.72rem;
 }
 
+body.ui-v2-shell .song-preview-transpose .preview-transpose-btn.preview-reset,
+body.ui-v2-shell #transposeReset {
+    background: color-mix(in srgb, var(--warning-500) 20%, #fff3cf 83%);
+    border-color: color-mix(in srgb, var(--warning-500) 17%, #6d4a10 -20%);
+    color: #896f41;
+}
+
+body.ui-v2-shell .song-preview-transpose .preview-transpose-btn.preview-reset:hover,
+body.ui-v2-shell .song-preview-transpose .preview-transpose-btn.preview-reset:focus-visible,
+body.ui-v2-shell #transposeReset:hover,
+body.ui-v2-shell #transposeReset:focus-visible {
+    background: color-mix(in srgb, var(--warning-500) 94%, #f4bf32 6%);
+    border-color: color-mix(in srgb, var(--warning-500) 92%, #8f5f1e 8%);
+    color: #201400;
+}
+
+body.ui-v2-shell .song-preview-transpose .preview-transpose-btn.preview-save,
+body.ui-v2-shell #saveTransposeBtn {
+    background: color-mix(in srgb, var(--success-500) 26%, var(--surface-0) 74%);
+    border-color: color-mix(in srgb, var(--success-500) 60%, var(--panel-divider) 40%);
+    color: #0f2b12;
+}
+
+body.ui-v2-shell .song-preview-transpose .preview-transpose-btn.preview-save:hover,
+body.ui-v2-shell .song-preview-transpose .preview-transpose-btn.preview-save:focus-visible,
+body.ui-v2-shell #saveTransposeBtn:hover,
+body.ui-v2-shell #saveTransposeBtn:focus-visible {
+    background: color-mix(in srgb, var(--success-500) 42%, var(--surface-0) 58%);
+    border-color: color-mix(in srgb, var(--success-500) 72%, var(--panel-divider) 28%);
+    color: #0a220e;
+}
+
 body.ui-v2-shell .preview-transpose-btn:hover,
 body.ui-v2-shell .auto-scroll-btn:hover {
     background: var(--interactive-soft);
     border-color: color-mix(in srgb, var(--brand-500) 40%, var(--chip-border) 60%);
+}
+
+@media (min-width: 769px) {
+    body.ui-v2-shell .song-preview-actions {
+        gap: 6px;
+    }
+
+    body.ui-v2-shell .song-preview-actions .preview-action-btn {
+        min-height: 34px;
+        padding: 4px 8px;
+        font-size: 0.76rem;
+    }
+
+    body.ui-v2-shell .song-preview-transpose {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 4px;
+    }
+
+    body.ui-v2-shell .song-preview-transpose .auto-scroll-btn,
+    body.ui-v2-shell #toggleAutoScroll {
+        margin-left: auto;
+    }
+}
+
+body.ui-v2-shell .song-preview-transpose .auto-scroll-btn,
+body.ui-v2-shell #toggleAutoScroll {
+    background: color-mix(in srgb, var(--brand-500) 22%, var(--surface-0) 78%);
+    border-color: color-mix(in srgb, var(--brand-500) 55%, var(--chip-border) 45%);
+    color: color-mix(in srgb, var(--brand-500) 70%, #0f3a4f 30%);
+}
+
+body.ui-v2-shell .song-preview-transpose .auto-scroll-btn:hover,
+body.ui-v2-shell .song-preview-transpose .auto-scroll-btn:focus-visible,
+body.ui-v2-shell #toggleAutoScroll:hover,
+body.ui-v2-shell #toggleAutoScroll:focus-visible {
+    background: color-mix(in srgb, var(--brand-500) 36%, var(--surface-0) 64%);
+    border-color: color-mix(in srgb, var(--brand-500) 68%, var(--chip-border) 32%);
+    color: color-mix(in srgb, var(--brand-500) 82%, #0b3143 18%);
+}
+
+body.ui-v2-shell .song-preview-transpose .auto-scroll-btn.active,
+body.ui-v2-shell #toggleAutoScroll.active {
+    background: color-mix(in srgb, var(--success-500) 30%, var(--surface-0) 70%);
+    border-color: color-mix(in srgb, var(--success-500) 65%, var(--chip-border) 35%);
+    color: #0f2b12;
 }
 
 body.ui-v2-shell .song-preview-audit {
@@ -667,4 +861,8 @@ body.ui-v2-shell .song-lyrics {
     padding: 6px;
     font-size: 0.9rem;
     line-height: 1.42;
+}
+
+body.ui-v2-shell #preview-lyrics-container {
+    font-size: var(--preview-lyrics-font-size, 0.9rem);
 }

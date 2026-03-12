@@ -81,6 +81,9 @@ body.ui-v2-shell .setlist-folder {
 }
 
 body.ui-v2-shell .folder-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     border-radius: var(--radius-sm);
     border: 1px solid var(--panel-divider);
     background: var(--surface-0);
@@ -98,6 +101,11 @@ body.ui-v2-shell .folder-header:hover {
 
 body.ui-v2-shell .folder-icon {
     color: var(--brand-500);
+}
+
+body.ui-v2-shell .folder-header > span {
+    flex: 1 1 auto;
+    min-width: 0;
 }
 
 body.ui-v2-shell .setlist-folder-content {
@@ -133,8 +141,7 @@ body.ui-v2-shell .setlist-folder-content li {
 }
 
 body.ui-v2-shell .setlist-item {
-    display: flex;
-    align-items: center;
+
     gap: 4px;
     width: 100%;
     min-width: 0;
@@ -267,7 +274,7 @@ body.ui-v2-shell .sidebar-menu > li.setlist-group-start {
 }
 
 body.ui-v2-shell .add-setlist-btn {
-    margin: 0;
+    margin: 0 0 0 auto;
     padding: 4px 6px;
 }
 

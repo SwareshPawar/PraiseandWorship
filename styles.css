@@ -726,12 +726,11 @@
         .preview-key {
             background: var(--primary-color);
             color: var(--accent-color);
-            padding: 3px 12px;
+            padding: 1px 5px;
             border-radius: 8px;
             font-weight: 900;
-            font-size: 0.95rem;
+            font-size: 0.8rem;
             border: 2px solid var(--accent-color);
-            text-transform: uppercase;
             letter-spacing: 1px;
             box-shadow: 0 2px 6px rgba(62, 63, 41, 0.25);
             flex: 0 0 auto;
@@ -984,11 +983,13 @@
 
         .preview-edit-btn {
             background: var(--btn-warning-bg);
-            color: var(--btn-text-light);
+            color: #2a1b00;
+            border: 1px solid color-mix(in srgb, var(--btn-warning-bg) 78%, #6d4a10 22%);
         }
 
         .preview-edit-btn:hover {
             background: var(--btn-warning-hover);
+            color: #201400;
             transform: translateY(-1px);
         }
 
@@ -3638,12 +3639,14 @@ body.dark-mode #installAppBtn:hover {
             }
 
         .btn-edit {
-            background: var(--secondary-color);
-            color: var(--primary-color);
+            background: var(--btn-warning-bg);
+            color: #2a1b00;
+            border: 1px solid color-mix(in srgb, var(--btn-warning-bg) 78%, #6d4a10 22%);
         }
 
             .btn-edit:hover {
-                background: var(--primary-color);
+                background: var(--btn-warning-hover);
+                color: #201400;
             }
 
         .btn-delete {

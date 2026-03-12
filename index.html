@@ -135,14 +135,14 @@ async function saveRecommendationWeightsToBackend(weights) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Praise & Worship Songs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css?v=20260311">
-    <link rel="stylesheet" href="styles.css?v=20260311">
+    <link rel="stylesheet" href="styles.css?v=20260312">
     <link rel="stylesheet" href="styles/tokens.css?v=20260311">
     <link rel="stylesheet" href="styles/base.css?v=20260311">
     <link rel="stylesheet" href="styles/layout-shell.css?v=20260311">
-    <link rel="stylesheet" href="styles/components.css?v=20260311">
-    <link rel="stylesheet" href="styles/panels.css?v=20260311">
+    <link rel="stylesheet" href="styles/components.css?v=20260312">
+    <link rel="stylesheet" href="styles/panels.css?v=20260312d">
     <link rel="stylesheet" href="styles/modals-admin.css?v=20260311">
-    <link rel="stylesheet" href="styles/mobile.css?v=20260311">
+    <link rel="stylesheet" href="styles/mobile.css?v=20260312b">
         <script>
         // Theme toggle logic (used by sidebar button)
         function toggleTheme() {
@@ -930,14 +930,6 @@ async function saveRecommendationWeightsToBackend(weights) {
                         <input type="text" id="setlistTextInput" >
                     </div>
                     <div class="settings-group">
-                        <label for="sessionResetOption">Session Reset:</label>
-                        <select id="sessionResetOption">
-                            <option value="manual">Manual (default)</option>
-                            <option value="onClose">Reset on window close</option>
-                            <option value="onRefresh">Reset on page refresh</option>
-                        </select>
-                    </div>
-                    <div class="settings-group">
                         <label for="panelWidthInput">Panel Width (%):</label>
                         <select id="panelWidthInput">
                             <option value="10">10%</option>
@@ -952,7 +944,7 @@ async function saveRecommendationWeightsToBackend(weights) {
                     </div>
                     <div class="settings-group">
                         <label for="previewMarginInput">Preview Margin Left (px):</label>
-                        <input type="number" id="previewMarginInput" min="0" max="100" value="5">
+                        <input type="number" id="previewMarginInput" min="0" max="100" value="10">
                     </div>
                     <div class="settings-group">
                         <label for="autoScrollSpeedInput">Auto Scroll Speed:</label>
@@ -967,7 +959,19 @@ async function saveRecommendationWeightsToBackend(weights) {
                         <select id="toggleButtonsVisibility">
                             <option value="hide" selected>Hide</option>
                             <option value="show">Show</option>
+                            <option value="draggable-only">Draggable Only (hide mobile stationary)</option>
                             <option value="hide-all">Hide All (including mobile stationary)</option>
+                        </select>
+                    </div>
+                    <div class="settings-group">
+                        <label for="previewLyricsSize">Preview Lyrics Size:</label>
+                        <select id="previewLyricsSize">
+                            <option value="down-2">Small 2</option>
+                            <option value="down-1">Small 1</option>
+                            <option value="default">Default (Current Size)</option>
+                            <option value="up-1">Large 1</option>
+                            <option value="up-2" selected>Large 2</option>
+                            <option value="up-3">Large 3</option>
                         </select>
                     </div>
                 </div>
@@ -1500,9 +1504,9 @@ async function saveRecommendationWeightsToBackend(weights) {
         </div>
     </div>
 
-    <script src="main1.js"></script>
-    <script src="loop-player-pad.js"></script>
-    <script src="loop-player-pad-ui.js"></script>
+    <script src="main1.js?v=20260312e"></script>
+    <script src="loop-player-pad.js?v=20260312"></script>
+    <script src="loop-player-pad-ui.js?v=20260312"></script>
     <!-- Suggested Songs Drawer -->
 <div class="suggested-songs-drawer" id="suggestedSongsDrawer">
     <div class="suggested-songs-header">

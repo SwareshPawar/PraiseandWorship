@@ -201,7 +201,7 @@ class LoopPlayerPad {
         // Only fetch raw audio data (don't decode yet - requires user gesture)
         const loadPromises = Object.entries(loopMap).map(async ([name, url]) => {
             try {
-                const response = await fetch(url);
+                const response = await this._fetchLoopAsset(url);
                 const arrayBuffer = await response.arrayBuffer();
                 this.rawAudioData.set(name, arrayBuffer);
             } catch (error) {
@@ -277,7 +277,7 @@ class LoopPlayerPad {
         // Fetch new loops
         const loadPromises = Object.entries(loopMap).map(async ([name, url]) => {
             try {
-                const response = await fetch(url);
+                const response = await this._fetchLoopAsset(url);
                 const arrayBuffer = await response.arrayBuffer();
                 this.rawAudioData.set(name, arrayBuffer);
             } catch (error) {
@@ -574,6 +574,81 @@ class LoopPlayerPad {
         return '';
     }
 
+    _getLoopAssetBaseUrls() {
+        const bases = [];
+
+        if (typeof API_BASE_URL !== 'undefined' && API_BASE_URL) {
+            bases.push(String(API_BASE_URL).replace(/\/$/, ''));
+        }
+
+        if (typeof API_BASE_URL_RENDER !== 'undefined' && API_BASE_URL_RENDER) {
+            bases.push(String(API_BASE_URL_RENDER).replace(/\/$/, ''));
+        }
+
+        if (typeof API_BASE_URL_VERCEL !== 'undefined' && API_BASE_URL_VERCEL) {
+            bases.push(String(API_BASE_URL_VERCEL).replace(/\/$/, ''));
+        }
+
+        if (typeof window !== 'undefined' && window.location && window.location.origin) {
+            bases.push(String(window.location.origin).replace(/\/$/, ''));
+        }
+
+        return Array.from(new Set(bases.filter(Boolean)));
+    }
+
+    _buildLoopAssetCandidates(urlOrPath) {
+        const raw = String(urlOrPath || '').trim();
+        if (!raw) return [];
+
+        const isAbsolute = /^https?:\/\//i.test(raw);
+        const bases = this._getLoopAssetBaseUrls();
+        const candidates = [];
+        let assetPath = '';
+
+        if (isAbsolute) {
+            candidates.push(raw);
+            try {
+                const parsed = new URL(raw);
+                assetPath = `${parsed.pathname}${parsed.search || ''}`;
+            } catch {
+                return Array.from(new Set(candidates));
+            }
+        } else {
+            assetPath = raw.startsWith('/') ? raw : `/${raw}`;
+        }
+
+        if (assetPath.toLowerCase().startsWith('/loops/')) {
+            bases.forEach(base => {
+                candidates.push(`${base}${assetPath}`);
+            });
+        } else if (!isAbsolute) {
+            bases.forEach(base => {
+                candidates.push(`${base}${assetPath}`);
+            });
+        }
+
+        return Array.from(new Set(candidates));
+    }
+
+    async _fetchLoopAsset(urlOrPath, options = {}) {
+        const candidates = this._buildLoopAssetCandidates(urlOrPath);
+        let lastError = null;
+
+        for (const candidate of candidates) {
+            try {
+                const response = await fetch(candidate, options);
+                if (response.ok) {
+                    return response;
+                }
+                lastError = new Error(`Failed to fetch ${candidate}: HTTP ${response.status}`);
+            } catch (error) {
+                lastError = error;
+            }
+        }
+
+        throw lastError || new Error(`Unable to fetch loop asset: ${urlOrPath}`);
+    }
+
     /**
      * Normalize key so major/minor share the same pads (e.g., Cm -> C)
      * @private
@@ -660,7 +735,7 @@ class LoopPlayerPad {
                 const url = `${baseUrl}/loops/melodies/${sampleType}/${sampleType}_${encodedKey}.wav`;
                 try {
                     // Use HEAD for lightweight check
-                    const response = await fetch(url, { method: 'HEAD' });
+                    const response = await this._fetchLoopAsset(url, { method: 'HEAD' });
                     if (response.ok) {
                         availability[sampleType] = true;
                         return; // Found it, stop trying other keys
@@ -728,7 +803,7 @@ class LoopPlayerPad {
                 const url = `${baseUrl}/loops/melodies/${sampleType}/${sampleType}_${encodedKey}.wav`;
                 try {
                     // Quick HEAD check to see if file exists
-                    const response = await fetch(url, { method: 'HEAD' });
+                    const response = await this._fetchLoopAsset(url, { method: 'HEAD' });
                     if (response.ok) {
                         foundUrl = url;
                         break;
@@ -761,7 +836,7 @@ class LoopPlayerPad {
         // Fetch raw audio data for melodic samples
         const loadPromises = Object.entries(sampleMap).map(async ([name, url]) => {
             try {
-                const response = await fetch(url);
+                const response = await this._fetchLoopAsset(url);
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }

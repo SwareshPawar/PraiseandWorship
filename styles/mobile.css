@@ -56,9 +56,9 @@
     }
 
     body.ui-v2-shell .song-preview-actions .preview-action-btn {
-        min-height: 26px;
-        padding: 3px 4px;
-        font-size: 0.62rem;
+        min-height: 40px;
+        padding: 4px 6px;
+        font-size: 0.72rem;
     }
 
     body.ui-v2-shell .song-preview-transpose {
@@ -100,10 +100,11 @@
     }
 
     body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-action-btn {
-        width: 20px;
-        height: 20px;
-        min-width: 20px;
-        min-height: 50px;
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        min-height: 30px;
+        border-radius: 999px;
         font-size: 0;
     }
 
@@ -112,10 +113,10 @@
     }
 
     body.ui-v2-shell .sidebar .setlist-actions .setlist-action-btn {
-        width: 13px;
-        height: 13px;
-        min-width: 13px;
-        min-height: 13px;
+        width: 18px !important;
+        height: 18px !important;
+        min-width: 18px !important;
+        min-height: 18px !important;
         opacity: 0.42;
     }
 
@@ -137,7 +138,7 @@
     body.ui-v2-shell #setlistSection .setlist-tab {
         min-height: 20px;
         padding: 1px 4px;
-        font-size: 0.68rem;
+        font-size: 0.72rem;
     }
 
     body.ui-v2-shell #setlistSection .setlist-content {
@@ -146,8 +147,29 @@
     }
 
     body.ui-v2-shell #setlistSection .setlist-song-item {
-        padding: 3px 4px;
+        background: var(--song-item-bg);
+        color: var(--song-item-text);
+        border: 1px solid var(--song-item-border);
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        margin: 2px 0;
+        padding: 2px;
         gap: 2px;
+        min-height: 40px;
+        overflow: hidden;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-song-item:hover,
+    body.ui-v2-shell #setlistSection .setlist-song-item.selected {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+        border-color: color-mix(in srgb, var(--brand-500) 40%, var(--border-color) 60%);
+        background: color-mix(in srgb, var(--surface-0) 88%, #d9eef8 12%);
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-song-info {
+        font-size: 0.72rem;
     }
 
     body.ui-v2-shell #setlistSection .setlist-song-number {
@@ -158,20 +180,20 @@
     }
 
     body.ui-v2-shell #setlistSection .setlist-song-title {
-        font-size: 0.76rem;
+        font-size: 0.90rem;
     }
 
     body.ui-v2-shell #setlistSection .setlist-song-meta-row,
     body.ui-v2-shell #setlistSection .setlist-song-meta {
-        font-size: 0.62rem;
+        font-size: 0.68rem;
     }
 
     body.ui-v2-shell #setlistSection .setlist-song-key,
     body.ui-v2-shell #setlistSection .setlist-song-key-time,
     body.ui-v2-shell #setlistSection .setlist-song-key-tempo {
-        padding: 0 2px;
-        font-size: 0.56rem;
-        min-height: 11px;
+        padding: 0 3px;
+        font-size: 0.66rem;
+        min-height: 13px;
     }
 
     body.ui-v2-shell #setlistSection .setlist-song-actions {
@@ -194,14 +216,16 @@
     body.ui-v2-shell .preview-transpose-btn.preview-reset,
     body.ui-v2-shell .preview-transpose-btn.preview-save,
     body.ui-v2-shell .auto-scroll-btn {
-        width: 28px;
-        height: 28px;
-        min-width: 28px;
-        min-height: 28px;
+        width: 35px;
+        height: 35px;
+        min-width: 35px;
+        min-height: 35px;
     }
 
     body.ui-v2-shell .song-preview-transpose .auto-scroll-btn {
-        margin-left: 0;
+        margin-left: auto;
+        position: sticky;
+        right: 0;
     }
 
     body.ui-v2-shell .preview-transpose-label {
@@ -218,7 +242,10 @@
 
     body.ui-v2-shell .preview-transpose-display {
         flex: 0 0 auto;
-        min-width: 28px;
+        width: 35px;
+        height: 35px;
+        min-width: 35px;
+        min-height: 35px;
     }
 
     body.ui-v2-shell .song-preview-transpose .preview-transpose-btn,
@@ -230,11 +257,19 @@
     body.ui-v2-shell .preview-meta-row {
         grid-template-columns: 66px 1fr;
     }
+
+    body.ui-v2-shell .preview-meta-label {
+        font-size: 0.7rem;
+    }
+
+    body.ui-v2-shell .preview-meta-toggle {
+        font-size: 0.72rem;
+    }
 }
 
 @media (max-width: 480px) {
     body.ui-v2-shell .song-preview-title {
-        font-size: 0.92rem;
+        font-size: 1.05rem;
     }
 
     body.ui-v2-shell .song-preview-metadata,
@@ -251,7 +286,7 @@
     }
 
     body.ui-v2-shell .preview-meta-chip {
-        font-size: 0.66rem;
-        padding: 3px 6px;
+        font-size: 0.80rem;
+        padding: 4px 7px;
     }
 }

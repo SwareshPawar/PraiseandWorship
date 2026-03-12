@@ -34,7 +34,10 @@ async function getLoopsMetadata() {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/loops/metadata`);
+        const requestUrl = `${API_BASE_URL}/api/loops/metadata`;
+        const response = typeof authFetch === 'function'
+            ? await authFetch(requestUrl)
+            : await fetch(requestUrl);
         if (response.ok) {
             loopsMetadataCache = await response.json();
             return loopsMetadataCache;
@@ -551,7 +554,7 @@ async function initializeLoopPlayer(songId) {
             fill3: loopSet.files.fill3
         }).reduce((acc, [name, filename]) => {
             if (filename) {
-                acc[name] = `${API_BASE_URL}/loops/${filename}`;
+                acc[name] = `${API_BASE_URL}/loops/${encodeURIComponent(filename)}`;
             } else {
                 console.warn(`⚠️ Missing loop file in metadata: ${name}`);
             }

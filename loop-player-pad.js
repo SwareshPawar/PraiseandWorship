@@ -315,7 +315,7 @@ class LoopPlayerPad {
         
         try {
             // Initialize everything silently first
-            await this._initializeAllSamples();
+            await this._initializeAllSamples(true);
             
             // Check if loops are loaded
             if (this.audioBuffers.size === 0) {
@@ -339,10 +339,10 @@ class LoopPlayerPad {
      * Initialize all available audio samples silently
      * @private
      */
-    async _initializeAllSamples() {
+    async _initializeAllSamples(resumeAudio = true) {
         
         // Initialize Web Audio API with silent gain
-        await this._initializeSilent();
+        await this._initializeSilent(resumeAudio);
         
         // Initialize all rhythm loops
         await this._initializeRhythmSamples();
@@ -356,10 +356,27 @@ class LoopPlayerPad {
     }
 
     /**
+     * Prewarm audio pipeline before Play click so playback starts faster.
+     * Decodes available rhythm and melodic samples without forcing autoplay.
+     */
+    async prewarmAudio() {
+        // Do not interrupt active playback.
+        if (this.isPlaying || this.isInitializing) {
+            return;
+        }
+
+        if (this.pendingLoopReload) {
+            await this._applyPendingReload();
+        }
+
+        await this._initializeAllSamples(false);
+    }
+
+    /**
      * Initialize Web Audio API with silent output
      * @private
      */
-    async _initializeSilent() {
+    async _initializeSilent(resumeAudio = true) {
         if (!this.audioContext) {
             this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
             
@@ -379,7 +396,7 @@ class LoopPlayerPad {
             
         }
         
-        if (this.audioContext.state === 'suspended') {
+        if (resumeAudio && this.audioContext.state === 'suspended') {
             await this.audioContext.resume();
         }
     }

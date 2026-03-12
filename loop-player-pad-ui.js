@@ -568,6 +568,10 @@ async function initializeLoopPlayer(songId) {
         
         // Load loops with song ID for tracking
         await loopPlayerInstance.loadLoops(loopMap, songId);
+
+        // Pre-decode/pre-initialize in background so Play click starts faster.
+        // We intentionally do not force resume here to keep autoplay-policy safe.
+        await loopPlayerInstance.prewarmAudio();
         
         // Check availability of melodic samples for the effective key
         const melodicAvailability = await loopPlayerInstance.checkMelodicAvailability(['atmosphere', 'tanpura']);
@@ -625,7 +629,7 @@ async function initializeLoopPlayer(songId) {
                 status.style.color = '#ffc107'; // Warning color
             } else if (loadedCount >= 6) {
                 const melodicStatus = melodicCount > 0 ? ` | Melodic: ${melodicCount}/${totalMelodic}` : ' | No melodic samples';
-                status.textContent = `Ready - ${rhythmSetId}${melodicStatus} (Click Play to initialize audio)`;
+                status.textContent = `Ready - ${rhythmSetId}${melodicStatus} (Click Play)`;
                 status.title = `Mapped rhythm set: ${rhythmSetId}`;
                 status.style.color = ''; // Reset color
             } else {

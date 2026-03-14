@@ -4775,11 +4775,11 @@ window.viewSingleLyrics = function(songId, otherId) {
     function resolveSongFromSetlistItem(item) {
         if (typeof item === 'object' && item !== null) {
             if (item.lyrics || item.title) return item;
-            const objectSongId = item.id || item._id;
-            return songs.find(s => getComparableId(s.id) === getComparableId(objectSongId) || getComparableId(s._id) === getComparableId(objectSongId)) || null;
+            const objectSongId = item.id;
+            return songs.find(s => getComparableId(s.id) === getComparableId(objectSongId)) || null;
         }
 
-        return songs.find(s => getComparableId(s.id) === getComparableId(item) || getComparableId(s._id) === getComparableId(item)) || null;
+        return songs.find(s => getComparableId(s.id) === getComparableId(item)) || null;
     }
 
     function canManageSmartSetlist(setlist) {
@@ -4831,7 +4831,6 @@ window.viewSingleLyrics = function(songId, otherId) {
         if (!targetId) return null;
         return songs.find(song => (
             getComparableId(song && song.id) === targetId
-            || getComparableId(song && song._id) === targetId
         )) || null;
     }
 
@@ -6627,7 +6626,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     </div>
                 </div>
                 <div class="setlist-song-actions">
-                    ${(currentSetlistType === 'my' || (currentSetlistType === 'global' && currentUser && currentUser.isAdmin)) ? `<button class="remove-from-setlist-btn" data-song-id="${song._id || song.id}" title="Remove from setlist" type="button">×</button>` : ''}
+                    ${(currentSetlistType === 'my' || (currentSetlistType === 'global' && currentUser && currentUser.isAdmin)) ? `<button class="remove-from-setlist-btn" data-song-id="${song.id}" title="Remove from setlist" type="button">×</button>` : ''}
                 </div>`;
 
             // Add click handler for song info (not the remove button)
@@ -6652,7 +6651,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                         showNotification('❌ Access denied: Only administrators can modify global setlists', 'error');
                         return;
                     }
-                    await removeSongFromSetlist(song._id || song.id);
+                    await removeSongFromSetlist(song.id);
                 });
             }
             ul.appendChild(li);
@@ -6747,7 +6746,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         // Find the song index - handle both regular song IDs and manual song objects
         const songIndex = currentViewingSetlist.songs.findIndex(item => {
             if (typeof item === 'object' && item !== null) {
-                return getComparableId(item._id || item.id) === targetSongId;
+                return getComparableId(item.id) === targetSongId;
             }
             return getComparableId(item) === targetSongId;
         });
@@ -6976,7 +6975,7 @@ window.viewSingleLyrics = function(songId, otherId) {
     function createSetlistSongElement(song) {
         const div = document.createElement('div');
         div.className = 'setlist-song-item';
-        const removableSongId = getComparableId(song._id || song.id);
+        const removableSongId = getComparableId(song.id);
         div.innerHTML = `
             <div class="setlist-song-info">
                 <div class="setlist-song-title">${song.title}</div>
@@ -7020,7 +7019,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         const targetSongId = getComparableId(songId);
         const updatedSongs = currentViewingSetlist.songs.filter(item => {
             if (typeof item === 'object' && item !== null) {
-                return getComparableId(item._id || item.id) !== targetSongId;
+                return getComparableId(item.id) !== targetSongId;
             }
             return getComparableId(item) !== targetSongId;
         });
@@ -7325,7 +7324,7 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         if (matchingSongs.length > 0) {
             resultsList.innerHTML = matchingSongs.map(song => `
-                <div class="existing-song-item" onclick="selectExistingSong('${song._id}')">
+                <div class="existing-song-item" onclick="selectExistingSong('${song.id}')">
                     <div class="song-title">${song.title}</div>
                     <div class="song-details">
                         ${song.key || 'Unknown Key'} • ${song.time || song.timeSignature || 'Unknown Time'} • ${song.tempo || 'Unknown BPM'}
@@ -7339,7 +7338,7 @@ window.viewSingleLyrics = function(songId, otherId) {
     }
 
     async function selectExistingSong(songId) {
-        const song = songs.find(s => s._id === songId);
+        const song = songs.find(s => getComparableId(s.id) === getComparableId(songId));
         if (song && currentViewingSetlist) {
             // Add existing song to setlist
             const success = await addSongToCurrentSetlist(song);
@@ -7367,7 +7366,7 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         // Create manual song object
         const manualSong = {
-            _id: 'manual_' + Date.now(),
+            id: 'manual_' + Date.now(),
             title: title,
             key: key,
             time: timeSignature,
@@ -7413,7 +7412,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     songTitle = song.title || '';
                 } else if (typeof song === 'string') {
                     // Song ID - look up in global songs array
-                    const foundSong = songs.find(s => getComparableId(s.id) === getComparableId(song) || getComparableId(s._id) === getComparableId(song));
+                    const foundSong = songs.find(s => getComparableId(s.id) === getComparableId(song));
                     songTitle = foundSong ? foundSong.title : '';
                 }
                 
@@ -7421,7 +7420,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 if (typeof song === 'string' && song.startsWith('manual_')) {
                     // This might be a manual song ID - check existing manual songs in setlist
                     const manualSongInList = currentSetlist.songs.find(s => 
-                        typeof s === 'object' && getComparableId(s._id || s.id) === getComparableId(song)
+                        typeof s === 'object' && getComparableId(s.id) === getComparableId(song)
                     );
                     if (manualSongInList) {
                         songTitle = manualSongInList.title || '';
@@ -7449,7 +7448,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 },
                 body: JSON.stringify({
                     setlistId: setlistId,
-                    songId: manualSong._id,
+                    songId: manualSong.id,
                     manualSong: manualSong
                 })
             });
@@ -7499,11 +7498,11 @@ window.viewSingleLyrics = function(songId, otherId) {
                 // Handle different data structures
                 if (typeof existingSong === 'object') {
                     // Song object - compare IDs and titles
-                    return (getComparableId(existingSong._id || existingSong.id) === getComparableId(song._id || song.id)) || 
+                    return (getComparableId(existingSong.id) === getComparableId(song.id)) || 
                            (existingSong.title?.toLowerCase().trim() === song.title?.toLowerCase().trim());
                 } else {
                     // Song ID - compare with song's ID
-                    return getComparableId(existingSong) === getComparableId(song._id || song.id);
+                    return getComparableId(existingSong) === getComparableId(song.id);
                 }
             });
             
@@ -7525,7 +7524,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 },
                 body: JSON.stringify({ 
                     setlistId: setlistId,
-                    songId: song._id || song.id 
+                    songId: song.id 
                 })
             });
 
@@ -7653,7 +7652,7 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         if ((setlist.songs || []).some(item => {
             if (typeof item === 'object' && item !== null) {
-                return getComparableId(item._id || item.id) === getComparableId(songId);
+                return getComparableId(item.id) === getComparableId(songId);
             }
             return getComparableId(item) === getComparableId(songId);
         })) {
@@ -7697,7 +7696,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         try {
             const updatedSongs = (setlist.songs || []).filter(item => {
                 if (typeof item === 'object' && item !== null) {
-                    return getComparableId(item._id || item.id) !== getComparableId(songId);
+                    return getComparableId(item.id) !== getComparableId(songId);
                 }
                 return getComparableId(item) !== getComparableId(songId);
             });
@@ -7734,7 +7733,7 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         if ((setlist.songs || []).some(item => {
             if (typeof item === 'object' && item !== null) {
-                return getComparableId(item._id || item.id) === getComparableId(songId);
+                return getComparableId(item.id) === getComparableId(songId);
             }
             return getComparableId(item) === getComparableId(songId);
         })) {
@@ -7778,7 +7777,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         try {
             const updatedSongs = (setlist.songs || []).filter(item => {
                 if (typeof item === 'object' && item !== null) {
-                    return getComparableId(item._id || item.id) !== getComparableId(songId);
+                    return getComparableId(item.id) !== getComparableId(songId);
                 }
                 return getComparableId(item) !== getComparableId(songId);
             });
@@ -9602,8 +9601,7 @@ window.viewSingleLyrics = function(songId, otherId) {
         async function showPreview(song, fromHistory = false, openingContext = 'all-songs') {
             if (!song || typeof song !== 'object') return;
 
-            // Setlist payloads can carry _id without id; normalize once for preview + loop player wiring.
-            const previewSongId = song.id || song._id;
+            const previewSongId = song.id;
             if (!previewSongId) {
                 showNotification('Unable to open song preview: missing song ID');
                 return;
@@ -10207,7 +10205,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 // Check if song is already in setlist
                 const isDuplicate = targetSetlist.songs.some(existingSong => {
                     const existingSongId = typeof existingSong === 'object' ? 
-                        (existingSong.id || existingSong._id) : existingSong;
+                        existingSong.id : existingSong;
                     return existingSongId === songId;
                 });
                 

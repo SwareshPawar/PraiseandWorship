@@ -21,7 +21,7 @@ window.getLoopPlayerInstance = () => loopPlayerInstance;
 
 function getSongIdentifier(song) {
     if (!song || typeof song !== 'object') return '';
-    const id = song.id || song._id;
+    const id = song.id;
     return id === undefined || id === null ? '' : String(id);
 }
 

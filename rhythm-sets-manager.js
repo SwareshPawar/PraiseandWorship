@@ -312,6 +312,52 @@ async function loadSongs() {
   }
 }
 
+function getSongIdentityKey(song) {
+  if (!song || typeof song !== 'object') return '';
+  const numericSongId = normalizeSongNumericId(song.id);
+  if (numericSongId) {
+    return `id:${numericSongId}`;
+  }
+
+  if (song._id !== undefined && song._id !== null && String(song._id).trim() !== '') {
+    return `oid:${String(song._id).trim()}`;
+  }
+
+  return '';
+}
+
+function getSongRouteId(song) {
+  if (!song || typeof song !== 'object') return '';
+  const numericSongId = normalizeSongNumericId(song.id);
+  if (numericSongId) {
+    return numericSongId;
+  }
+
+  if (song._id !== undefined && song._id !== null && String(song._id).trim() !== '') {
+    return String(song._id).trim();
+  }
+
+  return '';
+}
+
+function matchesSongIdentity(song, songIdentity) {
+  const target = String(songIdentity || '').trim();
+  if (!target) return false;
+
+  const key = getSongIdentityKey(song);
+  if (key === target) return true;
+
+  // Backward compatibility for callers that may still pass raw ids.
+  return String(song && song.id || '').trim() === target
+    || String(song && song._id || '').trim() === target;
+}
+
+function normalizeSongNumericId(value) {
+  const text = String(value || '').trim();
+  if (!/^[1-9]\d*$/.test(text)) return '';
+  return String(parseInt(text, 10));
+}
+
 function renderSongsTable() {
   const tbody = document.getElementById('songsTableBody');
   tbody.innerHTML = '';
@@ -326,7 +372,8 @@ function renderSongsTable() {
   allSongs.forEach(song => {
     const tr = document.createElement('tr');
     tr.className = 'song-row';
-    tr.dataset.songId = song._id || song.id;
+    const songIdentity = getSongIdentityKey(song);
+    tr.dataset.songId = songIdentity;
     
     const rhythmSetDisplay = song.rhythmSetId || '<span class="warn">unmapped</span>';
     
@@ -337,11 +384,11 @@ function renderSongsTable() {
       </td>
       <td>${rhythmSetDisplay}</td>
       <td>
-        <button class="btn" style="padding:6px 10px;font-size:.85rem;" onclick="setSelectedSong('${song._id || song.id}')">Select</button>
+        <button class="btn" style="padding:6px 10px;font-size:.85rem;" onclick='setSelectedSong(${JSON.stringify(songIdentity)})'>Select</button>
       </td>
     `;
     
-    if (selectedSong && (selectedSong._id === song._id || selectedSong.id === song.id)) {
+    if (selectedSong && matchesSongIdentity(song, getSongIdentityKey(selectedSong))) {
       tr.classList.add('selected');
     }
     
@@ -349,8 +396,8 @@ function renderSongsTable() {
   });
 }
 
-function setSelectedSong(songId) {
-  const song = allSongs.find(s => s._id === songId || s.id === songId);
+function setSelectedSong(songIdentity) {
+  const song = allSongs.find(s => matchesSongIdentity(s, songIdentity));
   if (!song) return;
 
   selectedSong = song;
@@ -381,10 +428,10 @@ function filterSongs() {
   const rows = tbody.getElementsByTagName('tr');
   
   Array.from(rows).forEach(row => {
-    const songId = row.dataset.songId;
-    if (!songId) return;
+    const songIdentity = row.dataset.songId;
+    if (!songIdentity) return;
     
-    const song = allSongs.find(s => (s._id === songId || s.id === songId));
+    const song = allSongs.find(s => matchesSongIdentity(s, songIdentity));
     if (!song) return;
     
     const searchableText = [
@@ -719,15 +766,28 @@ async function assignSelectedRhythmSet() {
 
   try {
     setInfo(`Assigning ${rhythmSetId} to ${selectedSong.title}...`);
-    
-    const songId = selectedSong._id || selectedSong.id;
-    const response = await fetchWithBackendFallback(`/api/songs/${encodeURIComponent(songId)}`, {
+
+    const songRouteId = getSongRouteId(selectedSong);
+    if (!songRouteId) {
+      throw new Error('Selected song is missing a valid identifier.');
+    }
+
+    const parsedRhythmSet = parseRhythmSetId(rhythmSetId);
+    const requestBody = parsedRhythmSet
+      ? {
+          rhythmSetId: parsedRhythmSet.rhythmSetId,
+          rhythmFamily: parsedRhythmSet.rhythmFamily,
+          rhythmSetNo: parsedRhythmSet.rhythmSetNo
+        }
+      : { rhythmSetId };
+
+    const response = await fetchWithBackendFallback(`/api/songs/${encodeURIComponent(songRouteId)}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ rhythmSetId })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {
@@ -735,13 +795,32 @@ async function assignSelectedRhythmSet() {
       throw new Error(payload.error || `HTTP ${response.status}`);
     }
 
+    const updatedSong = await response.json().catch(() => null);
+
     setInfo(`✓ Assigned ${rhythmSetId} to ${selectedSong.title}`);
     
     // Update local data
+    if (updatedSong && normalizeSongNumericId(updatedSong.id)) {
+      selectedSong.id = normalizeSongNumericId(updatedSong.id);
+    }
     selectedSong.rhythmSetId = rhythmSetId;
-    const songIndex = allSongs.findIndex(s => (s._id === songId || s.id === songId));
+    if (requestBody.rhythmFamily) {
+      selectedSong.rhythmFamily = requestBody.rhythmFamily;
+    }
+    if (requestBody.rhythmSetNo) {
+      selectedSong.rhythmSetNo = requestBody.rhythmSetNo;
+    }
+
+    const selectedIdentity = getSongIdentityKey(selectedSong);
+    const songIndex = allSongs.findIndex(s => matchesSongIdentity(s, selectedIdentity));
     if (songIndex !== -1) {
       allSongs[songIndex].rhythmSetId = rhythmSetId;
+      if (requestBody.rhythmFamily) {
+        allSongs[songIndex].rhythmFamily = requestBody.rhythmFamily;
+      }
+      if (requestBody.rhythmSetNo) {
+        allSongs[songIndex].rhythmSetNo = requestBody.rhythmSetNo;
+      }
     }
     
     renderSongsTable();

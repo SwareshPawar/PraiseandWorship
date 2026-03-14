@@ -759,8 +759,212 @@ app.post('/api/reset-password', async (req, res) => {
   }
 });
 
+let songsIdCanonicalizationPromise = null;
+let songsIdsCanonicalized = false;
+let songsIdIndexPromise = null;
+
+function normalizeSongId(value) {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) return null;
+  return parsed;
+}
+
+function capitalizeSongCategory(category) {
+  if (category === 'praise') return 'Praise';
+  if (category === 'worship') return 'Worship';
+  return category;
+}
+
+function formatSongForClient(song) {
+  return {
+    ...song,
+    id: normalizeSongId(song && song.id),
+    category: capitalizeSongCategory(song && song.category)
+  };
+}
+
+function compareSongCanonicalizationOrder(a, b) {
+  const createdAtA = String((a && a.createdAt) || '');
+  const createdAtB = String((b && b.createdAt) || '');
+  if (createdAtA !== createdAtB) {
+    return createdAtA.localeCompare(createdAtB);
+  }
+
+  return String((a && a._id) || '').localeCompare(String((b && b._id) || ''));
+}
+
+async function ensureUniqueSongIdIndex() {
+  if (songsIdIndexPromise) {
+    return songsIdIndexPromise;
+  }
+
+  songsIdIndexPromise = (async () => {
+    const indexes = await songsCollection.indexes();
+    const idIndex = indexes.find(index => index && index.key && index.key.id === 1);
+
+    if (idIndex && idIndex.unique === true) {
+      return;
+    }
+
+    if (idIndex && idIndex.name) {
+      await songsCollection.dropIndex(idIndex.name);
+    }
+
+    await songsCollection.createIndex(
+      { id: 1 },
+      { name: 'uniq_song_id', unique: true }
+    );
+  })().finally(() => {
+    songsIdIndexPromise = null;
+  });
+
+  return songsIdIndexPromise;
+}
+
+async function ensureSongIdCounterAligned(maxSongId) {
+  const countersCollection = db.collection('Counters');
+  const normalizedMax = normalizeSongId(maxSongId) || 0;
+  await countersCollection.updateOne(
+    { _id: 'songId' },
+    {
+      $max: { seq: normalizedMax },
+      $setOnInsert: { createdAt: new Date().toISOString() }
+    },
+    { upsert: true }
+  );
+}
+
+async function reserveNextSongId() {
+  const countersCollection = db.collection('Counters');
+  const result = await countersCollection.findOneAndUpdate(
+    { _id: 'songId' },
+    {
+      $inc: { seq: 1 },
+      $setOnInsert: { createdAt: new Date().toISOString() }
+    },
+    {
+      upsert: true,
+      returnDocument: 'after',
+      includeResultMetadata: true
+    }
+  );
+
+  const resultSeq = normalizeSongId(
+    result && (result.value ? result.value.seq : result.seq)
+  );
+  if (resultSeq) {
+    return resultSeq;
+  }
+
+  const counterDoc = await countersCollection.findOne({ _id: 'songId' });
+  const fallbackSeq = normalizeSongId(counterDoc && counterDoc.seq);
+  if (fallbackSeq) {
+    return fallbackSeq;
+  }
+
+  throw new Error('Failed to reserve next song id');
+}
+
+async function ensureSongsUseCanonicalIds() {
+  if (songsIdsCanonicalized) {
+    return;
+  }
+
+  if (songsIdCanonicalizationPromise) {
+    return songsIdCanonicalizationPromise;
+  }
+
+  songsIdCanonicalizationPromise = (async () => {
+    const songs = await songsCollection.find({}, { projection: { _id: 1, id: 1, createdAt: 1 } }).toArray();
+    songs.sort(compareSongCanonicalizationOrder);
+
+    let maxId = 0;
+    const usedIds = new Set();
+    const updates = [];
+
+    songs.forEach(song => {
+      const normalizedId = normalizeSongId(song && song.id);
+      if (normalizedId && !usedIds.has(normalizedId)) {
+        usedIds.add(normalizedId);
+        if (normalizedId > maxId) {
+          maxId = normalizedId;
+        }
+        return;
+      }
+
+      maxId += 1;
+      usedIds.add(maxId);
+      updates.push({
+        updateOne: {
+          filter: { _id: song._id },
+          update: {
+            $set: {
+              id: maxId,
+              updatedAt: new Date().toISOString(),
+              updatedBy: 'system-id-normalizer'
+            }
+          }
+        }
+      });
+    });
+
+    if (updates.length > 0) {
+      await songsCollection.bulkWrite(updates);
+      console.warn(`Canonicalized ${updates.length} song(s) to numeric id and resolved duplicates.`);
+    }
+
+    await ensureUniqueSongIdIndex();
+    await ensureSongIdCounterAligned(maxId);
+
+    songsIdsCanonicalized = true;
+  })().finally(() => {
+    songsIdCanonicalizationPromise = null;
+  });
+
+  return songsIdCanonicalizationPromise;
+}
+
+async function resolveCanonicalSongByRouteId(routeId) {
+  const rawId = String(routeId || '').trim();
+  const numericId = normalizeSongId(rawId);
+
+  if (numericId) {
+    const song = await songsCollection.findOne({ id: numericId });
+    return { numericId, song };
+  }
+
+  if (!ObjectId.isValid(rawId)) {
+    return { numericId: null, song: null };
+  }
+
+  const legacySong = await songsCollection.findOne({ _id: new ObjectId(rawId) });
+  if (!legacySong) {
+    return { numericId: null, song: null };
+  }
+
+  let canonicalId = normalizeSongId(legacySong.id);
+  if (!canonicalId) {
+    canonicalId = await reserveNextSongId();
+    await songsCollection.updateOne(
+      { _id: legacySong._id },
+      {
+        $set: {
+          id: canonicalId,
+          updatedAt: new Date().toISOString(),
+          updatedBy: 'system-id-normalizer'
+        }
+      }
+    );
+  }
+
+  const canonicalSong = await songsCollection.findOne({ id: canonicalId });
+  return { numericId: canonicalId, song: canonicalSong || { ...legacySong, id: canonicalId } };
+}
+
 app.get('/api/songs', async (req, res) => {
   try {
+    await ensureSongsUseCanonicalIds();
+
     // Support delta fetching: if ?since=TIMESTAMP is provided, only return songs updated after that
     const { since } = req.query;
     let query = {};
@@ -774,14 +978,7 @@ app.get('/api/songs', async (req, res) => {
       };
     }
     const songs = await songsCollection.find(query).toArray();
-    
-    // Convert category from lowercase to capitalized for frontend compatibility
-    const formattedSongs = songs.map(song => ({
-      ...song,
-      category: song.category === 'praise' ? 'Praise' : 
-                song.category === 'worship' ? 'Worship' : 
-                song.category // Keep original if not praise/worship
-    }));
+    const formattedSongs = songs.map(formatSongForClient);
     
     res.json(formattedSongs);
   } catch (err) {
@@ -810,6 +1007,8 @@ app.get('/api/songs/deleted', async (req, res) => {
 // Protected: only logged-in users can add, update, or delete songs
 app.post('/api/songs', authMiddleware, async (req, res) => {
   try {
+    await ensureSongsUseCanonicalIds();
+
     req.body.rhythmCategory = normalizeRhythmCategory(req.body.rhythmCategory || '');
     const resolvedRhythm = resolveSongRhythmSelection(req.body, null);
     req.body.rhythmFamily = resolvedRhythm.rhythmFamily;
@@ -817,10 +1016,19 @@ app.post('/api/songs', authMiddleware, async (req, res) => {
     req.body.rhythmSetId = resolvedRhythm.rhythmSetId;
     req.body.rhythmRecommendation = resolvedRhythm.recommendation;
 
-    if (typeof req.body.id !== 'number') {
-      const last = await songsCollection.find().sort({ id: -1 }).limit(1).toArray();
-      req.body.id = last.length ? last[0].id + 1 : 1;
+    const incomingId = normalizeSongId(req.body.id);
+    if (incomingId) {
+      req.body.id = incomingId;
+      const existingSong = await songsCollection.findOne({ id: incomingId });
+      if (existingSong) {
+        return res.status(409).json({ error: `Song with ID ${incomingId} already exists` });
+      }
+
+      await ensureSongIdCounterAligned(incomingId);
+    } else {
+      req.body.id = await reserveNextSongId();
     }
+
     // Add createdBy and createdAt if not present
     // Always use createdBy and createdAt from request if present, else fallback to user/date
     if (!req.body.createdBy && req.user) {
@@ -873,31 +1081,29 @@ app.post('/api/songs', authMiddleware, async (req, res) => {
     }
     
     // Convert category back to capitalized for frontend compatibility (like GET does)
-    const formattedSong = {
-      ...insertedSong,
-      category: insertedSong.category === 'praise' ? 'Praise' : 
-                insertedSong.category === 'worship' ? 'Worship' : 
-                insertedSong.category
-    };
+    const formattedSong = formatSongForClient(insertedSong);
     
     res.status(201).json(formattedSong);
   } catch (err) {
+    if (err && err.code === 11000) {
+      return res.status(409).json({ error: 'Song ID already exists' });
+    }
     res.status(500).json({ error: err.message });
   }
 });
 
 app.put('/api/songs/:id', authMiddleware, async (req, res) => {
   try {
+    await ensureSongsUseCanonicalIds();
+
     const { id } = req.params;
-    const numericId = parseInt(id, 10);
-
-    let existingSongQuery = { id: numericId };
-    let existingSong = await songsCollection.findOne(existingSongQuery);
-
-    if (!existingSong && ObjectId.isValid(id)) {
-      existingSongQuery = { _id: new ObjectId(id) };
-      existingSong = await songsCollection.findOne(existingSongQuery);
+    const resolvedSongRef = await resolveCanonicalSongByRouteId(id);
+    if (!resolvedSongRef.numericId) {
+      return res.status(400).json({ error: 'Song ID must be a positive integer' });
     }
+
+    const existingSongQuery = { id: resolvedSongRef.numericId };
+    const existingSong = resolvedSongRef.song || await songsCollection.findOne(existingSongQuery);
 
     if (!existingSong) {
       return res.status(404).json({ error: 'Song not found' });
@@ -967,12 +1173,7 @@ app.put('/api/songs/:id', authMiddleware, async (req, res) => {
     }
 
     const formattedSong = {
-      ...updatedSong,
-      category: updatedSong.category === 'praise'
-        ? 'Praise'
-        : updatedSong.category === 'worship'
-          ? 'Worship'
-          : updatedSong.category
+      ...formatSongForClient(updatedSong)
     };
 
     res.json(formattedSong);
@@ -983,12 +1184,15 @@ app.put('/api/songs/:id', authMiddleware, async (req, res) => {
 
 app.delete('/api/songs/:id', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    const { id } = req.params;
+    await ensureSongsUseCanonicalIds();
 
-    let songToDelete = await songsCollection.findOne({ id: parseInt(id, 10) });
-    if (!songToDelete && ObjectId.isValid(id)) {
-      songToDelete = await songsCollection.findOne({ _id: new ObjectId(id) });
+    const { id } = req.params;
+    const resolvedSongRef = await resolveCanonicalSongByRouteId(id);
+    if (!resolvedSongRef.numericId) {
+      return res.status(400).json({ error: 'Song ID must be a positive integer' });
     }
+
+    const songToDelete = resolvedSongRef.song || await songsCollection.findOne({ id: resolvedSongRef.numericId });
 
     if (!songToDelete) {
       return res.status(404).json({ error: 'Song not found' });
@@ -996,9 +1200,8 @@ app.delete('/api/songs/:id', authMiddleware, requireAdmin, async (req, res) => {
 
     const result = await songsCollection.deleteOne({ _id: songToDelete._id });
     if (result.deletedCount > 0) {
-      const trackedId = songToDelete.id !== undefined ? songToDelete.id : String(songToDelete._id);
       await deletedSongsCollection.insertOne({
-        songId: trackedId,
+        songId: resolvedSongRef.numericId,
         deletedAt: new Date().toISOString()
       });
     }
@@ -1011,13 +1214,15 @@ app.delete('/api/songs/:id', authMiddleware, requireAdmin, async (req, res) => {
 
 app.delete('/api/songs', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    const allSongs = await songsCollection.find({}, { projection: { id: 1, _id: 1 } }).toArray();
+    await ensureSongsUseCanonicalIds();
+
+    const allSongs = await songsCollection.find({}, { projection: { id: 1 } }).toArray();
     await songsCollection.deleteMany({});
 
     if (allSongs.length > 0) {
       const deletedAt = new Date().toISOString();
       const deletionRecords = allSongs.map(song => ({
-        songId: song.id !== undefined ? song.id : String(song._id),
+        songId: song.id,
         deletedAt
       }));
       await deletedSongsCollection.insertMany(deletionRecords);

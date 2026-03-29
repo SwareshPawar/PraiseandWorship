@@ -31,6 +31,27 @@ function findLoopIndexBySlot(metadata, rhythmSetId, slotKey) {
 	});
 }
 
+function shouldSyncExternalSlot(metadata, rhythmSetId, slotKey, sourceFilename) {
+	const loopIndex = findLoopIndexBySlot(metadata, rhythmSetId, slotKey);
+	if (loopIndex < 0) {
+		return { shouldImport: true, reason: 'missing-local-slot' };
+	}
+
+	const existing = (metadata.loops || [])[loopIndex] || {};
+	const existingSourceFilename = String(existing.originalFilename || '').trim();
+	const incomingSourceFilename = String(sourceFilename || '').trim();
+
+	if (!existingSourceFilename) {
+		return { shouldImport: true, reason: 'missing-source-tracking' };
+	}
+
+	if (existingSourceFilename !== incomingSourceFilename) {
+		return { shouldImport: true, reason: 'source-filename-changed' };
+	}
+
+	return { shouldImport: false, reason: 'already-up-to-date' };
+}
+
 function syncRhythmSetsFromMetadata(metadata) {
 	metadata.rhythmSets = buildRhythmSetIndexFromMetadata(metadata).map(set => ({
 		rhythmSetId: set.rhythmSetId,
@@ -184,10 +205,17 @@ module.exports = async (req, res) => {
 			const writable = readWritableLoopsMetadata();
 			const metadata = writable.metadata;
 			const importedFiles = [];
+			const skippedFiles = [];
 
 			for (const [slotKey, sourceFilename] of Object.entries(sourceGroup.files || {})) {
 				const slotInfo = parseLoopSlotKey(slotKey);
 				if (!slotInfo) continue;
+
+				const syncDecision = shouldSyncExternalSlot(metadata, parsedTarget.rhythmSetId, slotInfo.key, sourceFilename);
+				if (!syncDecision.shouldImport) {
+					skippedFiles.push({ slotKey: slotInfo.key, sourceFilename, reason: syncDecision.reason });
+					continue;
+				}
 
 				const copied = await copyExternalLoopFile({
 					sourceId,
@@ -233,10 +261,16 @@ module.exports = async (req, res) => {
 			const { db } = await connectToDatabase();
 			await ensureRhythmSetDocument(db, parsedTarget, auth.user.username || auth.user.email || 'admin', 'external-rhythm-set-import');
 
-			return res.status(201).json({
+			return res.status(importedFiles.length > 0 ? 201 : 200).json({
 				success: true,
 				targetRhythmSetId: parsedTarget.rhythmSetId,
-				importedFiles
+				importedFiles,
+				skippedFiles,
+				delta: {
+					totalSlots: Object.keys(sourceGroup.files || {}).length,
+					importedCount: importedFiles.length,
+					skippedCount: skippedFiles.length
+				}
 			});
 		}
 

@@ -94,96 +94,84 @@
       "rhythmSetId": "dadra_1"
     },
     {
-      "id": "deepchandi_14_8_slow_classical_loop1",
-      "filename": "deepchandi_14_8_slow_classical_LOOP1.wav",
+      "id": "deepchandi_1_loop1",
+      "filename": "deepchandi_1_loop1_oldandnew.wav",
       "type": "loop",
       "number": 1,
       "conditions": {
-        "taal": "deepchandi",
-        "timeSignature": "14/8",
-        "tempo": "slow",
-        "genre": "classical"
+        "taal": "deepchandi"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-15T17:53:51.150Z",
-        "description": ""
+        "updatedAt": "2026-03-29T05:59:18.426Z",
+        "importedFrom": "oldandnew:deepchandi_1"
       },
       "files": {
         "loop1": "deepchandi_14_8_slow_classical_LOOP1.wav"
       },
       "rhythmFamily": "deepchandi",
       "rhythmSetNo": 1,
-      "rhythmSetId": "deepchandi_1"
+      "rhythmSetId": "deepchandi_1",
+      "originalFilename": "deepchandi_1_LOOP1.wav"
     },
     {
-      "id": "deepchandi_14_8_slow_classical_loop2",
-      "filename": "deepchandi_14_8_slow_classical_LOOP2.wav",
+      "id": "deepchandi_1_loop2",
+      "filename": "deepchandi_1_loop2_oldandnew.wav",
       "type": "loop",
       "number": 2,
       "conditions": {
-        "taal": "deepchandi",
-        "timeSignature": "14/8",
-        "tempo": "slow",
-        "genre": "classical"
+        "taal": "deepchandi"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-15T17:53:51.750Z",
-        "description": ""
+        "updatedAt": "2026-03-29T05:59:19.794Z",
+        "importedFrom": "oldandnew:deepchandi_1"
       },
       "files": {
         "loop2": "deepchandi_14_8_slow_classical_LOOP2.wav"
       },
       "rhythmFamily": "deepchandi",
       "rhythmSetNo": 1,
-      "rhythmSetId": "deepchandi_1"
+      "rhythmSetId": "deepchandi_1",
+      "originalFilename": "deepchandi_1_LOOP2.wav"
     },
     {
-      "id": "deepchandi_14_8_slow_classical_fill1",
-      "filename": "deepchandi_14_8_slow_classical_FILL1.wav",
+      "id": "deepchandi_1_fill1",
+      "filename": "deepchandi_1_fill1_oldandnew.wav",
       "type": "fill",
       "number": 1,
       "conditions": {
-        "taal": "deepchandi",
-        "timeSignature": "14/8",
-        "tempo": "slow",
-        "genre": "classical"
+        "taal": "deepchandi"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-15T17:53:52.389Z",
-        "description": ""
+        "updatedAt": "2026-03-29T05:59:20.279Z",
+        "importedFrom": "oldandnew:deepchandi_1"
       },
       "files": {
         "fill1": "deepchandi_14_8_slow_classical_FILL1.wav"
       },
       "rhythmFamily": "deepchandi",
       "rhythmSetNo": 1,
-      "rhythmSetId": "deepchandi_1"
+      "rhythmSetId": "deepchandi_1",
+      "originalFilename": "deepchandi_1_FILL1.wav"
     },
     {
-      "id": "deepchandi_14_8_slow_classical_fill2",
-      "filename": "deepchandi_14_8_slow_classical_FILL2.wav",
+      "id": "deepchandi_1_fill2",
+      "filename": "deepchandi_1_fill2_oldandnew.wav",
       "type": "fill",
       "number": 2,
       "conditions": {
-        "taal": "deepchandi",
-        "timeSignature": "14/8",
-        "tempo": "slow",
-        "genre": "classical"
+        "taal": "deepchandi"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-15T17:53:52.900Z",
-        "description": ""
+        "updatedAt": "2026-03-29T05:59:20.818Z",
+        "importedFrom": "oldandnew:deepchandi_1"
       },
       "files": {
         "fill2": "deepchandi_14_8_slow_classical_FILL2.wav"
       },
       "rhythmFamily": "deepchandi",
       "rhythmSetNo": 1,
-      "rhythmSetId": "deepchandi_1"
+      "rhythmSetId": "deepchandi_1",
+      "originalFilename": "deepchandi_1_FILL2.wav"
     },
     {
       "id": "keherwa_4_4_medium_dholak_loop1",
@@ -572,142 +560,124 @@
       "rhythmSetId": "6beat_1"
     },
     {
-      "id": "rock_4_4_medium_rock_loop1",
-      "filename": "rock_4_4_medium_rock_LOOP1.wav",
+      "id": "rock_1_loop1",
+      "filename": "rock_1_loop1_oldandnew.wav",
       "type": "loop",
       "number": 1,
       "conditions": {
-        "taal": "rock",
-        "timeSignature": "4/4",
-        "tempo": "medium",
-        "genre": "rock"
+        "taal": "rock"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-28T12:31:05.873Z",
-        "description": ""
+        "updatedAt": "2026-03-29T06:02:34.238Z",
+        "importedFrom": "oldandnew:rock_1"
       },
       "files": {
         "loop1": "rock_4_4_medium_rock_LOOP1.wav"
       },
       "rhythmFamily": "rock",
       "rhythmSetNo": 1,
-      "rhythmSetId": "rock_1"
+      "rhythmSetId": "rock_1",
+      "originalFilename": "rock_1_LOOP1.wav"
     },
     {
-      "id": "rock_4_4_medium_rock_loop2",
-      "filename": "rock_4_4_medium_rock_LOOP2.wav",
+      "id": "rock_1_loop2",
+      "filename": "rock_1_loop2_oldandnew.wav",
       "type": "loop",
       "number": 2,
       "conditions": {
-        "taal": "rock",
-        "timeSignature": "4/4",
-        "tempo": "medium",
-        "genre": "rock"
+        "taal": "rock"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-28T12:31:12.630Z",
-        "description": ""
+        "updatedAt": "2026-03-29T06:02:34.736Z",
+        "importedFrom": "oldandnew:rock_1"
       },
       "files": {
         "loop2": "rock_4_4_medium_rock_LOOP2.wav"
       },
       "rhythmFamily": "rock",
       "rhythmSetNo": 1,
-      "rhythmSetId": "rock_1"
+      "rhythmSetId": "rock_1",
+      "originalFilename": "rock_1_LOOP2.wav"
     },
     {
-      "id": "rock_4_4_medium_rock_loop3",
-      "filename": "rock_4_4_medium_rock_LOOP3.wav",
+      "id": "rock_1_loop3",
+      "filename": "rock_1_loop3_oldandnew.wav",
       "type": "loop",
       "number": 3,
       "conditions": {
-        "taal": "rock",
-        "timeSignature": "4/4",
-        "tempo": "medium",
-        "genre": "rock"
+        "taal": "rock"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-28T12:31:19.411Z",
-        "description": ""
+        "updatedAt": "2026-03-29T06:02:35.121Z",
+        "importedFrom": "oldandnew:rock_1"
       },
       "files": {
         "loop3": "rock_4_4_medium_rock_LOOP3.wav"
       },
       "rhythmFamily": "rock",
       "rhythmSetNo": 1,
-      "rhythmSetId": "rock_1"
+      "rhythmSetId": "rock_1",
+      "originalFilename": "rock_1_LOOP3.wav"
     },
     {
-      "id": "rock_4_4_medium_rock_fill1",
-      "filename": "rock_4_4_medium_rock_FILL1.wav",
+      "id": "rock_1_fill1",
+      "filename": "rock_1_fill1_oldandnew.wav",
       "type": "fill",
       "number": 1,
       "conditions": {
-        "taal": "rock",
-        "timeSignature": "4/4",
-        "tempo": "medium",
-        "genre": "rock"
+        "taal": "rock"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-28T12:31:25.754Z",
-        "description": ""
+        "updatedAt": "2026-03-29T06:02:35.493Z",
+        "importedFrom": "oldandnew:rock_1"
       },
       "files": {
         "fill1": "rock_4_4_medium_rock_FILL1.wav"
       },
       "rhythmFamily": "rock",
       "rhythmSetNo": 1,
-      "rhythmSetId": "rock_1"
+      "rhythmSetId": "rock_1",
+      "originalFilename": "rock_1_FILL1.wav"
     },
     {
-      "id": "rock_4_4_medium_rock_fill2",
-      "filename": "rock_4_4_medium_rock_FILL2.wav",
+      "id": "rock_1_fill2",
+      "filename": "rock_1_fill2_oldandnew.wav",
       "type": "fill",
       "number": 2,
       "conditions": {
-        "taal": "rock",
-        "timeSignature": "4/4",
-        "tempo": "medium",
-        "genre": "rock"
+        "taal": "rock"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-28T12:31:49.170Z",
-        "description": ""
+        "updatedAt": "2026-03-29T06:02:35.849Z",
+        "importedFrom": "oldandnew:rock_1"
       },
       "files": {
         "fill2": "rock_4_4_medium_rock_FILL2.wav"
       },
       "rhythmFamily": "rock",
       "rhythmSetNo": 1,
-      "rhythmSetId": "rock_1"
+      "rhythmSetId": "rock_1",
+      "originalFilename": "rock_1_FILL2.wav"
     },
     {
-      "id": "rock_4_4_medium_rock_fill3",
-      "filename": "rock_4_4_medium_rock_FILL3.wav",
+      "id": "rock_1_fill3",
+      "filename": "rock_1_fill3_oldandnew.wav",
       "type": "fill",
       "number": 3,
       "conditions": {
-        "taal": "rock",
-        "timeSignature": "4/4",
-        "tempo": "medium",
-        "genre": "rock"
+        "taal": "rock"
       },
       "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-28T12:31:54.417Z",
-        "description": ""
+        "updatedAt": "2026-03-29T06:02:36.344Z",
+        "importedFrom": "oldandnew:rock_1"
       },
       "files": {
         "fill3": "rock_4_4_medium_rock_FILL3.wav"
       },
       "rhythmFamily": "rock",
       "rhythmSetNo": 1,
-      "rhythmSetId": "rock_1"
+      "rhythmSetId": "rock_1",
+      "originalFilename": "rock_1_FILL3.wav"
     },
     {
       "id": "keherwa_4_4_slow_bollywood_loop1",
@@ -1304,13 +1274,13 @@
       "rhythmSetId": "deepchandi_2",
       "rhythmFamily": "deepchandi",
       "rhythmSetNo": 2,
-      "filename": "deepchandi_2_fill1_oldandnew.wav",
+      "filename": "deepchandi_2_fill1_oldandnew_2.wav",
       "originalFilename": "deepchandi_2_FILL1.wav",
       "conditions": {
         "taal": "deepchandi"
       },
       "metadata": {
-        "updatedAt": "2026-03-28T15:17:15.610Z",
+        "updatedAt": "2026-03-29T05:59:25.571Z",
         "importedFrom": "oldandnew:deepchandi_2"
       }
     },
@@ -1321,13 +1291,13 @@
       "rhythmSetId": "deepchandi_2",
       "rhythmFamily": "deepchandi",
       "rhythmSetNo": 2,
-      "filename": "deepchandi_2_fill2_oldandnew.wav",
+      "filename": "deepchandi_2_fill2_oldandnew_2.wav",
       "originalFilename": "deepchandi_2_FILL2.wav",
       "conditions": {
         "taal": "deepchandi"
       },
       "metadata": {
-        "updatedAt": "2026-03-28T15:17:15.616Z",
+        "updatedAt": "2026-03-29T05:59:24.906Z",
         "importedFrom": "oldandnew:deepchandi_2"
       }
     },
@@ -1338,13 +1308,13 @@
       "rhythmSetId": "deepchandi_2",
       "rhythmFamily": "deepchandi",
       "rhythmSetNo": 2,
-      "filename": "deepchandi_2_loop1_oldandnew.wav",
+      "filename": "deepchandi_2_loop1_oldandnew_2.wav",
       "originalFilename": "deepchandi_2_LOOP1.wav",
       "conditions": {
         "taal": "deepchandi"
       },
       "metadata": {
-        "updatedAt": "2026-03-28T15:17:15.620Z",
+        "updatedAt": "2026-03-29T05:59:23.777Z",
         "importedFrom": "oldandnew:deepchandi_2"
       }
     },
@@ -1355,13 +1325,13 @@
       "rhythmSetId": "deepchandi_2",
       "rhythmFamily": "deepchandi",
       "rhythmSetNo": 2,
-      "filename": "deepchandi_2_loop2_oldandnew.wav",
+      "filename": "deepchandi_2_loop2_oldandnew_2.wav",
       "originalFilename": "deepchandi_2_LOOP2.wav",
       "conditions": {
         "taal": "deepchandi"
       },
       "metadata": {
-        "updatedAt": "2026-03-28T15:17:15.623Z",
+        "updatedAt": "2026-03-29T05:59:24.153Z",
         "importedFrom": "oldandnew:deepchandi_2"
       }
     },
@@ -1412,6 +1382,5021 @@
       "rhythmFamily": "dadra",
       "rhythmSetNo": 1,
       "rhythmSetId": "dadra_1"
+    },
+    {
+      "id": "dadra_fast_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "dadra_fast_1",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 1,
+      "filename": "dadra_fast_1_fill1_oldandnew.wav",
+      "originalFilename": "dadra_fast_1_FILL1.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:32.483Z",
+        "importedFrom": "oldandnew:dadra_fast_1"
+      }
+    },
+    {
+      "id": "dadra_fast_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "dadra_fast_1",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 1,
+      "filename": "dadra_fast_1_fill2_oldandnew.wav",
+      "originalFilename": "dadra_fast_1_FILL2.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:33.094Z",
+        "importedFrom": "oldandnew:dadra_fast_1"
+      }
+    },
+    {
+      "id": "dadra_fast_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "dadra_fast_1",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 1,
+      "filename": "dadra_fast_1_fill3_oldandnew.wav",
+      "originalFilename": "dadra_fast_1_FILL3.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:33.815Z",
+        "importedFrom": "oldandnew:dadra_fast_1"
+      }
+    },
+    {
+      "id": "dadra_fast_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "dadra_fast_1",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 1,
+      "filename": "dadra_fast_1_loop1_oldandnew.wav",
+      "originalFilename": "dadra_fast_1_LOOP1.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:34.202Z",
+        "importedFrom": "oldandnew:dadra_fast_1"
+      }
+    },
+    {
+      "id": "dadra_fast_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "dadra_fast_1",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 1,
+      "filename": "dadra_fast_1_loop2_oldandnew.wav",
+      "originalFilename": "dadra_fast_1_LOOP2.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:34.584Z",
+        "importedFrom": "oldandnew:dadra_fast_1"
+      }
+    },
+    {
+      "id": "dadra_fast_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "dadra_fast_1",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 1,
+      "filename": "dadra_fast_1_loop3_oldandnew.wav",
+      "originalFilename": "dadra_fast_1_LOOP3.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:34.987Z",
+        "importedFrom": "oldandnew:dadra_fast_1"
+      }
+    },
+    {
+      "id": "dadra_fast_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "dadra_fast_2",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 2,
+      "filename": "dadra_fast_2_loop2_oldandnew.wav",
+      "originalFilename": "dadra_fast_2_LOOP2.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:38.118Z",
+        "importedFrom": "oldandnew:dadra_fast_2"
+      }
+    },
+    {
+      "id": "dadra_fast_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "dadra_fast_2",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 2,
+      "filename": "dadra_fast_2_loop3_oldandnew.wav",
+      "originalFilename": "dadra_fast_2_LOOP3.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:38.779Z",
+        "importedFrom": "oldandnew:dadra_fast_2"
+      }
+    },
+    {
+      "id": "dadra_fast_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "dadra_fast_2",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 2,
+      "filename": "dadra_fast_2_fill1_oldandnew.wav",
+      "originalFilename": "dadra_fast_2_FILL1.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:39.152Z",
+        "importedFrom": "oldandnew:dadra_fast_2"
+      }
+    },
+    {
+      "id": "dadra_fast_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "dadra_fast_2",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 2,
+      "filename": "dadra_fast_2_fill2_oldandnew.wav",
+      "originalFilename": "dadra_fast_2_FILL2.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:39.516Z",
+        "importedFrom": "oldandnew:dadra_fast_2"
+      }
+    },
+    {
+      "id": "dadra_fast_2_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "dadra_fast_2",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 2,
+      "filename": "dadra_fast_2_fill3_oldandnew.wav",
+      "originalFilename": "dadra_fast_2_FILL3.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:39.927Z",
+        "importedFrom": "oldandnew:dadra_fast_2"
+      }
+    },
+    {
+      "id": "dadra_fast_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "dadra_fast_2",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 2,
+      "filename": "dadra_fast_2_loop1_oldandnew.wav",
+      "originalFilename": "dadra_fast_3_4_medium_dholak_LOOP1.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:41.183Z",
+        "importedFrom": "oldandnew:dadra_fast_2"
+      }
+    },
+    {
+      "id": "dadra_fast_3_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "dadra_fast_3",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 3,
+      "filename": "dadra_fast_3_loop1_oldandnew.wav",
+      "originalFilename": "dadra_fast_3_LOOP1.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:44.187Z",
+        "importedFrom": "oldandnew:dadra_fast_3"
+      }
+    },
+    {
+      "id": "dadra_fast_3_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "dadra_fast_3",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 3,
+      "filename": "dadra_fast_3_fill1_oldandnew.wav",
+      "originalFilename": "dadra_fast_3_FILL1.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:44.567Z",
+        "importedFrom": "oldandnew:dadra_fast_3"
+      }
+    },
+    {
+      "id": "dadra_fast_3_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "dadra_fast_3",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 3,
+      "filename": "dadra_fast_3_loop2_oldandnew.wav",
+      "originalFilename": "dadra_fast_3_LOOP3.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:44.996Z",
+        "importedFrom": "oldandnew:dadra_fast_3"
+      }
+    },
+    {
+      "id": "dadra_fast_3_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "dadra_fast_3",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 3,
+      "filename": "dadra_fast_3_fill3_oldandnew.wav",
+      "originalFilename": "dadra_fast_3_FILL3.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:45.748Z",
+        "importedFrom": "oldandnew:dadra_fast_3"
+      }
+    },
+    {
+      "id": "dadra_fast_3_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "dadra_fast_3",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 3,
+      "filename": "dadra_fast_3_loop3_oldandnew.wav",
+      "originalFilename": "dadra_fast_3_LOOP2.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:46.107Z",
+        "importedFrom": "oldandnew:dadra_fast_3"
+      }
+    },
+    {
+      "id": "dadra_fast_3_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "dadra_fast_3",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 3,
+      "filename": "dadra_fast_3_fill2_oldandnew.wav",
+      "originalFilename": "dadra_fast_3_FILL1.wav",
+      "conditions": {
+        "taal": "dadra_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:46.146Z",
+        "importedFrom": "oldandnew:dadra_fast_3"
+      }
+    },
+    {
+      "id": "dadra_mid_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "dadra_mid_1",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 1,
+      "filename": "dadra_mid_1_loop1_oldandnew.wav",
+      "originalFilename": "dadra_mid_1_LOOP1.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:49.092Z",
+        "importedFrom": "oldandnew:dadra_mid_1"
+      }
+    },
+    {
+      "id": "dadra_mid_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "dadra_mid_1",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 1,
+      "filename": "dadra_mid_1_loop2_oldandnew.wav",
+      "originalFilename": "dadra_mid_1_LOOP2.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:49.465Z",
+        "importedFrom": "oldandnew:dadra_mid_1"
+      }
+    },
+    {
+      "id": "dadra_mid_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "dadra_mid_1",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 1,
+      "filename": "dadra_mid_1_loop3_oldandnew.wav",
+      "originalFilename": "dadra_mid_1_LOOP3.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:49.821Z",
+        "importedFrom": "oldandnew:dadra_mid_1"
+      }
+    },
+    {
+      "id": "dadra_mid_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "dadra_mid_1",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 1,
+      "filename": "dadra_mid_1_fill1_oldandnew.wav",
+      "originalFilename": "dadra_mid_1_FILL1.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:50.162Z",
+        "importedFrom": "oldandnew:dadra_mid_1"
+      }
+    },
+    {
+      "id": "dadra_mid_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "dadra_mid_1",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 1,
+      "filename": "dadra_mid_1_fill2_oldandnew.wav",
+      "originalFilename": "dadra_mid_1_FILL2.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:50.498Z",
+        "importedFrom": "oldandnew:dadra_mid_1"
+      }
+    },
+    {
+      "id": "dadra_mid_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "dadra_mid_1",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 1,
+      "filename": "dadra_mid_1_fill3_oldandnew.wav",
+      "originalFilename": "dadra_mid_1_FILL3.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:50.960Z",
+        "importedFrom": "oldandnew:dadra_mid_1"
+      }
+    },
+    {
+      "id": "dadra_mid_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "dadra_mid_2",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 2,
+      "filename": "dadra_mid_2_loop1_oldandnew.wav",
+      "originalFilename": "dadra_mid_2_LOOP1.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:53.905Z",
+        "importedFrom": "oldandnew:dadra_mid_2"
+      }
+    },
+    {
+      "id": "dadra_mid_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "dadra_mid_2",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 2,
+      "filename": "dadra_mid_2_loop2_oldandnew.wav",
+      "originalFilename": "dadra_mid_2_LOOP2.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:54.394Z",
+        "importedFrom": "oldandnew:dadra_mid_2"
+      }
+    },
+    {
+      "id": "dadra_mid_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "dadra_mid_2",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 2,
+      "filename": "dadra_mid_2_loop3_oldandnew.wav",
+      "originalFilename": "dadra_mid_2_LOOP3.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:55.083Z",
+        "importedFrom": "oldandnew:dadra_mid_2"
+      }
+    },
+    {
+      "id": "dadra_mid_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "dadra_mid_2",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 2,
+      "filename": "dadra_mid_2_fill1_oldandnew.wav",
+      "originalFilename": "dadra_mid_2_FILL1.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:55.487Z",
+        "importedFrom": "oldandnew:dadra_mid_2"
+      }
+    },
+    {
+      "id": "dadra_mid_2_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "dadra_mid_2",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 2,
+      "filename": "dadra_mid_2_fill3_oldandnew.wav",
+      "originalFilename": "dadra_mid_2_FILL3.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:55.904Z",
+        "importedFrom": "oldandnew:dadra_mid_2"
+      }
+    },
+    {
+      "id": "dadra_mid_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "dadra_mid_2",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 2,
+      "filename": "dadra_mid_2_fill2_oldandnew.wav",
+      "originalFilename": "dadra_mid_2_FILL2.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:56.307Z",
+        "importedFrom": "oldandnew:dadra_mid_2"
+      }
+    },
+    {
+      "id": "dadra_mid_3_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "dadra_mid_3",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 3,
+      "filename": "dadra_mid_3_loop1_oldandnew.wav",
+      "originalFilename": "dadra_mid_3_LOOP1.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:59.600Z",
+        "importedFrom": "oldandnew:dadra_mid_3"
+      }
+    },
+    {
+      "id": "dadra_mid_3_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "dadra_mid_3",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 3,
+      "filename": "dadra_mid_3_loop2_oldandnew.wav",
+      "originalFilename": "dadra_mid_3_LOOP2.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:58:59.984Z",
+        "importedFrom": "oldandnew:dadra_mid_3"
+      }
+    },
+    {
+      "id": "dadra_mid_3_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "dadra_mid_3",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 3,
+      "filename": "dadra_mid_3_loop3_oldandnew.wav",
+      "originalFilename": "dadra_mid_3_LOOP3.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:00.359Z",
+        "importedFrom": "oldandnew:dadra_mid_3"
+      }
+    },
+    {
+      "id": "dadra_mid_3_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "dadra_mid_3",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 3,
+      "filename": "dadra_mid_3_fill1_oldandnew.wav",
+      "originalFilename": "dadra_mid_3_FILL1.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:01.037Z",
+        "importedFrom": "oldandnew:dadra_mid_3"
+      }
+    },
+    {
+      "id": "dadra_mid_3_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "dadra_mid_3",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 3,
+      "filename": "dadra_mid_3_fill2_oldandnew.wav",
+      "originalFilename": "dadra_mid_3_FILL2.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:01.515Z",
+        "importedFrom": "oldandnew:dadra_mid_3"
+      }
+    },
+    {
+      "id": "dadra_mid_3_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "dadra_mid_3",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 3,
+      "filename": "dadra_mid_3_fill3_oldandnew.wav",
+      "originalFilename": "dadra_mid_3_FILL3.wav",
+      "conditions": {
+        "taal": "dadra_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:01.975Z",
+        "importedFrom": "oldandnew:dadra_mid_3"
+      }
+    },
+    {
+      "id": "dadra_slow_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "dadra_slow_1",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 1,
+      "filename": "dadra_slow_1_loop2_oldandnew.wav",
+      "originalFilename": "dadra_slow_1_LOOP2.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:04.979Z",
+        "importedFrom": "oldandnew:dadra_slow_1"
+      }
+    },
+    {
+      "id": "dadra_slow_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "dadra_slow_1",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 1,
+      "filename": "dadra_slow_1_loop3_oldandnew.wav",
+      "originalFilename": "dadra_slow_1_LOOP3.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:05.354Z",
+        "importedFrom": "oldandnew:dadra_slow_1"
+      }
+    },
+    {
+      "id": "dadra_slow_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "dadra_slow_1",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 1,
+      "filename": "dadra_slow_1_fill2_oldandnew.wav",
+      "originalFilename": "dadra_slow_1_FILL2.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:05.754Z",
+        "importedFrom": "oldandnew:dadra_slow_1"
+      }
+    },
+    {
+      "id": "dadra_slow_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "dadra_slow_1",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 1,
+      "filename": "dadra_slow_1_fill3_oldandnew.wav",
+      "originalFilename": "dadra_slow_1_FILL3.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:06.106Z",
+        "importedFrom": "oldandnew:dadra_slow_1"
+      }
+    },
+    {
+      "id": "dadra_slow_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "dadra_slow_2",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 2,
+      "filename": "dadra_slow_2_fill1_oldandnew.wav",
+      "originalFilename": "dadra_slow_2_FILL1.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:09.043Z",
+        "importedFrom": "oldandnew:dadra_slow_2"
+      }
+    },
+    {
+      "id": "dadra_slow_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "dadra_slow_2",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 2,
+      "filename": "dadra_slow_2_loop1_oldandnew.wav",
+      "originalFilename": "dadra_slow_2_LOOP1.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:09.395Z",
+        "importedFrom": "oldandnew:dadra_slow_2"
+      }
+    },
+    {
+      "id": "dadra_slow_3_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "dadra_slow_3",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 3,
+      "filename": "dadra_slow_3_loop1_oldandnew.wav",
+      "originalFilename": "dadra_slow_3_LOOP1.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:12.444Z",
+        "importedFrom": "oldandnew:dadra_slow_3"
+      }
+    },
+    {
+      "id": "dadra_slow_3_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "dadra_slow_3",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 3,
+      "filename": "dadra_slow_3_loop2_oldandnew.wav",
+      "originalFilename": "dadra_slow_3_LOOP2.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:12.966Z",
+        "importedFrom": "oldandnew:dadra_slow_3"
+      }
+    },
+    {
+      "id": "dadra_slow_3_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "dadra_slow_3",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 3,
+      "filename": "dadra_slow_3_loop3_oldandnew.wav",
+      "originalFilename": "dadra_slow_3_LOOP3.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:13.849Z",
+        "importedFrom": "oldandnew:dadra_slow_3"
+      }
+    },
+    {
+      "id": "dadra_slow_3_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "dadra_slow_3",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 3,
+      "filename": "dadra_slow_3_fill1_oldandnew.wav",
+      "originalFilename": "dadra_slow_3_FILL1.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:14.225Z",
+        "importedFrom": "oldandnew:dadra_slow_3"
+      }
+    },
+    {
+      "id": "dadra_slow_3_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "dadra_slow_3",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 3,
+      "filename": "dadra_slow_3_fill2_oldandnew.wav",
+      "originalFilename": "dadra_slow_3_FILL2.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:14.674Z",
+        "importedFrom": "oldandnew:dadra_slow_3"
+      }
+    },
+    {
+      "id": "dadra_slow_3_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "dadra_slow_3",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 3,
+      "filename": "dadra_slow_3_fill3_oldandnew.wav",
+      "originalFilename": "dadra_slow_3_FILL3.wav",
+      "conditions": {
+        "taal": "dadra_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:15.115Z",
+        "importedFrom": "oldandnew:dadra_slow_3"
+      }
+    },
+    {
+      "id": "dhol_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "dhol_1",
+      "rhythmFamily": "dhol",
+      "rhythmSetNo": 1,
+      "filename": "dhol_1_loop1_oldandnew.wav",
+      "originalFilename": "dhol_1_LOOP1.wav",
+      "conditions": {
+        "taal": "dhol"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:28.600Z",
+        "importedFrom": "oldandnew:dhol_1"
+      }
+    },
+    {
+      "id": "dhol_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "dhol_1",
+      "rhythmFamily": "dhol",
+      "rhythmSetNo": 1,
+      "filename": "dhol_1_fill1_oldandnew.wav",
+      "originalFilename": "dhol_1_FILL1.wav",
+      "conditions": {
+        "taal": "dhol"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:29.033Z",
+        "importedFrom": "oldandnew:dhol_1"
+      }
+    },
+    {
+      "id": "dhol_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "dhol_1",
+      "rhythmFamily": "dhol",
+      "rhythmSetNo": 1,
+      "filename": "dhol_1_loop2_oldandnew.wav",
+      "originalFilename": "dhol_1_LOOP2.wav",
+      "conditions": {
+        "taal": "dhol"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:29.614Z",
+        "importedFrom": "oldandnew:dhol_1"
+      }
+    },
+    {
+      "id": "dhol_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "dhol_1",
+      "rhythmFamily": "dhol",
+      "rhythmSetNo": 1,
+      "filename": "dhol_1_fill2_oldandnew.wav",
+      "originalFilename": "dhol_1_FILL2.wav",
+      "conditions": {
+        "taal": "dhol"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:30.030Z",
+        "importedFrom": "oldandnew:dhol_1"
+      }
+    },
+    {
+      "id": "dhol_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "dhol_1",
+      "rhythmFamily": "dhol",
+      "rhythmSetNo": 1,
+      "filename": "dhol_1_loop3_oldandnew.wav",
+      "originalFilename": "dhol_1_LOOP3.wav",
+      "conditions": {
+        "taal": "dhol"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:30.806Z",
+        "importedFrom": "oldandnew:dhol_1"
+      }
+    },
+    {
+      "id": "dhol_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "dhol_1",
+      "rhythmFamily": "dhol",
+      "rhythmSetNo": 1,
+      "filename": "dhol_1_fill3_oldandnew.wav",
+      "originalFilename": "dhol_1_FILL3.wav",
+      "conditions": {
+        "taal": "dhol"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:31.187Z",
+        "importedFrom": "oldandnew:dhol_1"
+      }
+    },
+    {
+      "id": "drum_4_mid_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum_4_mid_1",
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 1,
+      "filename": "drum_4_mid_1_fill1_oldandnew.wav",
+      "originalFilename": "drum_4_mid_1_FILL1.wav",
+      "conditions": {
+        "taal": "drum_4_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:34.169Z",
+        "importedFrom": "oldandnew:drum_4_mid_1"
+      }
+    },
+    {
+      "id": "drum_4_mid_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum_4_mid_1",
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 1,
+      "filename": "drum_4_mid_1_loop1_oldandnew.wav",
+      "originalFilename": "drum_4_mid_1_LOOP1.wav",
+      "conditions": {
+        "taal": "drum_4_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:34.555Z",
+        "importedFrom": "oldandnew:drum_4_mid_1"
+      }
+    },
+    {
+      "id": "drum_6_slow_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum_6_slow_1",
+      "rhythmFamily": "drum_6_slow",
+      "rhythmSetNo": 1,
+      "filename": "drum_6_slow_1_loop1_oldandnew.wav",
+      "originalFilename": "drum_6_slow_1_LOOP1.wav",
+      "conditions": {
+        "taal": "drum_6_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:37.980Z",
+        "importedFrom": "oldandnew:drum_6_slow_1"
+      }
+    },
+    {
+      "id": "drum_6_slow_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum_6_slow_1",
+      "rhythmFamily": "drum_6_slow",
+      "rhythmSetNo": 1,
+      "filename": "drum_6_slow_1_loop2_oldandnew.wav",
+      "originalFilename": "drum_6_slow_1_LOOP2.wav",
+      "conditions": {
+        "taal": "drum_6_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:38.966Z",
+        "importedFrom": "oldandnew:drum_6_slow_1"
+      }
+    },
+    {
+      "id": "drum_6_slow_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum_6_slow_1",
+      "rhythmFamily": "drum_6_slow",
+      "rhythmSetNo": 1,
+      "filename": "drum_6_slow_1_fill1_oldandnew.wav",
+      "originalFilename": "drum_6_slow_1_FILL1.wav",
+      "conditions": {
+        "taal": "drum_6_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:39.408Z",
+        "importedFrom": "oldandnew:drum_6_slow_1"
+      }
+    },
+    {
+      "id": "drum_6_slow_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum_6_slow_1",
+      "rhythmFamily": "drum_6_slow",
+      "rhythmSetNo": 1,
+      "filename": "drum_6_slow_1_fill2_oldandnew.wav",
+      "originalFilename": "drum_6_slow_1_FILL2.wav",
+      "conditions": {
+        "taal": "drum_6_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:39.799Z",
+        "importedFrom": "oldandnew:drum_6_slow_1"
+      }
+    },
+    {
+      "id": "drum3-4_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum3-4_1",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 1,
+      "filename": "drum3-4_1_fill1_oldandnew.wav",
+      "originalFilename": "drum3-4_1_FILL1.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:42.806Z",
+        "importedFrom": "oldandnew:drum3-4_1"
+      }
+    },
+    {
+      "id": "drum3-4_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum3-4_1",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 1,
+      "filename": "drum3-4_1_fill2_oldandnew.wav",
+      "originalFilename": "drum3-4_1_FILL2.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:43.298Z",
+        "importedFrom": "oldandnew:drum3-4_1"
+      }
+    },
+    {
+      "id": "drum3-4_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum3-4_1",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 1,
+      "filename": "drum3-4_1_loop1_oldandnew.wav",
+      "originalFilename": "drum3-4_1_LOOP1.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:44.053Z",
+        "importedFrom": "oldandnew:drum3-4_1"
+      }
+    },
+    {
+      "id": "drum3-4_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum3-4_1",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 1,
+      "filename": "drum3-4_1_loop2_oldandnew.wav",
+      "originalFilename": "drum3-4_1_LOOP2.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:44.472Z",
+        "importedFrom": "oldandnew:drum3-4_1"
+      }
+    },
+    {
+      "id": "drum3-4_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum3-4_2",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 2,
+      "filename": "drum3-4_2_loop1_oldandnew.wav",
+      "originalFilename": "drum3-4_2_LOOP1.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:47.458Z",
+        "importedFrom": "oldandnew:drum3-4_2"
+      }
+    },
+    {
+      "id": "drum3-4_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum3-4_2",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 2,
+      "filename": "drum3-4_2_loop2_oldandnew.wav",
+      "originalFilename": "drum3-4_2_LOOP2.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:47.870Z",
+        "importedFrom": "oldandnew:drum3-4_2"
+      }
+    },
+    {
+      "id": "drum3-4_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "drum3-4_2",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 2,
+      "filename": "drum3-4_2_loop3_oldandnew.wav",
+      "originalFilename": "drum3-4_2_LOOP3.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:48.396Z",
+        "importedFrom": "oldandnew:drum3-4_2"
+      }
+    },
+    {
+      "id": "drum3-4_2_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "drum3-4_2",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 2,
+      "filename": "drum3-4_2_fill3_oldandnew.wav",
+      "originalFilename": "drum3-4_2_FILL3.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:48.761Z",
+        "importedFrom": "oldandnew:drum3-4_2"
+      }
+    },
+    {
+      "id": "drum3-4_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum3-4_2",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 2,
+      "filename": "drum3-4_2_fill2_oldandnew.wav",
+      "originalFilename": "drum3-4_2_FILL2.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:49.157Z",
+        "importedFrom": "oldandnew:drum3-4_2"
+      }
+    },
+    {
+      "id": "drum3-4_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum3-4_2",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 2,
+      "filename": "drum3-4_2_fill1_oldandnew.wav",
+      "originalFilename": "drum3-4_2_FILL1.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:49.636Z",
+        "importedFrom": "oldandnew:drum3-4_2"
+      }
+    },
+    {
+      "id": "drum3-4_3_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum3-4_3",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 3,
+      "filename": "drum3-4_3_loop1_oldandnew.wav",
+      "originalFilename": "drum3-4_3_LOOP1.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:53.057Z",
+        "importedFrom": "oldandnew:drum3-4_3"
+      }
+    },
+    {
+      "id": "drum3-4_3_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum3-4_3",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 3,
+      "filename": "drum3-4_3_loop2_oldandnew.wav",
+      "originalFilename": "drum3-4_3_LOOP2.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:53.623Z",
+        "importedFrom": "oldandnew:drum3-4_3"
+      }
+    },
+    {
+      "id": "drum3-4_3_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "drum3-4_3",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 3,
+      "filename": "drum3-4_3_loop3_oldandnew.wav",
+      "originalFilename": "drum3-4_3_LOOP3.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:54.280Z",
+        "importedFrom": "oldandnew:drum3-4_3"
+      }
+    },
+    {
+      "id": "drum3-4_3_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum3-4_3",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 3,
+      "filename": "drum3-4_3_fill1_oldandnew.wav",
+      "originalFilename": "drum3-4_3_FILL1.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:54.858Z",
+        "importedFrom": "oldandnew:drum3-4_3"
+      }
+    },
+    {
+      "id": "drum3-4_3_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum3-4_3",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 3,
+      "filename": "drum3-4_3_fill2_oldandnew.wav",
+      "originalFilename": "drum3-4_3_FILL2.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:55.322Z",
+        "importedFrom": "oldandnew:drum3-4_3"
+      }
+    },
+    {
+      "id": "drum3-4_3_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "drum3-4_3",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 3,
+      "filename": "drum3-4_3_fill3_oldandnew.wav",
+      "originalFilename": "drum3-4_3_FILL3.wav",
+      "conditions": {
+        "taal": "drum3-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:55.929Z",
+        "importedFrom": "oldandnew:drum3-4_3"
+      }
+    },
+    {
+      "id": "drum4-4_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum4-4_1",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 1,
+      "filename": "drum4-4_1_fill2_oldandnew.wav",
+      "originalFilename": "drum4-4_1_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:58.909Z",
+        "importedFrom": "oldandnew:drum4-4_1"
+      }
+    },
+    {
+      "id": "drum4-4_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum4-4_1",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 1,
+      "filename": "drum4-4_1_loop1_oldandnew.wav",
+      "originalFilename": "drum4-4_1_LOOP1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:59.325Z",
+        "importedFrom": "oldandnew:drum4-4_1"
+      }
+    },
+    {
+      "id": "drum4-4_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum4-4_1",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 1,
+      "filename": "drum4-4_1_loop2_oldandnew.wav",
+      "originalFilename": "drum4-4_1_LOOP2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T05:59:59.903Z",
+        "importedFrom": "oldandnew:drum4-4_1"
+      }
+    },
+    {
+      "id": "drum4-4_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum4-4_1",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 1,
+      "filename": "drum4-4_1_fill1_oldandnew.wav",
+      "originalFilename": "drum4-4_1_FILL1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:00.597Z",
+        "importedFrom": "oldandnew:drum4-4_1"
+      }
+    },
+    {
+      "id": "drum4-4_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum4-4_2",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 2,
+      "filename": "drum4-4_2_loop1_oldandnew.wav",
+      "originalFilename": "drum4-4_2_LOOP1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:03.546Z",
+        "importedFrom": "oldandnew:drum4-4_2"
+      }
+    },
+    {
+      "id": "drum4-4_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum4-4_2",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 2,
+      "filename": "drum4-4_2_loop2_oldandnew.wav",
+      "originalFilename": "drum4-4_2_LOOP2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:04.232Z",
+        "importedFrom": "oldandnew:drum4-4_2"
+      }
+    },
+    {
+      "id": "drum4-4_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "drum4-4_2",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 2,
+      "filename": "drum4-4_2_loop3_oldandnew.wav",
+      "originalFilename": "drum4-4_2_LOOP3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:04.625Z",
+        "importedFrom": "oldandnew:drum4-4_2"
+      }
+    },
+    {
+      "id": "drum4-4_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum4-4_2",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 2,
+      "filename": "drum4-4_2_fill1_oldandnew.wav",
+      "originalFilename": "drum4-4_2_FILL1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:05.320Z",
+        "importedFrom": "oldandnew:drum4-4_2"
+      }
+    },
+    {
+      "id": "drum4-4_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum4-4_2",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 2,
+      "filename": "drum4-4_2_fill2_oldandnew.wav",
+      "originalFilename": "drum4-4_2_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:06.049Z",
+        "importedFrom": "oldandnew:drum4-4_2"
+      }
+    },
+    {
+      "id": "drum4-4_2_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "drum4-4_2",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 2,
+      "filename": "drum4-4_2_fill3_oldandnew.wav",
+      "originalFilename": "drum4-4_2_FILL3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:06.487Z",
+        "importedFrom": "oldandnew:drum4-4_2"
+      }
+    },
+    {
+      "id": "drum4-4_3_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum4-4_3",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 3,
+      "filename": "drum4-4_3_loop1_oldandnew.wav",
+      "originalFilename": "drum4-4_3_LOOP1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:09.607Z",
+        "importedFrom": "oldandnew:drum4-4_3"
+      }
+    },
+    {
+      "id": "drum4-4_3_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum4-4_3",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 3,
+      "filename": "drum4-4_3_loop2_oldandnew.wav",
+      "originalFilename": "drum4-4_3_LOOP2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:10.035Z",
+        "importedFrom": "oldandnew:drum4-4_3"
+      }
+    },
+    {
+      "id": "drum4-4_3_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "drum4-4_3",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 3,
+      "filename": "drum4-4_3_loop3_oldandnew.wav",
+      "originalFilename": "drum4-4_3_LOOP3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:11.645Z",
+        "importedFrom": "oldandnew:drum4-4_3"
+      }
+    },
+    {
+      "id": "drum4-4_3_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum4-4_3",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 3,
+      "filename": "drum4-4_3_fill1_oldandnew.wav",
+      "originalFilename": "drum4-4_3_FILL1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:12.049Z",
+        "importedFrom": "oldandnew:drum4-4_3"
+      }
+    },
+    {
+      "id": "drum4-4_3_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "drum4-4_3",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 3,
+      "filename": "drum4-4_3_fill3_oldandnew.wav",
+      "originalFilename": "drum4-4_3_FILL3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:12.483Z",
+        "importedFrom": "oldandnew:drum4-4_3"
+      }
+    },
+    {
+      "id": "drum4-4_3_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum4-4_3",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 3,
+      "filename": "drum4-4_3_fill2_oldandnew.wav",
+      "originalFilename": "drum4-4_3_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:12.889Z",
+        "importedFrom": "oldandnew:drum4-4_3"
+      }
+    },
+    {
+      "id": "drum4-4_4_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum4-4_4",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 4,
+      "filename": "drum4-4_4_loop1_oldandnew.wav",
+      "originalFilename": "drum4-4_4_LOOP1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:15.858Z",
+        "importedFrom": "oldandnew:drum4-4_4"
+      }
+    },
+    {
+      "id": "drum4-4_4_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum4-4_4",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 4,
+      "filename": "drum4-4_4_loop2_oldandnew.wav",
+      "originalFilename": "drum4-4_4_LOOP2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:16.296Z",
+        "importedFrom": "oldandnew:drum4-4_4"
+      }
+    },
+    {
+      "id": "drum4-4_4_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "drum4-4_4",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 4,
+      "filename": "drum4-4_4_loop3_oldandnew.wav",
+      "originalFilename": "drum4-4_4_LOOP3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:16.848Z",
+        "importedFrom": "oldandnew:drum4-4_4"
+      }
+    },
+    {
+      "id": "drum4-4_4_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum4-4_4",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 4,
+      "filename": "drum4-4_4_fill1_oldandnew.wav",
+      "originalFilename": "drum4-4_4_FILL1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:17.231Z",
+        "importedFrom": "oldandnew:drum4-4_4"
+      }
+    },
+    {
+      "id": "drum4-4_4_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum4-4_4",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 4,
+      "filename": "drum4-4_4_fill2_oldandnew.wav",
+      "originalFilename": "drum4-4_4_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:17.547Z",
+        "importedFrom": "oldandnew:drum4-4_4"
+      }
+    },
+    {
+      "id": "drum4-4_4_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "drum4-4_4",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 4,
+      "filename": "drum4-4_4_fill3_oldandnew.wav",
+      "originalFilename": "drum4-4_4_FILL3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:18.366Z",
+        "importedFrom": "oldandnew:drum4-4_4"
+      }
+    },
+    {
+      "id": "drum4-4_5_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum4-4_5",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 5,
+      "filename": "drum4-4_5_loop1_oldandnew.wav",
+      "originalFilename": "drum4-4_5_LOOP1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:21.367Z",
+        "importedFrom": "oldandnew:drum4-4_5"
+      }
+    },
+    {
+      "id": "drum4-4_5_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum4-4_5",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 5,
+      "filename": "drum4-4_5_loop2_oldandnew.wav",
+      "originalFilename": "drum4-4_5_LOOP2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:22.105Z",
+        "importedFrom": "oldandnew:drum4-4_5"
+      }
+    },
+    {
+      "id": "drum4-4_5_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum4-4_5",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 5,
+      "filename": "drum4-4_5_fill2_oldandnew.wav",
+      "originalFilename": "drum4-4_5_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:22.452Z",
+        "importedFrom": "oldandnew:drum4-4_5"
+      }
+    },
+    {
+      "id": "drum4-4_5_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum4-4_5",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 5,
+      "filename": "drum4-4_5_fill1_oldandnew.wav",
+      "originalFilename": "drum4-4_5_FILL1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:22.930Z",
+        "importedFrom": "oldandnew:drum4-4_5"
+      }
+    },
+    {
+      "id": "drum4-4_6_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum4-4_6",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 6,
+      "filename": "drum4-4_6_loop1_oldandnew.wav",
+      "originalFilename": "drum4-4_6_LOOP1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:26.619Z",
+        "importedFrom": "oldandnew:drum4-4_6"
+      }
+    },
+    {
+      "id": "drum4-4_6_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum4-4_6",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 6,
+      "filename": "drum4-4_6_loop2_oldandnew.wav",
+      "originalFilename": "drum4-4_6_LOOP2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:26.969Z",
+        "importedFrom": "oldandnew:drum4-4_6"
+      }
+    },
+    {
+      "id": "drum4-4_6_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "drum4-4_6",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 6,
+      "filename": "drum4-4_6_loop3_oldandnew.wav",
+      "originalFilename": "drum4-4_6_LOOP3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:27.443Z",
+        "importedFrom": "oldandnew:drum4-4_6"
+      }
+    },
+    {
+      "id": "drum4-4_6_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "drum4-4_6",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 6,
+      "filename": "drum4-4_6_fill3_oldandnew.wav",
+      "originalFilename": "drum4-4_6_FILL3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:28.147Z",
+        "importedFrom": "oldandnew:drum4-4_6"
+      }
+    },
+    {
+      "id": "drum4-4_6_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum4-4_6",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 6,
+      "filename": "drum4-4_6_fill2_oldandnew.wav",
+      "originalFilename": "drum4-4_6_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:28.646Z",
+        "importedFrom": "oldandnew:drum4-4_6"
+      }
+    },
+    {
+      "id": "drum4-4_6_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum4-4_6",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 6,
+      "filename": "drum4-4_6_fill1_oldandnew.wav",
+      "originalFilename": "drum4-4_6_FILL1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:29.047Z",
+        "importedFrom": "oldandnew:drum4-4_6"
+      }
+    },
+    {
+      "id": "drum4-4_7_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum4-4_7",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 7,
+      "filename": "drum4-4_7_loop1_oldandnew.wav",
+      "originalFilename": "drum4-4_7_LOOP1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:32.122Z",
+        "importedFrom": "oldandnew:drum4-4_7"
+      }
+    },
+    {
+      "id": "drum4-4_7_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum4-4_7",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 7,
+      "filename": "drum4-4_7_fill1_oldandnew.wav",
+      "originalFilename": "drum4-4_7_FILL1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:32.546Z",
+        "importedFrom": "oldandnew:drum4-4_7"
+      }
+    },
+    {
+      "id": "drum4-4_7_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum4-4_7",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 7,
+      "filename": "drum4-4_7_loop2_oldandnew.wav",
+      "originalFilename": "drum4-4_7_LOOP2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:32.929Z",
+        "importedFrom": "oldandnew:drum4-4_7"
+      }
+    },
+    {
+      "id": "drum4-4_7_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "drum4-4_7",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 7,
+      "filename": "drum4-4_7_loop3_oldandnew.wav",
+      "originalFilename": "drum4-4_7_LOOP3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:33.274Z",
+        "importedFrom": "oldandnew:drum4-4_7"
+      }
+    },
+    {
+      "id": "drum4-4_7_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum4-4_7",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 7,
+      "filename": "drum4-4_7_fill2_oldandnew.wav",
+      "originalFilename": "drum4-4_7_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:33.681Z",
+        "importedFrom": "oldandnew:drum4-4_7"
+      }
+    },
+    {
+      "id": "drum4-4_7_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "drum4-4_7",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 7,
+      "filename": "drum4-4_7_fill3_oldandnew.wav",
+      "originalFilename": "drum4-4_7_FILL3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:34.142Z",
+        "importedFrom": "oldandnew:drum4-4_7"
+      }
+    },
+    {
+      "id": "drum4-4_8_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum4-4_8",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 8,
+      "filename": "drum4-4_8_fill1_oldandnew.wav",
+      "originalFilename": "drum4-4_8_FILL1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:37.197Z",
+        "importedFrom": "oldandnew:drum4-4_8"
+      }
+    },
+    {
+      "id": "drum4-4_8_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum4-4_8",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 8,
+      "filename": "drum4-4_8_loop1_oldandnew.wav",
+      "originalFilename": "drum4-4_8_LOOP1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:37.701Z",
+        "importedFrom": "oldandnew:drum4-4_8"
+      }
+    },
+    {
+      "id": "drum4-4_8_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum4-4_8",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 8,
+      "filename": "drum4-4_8_loop2_oldandnew.wav",
+      "originalFilename": "drum4-4_8_LOOP2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:38.250Z",
+        "importedFrom": "oldandnew:drum4-4_8"
+      }
+    },
+    {
+      "id": "drum4-4_8_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "drum4-4_8",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 8,
+      "filename": "drum4-4_8_loop3_oldandnew.wav",
+      "originalFilename": "drum4-4_8_LOOP3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:38.652Z",
+        "importedFrom": "oldandnew:drum4-4_8"
+      }
+    },
+    {
+      "id": "drum4-4_8_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "drum4-4_8",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 8,
+      "filename": "drum4-4_8_fill3_oldandnew.wav",
+      "originalFilename": "drum4-4_8_FILL3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:39.031Z",
+        "importedFrom": "oldandnew:drum4-4_8"
+      }
+    },
+    {
+      "id": "drum4-4_8_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum4-4_8",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 8,
+      "filename": "drum4-4_8_fill2_oldandnew.wav",
+      "originalFilename": "drum4-4_8_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:39.536Z",
+        "importedFrom": "oldandnew:drum4-4_8"
+      }
+    },
+    {
+      "id": "drum4-4_9_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "drum4-4_9",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 9,
+      "filename": "drum4-4_9_loop1_oldandnew.wav",
+      "originalFilename": "drum4-4_9_LOOP1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:41.594Z",
+        "importedFrom": "oldandnew:drum4-4_9"
+      }
+    },
+    {
+      "id": "drum4-4_9_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "drum4-4_9",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 9,
+      "filename": "drum4-4_9_fill1_oldandnew.wav",
+      "originalFilename": "drum4-4_9_FILL1.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:42.050Z",
+        "importedFrom": "oldandnew:drum4-4_9"
+      }
+    },
+    {
+      "id": "drum4-4_9_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "drum4-4_9",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 9,
+      "filename": "drum4-4_9_fill2_oldandnew.wav",
+      "originalFilename": "drum4-4_9_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:42.429Z",
+        "importedFrom": "oldandnew:drum4-4_9"
+      }
+    },
+    {
+      "id": "drum4-4_9_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "drum4-4_9",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 9,
+      "filename": "drum4-4_9_loop2_oldandnew.wav",
+      "originalFilename": "drum4-4_9_LOOP2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:42.796Z",
+        "importedFrom": "oldandnew:drum4-4_9"
+      }
+    },
+    {
+      "id": "drum4-4_9_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "drum4-4_9",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 9,
+      "filename": "drum4-4_9_loop3_oldandnew.wav",
+      "originalFilename": "drum4-4_9_LOOP3.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:43.309Z",
+        "importedFrom": "oldandnew:drum4-4_9"
+      }
+    },
+    {
+      "id": "drum4-4_9_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "drum4-4_9",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 9,
+      "filename": "drum4-4_9_fill3_oldandnew.wav",
+      "originalFilename": "drum4-4_9_FILL2.wav",
+      "conditions": {
+        "taal": "drum4-4"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:43.405Z",
+        "importedFrom": "oldandnew:drum4-4_9"
+      }
+    },
+    {
+      "id": "ektaal_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "ektaal_1",
+      "rhythmFamily": "ektaal",
+      "rhythmSetNo": 1,
+      "filename": "ektaal_1_loop1_oldandnew.wav",
+      "originalFilename": "ektaal_1_LOOP1.wav",
+      "conditions": {
+        "taal": "ektaal"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:45.212Z",
+        "importedFrom": "oldandnew:ektaal_1"
+      }
+    },
+    {
+      "id": "ektaal_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "ektaal_1",
+      "rhythmFamily": "ektaal",
+      "rhythmSetNo": 1,
+      "filename": "ektaal_1_loop2_oldandnew.wav",
+      "originalFilename": "ektaal_1_LOOP2.wav",
+      "conditions": {
+        "taal": "ektaal"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:45.582Z",
+        "importedFrom": "oldandnew:ektaal_1"
+      }
+    },
+    {
+      "id": "ektaal_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "ektaal_1",
+      "rhythmFamily": "ektaal",
+      "rhythmSetNo": 1,
+      "filename": "ektaal_1_loop3_oldandnew.wav",
+      "originalFilename": "ektaal_1_LOOP3.wav",
+      "conditions": {
+        "taal": "ektaal"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:45.994Z",
+        "importedFrom": "oldandnew:ektaal_1"
+      }
+    },
+    {
+      "id": "goa_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "goa_1",
+      "rhythmFamily": "goa",
+      "rhythmSetNo": 1,
+      "filename": "goa_1_loop1_oldandnew.wav",
+      "originalFilename": "goa_1_LOOP1.wav",
+      "conditions": {
+        "taal": "goa"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:47.847Z",
+        "importedFrom": "oldandnew:goa_1"
+      }
+    },
+    {
+      "id": "goa_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "goa_1",
+      "rhythmFamily": "goa",
+      "rhythmSetNo": 1,
+      "filename": "goa_1_loop2_oldandnew.wav",
+      "originalFilename": "goa_1_LOOP2.wav",
+      "conditions": {
+        "taal": "goa"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:48.359Z",
+        "importedFrom": "oldandnew:goa_1"
+      }
+    },
+    {
+      "id": "goa_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "goa_1",
+      "rhythmFamily": "goa",
+      "rhythmSetNo": 1,
+      "filename": "goa_1_loop3_oldandnew.wav",
+      "originalFilename": "goa_1_LOOP3.wav",
+      "conditions": {
+        "taal": "goa"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:48.853Z",
+        "importedFrom": "oldandnew:goa_1"
+      }
+    },
+    {
+      "id": "goa_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "goa_1",
+      "rhythmFamily": "goa",
+      "rhythmSetNo": 1,
+      "filename": "goa_1_fill1_oldandnew.wav",
+      "originalFilename": "goa_1_FILL1.wav",
+      "conditions": {
+        "taal": "goa"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:49.656Z",
+        "importedFrom": "oldandnew:goa_1"
+      }
+    },
+    {
+      "id": "goa_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "goa_1",
+      "rhythmFamily": "goa",
+      "rhythmSetNo": 1,
+      "filename": "goa_1_fill2_oldandnew.wav",
+      "originalFilename": "goa_1_FILL2.wav",
+      "conditions": {
+        "taal": "goa"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:50.029Z",
+        "importedFrom": "oldandnew:goa_1"
+      }
+    },
+    {
+      "id": "goa_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "goa_1",
+      "rhythmFamily": "goa",
+      "rhythmSetNo": 1,
+      "filename": "goa_1_fill3_oldandnew.wav",
+      "originalFilename": "goa_1_FILL3.wav",
+      "conditions": {
+        "taal": "goa"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:50.534Z",
+        "importedFrom": "oldandnew:goa_1"
+      }
+    },
+    {
+      "id": "keherwa_bhajani_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_bhajani_1",
+      "rhythmFamily": "keherwa_bhajani",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_bhajani_1_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_bhajani_1_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_bhajani"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:52.393Z",
+        "importedFrom": "oldandnew:keherwa_bhajani_1"
+      }
+    },
+    {
+      "id": "keherwa_bhajani_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_bhajani_1",
+      "rhythmFamily": "keherwa_bhajani",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_bhajani_1_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_bhajani_1_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_bhajani"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:52.745Z",
+        "importedFrom": "oldandnew:keherwa_bhajani_1"
+      }
+    },
+    {
+      "id": "keherwa_bhajani_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_bhajani_1",
+      "rhythmFamily": "keherwa_bhajani",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_bhajani_1_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_bhajani_1_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_bhajani"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:53.107Z",
+        "importedFrom": "oldandnew:keherwa_bhajani_1"
+      }
+    },
+    {
+      "id": "keherwa_bhajani_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_bhajani_1",
+      "rhythmFamily": "keherwa_bhajani",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_bhajani_1_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_bhajani_1_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_bhajani"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:53.554Z",
+        "importedFrom": "oldandnew:keherwa_bhajani_1"
+      }
+    },
+    {
+      "id": "keherwa_bhajani_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_bhajani_1",
+      "rhythmFamily": "keherwa_bhajani",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_bhajani_1_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_bhajani_1_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_bhajani"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:54.070Z",
+        "importedFrom": "oldandnew:keherwa_bhajani_1"
+      }
+    },
+    {
+      "id": "keherwa_bhajani_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_bhajani_1",
+      "rhythmFamily": "keherwa_bhajani",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_bhajani_1_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_bhajani_1_FILL3.wav",
+      "conditions": {
+        "taal": "keherwa_bhajani"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:54.465Z",
+        "importedFrom": "oldandnew:keherwa_bhajani_1"
+      }
+    },
+    {
+      "id": "keherwa_fast_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_fast_1",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_fast_1_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_fast_1_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:56.585Z",
+        "importedFrom": "oldandnew:keherwa_fast_1"
+      }
+    },
+    {
+      "id": "keherwa_fast_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_fast_1",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_fast_1_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_fast_1_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:57.742Z",
+        "importedFrom": "oldandnew:keherwa_fast_1"
+      }
+    },
+    {
+      "id": "keherwa_fast_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_fast_1",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_fast_1_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_fast_1_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:58.191Z",
+        "importedFrom": "oldandnew:keherwa_fast_1"
+      }
+    },
+    {
+      "id": "keherwa_fast_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_fast_1",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_fast_1_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_fast_1_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:58.662Z",
+        "importedFrom": "oldandnew:keherwa_fast_1"
+      }
+    },
+    {
+      "id": "keherwa_fast_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_fast_1",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_fast_1_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_fast_1_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:00:59.080Z",
+        "importedFrom": "oldandnew:keherwa_fast_1"
+      }
+    },
+    {
+      "id": "keherwa_fast_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_fast_1",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_fast_1_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_fast_1_FILL3.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:00.133Z",
+        "importedFrom": "oldandnew:keherwa_fast_1"
+      }
+    },
+    {
+      "id": "keherwa_fast_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_fast_2",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_fast_2_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_fast_2_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:02.023Z",
+        "importedFrom": "oldandnew:keherwa_fast_2"
+      }
+    },
+    {
+      "id": "keherwa_fast_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_fast_2",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_fast_2_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_fast_2_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:02.477Z",
+        "importedFrom": "oldandnew:keherwa_fast_2"
+      }
+    },
+    {
+      "id": "keherwa_fast_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_fast_2",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_fast_2_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_fast_2_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:02.814Z",
+        "importedFrom": "oldandnew:keherwa_fast_2"
+      }
+    },
+    {
+      "id": "keherwa_fast_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_fast_2",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_fast_2_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_fast_2_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:03.199Z",
+        "importedFrom": "oldandnew:keherwa_fast_2"
+      }
+    },
+    {
+      "id": "keherwa_fast_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_fast_2",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_fast_2_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_fast_2_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:03.584Z",
+        "importedFrom": "oldandnew:keherwa_fast_2"
+      }
+    },
+    {
+      "id": "keherwa_fast_2_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_fast_2",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_fast_2_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_fast_2_FILL3.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:04.023Z",
+        "importedFrom": "oldandnew:keherwa_fast_2"
+      }
+    },
+    {
+      "id": "keherwa_fast_3_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_fast_3",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_fast_3_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_fast_3_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:05.848Z",
+        "importedFrom": "oldandnew:keherwa_fast_3"
+      }
+    },
+    {
+      "id": "keherwa_fast_3_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_fast_3",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_fast_3_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_fast_3_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:06.287Z",
+        "importedFrom": "oldandnew:keherwa_fast_3"
+      }
+    },
+    {
+      "id": "keherwa_fast_3_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_fast_3",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_fast_3_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_fast_3_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:06.877Z",
+        "importedFrom": "oldandnew:keherwa_fast_3"
+      }
+    },
+    {
+      "id": "keherwa_fast_3_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_fast_3",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_fast_3_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_fast_3_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:07.291Z",
+        "importedFrom": "oldandnew:keherwa_fast_3"
+      }
+    },
+    {
+      "id": "keherwa_fast_3_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_fast_3",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_fast_3_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_fast_3_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:08.060Z",
+        "importedFrom": "oldandnew:keherwa_fast_3"
+      }
+    },
+    {
+      "id": "keherwa_fast_3_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_fast_3",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_fast_3_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:08.773Z",
+        "importedFrom": "oldandnew:keherwa_fast_3"
+      }
+    },
+    {
+      "id": "keherwa_fast_4_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_fast_4",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_fast_4_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_fast_4_FILL3.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:10.586Z",
+        "importedFrom": "oldandnew:keherwa_fast_4"
+      }
+    },
+    {
+      "id": "keherwa_fast_4_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_fast_4",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_fast_4_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_fast_4_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:10.975Z",
+        "importedFrom": "oldandnew:keherwa_fast_4"
+      }
+    },
+    {
+      "id": "keherwa_fast_4_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_fast_4",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_fast_4_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_fast_4_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:11.379Z",
+        "importedFrom": "oldandnew:keherwa_fast_4"
+      }
+    },
+    {
+      "id": "keherwa_fast_4_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_fast_4",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_fast_4_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_fast_4_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:11.841Z",
+        "importedFrom": "oldandnew:keherwa_fast_4"
+      }
+    },
+    {
+      "id": "keherwa_fast_4_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_fast_4",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_fast_4_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_fast_4_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:12.218Z",
+        "importedFrom": "oldandnew:keherwa_fast_4"
+      }
+    },
+    {
+      "id": "keherwa_fast_4_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_fast_4",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_fast_4_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_fast_4_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_fast"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:12.794Z",
+        "importedFrom": "oldandnew:keherwa_fast_4"
+      }
+    },
+    {
+      "id": "keherwa_ghazal_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_ghazal_1",
+      "rhythmFamily": "keherwa_ghazal",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_ghazal_1_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_ghazal_1_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_ghazal"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:14.636Z",
+        "importedFrom": "oldandnew:keherwa_ghazal_1"
+      }
+    },
+    {
+      "id": "keherwa_ghazal_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_ghazal_1",
+      "rhythmFamily": "keherwa_ghazal",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_ghazal_1_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_ghazal_1_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_ghazal"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:15.098Z",
+        "importedFrom": "oldandnew:keherwa_ghazal_1"
+      }
+    },
+    {
+      "id": "keherwa_ghoomar_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_ghoomar_1",
+      "rhythmFamily": "keherwa_ghoomar",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_ghoomar_1_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_ghoomar_1_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_ghoomar"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:16.999Z",
+        "importedFrom": "oldandnew:keherwa_ghoomar_1"
+      }
+    },
+    {
+      "id": "keherwa_ghoomar_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_ghoomar_1",
+      "rhythmFamily": "keherwa_ghoomar",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_ghoomar_1_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_ghoomar_1_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_ghoomar"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:17.556Z",
+        "importedFrom": "oldandnew:keherwa_ghoomar_1"
+      }
+    },
+    {
+      "id": "keherwa_ghoomar_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_ghoomar_1",
+      "rhythmFamily": "keherwa_ghoomar",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_ghoomar_1_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_ghoomar_1_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_ghoomar"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:17.940Z",
+        "importedFrom": "oldandnew:keherwa_ghoomar_1"
+      }
+    },
+    {
+      "id": "keherwa_ghoomar_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_ghoomar_1",
+      "rhythmFamily": "keherwa_ghoomar",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_ghoomar_1_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_ghoomar_1_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_ghoomar"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:18.459Z",
+        "importedFrom": "oldandnew:keherwa_ghoomar_1"
+      }
+    },
+    {
+      "id": "keherwa_mid_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_mid_1",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_mid_1_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_mid_1_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:20.320Z",
+        "importedFrom": "oldandnew:keherwa_mid_1"
+      }
+    },
+    {
+      "id": "keherwa_mid_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_mid_1",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_mid_1_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_mid_1_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:20.843Z",
+        "importedFrom": "oldandnew:keherwa_mid_1"
+      }
+    },
+    {
+      "id": "keherwa_mid_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_mid_1",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_mid_1_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_mid_1_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:21.581Z",
+        "importedFrom": "oldandnew:keherwa_mid_1"
+      }
+    },
+    {
+      "id": "keherwa_mid_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_mid_1",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_mid_1_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_mid_1_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:22.012Z",
+        "importedFrom": "oldandnew:keherwa_mid_1"
+      }
+    },
+    {
+      "id": "keherwa_mid_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_mid_1",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_mid_1_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_mid_1_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:22.376Z",
+        "importedFrom": "oldandnew:keherwa_mid_1"
+      }
+    },
+    {
+      "id": "keherwa_mid_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_mid_1",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_mid_1_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_mid_1_FILL3.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:22.882Z",
+        "importedFrom": "oldandnew:keherwa_mid_1"
+      }
+    },
+    {
+      "id": "keherwa_mid_3_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_mid_3",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_mid_3_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_mid_3_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:24.573Z",
+        "importedFrom": "oldandnew:keherwa_mid_3"
+      }
+    },
+    {
+      "id": "keherwa_mid_3_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_mid_3",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_mid_3_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_mid_3_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:25.068Z",
+        "importedFrom": "oldandnew:keherwa_mid_3"
+      }
+    },
+    {
+      "id": "keherwa_mid_3_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_mid_3",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_mid_3_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_mid_3_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:25.503Z",
+        "importedFrom": "oldandnew:keherwa_mid_3"
+      }
+    },
+    {
+      "id": "keherwa_mid_3_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_mid_3",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_mid_3_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_mid_3_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:25.881Z",
+        "importedFrom": "oldandnew:keherwa_mid_3"
+      }
+    },
+    {
+      "id": "keherwa_mid_3_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_mid_3",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_mid_3_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_mid_3_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:26.401Z",
+        "importedFrom": "oldandnew:keherwa_mid_3"
+      }
+    },
+    {
+      "id": "keherwa_mid_3_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_mid_3",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_mid_3_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_mid_3_FILL3.wav",
+      "conditions": {
+        "taal": "keherwa_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:27.026Z",
+        "importedFrom": "oldandnew:keherwa_mid_3"
+      }
+    },
+    {
+      "id": "keherwa_slow_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_1",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_slow_1_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:28.876Z",
+        "importedFrom": "oldandnew:keherwa_slow_1"
+      }
+    },
+    {
+      "id": "keherwa_slow_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_1",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_slow_1_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:29.417Z",
+        "importedFrom": "oldandnew:keherwa_slow_1"
+      }
+    },
+    {
+      "id": "keherwa_slow_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_1",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_slow_1_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:29.794Z",
+        "importedFrom": "oldandnew:keherwa_slow_1"
+      }
+    },
+    {
+      "id": "keherwa_slow_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_1",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_slow_1_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_FILL3.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:30.197Z",
+        "importedFrom": "oldandnew:keherwa_slow_1"
+      }
+    },
+    {
+      "id": "keherwa_slow_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_1",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_slow_1_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:30.977Z",
+        "importedFrom": "oldandnew:keherwa_slow_1"
+      }
+    },
+    {
+      "id": "keherwa_slow_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_1",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 1,
+      "filename": "keherwa_slow_1_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:31.359Z",
+        "importedFrom": "oldandnew:keherwa_slow_1"
+      }
+    },
+    {
+      "id": "keherwa_slow_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_2",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_slow_2_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:33.614Z",
+        "importedFrom": "oldandnew:keherwa_slow_2"
+      }
+    },
+    {
+      "id": "keherwa_slow_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_2",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_slow_2_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:33.994Z",
+        "importedFrom": "oldandnew:keherwa_slow_2"
+      }
+    },
+    {
+      "id": "keherwa_slow_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_2",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_slow_2_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:34.384Z",
+        "importedFrom": "oldandnew:keherwa_slow_2"
+      }
+    },
+    {
+      "id": "keherwa_slow_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_2",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_slow_2_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:34.809Z",
+        "importedFrom": "oldandnew:keherwa_slow_2"
+      }
+    },
+    {
+      "id": "keherwa_slow_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_2",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_slow_2_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:34.845Z",
+        "importedFrom": "oldandnew:keherwa_slow_2"
+      }
+    },
+    {
+      "id": "keherwa_slow_2_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_2",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 2,
+      "filename": "keherwa_slow_2_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:34.902Z",
+        "importedFrom": "oldandnew:keherwa_slow_2"
+      }
+    },
+    {
+      "id": "keherwa_slow_3_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_3",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_slow_3_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:36.450Z",
+        "importedFrom": "oldandnew:keherwa_slow_3"
+      }
+    },
+    {
+      "id": "keherwa_slow_3_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_3",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_slow_3_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:36.540Z",
+        "importedFrom": "oldandnew:keherwa_slow_3"
+      }
+    },
+    {
+      "id": "keherwa_slow_3_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_3",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_slow_3_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:36.574Z",
+        "importedFrom": "oldandnew:keherwa_slow_3"
+      }
+    },
+    {
+      "id": "keherwa_slow_3_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_3",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_slow_3_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:36.609Z",
+        "importedFrom": "oldandnew:keherwa_slow_3"
+      }
+    },
+    {
+      "id": "keherwa_slow_3_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_3",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_slow_3_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:36.676Z",
+        "importedFrom": "oldandnew:keherwa_slow_3"
+      }
+    },
+    {
+      "id": "keherwa_slow_3_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_3",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 3,
+      "filename": "keherwa_slow_3_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_3_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:36.704Z",
+        "importedFrom": "oldandnew:keherwa_slow_3"
+      }
+    },
+    {
+      "id": "keherwa_slow_4_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_4",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_slow_4_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:38.295Z",
+        "importedFrom": "oldandnew:keherwa_slow_4"
+      }
+    },
+    {
+      "id": "keherwa_slow_4_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_4",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_slow_4_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:38.397Z",
+        "importedFrom": "oldandnew:keherwa_slow_4"
+      }
+    },
+    {
+      "id": "keherwa_slow_4_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_4",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_slow_4_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:38.450Z",
+        "importedFrom": "oldandnew:keherwa_slow_4"
+      }
+    },
+    {
+      "id": "keherwa_slow_4_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_4",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_slow_4_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:38.530Z",
+        "importedFrom": "oldandnew:keherwa_slow_4"
+      }
+    },
+    {
+      "id": "keherwa_slow_4_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_4",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_slow_4_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:38.603Z",
+        "importedFrom": "oldandnew:keherwa_slow_4"
+      }
+    },
+    {
+      "id": "keherwa_slow_4_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_4",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 4,
+      "filename": "keherwa_slow_4_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_1_FILL3.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:38.649Z",
+        "importedFrom": "oldandnew:keherwa_slow_4"
+      }
+    },
+    {
+      "id": "keherwa_slow_5_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_5",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 5,
+      "filename": "keherwa_slow_5_loop1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_5_LOOP1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:40.913Z",
+        "importedFrom": "oldandnew:keherwa_slow_5"
+      }
+    },
+    {
+      "id": "keherwa_slow_5_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "keherwa_slow_5",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 5,
+      "filename": "keherwa_slow_5_fill1_oldandnew.wav",
+      "originalFilename": "keherwa_slow_5_FILL1.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:41.342Z",
+        "importedFrom": "oldandnew:keherwa_slow_5"
+      }
+    },
+    {
+      "id": "keherwa_slow_5_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_5",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 5,
+      "filename": "keherwa_slow_5_fill2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_5_FILL2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:41.760Z",
+        "importedFrom": "oldandnew:keherwa_slow_5"
+      }
+    },
+    {
+      "id": "keherwa_slow_5_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "keherwa_slow_5",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 5,
+      "filename": "keherwa_slow_5_loop2_oldandnew.wav",
+      "originalFilename": "keherwa_slow_5_LOOP2.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:42.236Z",
+        "importedFrom": "oldandnew:keherwa_slow_5"
+      }
+    },
+    {
+      "id": "keherwa_slow_5_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_5",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 5,
+      "filename": "keherwa_slow_5_fill3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_5_FILL3.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:42.651Z",
+        "importedFrom": "oldandnew:keherwa_slow_5"
+      }
+    },
+    {
+      "id": "keherwa_slow_5_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "keherwa_slow_5",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 5,
+      "filename": "keherwa_slow_5_loop3_oldandnew.wav",
+      "originalFilename": "keherwa_slow_5_LOOP3.wav",
+      "conditions": {
+        "taal": "keherwa_slow"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:43.800Z",
+        "importedFrom": "oldandnew:keherwa_slow_5"
+      }
+    },
+    {
+      "id": "onetwo_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "onetwo_1",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 1,
+      "filename": "onetwo_1_fill3_oldandnew.wav",
+      "originalFilename": "onetwo_1_FILL3.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:45.701Z",
+        "importedFrom": "oldandnew:onetwo_1"
+      }
+    },
+    {
+      "id": "onetwo_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "onetwo_1",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 1,
+      "filename": "onetwo_1_fill2_oldandnew.wav",
+      "originalFilename": "onetwo_1_FILL2.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:46.078Z",
+        "importedFrom": "oldandnew:onetwo_1"
+      }
+    },
+    {
+      "id": "onetwo_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "onetwo_1",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 1,
+      "filename": "onetwo_1_fill1_oldandnew.wav",
+      "originalFilename": "onetwo_1_FILL1.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:46.484Z",
+        "importedFrom": "oldandnew:onetwo_1"
+      }
+    },
+    {
+      "id": "onetwo_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "onetwo_1",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 1,
+      "filename": "onetwo_1_loop3_oldandnew.wav",
+      "originalFilename": "onetwo_1_LOOP3.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:46.896Z",
+        "importedFrom": "oldandnew:onetwo_1"
+      }
+    },
+    {
+      "id": "onetwo_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "onetwo_1",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 1,
+      "filename": "onetwo_1_loop2_oldandnew.wav",
+      "originalFilename": "onetwo_1_LOOP2.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:47.392Z",
+        "importedFrom": "oldandnew:onetwo_1"
+      }
+    },
+    {
+      "id": "onetwo_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "onetwo_1",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 1,
+      "filename": "onetwo_1_loop1_oldandnew.wav",
+      "originalFilename": "onetwo_1_LOOP1.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:48.023Z",
+        "importedFrom": "oldandnew:onetwo_1"
+      }
+    },
+    {
+      "id": "onetwo_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "onetwo_2",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 2,
+      "filename": "onetwo_2_loop1_oldandnew.wav",
+      "originalFilename": "onetwo_2_LOOP1.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:50.565Z",
+        "importedFrom": "oldandnew:onetwo_2"
+      }
+    },
+    {
+      "id": "onetwo_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "onetwo_2",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 2,
+      "filename": "onetwo_2_loop2_oldandnew.wav",
+      "originalFilename": "onetwo_2_LOOP2.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:51.146Z",
+        "importedFrom": "oldandnew:onetwo_2"
+      }
+    },
+    {
+      "id": "onetwo_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "onetwo_2",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 2,
+      "filename": "onetwo_2_loop3_oldandnew.wav",
+      "originalFilename": "onetwo_2_LOOP3.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:51.561Z",
+        "importedFrom": "oldandnew:onetwo_2"
+      }
+    },
+    {
+      "id": "onetwo_2_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "onetwo_2",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 2,
+      "filename": "onetwo_2_fill3_oldandnew.wav",
+      "originalFilename": "onetwo_2_FILL3.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:51.935Z",
+        "importedFrom": "oldandnew:onetwo_2"
+      }
+    },
+    {
+      "id": "onetwo_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "onetwo_2",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 2,
+      "filename": "onetwo_2_fill2_oldandnew.wav",
+      "originalFilename": "onetwo_2_FILL2.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:52.284Z",
+        "importedFrom": "oldandnew:onetwo_2"
+      }
+    },
+    {
+      "id": "onetwo_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "onetwo_2",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 2,
+      "filename": "onetwo_2_fill1_oldandnew.wav",
+      "originalFilename": "onetwo_2_FILL1.wav",
+      "conditions": {
+        "taal": "onetwo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:52.758Z",
+        "importedFrom": "oldandnew:onetwo_2"
+      }
+    },
+    {
+      "id": "rd_4_congo_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_1",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_4_congo_1_loop3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_1_LOOP3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:54.562Z",
+        "importedFrom": "oldandnew:rd_4_congo_1"
+      }
+    },
+    {
+      "id": "rd_4_congo_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_1",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_4_congo_1_fill3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_1_FILL3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:54.956Z",
+        "importedFrom": "oldandnew:rd_4_congo_1"
+      }
+    },
+    {
+      "id": "rd_4_congo_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_1",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_4_congo_1_fill1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_1_FILL1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:55.659Z",
+        "importedFrom": "oldandnew:rd_4_congo_1"
+      }
+    },
+    {
+      "id": "rd_4_congo_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_1",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_4_congo_1_fill2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_1_FILL2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:56.060Z",
+        "importedFrom": "oldandnew:rd_4_congo_1"
+      }
+    },
+    {
+      "id": "rd_4_congo_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_1",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_4_congo_1_loop1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_1_LOOP1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:56.460Z",
+        "importedFrom": "oldandnew:rd_4_congo_1"
+      }
+    },
+    {
+      "id": "rd_4_congo_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_1",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_4_congo_1_loop2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_1_LOOP2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:56.900Z",
+        "importedFrom": "oldandnew:rd_4_congo_1"
+      }
+    },
+    {
+      "id": "rd_4_congo_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_2",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_4_congo_2_loop1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_2_LOOP1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:58.797Z",
+        "importedFrom": "oldandnew:rd_4_congo_2"
+      }
+    },
+    {
+      "id": "rd_4_congo_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_2",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_4_congo_2_loop2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_2_LOOP2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:59.170Z",
+        "importedFrom": "oldandnew:rd_4_congo_2"
+      }
+    },
+    {
+      "id": "rd_4_congo_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_2",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_4_congo_2_loop3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_2_LOOP3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:01:59.963Z",
+        "importedFrom": "oldandnew:rd_4_congo_2"
+      }
+    },
+    {
+      "id": "rd_4_congo_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_2",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_4_congo_2_fill1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_2_FILL1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:00.490Z",
+        "importedFrom": "oldandnew:rd_4_congo_2"
+      }
+    },
+    {
+      "id": "rd_4_congo_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_2",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_4_congo_2_fill2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_2_FILL2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:00.914Z",
+        "importedFrom": "oldandnew:rd_4_congo_2"
+      }
+    },
+    {
+      "id": "rd_4_congo_2_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_2",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_4_congo_2_fill3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_2_FILL3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:01.323Z",
+        "importedFrom": "oldandnew:rd_4_congo_2"
+      }
+    },
+    {
+      "id": "rd_4_congo_3_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_3",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 3,
+      "filename": "rd_4_congo_3_loop1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_3_LOOP1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:03.728Z",
+        "importedFrom": "oldandnew:rd_4_congo_3"
+      }
+    },
+    {
+      "id": "rd_4_congo_3_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_3",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 3,
+      "filename": "rd_4_congo_3_loop2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_3_LOOP2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:04.240Z",
+        "importedFrom": "oldandnew:rd_4_congo_3"
+      }
+    },
+    {
+      "id": "rd_4_congo_3_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_3",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 3,
+      "filename": "rd_4_congo_3_loop3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_3_LOOP3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:04.577Z",
+        "importedFrom": "oldandnew:rd_4_congo_3"
+      }
+    },
+    {
+      "id": "rd_4_congo_3_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_3",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 3,
+      "filename": "rd_4_congo_3_fill1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_3_FILL1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:05.424Z",
+        "importedFrom": "oldandnew:rd_4_congo_3"
+      }
+    },
+    {
+      "id": "rd_4_congo_3_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_3",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 3,
+      "filename": "rd_4_congo_3_fill2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_3_FILL2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:05.989Z",
+        "importedFrom": "oldandnew:rd_4_congo_3"
+      }
+    },
+    {
+      "id": "rd_4_congo_3_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_3",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 3,
+      "filename": "rd_4_congo_3_fill3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_3_FILL3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:06.778Z",
+        "importedFrom": "oldandnew:rd_4_congo_3"
+      }
+    },
+    {
+      "id": "rd_4_congo_4_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_4",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 4,
+      "filename": "rd_4_congo_4_loop1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_4_LOOP1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:08.626Z",
+        "importedFrom": "oldandnew:rd_4_congo_4"
+      }
+    },
+    {
+      "id": "rd_4_congo_4_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_4",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 4,
+      "filename": "rd_4_congo_4_loop2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_4_LOOP2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:09.236Z",
+        "importedFrom": "oldandnew:rd_4_congo_4"
+      }
+    },
+    {
+      "id": "rd_4_congo_4_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_4",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 4,
+      "filename": "rd_4_congo_4_loop3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_4_LOOP3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:09.596Z",
+        "importedFrom": "oldandnew:rd_4_congo_4"
+      }
+    },
+    {
+      "id": "rd_4_congo_4_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_4",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 4,
+      "filename": "rd_4_congo_4_fill1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_4_FILL1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:09.918Z",
+        "importedFrom": "oldandnew:rd_4_congo_4"
+      }
+    },
+    {
+      "id": "rd_4_congo_4_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_4",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 4,
+      "filename": "rd_4_congo_4_fill2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_4_FILL2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:10.297Z",
+        "importedFrom": "oldandnew:rd_4_congo_4"
+      }
+    },
+    {
+      "id": "rd_4_congo_4_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_4",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 4,
+      "filename": "rd_4_congo_4_fill3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_4_FILL3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:10.791Z",
+        "importedFrom": "oldandnew:rd_4_congo_4"
+      }
+    },
+    {
+      "id": "rd_4_congo_5_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_5",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 5,
+      "filename": "rd_4_congo_5_loop3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_5_LOOP3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:12.630Z",
+        "importedFrom": "oldandnew:rd_4_congo_5"
+      }
+    },
+    {
+      "id": "rd_4_congo_5_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_5",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 5,
+      "filename": "rd_4_congo_5_fill3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_5_FILL3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:13.016Z",
+        "importedFrom": "oldandnew:rd_4_congo_5"
+      }
+    },
+    {
+      "id": "rd_4_congo_5_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_5",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 5,
+      "filename": "rd_4_congo_5_loop1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_5_LOOP1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:13.393Z",
+        "importedFrom": "oldandnew:rd_4_congo_5"
+      }
+    },
+    {
+      "id": "rd_4_congo_5_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_5",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 5,
+      "filename": "rd_4_congo_5_loop2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_5_LOOP2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:13.777Z",
+        "importedFrom": "oldandnew:rd_4_congo_5"
+      }
+    },
+    {
+      "id": "rd_4_congo_5_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_5",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 5,
+      "filename": "rd_4_congo_5_fill2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_5_FILL2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:14.178Z",
+        "importedFrom": "oldandnew:rd_4_congo_5"
+      }
+    },
+    {
+      "id": "rd_4_congo_5_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_5",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 5,
+      "filename": "rd_4_congo_5_fill1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_5_FILL1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:14.591Z",
+        "importedFrom": "oldandnew:rd_4_congo_5"
+      }
+    },
+    {
+      "id": "rd_4_congo_6_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_6",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 6,
+      "filename": "rd_4_congo_6_loop1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_6_LOOP1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:16.682Z",
+        "importedFrom": "oldandnew:rd_4_congo_6"
+      }
+    },
+    {
+      "id": "rd_4_congo_6_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_6",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 6,
+      "filename": "rd_4_congo_6_loop2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_6_LOOP2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:17.077Z",
+        "importedFrom": "oldandnew:rd_4_congo_6"
+      }
+    },
+    {
+      "id": "rd_4_congo_6_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_6",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 6,
+      "filename": "rd_4_congo_6_loop3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_6_LOOP3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:17.456Z",
+        "importedFrom": "oldandnew:rd_4_congo_6"
+      }
+    },
+    {
+      "id": "rd_4_congo_6_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_6",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 6,
+      "filename": "rd_4_congo_6_fill1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_6_FILL1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:17.904Z",
+        "importedFrom": "oldandnew:rd_4_congo_6"
+      }
+    },
+    {
+      "id": "rd_4_congo_6_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_6",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 6,
+      "filename": "rd_4_congo_6_fill2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_6_FILL2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:18.371Z",
+        "importedFrom": "oldandnew:rd_4_congo_6"
+      }
+    },
+    {
+      "id": "rd_4_congo_6_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_6",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 6,
+      "filename": "rd_4_congo_6_fill3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_6_FILL3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:18.731Z",
+        "importedFrom": "oldandnew:rd_4_congo_6"
+      }
+    },
+    {
+      "id": "rd_4_congo_7_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_7",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 7,
+      "filename": "rd_4_congo_7_loop1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_7_LOOP1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:20.717Z",
+        "importedFrom": "oldandnew:rd_4_congo_7"
+      }
+    },
+    {
+      "id": "rd_4_congo_7_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_7",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 7,
+      "filename": "rd_4_congo_7_loop2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_7_LOOP2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:21.149Z",
+        "importedFrom": "oldandnew:rd_4_congo_7"
+      }
+    },
+    {
+      "id": "rd_4_congo_7_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_7",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 7,
+      "filename": "rd_4_congo_7_loop3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_7_LOOP3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:21.652Z",
+        "importedFrom": "oldandnew:rd_4_congo_7"
+      }
+    },
+    {
+      "id": "rd_4_congo_7_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rd_4_congo_7",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 7,
+      "filename": "rd_4_congo_7_fill1_oldandnew.wav",
+      "originalFilename": "rd_4_congo_7_FILL1.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:22.504Z",
+        "importedFrom": "oldandnew:rd_4_congo_7"
+      }
+    },
+    {
+      "id": "rd_4_congo_7_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rd_4_congo_7",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 7,
+      "filename": "rd_4_congo_7_fill2_oldandnew.wav",
+      "originalFilename": "rd_4_congo_7_FILL2.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:23.300Z",
+        "importedFrom": "oldandnew:rd_4_congo_7"
+      }
+    },
+    {
+      "id": "rd_4_congo_7_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rd_4_congo_7",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 7,
+      "filename": "rd_4_congo_7_fill3_oldandnew.wav",
+      "originalFilename": "rd_4_congo_7_FILL3.wav",
+      "conditions": {
+        "taal": "rd_4_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:23.711Z",
+        "importedFrom": "oldandnew:rd_4_congo_7"
+      }
+    },
+    {
+      "id": "rd_6_congo_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rd_6_congo_1",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_6_congo_1_loop1_oldandnew.wav",
+      "originalFilename": "rd_6_congo_1_LOOP1.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:25.628Z",
+        "importedFrom": "oldandnew:rd_6_congo_1"
+      }
+    },
+    {
+      "id": "rd_6_congo_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rd_6_congo_1",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_6_congo_1_loop2_oldandnew.wav",
+      "originalFilename": "rd_6_congo_1_LOOP2.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:26.037Z",
+        "importedFrom": "oldandnew:rd_6_congo_1"
+      }
+    },
+    {
+      "id": "rd_6_congo_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rd_6_congo_1",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_6_congo_1_loop3_oldandnew.wav",
+      "originalFilename": "rd_6_congo_1_LOOP3.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:26.418Z",
+        "importedFrom": "oldandnew:rd_6_congo_1"
+      }
+    },
+    {
+      "id": "rd_6_congo_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rd_6_congo_1",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_6_congo_1_fill1_oldandnew.wav",
+      "originalFilename": "rd_6_congo_1_FILL1.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:27.026Z",
+        "importedFrom": "oldandnew:rd_6_congo_1"
+      }
+    },
+    {
+      "id": "rd_6_congo_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rd_6_congo_1",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_6_congo_1_fill2_oldandnew.wav",
+      "originalFilename": "rd_6_congo_1_FILL2.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:27.455Z",
+        "importedFrom": "oldandnew:rd_6_congo_1"
+      }
+    },
+    {
+      "id": "rd_6_congo_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rd_6_congo_1",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 1,
+      "filename": "rd_6_congo_1_fill3_oldandnew.wav",
+      "originalFilename": "rd_6_congo_1_FILL3.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:27.910Z",
+        "importedFrom": "oldandnew:rd_6_congo_1"
+      }
+    },
+    {
+      "id": "rd_6_congo_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rd_6_congo_2",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_6_congo_2_loop1_oldandnew.wav",
+      "originalFilename": "congo_1_LOOP1.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:29.805Z",
+        "importedFrom": "oldandnew:rd_6_congo_2"
+      }
+    },
+    {
+      "id": "rd_6_congo_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rd_6_congo_2",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_6_congo_2_loop2_oldandnew.wav",
+      "originalFilename": "congo_1_LOOP2.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:30.183Z",
+        "importedFrom": "oldandnew:rd_6_congo_2"
+      }
+    },
+    {
+      "id": "rd_6_congo_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rd_6_congo_2",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_6_congo_2_loop3_oldandnew.wav",
+      "originalFilename": "congo_1_LOOP3.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:30.684Z",
+        "importedFrom": "oldandnew:rd_6_congo_2"
+      }
+    },
+    {
+      "id": "rd_6_congo_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rd_6_congo_2",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_6_congo_2_fill1_oldandnew.wav",
+      "originalFilename": "congo_1_FILL1.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:31.051Z",
+        "importedFrom": "oldandnew:rd_6_congo_2"
+      }
+    },
+    {
+      "id": "rd_6_congo_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rd_6_congo_2",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_6_congo_2_fill2_oldandnew.wav",
+      "originalFilename": "congo_1_FILL2.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:31.405Z",
+        "importedFrom": "oldandnew:rd_6_congo_2"
+      }
+    },
+    {
+      "id": "rd_6_congo_2_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rd_6_congo_2",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 2,
+      "filename": "rd_6_congo_2_fill3_oldandnew.wav",
+      "originalFilename": "congo_1_FILL3.wav",
+      "conditions": {
+        "taal": "rd_6_congo"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:31.871Z",
+        "importedFrom": "oldandnew:rd_6_congo_2"
+      }
+    },
+    {
+      "id": "rupak_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rupak_1",
+      "rhythmFamily": "rupak",
+      "rhythmSetNo": 1,
+      "filename": "rupak_1_loop1_oldandnew.wav",
+      "originalFilename": "rupak_1_LOOP1.wav",
+      "conditions": {
+        "taal": "rupak"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:38.342Z",
+        "importedFrom": "oldandnew:rupak_1"
+      }
+    },
+    {
+      "id": "rupak_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rupak_1",
+      "rhythmFamily": "rupak",
+      "rhythmSetNo": 1,
+      "filename": "rupak_1_loop2_oldandnew.wav",
+      "originalFilename": "rupak_1_LOOP2.wav",
+      "conditions": {
+        "taal": "rupak"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:39.000Z",
+        "importedFrom": "oldandnew:rupak_1"
+      }
+    },
+    {
+      "id": "rupak_1_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "rupak_1",
+      "rhythmFamily": "rupak",
+      "rhythmSetNo": 1,
+      "filename": "rupak_1_loop3_oldandnew.wav",
+      "originalFilename": "rupak_1_LOOP3.wav",
+      "conditions": {
+        "taal": "rupak"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:39.793Z",
+        "importedFrom": "oldandnew:rupak_1"
+      }
+    },
+    {
+      "id": "rupak_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rupak_1",
+      "rhythmFamily": "rupak",
+      "rhythmSetNo": 1,
+      "filename": "rupak_1_fill1_oldandnew.wav",
+      "originalFilename": "rupak_1_FILL1.wav",
+      "conditions": {
+        "taal": "rupak"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:40.194Z",
+        "importedFrom": "oldandnew:rupak_1"
+      }
+    },
+    {
+      "id": "rupak_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rupak_1",
+      "rhythmFamily": "rupak",
+      "rhythmSetNo": 1,
+      "filename": "rupak_1_fill2_oldandnew.wav",
+      "originalFilename": "rupak_1_FILL2.wav",
+      "conditions": {
+        "taal": "rupak"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:40.594Z",
+        "importedFrom": "oldandnew:rupak_1"
+      }
+    },
+    {
+      "id": "rupak_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "rupak_1",
+      "rhythmFamily": "rupak",
+      "rhythmSetNo": 1,
+      "filename": "rupak_1_fill3_oldandnew.wav",
+      "originalFilename": "rupak_1_FILL3.wav",
+      "conditions": {
+        "taal": "rupak"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:41.042Z",
+        "importedFrom": "oldandnew:rupak_1"
+      }
+    },
+    {
+      "id": "rupak_mid_1_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "rupak_mid_1",
+      "rhythmFamily": "rupak_mid",
+      "rhythmSetNo": 1,
+      "filename": "rupak_mid_1_loop1_oldandnew.wav",
+      "originalFilename": "rupak_mid_1_LOOP1.wav",
+      "conditions": {
+        "taal": "rupak_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:42.918Z",
+        "importedFrom": "oldandnew:rupak_mid_1"
+      }
+    },
+    {
+      "id": "rupak_mid_1_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "rupak_mid_1",
+      "rhythmFamily": "rupak_mid",
+      "rhythmSetNo": 1,
+      "filename": "rupak_mid_1_loop2_oldandnew.wav",
+      "originalFilename": "rupak_mid_1_LOOP2.wav",
+      "conditions": {
+        "taal": "rupak_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:43.345Z",
+        "importedFrom": "oldandnew:rupak_mid_1"
+      }
+    },
+    {
+      "id": "rupak_mid_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "rupak_mid_1",
+      "rhythmFamily": "rupak_mid",
+      "rhythmSetNo": 1,
+      "filename": "rupak_mid_1_fill1_oldandnew.wav",
+      "originalFilename": "rupak_mid_1_FILL1.wav",
+      "conditions": {
+        "taal": "rupak_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:44.161Z",
+        "importedFrom": "oldandnew:rupak_mid_1"
+      }
+    },
+    {
+      "id": "rupak_mid_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "rupak_mid_1",
+      "rhythmFamily": "rupak_mid",
+      "rhythmSetNo": 1,
+      "filename": "rupak_mid_1_fill2_oldandnew.wav",
+      "originalFilename": "rupak_mid_1_FILL2.wav",
+      "conditions": {
+        "taal": "rupak_mid"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:44.582Z",
+        "importedFrom": "oldandnew:rupak_mid_1"
+      }
+    },
+    {
+      "id": "teentaal_addha_1_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "teentaal_addha_1",
+      "rhythmFamily": "teentaal_addha",
+      "rhythmSetNo": 1,
+      "filename": "teentaal_addha_1_fill1_oldandnew.wav",
+      "originalFilename": "teentaal_addha_1_FILL1.wav",
+      "conditions": {
+        "taal": "teentaal_addha"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:46.843Z",
+        "importedFrom": "oldandnew:teentaal_addha_1"
+      }
+    },
+    {
+      "id": "teentaal_addha_1_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "teentaal_addha_1",
+      "rhythmFamily": "teentaal_addha",
+      "rhythmSetNo": 1,
+      "filename": "teentaal_addha_1_fill2_oldandnew.wav",
+      "originalFilename": "teentaal_addha_1_FILL2.wav",
+      "conditions": {
+        "taal": "teentaal_addha"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:47.367Z",
+        "importedFrom": "oldandnew:teentaal_addha_1"
+      }
+    },
+    {
+      "id": "teentaal_addha_1_fill3",
+      "type": "fill",
+      "number": 3,
+      "rhythmSetId": "teentaal_addha_1",
+      "rhythmFamily": "teentaal_addha",
+      "rhythmSetNo": 1,
+      "filename": "teentaal_addha_1_fill3_oldandnew.wav",
+      "originalFilename": "teentaal_addha_1_FILL3.wav",
+      "conditions": {
+        "taal": "teentaal_addha"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:47.833Z",
+        "importedFrom": "oldandnew:teentaal_addha_1"
+      }
+    },
+    {
+      "id": "teentaal_addha_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "teentaal_addha_2",
+      "rhythmFamily": "teentaal_addha",
+      "rhythmSetNo": 2,
+      "filename": "teentaal_addha_2_loop1_oldandnew.wav",
+      "originalFilename": "teentaal_addha_2_LOOP1.wav",
+      "conditions": {
+        "taal": "teentaal_addha"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:50.251Z",
+        "importedFrom": "oldandnew:teentaal_addha_2"
+      }
+    },
+    {
+      "id": "teentaal_addha_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "teentaal_addha_2",
+      "rhythmFamily": "teentaal_addha",
+      "rhythmSetNo": 2,
+      "filename": "teentaal_addha_2_loop2_oldandnew.wav",
+      "originalFilename": "teentaal_addha_2_LOOP2.wav",
+      "conditions": {
+        "taal": "teentaal_addha"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:50.597Z",
+        "importedFrom": "oldandnew:teentaal_addha_2"
+      }
+    },
+    {
+      "id": "teentaal_addha_2_loop3",
+      "type": "loop",
+      "number": 3,
+      "rhythmSetId": "teentaal_addha_2",
+      "rhythmFamily": "teentaal_addha",
+      "rhythmSetNo": 2,
+      "filename": "teentaal_addha_2_loop3_oldandnew.wav",
+      "originalFilename": "teentaal_addha_2_LOOP3.wav",
+      "conditions": {
+        "taal": "teentaal_addha"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-29T06:02:50.983Z",
+        "importedFrom": "oldandnew:teentaal_addha_2"
+      }
     }
   ],
   "rhythmSets": [
@@ -1468,6 +6453,336 @@
       "rhythmFamily": "deepchandi",
       "rhythmSetNo": 2,
       "fileCount": 4
+    },
+    {
+      "rhythmSetId": "dadra_fast_1",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "dadra_fast_2",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "dadra_fast_3",
+      "rhythmFamily": "dadra_fast",
+      "rhythmSetNo": 3,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "dadra_mid_1",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "dadra_mid_2",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "dadra_mid_3",
+      "rhythmFamily": "dadra_mid",
+      "rhythmSetNo": 3,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "dadra_slow_1",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 1,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "dadra_slow_2",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 2,
+      "fileCount": 2
+    },
+    {
+      "rhythmSetId": "dadra_slow_3",
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 3,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "dhol_1",
+      "rhythmFamily": "dhol",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "drum_4_mid_1",
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 1,
+      "fileCount": 2
+    },
+    {
+      "rhythmSetId": "drum_6_slow_1",
+      "rhythmFamily": "drum_6_slow",
+      "rhythmSetNo": 1,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "drum3-4_1",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 1,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "drum3-4_2",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "drum3-4_3",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 3,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "drum4-4_1",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 1,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "drum4-4_2",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "drum4-4_3",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 3,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "drum4-4_4",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 4,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "drum4-4_5",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 5,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "drum4-4_6",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 6,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "drum4-4_7",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 7,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "drum4-4_8",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 8,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "drum4-4_9",
+      "rhythmFamily": "drum4-4",
+      "rhythmSetNo": 9,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "ektaal_1",
+      "rhythmFamily": "ektaal",
+      "rhythmSetNo": 1,
+      "fileCount": 3
+    },
+    {
+      "rhythmSetId": "goa_1",
+      "rhythmFamily": "goa",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_bhajani_1",
+      "rhythmFamily": "keherwa_bhajani",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_fast_1",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_fast_2",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_fast_3",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 3,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_fast_4",
+      "rhythmFamily": "keherwa_fast",
+      "rhythmSetNo": 4,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_ghazal_1",
+      "rhythmFamily": "keherwa_ghazal",
+      "rhythmSetNo": 1,
+      "fileCount": 2
+    },
+    {
+      "rhythmSetId": "keherwa_ghoomar_1",
+      "rhythmFamily": "keherwa_ghoomar",
+      "rhythmSetNo": 1,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "keherwa_mid_1",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_mid_3",
+      "rhythmFamily": "keherwa_mid",
+      "rhythmSetNo": 3,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_slow_1",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_slow_2",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_slow_3",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 3,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_slow_4",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 4,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "keherwa_slow_5",
+      "rhythmFamily": "keherwa_slow",
+      "rhythmSetNo": 5,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "onetwo_1",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "onetwo_2",
+      "rhythmFamily": "onetwo",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rd_4_congo_1",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rd_4_congo_2",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rd_4_congo_3",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 3,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rd_4_congo_4",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 4,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rd_4_congo_5",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 5,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rd_4_congo_6",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 6,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rd_4_congo_7",
+      "rhythmFamily": "rd_4_congo",
+      "rhythmSetNo": 7,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rd_6_congo_1",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rd_6_congo_2",
+      "rhythmFamily": "rd_6_congo",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rupak_1",
+      "rhythmFamily": "rupak",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "rupak_mid_1",
+      "rhythmFamily": "rupak_mid",
+      "rhythmSetNo": 1,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "teentaal_addha_1",
+      "rhythmFamily": "teentaal_addha",
+      "rhythmSetNo": 1,
+      "fileCount": 3
+    },
+    {
+      "rhythmSetId": "teentaal_addha_2",
+      "rhythmFamily": "teentaal_addha",
+      "rhythmSetNo": 2,
+      "fileCount": 3
     }
   ],
   "tempoRanges": {

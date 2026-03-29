@@ -493,6 +493,28 @@ function findLoopIndexBySlot(metadata, rhythmSetId, slotKey) {
   return -1;
 }
 
+function shouldSyncExternalSlot(metadata, rhythmSetId, slotKey, sourceFilename) {
+  const loopIndex = findLoopIndexBySlot(metadata, rhythmSetId, slotKey);
+  if (loopIndex < 0) {
+    return { shouldImport: true, reason: 'missing-local-slot' };
+  }
+
+  const loops = Array.isArray(metadata && metadata.loops) ? metadata.loops : [];
+  const existing = loops[loopIndex] || {};
+  const existingSourceFilename = String(existing.originalFilename || '').trim();
+  const incomingSourceFilename = String(sourceFilename || '').trim();
+
+  if (!existingSourceFilename) {
+    return { shouldImport: true, reason: 'missing-source-tracking' };
+  }
+
+  if (existingSourceFilename !== incomingSourceFilename) {
+    return { shouldImport: true, reason: 'source-filename-changed' };
+  }
+
+  return { shouldImport: false, reason: 'already-up-to-date' };
+}
+
 function syncRhythmSetsFromMetadata(metadata) {
   metadata.rhythmSets = buildRhythmSetIndexFromMetadata(metadata).map(set => ({
     rhythmSetId: set.rhythmSetId,
@@ -2301,10 +2323,17 @@ app.post('/api/external-loop-sources/:sourceId/import-rhythm-set', authMiddlewar
     const writable = readWritableLoopsMetadata();
     const metadata = writable.metadata;
     const importedFiles = [];
+    const skippedFiles = [];
 
     for (const [slotKey, sourceFilename] of Object.entries(sourceGroup.files || {})) {
       const slotInfo = parseLoopSlotKey(slotKey);
       if (!slotInfo) continue;
+
+      const syncDecision = shouldSyncExternalSlot(metadata, parsedTarget.rhythmSetId, slotInfo.key, sourceFilename);
+      if (!syncDecision.shouldImport) {
+        skippedFiles.push({ slotKey: slotInfo.key, sourceFilename, reason: syncDecision.reason });
+        continue;
+      }
 
       const copied = await copyExternalLoopFile({
         sourceId: req.params.sourceId,
@@ -2349,10 +2378,16 @@ app.post('/api/external-loop-sources/:sourceId/import-rhythm-set', authMiddlewar
 
     await ensureRhythmSetDocument(parsedTarget, req.user.username || req.user.email || 'admin', 'external-rhythm-set-import');
 
-    res.status(201).json({
+    res.status(importedFiles.length > 0 ? 201 : 200).json({
       success: true,
       targetRhythmSetId: parsedTarget.rhythmSetId,
-      importedFiles
+      importedFiles,
+      skippedFiles,
+      delta: {
+        totalSlots: Object.keys(sourceGroup.files || {}).length,
+        importedCount: importedFiles.length,
+        skippedCount: skippedFiles.length
+      }
     });
   } catch (err) {
     console.error('External rhythm set import error:', err);

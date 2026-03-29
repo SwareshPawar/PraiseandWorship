@@ -9987,6 +9987,36 @@ window.viewSingleLyrics = function(songId, otherId) {
                             updateSongInCache(updated, false);
                             localStorage.setItem('loopsMetadataInvalidatedAt', Date.now().toString());
 
+                            if (typeof window.invalidateLoopsMetadataCache === 'function') {
+                                window.invalidateLoopsMetadataCache();
+                            }
+
+                            const loopContainer = document.getElementById(`loopPlayerContainer-${song.id}`);
+                            const playBtn = document.getElementById(`loopPlayBtn-${song.id}`);
+
+                            if (typeof loopPlayerInstance !== 'undefined' && loopPlayerInstance && loopPlayerInstance.currentSongId == song.id) {
+                                if (typeof loopPlayerInstance.pause === 'function') {
+                                    loopPlayerInstance.pause();
+                                }
+                                if (typeof loopPlayerInstance.stopAllMelodicPads === 'function') {
+                                    loopPlayerInstance.stopAllMelodicPads();
+                                }
+                            }
+
+                            if (loopContainer) {
+                                loopContainer.querySelectorAll('.loop-pad-active').forEach(pad => pad.classList.remove('loop-pad-active'));
+                            }
+
+                            if (playBtn) {
+                                playBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
+                                playBtn.classList.remove('playing');
+                                playBtn.disabled = false;
+                            }
+
+                            if (typeof window.hideFloatingStopButton === 'function') {
+                                window.hideFloatingStopButton(song.id);
+                            }
+
                             const loopStatus = document.getElementById(`loopStatus-${song.id}`);
                             if (loopStatus) {
                                 loopStatus.textContent = updated.rhythmSetId ? 'Refreshing loops...' : 'No Rhythm Set assigned';

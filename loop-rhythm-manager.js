@@ -404,9 +404,7 @@ async function syncAllExternalLoops() {
         return;
     }
 
-    if (!externalLoopLibrary.length) {
-        await loadExternalLoopLibrary(sourceId);
-    }
+    await loadExternalLoopLibrary(sourceId);
 
     const syncableGroups = externalLoopLibrary.filter(group => group.importableAsRhythmSet && group.rhythmSetId);
     const skippedGroups = externalLoopLibrary.length - syncableGroups.length;

@@ -11,6 +11,7 @@ const {
   writeLoopsMetadata,
   readLoopsMetadataSafe
 } = require('./_loops');
+const { updateRhythmSetProfile } = require('../utils/rhythm-set-profile-manager');
 
 function getRouteTail(url, basePath) {
   const pathOnly = String(url || '').split('?')[0];
@@ -99,6 +100,68 @@ function recommendRhythmSetForSong(metadataSets, song) {
     score: 50,
     reason: 'fallback-first-available'
   };
+}
+
+function parseLoopSlotKey(loopTypeValue) {
+  const match = String(loopTypeValue || '').trim().toLowerCase().match(/^(loop|fill)([1-3])$/);
+  if (!match) return null;
+  return {
+    key: `${match[1]}${match[2]}`,
+    type: match[1],
+    number: Number(match[2])
+  };
+}
+
+function syncRhythmSetsFromMetadata(metadata) {
+  metadata.rhythmSets = buildRhythmSetIndexFromMetadata(metadata).map(set => ({
+    rhythmSetId: set.rhythmSetId,
+    rhythmFamily: set.rhythmFamily,
+    rhythmSetNo: set.rhythmSetNo,
+    fileCount: set.loopCount
+  }));
+}
+
+function findLoopIndexBySlot(metadata, rhythmSetId, slotKey) {
+  const loops = Array.isArray(metadata && metadata.loops) ? metadata.loops : [];
+  for (let i = loops.length - 1; i >= 0; i -= 1) {
+    const loop = loops[i] || {};
+    const sameSet = String(loop.rhythmSetId || '') === String(rhythmSetId || '');
+    const sameSlot = `${String(loop.type || '').toLowerCase()}${Number(loop.number || 0)}` === slotKey;
+    if (sameSet && sameSlot) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function buildLoopFromTemplate(templateLoop, targetRhythmSetId, targetRhythmFamily, targetRhythmSetNo, slotInfo) {
+  const base = templateLoop && typeof templateLoop === 'object' ? templateLoop : {};
+  return {
+    ...base,
+    id: `${targetRhythmSetId}_${slotInfo.key}`,
+    type: slotInfo.type,
+    number: slotInfo.number,
+    rhythmSetId: targetRhythmSetId,
+    rhythmFamily: targetRhythmFamily,
+    rhythmSetNo: targetRhythmSetNo,
+    conditions: {
+      ...(base.conditions || {}),
+      taal: targetRhythmFamily
+    },
+    files: {
+      [slotInfo.key]: base.filename || ''
+    },
+    metadata: {
+      ...(base.metadata || {}),
+      updatedAt: new Date().toISOString()
+    }
+  };
+}
+
+function normalizeStatusInput(value) {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : null;
 }
 
 module.exports = async (req, res) => {
@@ -191,6 +254,325 @@ module.exports = async (req, res) => {
       return res.status(200).json(recommendation);
     }
 
+    if (req.method === 'POST' && routeTail === 'duplicate') {
+      const auth = authMiddleware(req);
+      if (auth.error) {
+        return res.status(auth.status).json({ error: auth.error });
+      }
+
+      const adminCheck = requireAdmin(auth.user);
+      if (adminCheck) {
+        return res.status(adminCheck.status).json({ error: adminCheck.error });
+      }
+
+      const body = req.body || {};
+      const sourceRhythmSetId = String(body.sourceRhythmSetId || '').trim();
+      const parsedTarget = parseRhythmSetId(String(body.newRhythmSetId || '').trim());
+
+      if (!sourceRhythmSetId || !parsedTarget) {
+        return res.status(400).json({ error: 'sourceRhythmSetId and valid newRhythmSetId are required' });
+      }
+
+      const { db } = await connectToDatabase();
+      const rhythmSetsCollection = db.collection('RhythmSets');
+      const existingTarget = await rhythmSetsCollection.findOne({ rhythmSetId: parsedTarget.rhythmSetId });
+      if (existingTarget) {
+        return res.status(409).json({ error: `Rhythm set ${parsedTarget.rhythmSetId} already exists` });
+      }
+
+      const writable = readWritableLoopsMetadata();
+      const metadata = writable.metadata;
+      const sourceLoops = (metadata.loops || []).filter(loop => String(loop.rhythmSetId || '') === sourceRhythmSetId);
+      if (!sourceLoops.length) {
+        return res.status(404).json({ error: `Source rhythm set ${sourceRhythmSetId} has no loops to duplicate` });
+      }
+
+      const copied = sourceLoops.map(loop => ({
+        ...loop,
+        id: `${parsedTarget.rhythmSetId}_${String(loop.type || '').toLowerCase()}${Number(loop.number || 0)}`,
+        rhythmSetId: parsedTarget.rhythmSetId,
+        rhythmFamily: parsedTarget.rhythmFamily,
+        rhythmSetNo: parsedTarget.rhythmSetNo,
+        conditions: {
+          ...(loop.conditions || {}),
+          taal: parsedTarget.rhythmFamily
+        },
+        metadata: {
+          ...(loop.metadata || {}),
+          updatedAt: new Date().toISOString(),
+          clonedFrom: sourceRhythmSetId
+        }
+      }));
+
+      metadata.loops = [...(metadata.loops || []), ...copied];
+      syncRhythmSetsFromMetadata(metadata);
+      writeLoopsMetadata(metadata, writable.metadataPath);
+
+      const now = new Date().toISOString();
+      const sourceSet = await rhythmSetsCollection.findOne({ rhythmSetId: sourceRhythmSetId });
+      const createdDoc = {
+        rhythmSetId: parsedTarget.rhythmSetId,
+        rhythmFamily: parsedTarget.rhythmFamily,
+        rhythmSetNo: parsedTarget.rhythmSetNo,
+        status: sourceSet && sourceSet.status ? sourceSet.status : 'active',
+        notes: sourceSet && typeof sourceSet.notes === 'string' ? sourceSet.notes : '',
+        createdAt: now,
+        updatedAt: now,
+        createdBy: auth.user.username || auth.user.email || 'admin',
+        updatedBy: auth.user.username || auth.user.email || 'admin'
+      };
+
+      await rhythmSetsCollection.insertOne(createdDoc);
+      await recomputeRhythmSetDerivedMetadata(db, parsedTarget.rhythmSetId);
+
+      return res.status(201).json({
+        success: true,
+        rhythmSetId: parsedTarget.rhythmSetId,
+        loopsCopied: copied.length
+      });
+    }
+
+    if (req.method === 'POST' && routeTail === 'loops/swap') {
+      const auth = authMiddleware(req);
+      if (auth.error) {
+        return res.status(auth.status).json({ error: auth.error });
+      }
+
+      const adminCheck = requireAdmin(auth.user);
+      if (adminCheck) {
+        return res.status(adminCheck.status).json({ error: adminCheck.error });
+      }
+
+      const body = req.body || {};
+      const slot1 = body.slot1 || {};
+      const slot2 = body.slot2 || {};
+      const slot1Info = parseLoopSlotKey(slot1.loopType);
+      const slot2Info = parseLoopSlotKey(slot2.loopType);
+
+      if (!slot1.rhythmSetId || !slot2.rhythmSetId || !slot1Info || !slot2Info) {
+        return res.status(400).json({ error: 'slot1 and slot2 with rhythmSetId + valid loopType are required' });
+      }
+
+      const sameSlot = String(slot1.rhythmSetId) === String(slot2.rhythmSetId)
+        && slot1Info.key === slot2Info.key;
+      if (sameSlot) {
+        return res.status(400).json({ error: 'Cannot swap a slot with itself' });
+      }
+
+      const writable = readWritableLoopsMetadata();
+      const metadata = writable.metadata;
+      const index1 = findLoopIndexBySlot(metadata, slot1.rhythmSetId, slot1Info.key);
+      const index2 = findLoopIndexBySlot(metadata, slot2.rhythmSetId, slot2Info.key);
+
+      if (index1 < 0 || index2 < 0) {
+        return res.status(404).json({ error: 'One or both loop slots were not found' });
+      }
+
+      const filename1 = metadata.loops[index1].filename;
+      const filename2 = metadata.loops[index2].filename;
+      metadata.loops[index1].filename = filename2;
+      metadata.loops[index1].files = { [slot1Info.key]: filename2 };
+      metadata.loops[index2].filename = filename1;
+      metadata.loops[index2].files = { [slot2Info.key]: filename1 };
+
+      const slot1Match = (loop) => String(loop && loop.rhythmSetId || '') === String(slot1.rhythmSetId) &&
+        `${String(loop && loop.type || '').toLowerCase()}${Number(loop && loop.number || 0)}` === slot1Info.key;
+      const slot2Match = (loop) => String(loop && loop.rhythmSetId || '') === String(slot2.rhythmSetId) &&
+        `${String(loop && loop.type || '').toLowerCase()}${Number(loop && loop.number || 0)}` === slot2Info.key;
+
+      const updatedSlot1Loop = { ...metadata.loops[index1] };
+      const updatedSlot2Loop = { ...metadata.loops[index2] };
+
+      metadata.loops = (metadata.loops || []).filter(loop => !slot1Match(loop) && !slot2Match(loop));
+      metadata.loops.push(updatedSlot1Loop, updatedSlot2Loop);
+
+      syncRhythmSetsFromMetadata(metadata);
+      writeLoopsMetadata(metadata, writable.metadataPath);
+
+      return res.status(200).json({ success: true, message: 'Loop slots swapped successfully' });
+    }
+
+    if (req.method === 'POST' && /\/loops\/assign$/.test(routeTail)) {
+      const auth = authMiddleware(req);
+      if (auth.error) {
+        return res.status(auth.status).json({ error: auth.error });
+      }
+
+      const adminCheck = requireAdmin(auth.user);
+      if (adminCheck) {
+        return res.status(adminCheck.status).json({ error: adminCheck.error });
+      }
+
+      const rhythmSetId = decodeURIComponent(routeTail.replace(/\/loops\/assign$/, ''));
+      const parsedSet = parseRhythmSetId(rhythmSetId);
+      if (!parsedSet) {
+        return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+      }
+
+      const body = req.body || {};
+      const slotInfo = parseLoopSlotKey(body.loopType);
+      const filename = String(body.filename || '').trim();
+      if (!slotInfo || !filename) {
+        return res.status(400).json({ error: 'loopType and filename are required' });
+      }
+
+      const writable = readWritableLoopsMetadata();
+      const metadata = writable.metadata;
+      const template = (metadata.loops || []).find(loop => String(loop.filename || '') === filename);
+      const targetIndex = findLoopIndexBySlot(metadata, parsedSet.rhythmSetId, slotInfo.key);
+      const targetExisting = targetIndex >= 0 ? metadata.loops[targetIndex] : null;
+      const base = targetExisting || template || {};
+      const now = new Date().toISOString();
+      const assignedLoop = {
+        ...base,
+        id: `${parsedSet.rhythmSetId}_${slotInfo.key}`,
+        type: slotInfo.type,
+        number: slotInfo.number,
+        rhythmSetId: parsedSet.rhythmSetId,
+        rhythmFamily: parsedSet.rhythmFamily,
+        rhythmSetNo: parsedSet.rhythmSetNo,
+        filename,
+        files: { [slotInfo.key]: filename },
+        conditions: {
+          ...(base.conditions || {}),
+          taal: parsedSet.rhythmFamily
+        },
+        metadata: {
+          ...(base.metadata || {}),
+          updatedAt: now,
+          assignedBy: auth.user.username || auth.user.email || 'admin'
+        }
+      };
+
+      const slotMatches = (loop) => String(loop && loop.rhythmSetId || '') === String(parsedSet.rhythmSetId) &&
+        `${String(loop && loop.type || '').toLowerCase()}${Number(loop && loop.number || 0)}` === slotInfo.key;
+      metadata.loops = (metadata.loops || []).filter(loop => !slotMatches(loop));
+      metadata.loops.push(assignedLoop);
+
+      syncRhythmSetsFromMetadata(metadata);
+      writeLoopsMetadata(metadata, writable.metadataPath);
+
+      return res.status(200).json({ success: true, message: `${slotInfo.key} assigned successfully` });
+    }
+
+    if (req.method === 'GET' && /\/profile$/.test(routeTail)) {
+      const auth = authMiddleware(req);
+      if (auth.error) {
+        return res.status(auth.status).json({ error: auth.error });
+      }
+
+      const rhythmSetId = decodeURIComponent(routeTail.replace(/\/profile$/, ''));
+      const parsedSet = parseRhythmSetId(rhythmSetId);
+      if (!parsedSet) {
+        return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+      }
+
+      const { db } = await connectToDatabase();
+      const profile = await db.collection('RhythmSetProfiles').findOne({ rhythmSetId: parsedSet.rhythmSetId });
+
+      if (!profile) {
+        return res.status(404).json({ error: 'Profile not found for this rhythm set' });
+      }
+
+      return res.status(200).json(profile);
+    }
+
+    if (req.method === 'POST' && /\/profile\/recalculate$/.test(routeTail)) {
+      const auth = authMiddleware(req);
+      if (auth.error) {
+        return res.status(auth.status).json({ error: auth.error });
+      }
+
+      const adminCheck = requireAdmin(auth.user);
+      if (adminCheck) {
+        return res.status(adminCheck.status).json({ error: adminCheck.error });
+      }
+
+      const rhythmSetId = decodeURIComponent(routeTail.replace(/\/profile\/recalculate$/, ''));
+      const parsedSet = parseRhythmSetId(rhythmSetId);
+      if (!parsedSet) {
+        return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+      }
+
+      const { db } = await connectToDatabase();
+      const profilesCollection = db.collection('RhythmSetProfiles');
+      const songsCollection = db.collection('PraiseAndWorships');
+
+      await updateRhythmSetProfile(
+        profilesCollection,
+        songsCollection,
+        parsedSet.rhythmSetId,
+        true
+      );
+
+      const updated = await profilesCollection.findOne({ rhythmSetId: parsedSet.rhythmSetId });
+      return res.status(200).json(updated || { rhythmSetId: parsedSet.rhythmSetId, totalSongs: 0 });
+    }
+
+    if (req.method === 'POST' && /\/loops\/copy$/.test(routeTail)) {
+      const auth = authMiddleware(req);
+      if (auth.error) {
+        return res.status(auth.status).json({ error: auth.error });
+      }
+
+      const adminCheck = requireAdmin(auth.user);
+      if (adminCheck) {
+        return res.status(adminCheck.status).json({ error: adminCheck.error });
+      }
+
+      const rhythmSetId = decodeURIComponent(routeTail.replace(/\/loops\/copy$/, ''));
+      const parsedSet = parseRhythmSetId(rhythmSetId);
+      if (!parsedSet) {
+        return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+      }
+
+      const body = req.body || {};
+      const targetSlot = parseLoopSlotKey(body.targetLoopType);
+      const sourceFilename = String(body.sourceFilename || '').trim();
+      if (!targetSlot || !sourceFilename) {
+        return res.status(400).json({ error: 'sourceFilename and valid targetLoopType are required' });
+      }
+
+      const writable = readWritableLoopsMetadata();
+      const metadata = writable.metadata;
+      const template = (metadata.loops || []).find(loop => String(loop.filename || '') === sourceFilename);
+      if (!template) {
+        return res.status(404).json({ error: `Source loop file ${sourceFilename} not found in metadata` });
+      }
+
+      const targetIndex = findLoopIndexBySlot(metadata, parsedSet.rhythmSetId, targetSlot.key);
+      const replacedLoop = targetIndex >= 0 ? metadata.loops[targetIndex] : null;
+      const copiedLoop = buildLoopFromTemplate(
+        template,
+        parsedSet.rhythmSetId,
+        parsedSet.rhythmFamily,
+        parsedSet.rhythmSetNo,
+        targetSlot
+      );
+      copiedLoop.filename = sourceFilename;
+      copiedLoop.files = { [targetSlot.key]: sourceFilename };
+
+      if (targetIndex >= 0) {
+        metadata.loops[targetIndex] = {
+          ...metadata.loops[targetIndex],
+          ...copiedLoop
+        };
+      } else {
+        metadata.loops.push(copiedLoop);
+      }
+
+      syncRhythmSetsFromMetadata(metadata);
+      writeLoopsMetadata(metadata, writable.metadataPath);
+
+      return res.status(200).json({
+        success: true,
+        message: `Loop copied to ${targetSlot.key} successfully`,
+        sourceFilename,
+        targetLoopType: targetSlot.key,
+        replacedLoop: replacedLoop && replacedLoop.filename ? replacedLoop.filename : null
+      });
+    }
+
     const auth = authMiddleware(req);
     if (auth.error) {
       return res.status(auth.status).json({ error: auth.error });
@@ -204,6 +586,101 @@ module.exports = async (req, res) => {
     const { db } = await connectToDatabase();
     const rhythmSetsCollection = db.collection('RhythmSets');
     const songsCollection = db.collection('PraiseAndWorships');
+
+    if (req.method === 'DELETE' && /\/loops\//.test(routeTail)) {
+      const loopMatch = routeTail.match(/^(.+)\/loops\/(loop[1-3]|fill[1-3])$/i);
+      if (!loopMatch) {
+        return res.status(400).json({ error: 'Invalid loop slot route' });
+      }
+
+      const rhythmSetId = decodeURIComponent(loopMatch[1]);
+      const parsed = parseRhythmSetId(rhythmSetId);
+      const slotInfo = parseLoopSlotKey(loopMatch[2]);
+      if (!parsed || !slotInfo) {
+        return res.status(400).json({ error: 'Invalid rhythmSetId or loop slot' });
+      }
+
+      const writable = readWritableLoopsMetadata();
+      const metadata = writable.metadata;
+      const index = findLoopIndexBySlot(metadata, parsed.rhythmSetId, slotInfo.key);
+
+      if (index < 0) {
+        return res.status(404).json({ error: `${slotInfo.key} not found for ${parsed.rhythmSetId}` });
+      }
+
+      const removed = metadata.loops.splice(index, 1)[0];
+      syncRhythmSetsFromMetadata(metadata);
+      writeLoopsMetadata(metadata, writable.metadataPath);
+
+      return res.status(200).json({
+        success: true,
+        message: `${slotInfo.key} removed from ${parsed.rhythmSetId}`,
+        removedFilename: removed && removed.filename ? removed.filename : null
+      });
+    }
+
+    if (req.method === 'DELETE' && routeTail.endsWith('/force')) {
+      const rhythmSetId = decodeURIComponent(routeTail.replace(/\/force$/, ''));
+      const parsed = parseRhythmSetId(rhythmSetId);
+      if (!parsed) {
+        return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+      }
+
+      const now = new Date().toISOString();
+      await songsCollection.updateMany(
+        { rhythmSetId: parsed.rhythmSetId },
+        {
+          $set: {
+            updatedAt: now,
+            updatedBy: auth.user.username || auth.user.email || 'admin'
+          },
+          $unset: {
+            rhythmSetId: '',
+            rhythmFamily: '',
+            rhythmSetNo: ''
+          }
+        }
+      );
+
+      await rhythmSetsCollection.deleteOne({ rhythmSetId: parsed.rhythmSetId });
+
+      const writable = readWritableLoopsMetadata();
+      const metadata = writable.metadata;
+      metadata.loops = (metadata.loops || []).filter(loop => String(loop.rhythmSetId || '') !== parsed.rhythmSetId);
+      syncRhythmSetsFromMetadata(metadata);
+      writeLoopsMetadata(metadata, writable.metadataPath);
+
+      return res.status(200).json({ success: true, message: `Force deleted ${parsed.rhythmSetId}` });
+    }
+
+    if (req.method === 'DELETE' && routeTail) {
+      const parsed = parseRhythmSetId(decodeURIComponent(routeTail));
+      if (!parsed) {
+        return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+      }
+
+      const mappedSongs = await songsCollection.find(
+        { rhythmSetId: parsed.rhythmSetId },
+        { projection: { _id: 0, id: 1, title: 1 } }
+      ).toArray();
+
+      if (mappedSongs.length > 0) {
+        return res.status(409).json({
+          error: `Rhythm set ${parsed.rhythmSetId} has mapped songs`,
+          mappedSongsCount: mappedSongs.length,
+          mappedSongs
+        });
+      }
+
+      await rhythmSetsCollection.deleteOne({ rhythmSetId: parsed.rhythmSetId });
+      const writable = readWritableLoopsMetadata();
+      const metadata = writable.metadata;
+      metadata.loops = (metadata.loops || []).filter(loop => String(loop.rhythmSetId || '') !== parsed.rhythmSetId);
+      syncRhythmSetsFromMetadata(metadata);
+      writeLoopsMetadata(metadata, writable.metadataPath);
+
+      return res.status(200).json({ success: true, message: `Deleted ${parsed.rhythmSetId}` });
+    }
 
     if (req.method === 'POST' && (!routeTail || routeTail === '')) {
       const body = req.body || {};
@@ -257,6 +734,8 @@ module.exports = async (req, res) => {
         return res.status(400).json({ error: 'Invalid rhythmSetId format' });
       }
 
+      const existing = await rhythmSetsCollection.findOne({ rhythmSetId: parsedOld.rhythmSetId });
+
       const body = req.body || {};
       const parsedFromNewId = parseRhythmSetId(body.newRhythmSetId || '');
       const targetFamily = normalizeRhythmFamily(parsedFromNewId ? parsedFromNewId.rhythmFamily : (body.rhythmFamily || parsedOld.rhythmFamily));
@@ -275,6 +754,13 @@ module.exports = async (req, res) => {
       }
 
       const now = new Date().toISOString();
+      let updatedSongsCount = 0;
+
+      const statusToPersist = normalizeStatusInput(body.status) || (existing && existing.status) || 'active';
+      const notesToPersist = typeof body.notes === 'string'
+        ? body.notes
+        : (existing && typeof existing.notes === 'string' ? existing.notes : '');
+
       await rhythmSetsCollection.updateOne(
         { rhythmSetId: parsedOld.rhythmSetId },
         {
@@ -282,8 +768,8 @@ module.exports = async (req, res) => {
             rhythmSetId: targetRhythmSetId,
             rhythmFamily: targetFamily,
             rhythmSetNo: targetSetNo,
-            status: body.status || 'active',
-            notes: typeof body.notes === 'string' ? body.notes : '',
+            status: statusToPersist,
+            notes: notesToPersist,
             updatedAt: now,
             updatedBy: auth.user.username || auth.user.email || 'admin'
           },
@@ -296,7 +782,7 @@ module.exports = async (req, res) => {
       );
 
       if (targetRhythmSetId !== parsedOld.rhythmSetId) {
-        await songsCollection.updateMany(
+        const songUpdateResult = await songsCollection.updateMany(
           { rhythmSetId: parsedOld.rhythmSetId },
           {
             $set: {
@@ -308,6 +794,7 @@ module.exports = async (req, res) => {
             }
           }
         );
+        updatedSongsCount = Number(songUpdateResult && songUpdateResult.modifiedCount) || 0;
 
         updateRhythmSetIdInLoopMetadata(parsedOld.rhythmSetId, targetRhythmSetId, targetFamily, targetSetNo);
       }
@@ -321,7 +808,8 @@ module.exports = async (req, res) => {
       return res.status(200).json({
         ...updated,
         previousRhythmSetId: parsedOld.rhythmSetId,
-        renamed: targetRhythmSetId !== parsedOld.rhythmSetId
+        renamed: targetRhythmSetId !== parsedOld.rhythmSetId,
+        updatedSongsCount
       });
     }
 

@@ -45,6 +45,16 @@
     .preview-buttons { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
     .preview-buttons .btn { padding: 8px 11px; font-size: .85rem; }
     .preview-play i { margin-right: 4px; }
+    .startup-config { border: 1px solid #dbeafe; background: #f8fbff; border-radius: 8px; padding: 10px; margin-bottom: 10px; }
+    .startup-config .title { font-weight: 600; color: #1d4ed8; font-size: .9rem; margin-bottom: 8px; }
+    .startup-grid { display: grid; grid-template-columns: repeat(3, minmax(140px, 1fr)); gap: 8px; }
+    .startup-grid label { display: block; font-size: .78rem; color: #374151; margin-bottom: 4px; }
+    .startup-grid select, .startup-grid input { width: 100%; box-sizing: border-box; padding: 7px; border: 1px solid #d1d5db; border-radius: 8px; }
+    .startup-actions { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+    .btn-startup { background: #2563eb; }
+    .btn-startup-reset { background: #64748b; }
+    .startup-highlight { border: 1px solid #f59e0b !important; box-shadow: inset 0 0 0 1px rgba(245, 158, 11, .35); }
+    @media (max-width: 900px) { .startup-grid { grid-template-columns: 1fr; } }
     @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -102,6 +112,38 @@
           <button id="assignBtn" class="btn btn-success">Assign</button>
         </div>
         <div class="small-note" id="selectedSetMeta">Pick a rhythm set to preview and assign.</div>
+
+        <div class="startup-config" id="startupConfigCard">
+          <div class="title"><i class="fas fa-rocket"></i> Startup Loop Config (Selected Song)</div>
+          <div class="startup-grid">
+            <div>
+              <label for="startupLoopSelect">Start Loop</label>
+              <select id="startupLoopSelect">
+                <option value="loop1">LOOP1</option>
+                <option value="loop2">LOOP2</option>
+                <option value="loop3">LOOP3</option>
+              </select>
+            </div>
+            <div>
+              <label for="startupFillSelect">Startup Fill (optional)</label>
+              <select id="startupFillSelect">
+                <option value="">None</option>
+                <option value="fill1">FILL1</option>
+                <option value="fill2">FILL2</option>
+                <option value="fill3">FILL3</option>
+              </select>
+            </div>
+            <div>
+              <label for="startupTempoInput">Startup Tempo (%)</label>
+              <input id="startupTempoInput" type="number" min="50" max="200" value="100">
+            </div>
+          </div>
+          <div class="startup-actions">
+            <button id="saveStartupBtn" class="btn btn-startup" type="button">Save Startup</button>
+            <button id="resetStartupBtn" class="btn btn-startup-reset" type="button">Reset Defaults</button>
+          </div>
+          <div class="small-note" id="startupConfigMeta">Defaults: LOOP1, no fill, 100% tempo.</div>
+        </div>
         
         <div class="preview-buttons" id="previewButtons"></div>
         <div class="row">

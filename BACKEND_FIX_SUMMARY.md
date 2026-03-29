@@ -1,5 +1,57 @@
 # Backend Configuration Fix - Summary
 
+## Update (2026-03-28) - Localhost + Service Worker + External Loop Source
+
+This document is now extended with the latest fixes applied after parity restore and accidental undo recovery.
+
+### A) Localhost API resolution hardening
+- File: `scripts/core/api-base.js`
+- Change:
+    - Local runtime (`file:`, `localhost`, `127.0.0.1`) now always resolves to local backend (`http://localhost:3001`) unless an explicit runtime override is injected via `window.__API_BASE_URL__`.
+    - Stale `localStorage.apiBaseUrl` is ignored on localhost so old remote settings do not force Vercel/Render unintentionally.
+- Outcome:
+    - Local admin pages (`loop-rhythm-manager.html`, `rhythm-mapper.html`) consistently call local APIs.
+
+### B) Service worker network error handling fix
+- File: `service-worker.js`
+- Change:
+    - `simplePassThroughStrategy` no longer rethrows fetch failures.
+    - On network failure without cache hit, the SW now returns structured `503` JSON instead of rejecting the fetch event promise.
+    - Cache names bumped from `v2.4` to `v2.5` to force new SW cache lifecycle.
+- Outcome:
+    - Eliminates repeated browser warnings like:
+        - `FetchEvent ... resulted in a network error response`
+        - `Uncaught (in promise) TypeError: Failed to fetch`
+
+### C) Production-only external loop source policy enforced
+- Files:
+    - `utils/external-loop-sources.js`
+    - `api/external-loop-sources.js`
+    - `server.js`
+    - `loop-rhythm-manager.js`
+    - `env.example`
+- Change:
+    - External loop import source is OldandNew production URL only (`OLDANDNEW_BASE_URL`, default `https://oldand-new.vercel.app`).
+    - No sibling local-repo scan dependency for external imports.
+- Outcome:
+    - Single local runtime remains sufficient; external library browsing/imports pull from production metadata/assets.
+
+### D) Legacy manager cards removed from home UI
+- File: `index.html`
+- Change:
+    - Removed Feature Manager cards:
+        - `Loop Manager (Legacy)`
+        - `Rhythm Sets Manager (Legacy)`
+- Outcome:
+    - Admin entry points now focus on the unified manager pages.
+
+### E) Post-fix browser action (required once)
+- Open `clear-sw.html` and clear registration/caches.
+- Hard refresh (`Ctrl+F5`).
+- Re-test admin manager pages.
+
+---
+
 ## Problem Identified
 Based on console logs analysis, **Vercel backend is completely non-functional** (not partially working as initially thought):
 - All API requests to `https://praiseand-worship.vercel.app` return `net::ERR_FAILED` or 404

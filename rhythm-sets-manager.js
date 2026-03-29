@@ -27,6 +27,13 @@ let ACTIVE_API_BASE_URL = getApiBaseCandidates()[0] || API_BASE_URL_VERCEL;
 
 // Constants
 const RHYTHM_FILE_ORDER = ['loop1', 'loop2', 'loop3', 'fill1', 'fill2', 'fill3'];
+const STARTUP_LOOP_OPTIONS = ['loop1', 'loop2', 'loop3'];
+const STARTUP_FILL_OPTIONS = ['fill1', 'fill2', 'fill3'];
+const DEFAULT_STARTUP_CONFIG = {
+  startLoop: 'loop1',
+  startFill: '',
+  tempoPercent: 100
+};
 const DEFAULT_RECOMMENDATION_WEIGHTS = {
   taal: 15,
   timeSignature: 10,
@@ -340,6 +347,144 @@ function getSongRouteId(song) {
   return '';
 }
 
+function normalizeStartupLoop(value, allowedLoops = STARTUP_LOOP_OPTIONS) {
+  const loop = String(value || '').trim().toLowerCase();
+  if (allowedLoops.includes(loop)) return loop;
+  if (allowedLoops.length) return allowedLoops[0];
+  return DEFAULT_STARTUP_CONFIG.startLoop;
+}
+
+function normalizeStartupFill(value, allowedFills = STARTUP_FILL_OPTIONS) {
+  const fill = String(value || '').trim().toLowerCase();
+  if (!fill) return '';
+  return allowedFills.includes(fill) ? fill : '';
+}
+
+function normalizeStartupTempo(value) {
+  const parsed = parseInt(value, 10);
+  if (!Number.isFinite(parsed)) return DEFAULT_STARTUP_CONFIG.tempoPercent;
+  return Math.max(50, Math.min(200, parsed));
+}
+
+function getStartupConfigFromSong(song, fallbackRhythmSetId = '') {
+  const songConfig = song && typeof song.loopStartConfig === 'object' && song.loopStartConfig
+    ? song.loopStartConfig
+    : {};
+  const rhythmSetId = String(songConfig.rhythmSetId || fallbackRhythmSetId || song?.rhythmSetId || '').trim();
+
+  return {
+    rhythmSetId,
+    startLoop: normalizeStartupLoop(songConfig.startLoop),
+    startFill: normalizeStartupFill(songConfig.startFill),
+    tempoPercent: normalizeStartupTempo(songConfig.tempoPercent)
+  };
+}
+
+function getAvailableStartupSlotsForRhythmSet(rhythmSetId) {
+  const files = loopsByRhythmSet.get(String(rhythmSetId || '').toLowerCase()) || {};
+  const availableLoops = STARTUP_LOOP_OPTIONS.filter(loop => Boolean(files[loop]));
+  const availableFills = STARTUP_FILL_OPTIONS.filter(fill => Boolean(files[fill]));
+  return {
+    availableLoops: availableLoops.length ? availableLoops : [...STARTUP_LOOP_OPTIONS],
+    availableFills
+  };
+}
+
+function updateStartupDropdownOptions(config, rhythmSetId) {
+  const loopSelect = document.getElementById('startupLoopSelect');
+  const fillSelect = document.getElementById('startupFillSelect');
+  if (!loopSelect || !fillSelect) return;
+
+  const { availableLoops, availableFills } = getAvailableStartupSlotsForRhythmSet(rhythmSetId);
+
+  loopSelect.innerHTML = availableLoops
+    .map(loop => `<option value="${loop}">${loop.toUpperCase()}</option>`)
+    .join('');
+
+  fillSelect.innerHTML = '<option value="">None</option>';
+  availableFills.forEach(fill => {
+    const option = document.createElement('option');
+    option.value = fill;
+    option.textContent = fill.toUpperCase();
+    fillSelect.appendChild(option);
+  });
+
+  const normalizedLoop = normalizeStartupLoop(config.startLoop, availableLoops);
+  const normalizedFill = normalizeStartupFill(config.startFill, availableFills);
+  loopSelect.value = normalizedLoop;
+  fillSelect.value = normalizedFill;
+}
+
+function getSelectedRhythmSetForStartup() {
+  const selectValue = String(document.getElementById('mapperRhythmSetSelect')?.value || '').trim();
+  if (selectValue) return selectValue;
+  if (selectedSong && selectedSong.rhythmSetId) return String(selectedSong.rhythmSetId);
+  return '';
+}
+
+function updateStartupEditorFromSelectedSong() {
+  const card = document.getElementById('startupConfigCard');
+  const tempoInput = document.getElementById('startupTempoInput');
+  const saveBtn = document.getElementById('saveStartupBtn');
+  const resetBtn = document.getElementById('resetStartupBtn');
+  const meta = document.getElementById('startupConfigMeta');
+
+  if (!card || !tempoInput || !saveBtn || !resetBtn || !meta) return;
+
+  if (!selectedSong) {
+    card.style.opacity = '0.65';
+    saveBtn.disabled = true;
+    resetBtn.disabled = true;
+    meta.textContent = 'Select a song to save startup loop/fill/tempo.';
+    return;
+  }
+
+  const rhythmSetId = getSelectedRhythmSetForStartup();
+  const config = getStartupConfigFromSong(selectedSong, rhythmSetId);
+  updateStartupDropdownOptions(config, rhythmSetId);
+  tempoInput.value = String(normalizeStartupTempo(config.tempoPercent));
+
+  card.style.opacity = '1';
+  saveBtn.disabled = false;
+  resetBtn.disabled = false;
+
+  if (rhythmSetId) {
+    meta.textContent = `Will start with ${config.startLoop.toUpperCase()}${config.startFill ? ` + ${config.startFill.toUpperCase()}` : ''} at ${config.tempoPercent}% for ${rhythmSetId}.`;
+  } else {
+    meta.textContent = 'Select a rhythm set first, then save startup config.';
+  }
+}
+
+function updateSelectedSongCard() {
+  const card = document.getElementById('selectedSongCard');
+  if (!card) return;
+
+  if (!selectedSong) {
+    card.className = 'current-song';
+    card.textContent = 'Select a song to start mapping.';
+    return;
+  }
+
+  const config = getStartupConfigFromSong(selectedSong, selectedSong.rhythmSetId || '');
+  const startupSummary = `${config.startLoop.toUpperCase()}${config.startFill ? ` + ${config.startFill.toUpperCase()}` : ''} @ ${config.tempoPercent}%`;
+
+  card.className = 'current-song selected';
+  card.innerHTML = `
+    <strong>${escapeHtml(selectedSong.title || 'Untitled')}</strong><br>
+    <span style="font-size:.85rem;color:#6b7280;">
+      Taal: ${selectedSong.taal || 'N/A'} |
+      Tempo: ${selectedSong.tempo ? selectedSong.tempo + 'bpm' : 'N/A'} |
+      Time: ${selectedSong.timeSignature || 'N/A'}
+    </span><br>
+    <span style="font-size:.85rem;color:#2f7bd7;">
+      Current: ${selectedSong.rhythmSetId || '<span class="warn">unmapped</span>'}
+    </span><br>
+    <span style="font-size:.82rem;color:#1d4ed8;">
+      Startup: ${startupSummary}
+    </span>
+  `;
+}
+
 function matchesSongIdentity(song, songIdentity) {
   const target = String(songIdentity || '').trim();
   if (!target) return false;
@@ -402,20 +547,20 @@ function setSelectedSong(songIdentity) {
 
   selectedSong = song;
   renderSongsTable();
-  
-  const card = document.getElementById('selectedSongCard');
-  card.className = 'current-song selected';
-  card.innerHTML = `
-    <strong>${escapeHtml(song.title || 'Untitled')}</strong><br>
-    <span style="font-size:.85rem;color:#6b7280;">
-      Taal: ${song.taal || 'N/A'} | 
-      Tempo: ${song.tempo ? song.tempo + 'bpm' : 'N/A'} | 
-      Time: ${song.timeSignature || 'N/A'}
-    </span><br>
-    <span style="font-size:.85rem;color:#2f7bd7;">
-      Current: ${song.rhythmSetId || '<span class="warn">unmapped</span>'}
-    </span>
-  `;
+
+  const mapperSelect = document.getElementById('mapperRhythmSetSelect');
+  if (mapperSelect && song.rhythmSetId) {
+    const normalizedCurrent = String(song.rhythmSetId).toLowerCase();
+    const hasOption = Array.from(mapperSelect.options).some(option => String(option.value).toLowerCase() === normalizedCurrent);
+    if (hasOption) {
+      mapperSelect.value = song.rhythmSetId;
+      updateSelectedSetMeta();
+      renderPreviewButtons(song.rhythmSetId);
+    }
+  }
+
+  updateSelectedSongCard();
+  updateStartupEditorFromSelectedSong();
   
   document.getElementById('assignBtn').disabled = false;
   document.getElementById('recommendBtn').disabled = false;
@@ -822,7 +967,9 @@ async function assignSelectedRhythmSet() {
         allSongs[songIndex].rhythmSetNo = requestBody.rhythmSetNo;
       }
     }
-    
+
+    updateSelectedSongCard();
+    updateStartupEditorFromSelectedSong();
     renderSongsTable();
     updateMappedStats();
     
@@ -834,6 +981,93 @@ async function assignSelectedRhythmSet() {
     console.error('Assignment failed:', error);
     setInfo(`Assignment failed: ${error.message}`);
   }
+}
+
+async function saveSelectedSongStartupConfig() {
+  if (!selectedSong) {
+    setInfo('Please select a song first.');
+    return;
+  }
+
+  const token = getToken();
+  if (!token) {
+    setInfo('Login required.');
+    return;
+  }
+
+  const rhythmSetId = getSelectedRhythmSetForStartup();
+  if (!rhythmSetId) {
+    setInfo('Select or assign a rhythm set before saving startup config.');
+    return;
+  }
+
+  const { availableLoops, availableFills } = getAvailableStartupSlotsForRhythmSet(rhythmSetId);
+  const startLoop = normalizeStartupLoop(document.getElementById('startupLoopSelect')?.value, availableLoops);
+  const startFill = normalizeStartupFill(document.getElementById('startupFillSelect')?.value, availableFills);
+  const tempoPercent = normalizeStartupTempo(document.getElementById('startupTempoInput')?.value);
+
+  const startupConfig = {
+    rhythmSetId,
+    startLoop,
+    startFill: startFill || null,
+    tempoPercent
+  };
+
+  const songRouteId = getSongRouteId(selectedSong);
+  if (!songRouteId) {
+    setInfo('Selected song is missing a valid identifier.');
+    return;
+  }
+
+  try {
+    setInfo(`Saving startup config for ${selectedSong.title}...`);
+    const response = await fetchWithBackendFallback(`/api/songs/${encodeURIComponent(songRouteId)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify({ loopStartConfig: startupConfig })
+    });
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => ({}));
+      throw new Error(payload.error || `HTTP ${response.status}`);
+    }
+
+    const updatedSong = await response.json().catch(() => null);
+    const persistedConfig = getStartupConfigFromSong(updatedSong || selectedSong, rhythmSetId);
+    selectedSong.loopStartConfig = {
+      rhythmSetId,
+      startLoop: persistedConfig.startLoop,
+      startFill: persistedConfig.startFill || null,
+      tempoPercent: persistedConfig.tempoPercent
+    };
+
+    const selectedIdentity = getSongIdentityKey(selectedSong);
+    const songIndex = allSongs.findIndex(s => matchesSongIdentity(s, selectedIdentity));
+    if (songIndex !== -1) {
+      allSongs[songIndex].loopStartConfig = { ...selectedSong.loopStartConfig };
+    }
+
+    updateSelectedSongCard();
+    updateStartupEditorFromSelectedSong();
+    renderPreviewButtons(document.getElementById('mapperRhythmSetSelect').value || rhythmSetId);
+    setInfo(`✓ Saved startup config (${persistedConfig.startLoop.toUpperCase()}${persistedConfig.startFill ? ` + ${persistedConfig.startFill.toUpperCase()}` : ''}, ${persistedConfig.tempoPercent}%).`);
+  } catch (error) {
+    console.error('Failed to save startup config:', error);
+    setInfo(`Startup config save failed: ${error.message}`);
+  }
+}
+
+function resetSelectedSongStartupDefaults() {
+  const loopSelect = document.getElementById('startupLoopSelect');
+  const fillSelect = document.getElementById('startupFillSelect');
+  const tempoInput = document.getElementById('startupTempoInput');
+  if (loopSelect) loopSelect.value = DEFAULT_STARTUP_CONFIG.startLoop;
+  if (fillSelect) fillSelect.value = '';
+  if (tempoInput) tempoInput.value = String(DEFAULT_STARTUP_CONFIG.tempoPercent);
+  updateStartupEditorFromSelectedSong();
 }
 
 async function recommendForSelectedSong() {
@@ -1059,9 +1293,32 @@ function wireEvents() {
     mapperRhythmSetSelect.addEventListener('change', event => {
       updateSelectedSetMeta();
       renderPreviewButtons(event.target.value);
+      updateStartupEditorFromSelectedSong();
     });
     mapperRhythmSetSelect.dataset.boundChange = 'true';
   }
+
+  const saveStartupBtn = document.getElementById('saveStartupBtn');
+  if (saveStartupBtn && !saveStartupBtn.dataset.boundClick) {
+    saveStartupBtn.addEventListener('click', saveSelectedSongStartupConfig);
+    saveStartupBtn.dataset.boundClick = 'true';
+    saveStartupBtn.disabled = true;
+  }
+
+  const resetStartupBtn = document.getElementById('resetStartupBtn');
+  if (resetStartupBtn && !resetStartupBtn.dataset.boundClick) {
+    resetStartupBtn.addEventListener('click', resetSelectedSongStartupDefaults);
+    resetStartupBtn.dataset.boundClick = 'true';
+    resetStartupBtn.disabled = true;
+  }
+
+  const startupInputIds = ['startupLoopSelect', 'startupFillSelect', 'startupTempoInput'];
+  startupInputIds.forEach(elementId => {
+    const element = document.getElementById(elementId);
+    if (!element || element.dataset.boundStartupChange) return;
+    element.addEventListener('change', updateStartupEditorFromSelectedSong);
+    element.dataset.boundStartupChange = 'true';
+  });
 }
 
 function initializeData() {
@@ -1181,6 +1438,12 @@ function renderPreviewButtons(rhythmSetId) {
     btn.className = 'btn btn-secondary preview-play';
     btn.type = 'button';
     btn.innerHTML = `<i class="fas fa-play"></i> ${fileKey.toUpperCase()}`;
+    const startupConfig = selectedSong ? getStartupConfigFromSong(selectedSong, rhythmSetId) : null;
+    const startupApplies = startupConfig && String(startupConfig.rhythmSetId || '').toLowerCase() === String(rhythmSetId || '').toLowerCase();
+    if (startupApplies && (startupConfig.startLoop === fileKey || startupConfig.startFill === fileKey)) {
+      btn.classList.add('startup-highlight');
+      btn.title = `Startup ${startupConfig.startLoop === fileKey ? 'loop' : 'fill'} for selected song`;
+    }
     btn.addEventListener('click', () => {
       const url = `${ACTIVE_API_BASE_URL}/loops/${encodeURIComponent(filename)}`;
       playPreview(url, btn);
@@ -1259,6 +1522,7 @@ async function loadData() {
     renderRhythmSetSelect(); // Populate rhythm set dropdown
     await loadSongs(); // Load songs for assignment
     await loadLoopsMetadata(); // Load loops metadata for preview
+    updateStartupEditorFromSelectedSong();
     setInfo('Data loaded successfully.');
   } catch (error) {
     console.error('Rhythm sets manager load failed:', error);

@@ -15,9 +15,18 @@
 // Global instance
 let loopPlayerInstance = null;
 let loopsMetadataCache = null;
+let loopsMetadataCacheTimestamp = 0;
+const LOOPS_METADATA_CACHE_TTL = 30000;
+let loopFilesCheckedAt = 0;
 
 // Make loop player instance globally accessible for floating stop button
 window.getLoopPlayerInstance = () => loopPlayerInstance;
+
+function invalidateLoopsMetadataCache() {
+    loopsMetadataCache = null;
+    loopsMetadataCacheTimestamp = 0;
+}
+window.invalidateLoopsMetadataCache = invalidateLoopsMetadataCache;
 
 function getSongIdentifier(song) {
     if (!song || typeof song !== 'object') return '';
@@ -25,11 +34,222 @@ function getSongIdentifier(song) {
     return id === undefined || id === null ? '' : String(id);
 }
 
+const DEFAULT_SONG_STARTUP = {
+    startLoop: 'loop1',
+    startFill: '',
+    tempoPercent: 100
+};
+
+function clampStartupTempo(value) {
+    const parsed = parseInt(value, 10);
+    if (!Number.isFinite(parsed)) return DEFAULT_SONG_STARTUP.tempoPercent;
+    return Math.max(50, Math.min(200, parsed));
+}
+
+function resolveSongStartupBehavior(song, loopSet) {
+    const startupRaw = (song && typeof song.loopStartConfig === 'object' && song.loopStartConfig) ? song.loopStartConfig : {};
+    const loopFiles = loopSet && loopSet.files ? loopSet.files : {};
+    const availableLoops = ['loop1', 'loop2', 'loop3'].filter(name => Boolean(loopFiles[name]));
+    const availableFills = ['fill1', 'fill2', 'fill3'].filter(name => Boolean(loopFiles[name]));
+
+    const requestedLoop = String(startupRaw.startLoop || '').toLowerCase();
+    const startLoop = availableLoops.includes(requestedLoop)
+        ? requestedLoop
+        : (availableLoops.includes('loop1') ? 'loop1' : (availableLoops[0] || 'loop1'));
+
+    const requestedFill = String(startupRaw.startFill || '').toLowerCase();
+    const startFill = availableFills.includes(requestedFill) ? requestedFill : '';
+    const tempoPercent = clampStartupTempo(startupRaw.tempoPercent);
+
+    return {
+        startLoop,
+        startFill,
+        tempoPercent
+    };
+}
+
+function getLoopSlotAvailability(loopSet) {
+    const files = loopSet && loopSet.files ? loopSet.files : {};
+    return {
+        loops: ['loop1', 'loop2', 'loop3'].filter(name => Boolean(files[name])),
+        fills: ['fill1', 'fill2', 'fill3'].filter(name => Boolean(files[name]))
+    };
+}
+
+function bindStartupControls(songId, loopSet, startupBehavior) {
+    const loopSelect = document.getElementById(`loopStartupLoop-${songId}`);
+    const fillSelect = document.getElementById(`loopStartupFill-${songId}`);
+    const tempoInput = document.getElementById(`loopStartupTempo-${songId}`);
+    const saveBtn = document.getElementById(`loopStartupSaveBtn-${songId}`);
+    const messageEl = document.getElementById(`loopStartupMsg-${songId}`);
+    const toggleBtn = document.getElementById(`loopStartupToggle-${songId}`);
+    const startupBody = document.getElementById(`loopStartupBody-${songId}`);
+    const toggleIcon = document.getElementById(`loopStartupToggleIcon-${songId}`);
+    if (!loopSelect || !fillSelect || !tempoInput || !saveBtn) return;
+
+    if (toggleBtn && startupBody && !toggleBtn.dataset.boundToggle) {
+        toggleBtn.addEventListener('click', () => {
+            const isCollapsed = startupBody.classList.contains('collapsed');
+            startupBody.classList.toggle('collapsed', !isCollapsed);
+            toggleBtn.setAttribute('aria-expanded', isCollapsed ? 'true' : 'false');
+            if (toggleIcon) {
+                toggleIcon.classList.toggle('fa-chevron-down', !isCollapsed);
+                toggleIcon.classList.toggle('fa-chevron-up', isCollapsed);
+            }
+        });
+        toggleBtn.dataset.boundToggle = 'true';
+    }
+
+    const availability = getLoopSlotAvailability(loopSet);
+
+    const buildLoopOptions = availability.loops.length ? availability.loops : ['loop1', 'loop2', 'loop3'];
+    loopSelect.innerHTML = buildLoopOptions
+        .map(loopName => `<option value="${loopName}">${loopName.toUpperCase()}</option>`)
+        .join('');
+
+    fillSelect.innerHTML = '<option value="">None</option>';
+    availability.fills.forEach(fillName => {
+        const option = document.createElement('option');
+        option.value = fillName;
+        option.textContent = fillName.toUpperCase();
+        fillSelect.appendChild(option);
+    });
+
+    loopSelect.value = buildLoopOptions.includes(startupBehavior.startLoop)
+        ? startupBehavior.startLoop
+        : (buildLoopOptions[0] || 'loop1');
+    fillSelect.value = availability.fills.includes(startupBehavior.startFill)
+        ? startupBehavior.startFill
+        : '';
+    tempoInput.value = String(clampStartupTempo(startupBehavior.tempoPercent));
+
+    const setMessage = (text, isError = false) => {
+        if (!messageEl) return;
+        messageEl.textContent = text;
+        messageEl.classList.toggle('error', Boolean(isError));
+    };
+
+    const applyCurrentStartupSelection = () => {
+        startupBehavior.startLoop = String(loopSelect.value || '').toLowerCase() || 'loop1';
+        startupBehavior.startFill = String(fillSelect.value || '').toLowerCase();
+        startupBehavior.tempoPercent = clampStartupTempo(tempoInput.value);
+        applyStartupPadMarkers(songId, startupBehavior);
+        applyStartupTempoToControls(songId, startupBehavior);
+    };
+
+    loopSelect.addEventListener('change', applyCurrentStartupSelection);
+    fillSelect.addEventListener('change', applyCurrentStartupSelection);
+    tempoInput.addEventListener('change', applyCurrentStartupSelection);
+
+    saveBtn.addEventListener('click', async () => {
+        const songList = Array.isArray(songs) ? songs : (Array.isArray(window.songs) ? window.songs : []);
+        const song = songList.find(s => getSongIdentifier(s) === String(songId));
+        if (!song) {
+            setMessage('Could not resolve song to save startup config.', true);
+            return;
+        }
+
+        applyCurrentStartupSelection();
+
+        const loopStartConfig = {
+            rhythmSetId: String(song.rhythmSetId || '').trim(),
+            startLoop: startupBehavior.startLoop,
+            startFill: startupBehavior.startFill || null,
+            tempoPercent: startupBehavior.tempoPercent
+        };
+
+        if (!loopStartConfig.rhythmSetId) {
+            setMessage('Assign a rhythm set first.', true);
+            return;
+        }
+
+        saveBtn.disabled = true;
+        setMessage('Saving...');
+
+        try {
+            const targetUrl = `${API_BASE_URL}/api/songs/${encodeURIComponent(String(songId))}`;
+            if (typeof authFetch === 'function') {
+                await authFetch(targetUrl, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ loopStartConfig })
+                });
+            } else {
+                const token = localStorage.getItem('pw_jwtToken') || localStorage.getItem('jwtToken') || '';
+                const response = await fetch(targetUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(token ? { Authorization: `Bearer ${token}` } : {})
+                    },
+                    body: JSON.stringify({ loopStartConfig })
+                });
+                if (!response.ok) {
+                    const payload = await response.json().catch(() => ({}));
+                    throw new Error(payload.error || `HTTP ${response.status}`);
+                }
+            }
+
+            song.loopStartConfig = { ...loopStartConfig };
+            setMessage('Saved startup settings.');
+            if (typeof showNotification === 'function') {
+                showNotification('Startup loop settings saved');
+            }
+        } catch (error) {
+            setMessage(error.message || 'Failed to save startup settings.', true);
+        } finally {
+            saveBtn.disabled = false;
+        }
+    });
+}
+
+function applyStartupPadMarkers(songId, startupBehavior) {
+    const container = document.getElementById(`loopPlayerContainer-${songId}`);
+    if (!container) return;
+
+    const pads = container.querySelectorAll('.loop-pad[data-loop]');
+    pads.forEach(pad => {
+        pad.classList.remove('loop-pad-startup', 'loop-pad-active');
+    });
+
+    const startLoopPad = container.querySelector(`.loop-pad[data-loop="${startupBehavior.startLoop}"]`);
+    if (startLoopPad) {
+        startLoopPad.classList.add('loop-pad-startup', 'loop-pad-active');
+    }
+
+    if (startupBehavior.startFill) {
+        const startFillPad = container.querySelector(`.loop-pad[data-loop="${startupBehavior.startFill}"]`);
+        if (startFillPad) {
+            startFillPad.classList.add('loop-pad-startup');
+        }
+    }
+}
+
+function applyStartupTempoToControls(songId, startupBehavior) {
+    const tempoSlider = document.getElementById(`loopTempo-${songId}`);
+    const tempoValue = document.getElementById(`loopTempoValue-${songId}`);
+    if (!tempoSlider) return;
+
+    const min = Number(tempoSlider.min || 50);
+    const max = Number(tempoSlider.max || 200);
+    const clampedTempo = Math.max(min, Math.min(max, startupBehavior.tempoPercent));
+    tempoSlider.value = String(clampedTempo);
+    if (tempoValue) {
+        tempoValue.textContent = `${clampedTempo}%`;
+    }
+}
+
 /**
  * Load loops metadata (cached)
  */
-async function getLoopsMetadata() {
-    if (loopsMetadataCache) {
+async function getLoopsMetadata(forceRefresh = false) {
+    const now = Date.now();
+    const crossTabSignal = parseInt(localStorage.getItem('loopsMetadataInvalidatedAt') || '0', 10);
+    const cacheStale = !loopsMetadataCache
+        || (now - loopsMetadataCacheTimestamp > LOOPS_METADATA_CACHE_TTL)
+        || (crossTabSignal > loopsMetadataCacheTimestamp);
+
+    if (!forceRefresh && !cacheStale) {
         return loopsMetadataCache;
     }
 
@@ -40,6 +260,7 @@ async function getLoopsMetadata() {
             : await fetch(requestUrl);
         if (response.ok) {
             loopsMetadataCache = await response.json();
+            loopsMetadataCacheTimestamp = now;
             return loopsMetadataCache;
         }
     } catch (error) {
@@ -163,8 +384,8 @@ function areTimeSignaturesEquivalent(time1, time2) {
  * Resolve loop set deterministically from song.rhythmSetId
  * Returns: { loopSet, rhythmSetId } or null
  */
-async function findMatchingLoopSet(song) {
-    const metadata = await getLoopsMetadata();
+async function findMatchingLoopSet(song, forceRefresh = false) {
+    const metadata = await getLoopsMetadata(forceRefresh);
     if (!metadata || !metadata.loops || metadata.loops.length === 0) {
         return null;
     }
@@ -204,7 +425,11 @@ async function findMatchingLoopSet(song) {
         loopSets[key].files[fileKey] = loop.filename;
     });
 
-    const resolvedSet = loopSets[rhythmSetId];
+    let resolvedSet = loopSets[rhythmSetId];
+    if (!resolvedSet && !forceRefresh) {
+        return findMatchingLoopSet(song, true);
+    }
+
     if (!resolvedSet) {
         return null;
     }
@@ -240,11 +465,60 @@ function getLoopPlayerHTML(songId) {
     
     <!-- Collapsible Content (default collapsed) -->
     <div class="loop-player-content collapsed" id="loopPlayerContent-${songId}">
-        <!-- Pad Grid: Rhythm Pads -->
+        <div class="loop-player-command-zone">
+            <!-- Core transport controls stay above pads for quick access -->
+            <div class="loop-player-controls">
+                <button class="loop-control-btn loop-play-btn" id="loopPlayBtn-${songId}">
+                    <i class="fas fa-play"></i>
+                    <span>Play</span>
+                </button>
+
+                <button class="loop-control-btn loop-autofill-btn active" id="loopAutoFillBtn-${songId}">
+                    <i class="fas fa-magic"></i>
+                    <span>Auto-Fill: ON</span>
+                </button>
+
+                <div class="loop-control-group">
+                    <label>
+                        <i class="fas fa-tachometer-alt"></i> Tempo
+                    </label>
+                    <input type="range" min="90" max="110" value="100" class="loop-slider" id="loopTempo-${songId}" step="1">
+                    <span class="loop-value" id="loopTempoValue-${songId}">100%</span>
+                    <button class="loop-tempo-reset-btn" id="loopTempoReset-${songId}" title="Reset to 100%">
+                        <i class="fas fa-undo"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="loop-volume-panel">
+                <div class="volume-control-row">
+                    <div class="volume-control-group">
+                        <label for="loopVolume-${songId}">
+                            <i class="fas fa-volume-up"></i> Rhythm Volume
+                        </label>
+                        <input type="range" id="loopVolume-${songId}" class="volume-slider"
+                               min="0" max="100" value="80" title="Rhythm Pads Volume">
+                        <span class="volume-value" id="loopVolumeValue-${songId}">80%</span>
+                    </div>
+                </div>
+
+                <div class="volume-control-row">
+                    <div class="volume-control-group">
+                        <label for="melodic-volume-${songId}">
+                            <i class="fas fa-volume-up"></i> Melodic Volume
+                        </label>
+                        <input type="range" id="melodic-volume-${songId}" class="volume-slider"
+                               min="0" max="100" value="50" title="Melodic Pads Volume (Atmosphere at 100%, Tanpura at 40%)">
+                        <span class="volume-value" id="melodicVolumeValue-${songId}">50%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pad Grid: Rhythm and melodic pads -->
         <div class="loop-pads-grid" id="padGrid-${songId}">
-            <!-- Top Row: Loops -->
             <div class="loop-pads-row">
-                <button class="loop-pad loop-pad-active" data-loop="loop1" id="pad-loop1-${songId}">
+                <button class="loop-pad" data-loop="loop1" id="pad-loop1-${songId}">
                     <span class="pad-number">1</span>
                     <span class="pad-label">Loop 1</span>
                 </button>
@@ -257,8 +531,7 @@ function getLoopPlayerHTML(songId) {
                     <span class="pad-label">Loop 3</span>
                 </button>
             </div>
-            
-            <!-- Bottom Row: Fills -->
+
             <div class="loop-pads-row">
                 <button class="loop-pad loop-pad-fill" data-loop="fill1" id="pad-fill1-${songId}">
                     <span class="pad-number">F1</span>
@@ -274,19 +547,6 @@ function getLoopPlayerHTML(songId) {
                 </button>
             </div>
 
-            <!-- Rhythm Volume Control -->
-            <div class="volume-control-row">
-                <div class="volume-control-group">
-                    <label for="loopVolume-${songId}">
-                        <i class="fas fa-volume-up"></i> Rhythm Volume
-                    </label>
-                    <input type="range" id="loopVolume-${songId}" class="volume-slider" 
-                           min="0" max="100" value="80" title="Rhythm Pads Volume">
-                    <span class="volume-value" id="loopVolumeValue-${songId}">80%</span>
-                </div>
-            </div>
-
-            <!-- Melodic Pads Row -->
             <div class="loop-pads-row melodic-pads-row">
                 <button class="loop-pad loop-pad-melodic" data-melodic="atmosphere" id="pad-atmosphere-${songId}">
                     <span class="pad-number">ATM</span>
@@ -303,41 +563,44 @@ function getLoopPlayerHTML(songId) {
                     <span class="pad-label">Karaoke</span>
                 </button>
             </div>
-
-            <!-- Melodic Volume Control -->
-            <div class="volume-control-row">
-                <div class="volume-control-group">
-                    <label for="melodic-volume-${songId}">
-                        <i class="fas fa-volume-up"></i> Melodic Volume
-                    </label>
-                    <input type="range" id="melodic-volume-${songId}" class="volume-slider" 
-                           min="0" max="100" value="50" title="Melodic Pads Volume (Atmosphere at 100%, Tanpura at 40%)">
-                    <span class="volume-value" id="melodicVolumeValue-${songId}">50%</span>
-                </div>
-            </div>
         </div>
-        
-        <!-- Controls -->
-        <div class="loop-player-controls">
-            <button class="loop-control-btn loop-play-btn" id="loopPlayBtn-${songId}">
-                <i class="fas fa-play"></i>
-                <span>Play</span>
+
+        <div class="loop-startup-config" id="loopStartupConfig-${songId}">
+            <button class="loop-startup-toggle" id="loopStartupToggle-${songId}" type="button" aria-expanded="false">
+                <span><i class="fas fa-rocket"></i> Startup for this Song</span>
+                <i class="fas fa-chevron-down" id="loopStartupToggleIcon-${songId}"></i>
             </button>
-            
-            <button class="loop-control-btn loop-autofill-btn active" id="loopAutoFillBtn-${songId}">
-                <i class="fas fa-magic"></i>
-                <span>Auto-Fill: ON</span>
-            </button>
-            
-            <div class="loop-control-group">
-                <label>
-                    <i class="fas fa-tachometer-alt"></i> Tempo
-                </label>
-                <input type="range" min="90" max="110" value="100" class="loop-slider" id="loopTempo-${songId}" step="1">
-                <span class="loop-value" id="loopTempoValue-${songId}">100%</span>
-                <button class="loop-tempo-reset-btn" id="loopTempoReset-${songId}" title="Reset to 100%">
-                    <i class="fas fa-undo"></i>
-                </button>
+            <div class="loop-startup-body collapsed" id="loopStartupBody-${songId}">
+                <div class="loop-startup-grid">
+                    <div>
+                        <label for="loopStartupLoop-${songId}">Start Loop</label>
+                        <select id="loopStartupLoop-${songId}" class="loop-startup-select">
+                            <option value="loop1">LOOP1</option>
+                            <option value="loop2">LOOP2</option>
+                            <option value="loop3">LOOP3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="loopStartupFill-${songId}">Start Fill</label>
+                        <select id="loopStartupFill-${songId}" class="loop-startup-select">
+                            <option value="">None</option>
+                            <option value="fill1">FILL1</option>
+                            <option value="fill2">FILL2</option>
+                            <option value="fill3">FILL3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="loopStartupTempo-${songId}">Startup Tempo (%)</label>
+                        <input id="loopStartupTempo-${songId}" class="loop-startup-input" type="number" min="50" max="200" value="100">
+                    </div>
+                </div>
+                <div class="loop-startup-actions">
+                    <button class="loop-control-btn" id="loopStartupSaveBtn-${songId}">
+                        <i class="fas fa-save"></i>
+                        <span>Save Startup</span>
+                    </button>
+                    <span class="loop-startup-msg" id="loopStartupMsg-${songId}"></span>
+                </div>
             </div>
         </div>
     </div>
@@ -443,6 +706,7 @@ async function initializeLoopPlayer(songId) {
     }
     
     const { loopSet, rhythmSetId } = matchResult;
+    const startupBehavior = resolveSongStartupBehavior(song, loopSet);
     
     // Show the container
     const container = document.getElementById(`loopPlayerContainer-${songId}`);
@@ -504,6 +768,15 @@ async function initializeLoopPlayer(songId) {
                 pad.classList.remove('loop-pad-active');
             }
         });
+
+        if (startupBehavior.startLoop) {
+            const startupLoopPad = container.querySelector(`.loop-pad[data-loop="${startupBehavior.startLoop}"]`);
+            if (startupLoopPad) startupLoopPad.classList.add('loop-pad-startup');
+        }
+        if (startupBehavior.startFill) {
+            const startupFillPad = container.querySelector(`.loop-pad[data-loop="${startupBehavior.startFill}"]`);
+            if (startupFillPad) startupFillPad.classList.add('loop-pad-startup');
+        }
     };
 
     loopPlayerInstance.onMelodicPadToggle = (padType, isPlaying) => {
@@ -567,11 +840,16 @@ async function initializeLoopPlayer(songId) {
         
         
         // Load loops with song ID for tracking
-        await loopPlayerInstance.loadLoops(loopMap, songId);
+        const loopFilesReplacedAt = parseInt(localStorage.getItem('loopFilesReplacedAt') || '0', 10);
+        const forceReload = loopFilesReplacedAt > loopFilesCheckedAt;
+        if (forceReload) {
+            loopFilesCheckedAt = Date.now();
+        }
 
-        // Pre-decode/pre-initialize in background so Play click starts faster.
-        // We intentionally do not force resume here to keep autoplay-policy safe.
-        await loopPlayerInstance.prewarmAudio();
+        await loopPlayerInstance.loadLoops(loopMap, songId, forceReload);
+
+        // Keep prewarm non-blocking so UI is responsive and controls appear quickly.
+        loopPlayerInstance.prewarmAudio().catch(() => {});
         
         // Check availability of melodic samples for the effective key
         const melodicAvailability = await loopPlayerInstance.checkMelodicAvailability(['atmosphere', 'tanpura']);
@@ -643,6 +921,11 @@ async function initializeLoopPlayer(songId) {
             playBtn.disabled = false;
             playBtn.innerHTML = '<i class="fas fa-play"></i><span>Play</span>';
         }
+
+        applyStartupPadMarkers(songId, startupBehavior);
+        applyStartupTempoToControls(songId, startupBehavior);
+        loopPlayerInstance.setPlaybackRate(startupBehavior.tempoPercent / 100);
+        bindStartupControls(songId, loopSet, startupBehavior);
     } catch (error) {
         console.error('Error loading loops:', error);
         if (status) status.textContent = 'Failed to load loops';
@@ -703,14 +986,22 @@ async function initializeLoopPlayer(songId) {
                 }
             } else {
                 try {
+                    const startupTempo = clampStartupTempo(startupBehavior.tempoPercent);
+                    loopPlayerInstance.currentLoop = startupBehavior.startLoop;
+                    loopPlayerInstance.nextLoop = null;
+                    loopPlayerInstance.nextFill = null;
+                    loopPlayerInstance.setPlaybackRate(startupTempo / 100);
+                    applyStartupTempoToControls(songId, startupBehavior);
+
                     // Immediately update UI to show "playing" state
                     newPlayBtn.innerHTML = '<i class="fas fa-pause"></i><span>Pause</span>';
                     newPlayBtn.classList.add('playing');
                     newPlayBtn.disabled = false;
                     
-                    // Show immediate status - user sees "Playing: LOOP 1" right away
+                    // Show immediate status based on song startup settings.
                     if (status) {
-                        status.textContent = 'Playing: LOOP 1';
+                        const fillText = startupBehavior.startFill ? ` + ${startupBehavior.startFill.toUpperCase()}` : '';
+                        status.textContent = `Playing: ${startupBehavior.startLoop.toUpperCase()}${fillText}`;
                     }
                     
                     // Show floating stop button immediately
@@ -735,6 +1026,11 @@ async function initializeLoopPlayer(songId) {
                             window.hideFloatingStopButton(songId);
                         }
                     });
+
+                    if (startupBehavior.startFill) {
+                        loopPlayerInstance.playFill(startupBehavior.startFill);
+                        loopPlayerInstance.switchToLoop(startupBehavior.startLoop);
+                    }
                     
                 } catch (error) {
                     console.error('Error playing loops:', error);
@@ -1020,8 +1316,20 @@ body.dark-mode .loop-player-status {
     overflow: hidden;
 }
 
+.loop-player-command-zone {
+    display: grid;
+    gap: 10px;
+    margin: 10px 0 14px;
+}
+
+.loop-volume-panel {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
 .loop-pads-grid {
-    margin-bottom: 20px;
+    margin-bottom: 14px;
     width: 100%;
     max-width: 100%;
     overflow: visible;
@@ -1104,6 +1412,96 @@ body.dark-mode .loop-player-status {
 .loop-pad.loop-pad-active .pad-label {
     color: #ffffff;
     opacity: 1;
+}
+
+.loop-pad-startup {
+    border-color: var(--warning-color);
+    box-shadow:
+        0 0 0 2px rgba(243, 156, 18, 0.25),
+        0 2px 8px rgba(0,0,0,0.25);
+}
+
+.loop-startup-config {
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(197, 177, 148, 0.35);
+    background: rgba(5, 68, 94, 0.1);
+}
+
+.loop-startup-title {
+    font-size: 0.88em;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.loop-startup-toggle {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid rgba(197, 177, 148, 0.35);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-color);
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 0.86em;
+}
+
+.loop-startup-body {
+    margin-top: 10px;
+}
+
+.loop-startup-body.collapsed {
+    display: none;
+}
+
+.loop-startup-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(110px, 1fr));
+    gap: 8px;
+}
+
+.loop-startup-grid label {
+    display: block;
+    font-size: 0.76em;
+    color: var(--song-meta-color);
+    margin-bottom: 4px;
+}
+
+.loop-startup-select,
+.loop-startup-input {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 7px;
+    border: 1px solid rgba(197, 177, 148, 0.45);
+    background: rgba(0, 0, 0, 0.25);
+    color: var(--text-color);
+    padding: 6px 8px;
+}
+
+.loop-startup-actions {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.loop-startup-msg {
+    font-size: 0.82em;
+    color: #dbeafe;
+}
+
+.loop-startup-msg.error {
+    color: #fca5a5;
+}
+
+@media (max-width: 700px) {
+    .loop-startup-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @keyframes activePadGlow {
@@ -1200,8 +1598,8 @@ body.dark-mode .loop-pad-fill.loop-pad-active {
 
 .loop-player-controls {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
     align-items: stretch;
 }
 
@@ -1502,7 +1900,7 @@ body.dark-mode .loop-pad-fill.loop-pad-active {
 /* ===== VOLUME CONTROL ROW STYLES ===== */
 
 .volume-control-row {
-    margin: 12px 0;
+    margin: 0;
     width: 100%;
 }
 
@@ -1580,9 +1978,19 @@ body.dark-mode .loop-pad-fill.loop-pad-active {
 }
 
 @media (max-width: 768px) {
+    .loop-player-command-zone {
+        gap: 8px;
+        margin: 8px 0 12px;
+    }
+
     .loop-player-controls {
         grid-template-columns: 1fr;
         gap: 10px;
+    }
+
+    .loop-volume-panel {
+        grid-template-columns: 1fr;
+        gap: 8px;
     }
     
     .loop-pads-row {
@@ -1730,9 +2138,14 @@ body.dark-mode .loop-pad-fill.loop-pad-active {
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
     }
-    
+
     .loop-control-group {
+        grid-column: span 2;
         padding: 9px 11px;
+    }
+
+    .loop-volume-panel {
+        grid-template-columns: 1fr;
     }
 }
 </style>

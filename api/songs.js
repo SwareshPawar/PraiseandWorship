@@ -2,6 +2,8 @@
 const { connectToDatabase } = require('./_db');
 const { getCorsHeaders, authMiddleware, requireAdmin } = require('./_auth');
 const { ObjectId } = require('mongodb');
+const { parseRhythmSetId } = require('./_loops');
+const { updateRhythmSetProfile } = require('../utils/rhythm-set-profile-manager');
 
 let songsIdCanonicalizationPromise = null;
 let songsIdsCanonicalized = false;
@@ -205,6 +207,74 @@ async function resolveCanonicalSongByRouteId(routeId, songsCollection, db) {
   return { numericId: canonicalId, song: canonicalSong || { ...legacySong, id: canonicalId } };
 }
 
+async function ensureRhythmSetDocument(db, rhythmSetId, rhythmFamily, rhythmSetNo, actor = 'system') {
+  if (!db || !rhythmSetId) return;
+
+  const rhythmSetsCollection = db.collection('RhythmSets');
+  const now = new Date().toISOString();
+  await rhythmSetsCollection.updateOne(
+    { rhythmSetId },
+    {
+      $setOnInsert: {
+        rhythmSetId,
+        rhythmFamily: rhythmFamily || null,
+        rhythmSetNo: rhythmSetNo || null,
+        createdAt: now,
+        createdBy: actor,
+        status: 'active',
+        mappedSongCount: 0
+      },
+      $set: {
+        updatedAt: now,
+        updatedBy: actor,
+        lastSource: 'song-rhythm-set-update'
+      }
+    },
+    { upsert: true }
+  );
+}
+
+async function recomputeRhythmSetMappedSongCount(db, rhythmSetId) {
+  if (!db || !rhythmSetId) return;
+
+  const songsCollection = db.collection('PraiseAndWorships');
+  const rhythmSetsCollection = db.collection('RhythmSets');
+  const mappedSongCount = await songsCollection.countDocuments({ rhythmSetId });
+
+  await rhythmSetsCollection.updateOne(
+    { rhythmSetId },
+    {
+      $set: {
+        mappedSongCount,
+        updatedAt: new Date().toISOString()
+      },
+      $setOnInsert: {
+        rhythmSetId,
+        createdAt: new Date().toISOString(),
+        status: 'active'
+      }
+    },
+    { upsert: true }
+  );
+}
+
+async function refreshRhythmSetProfiles(db, oldRhythmSetId, newRhythmSetId) {
+  if (!db) return;
+
+  const profilesCollection = db.collection('RhythmSetProfiles');
+  const songsCollection = db.collection('PraiseAndWorships');
+  const targets = new Set([
+    oldRhythmSetId ? String(oldRhythmSetId) : '',
+    newRhythmSetId ? String(newRhythmSetId) : ''
+  ]);
+
+  await Promise.all(
+    Array.from(targets)
+      .filter(Boolean)
+      .map(rhythmSetId => updateRhythmSetProfile(profilesCollection, songsCollection, rhythmSetId, true))
+  );
+}
+
 module.exports = async (req, res) => {
   const origin = req.headers.origin || req.headers.Origin;
   const corsHeaders = getCorsHeaders(origin);
@@ -224,6 +294,7 @@ module.exports = async (req, res) => {
     const pathWithoutQuery = (req.url || '').split('?')[0];
     const pathParts = pathWithoutQuery.split('/').filter(Boolean);
     const lastPart = pathParts[pathParts.length - 1] || 'songs';
+    const secondLastPart = pathParts[pathParts.length - 2] || '';
 
     // GET: Fetch all songs (public)
     if (req.method === 'GET') {
@@ -321,8 +392,102 @@ module.exports = async (req, res) => {
       const insertedSong = await songsCollection.findOne({ _id: result.insertedId });
       
       const formattedSong = formatSongForClient(insertedSong);
+
+      if (formattedSong.rhythmSetId) {
+        const actor = auth.user && (auth.user.firstName || auth.user.username || auth.user.email)
+          ? String(auth.user.firstName || auth.user.username || auth.user.email)
+          : 'admin';
+        await ensureRhythmSetDocument(db, formattedSong.rhythmSetId, formattedSong.rhythmFamily, formattedSong.rhythmSetNo, actor);
+        await recomputeRhythmSetMappedSongCount(db, formattedSong.rhythmSetId);
+        await refreshRhythmSetProfiles(db, null, formattedSong.rhythmSetId);
+      }
       
       return res.status(201).json(formattedSong);
+    }
+
+    // PATCH/PUT: Update only song rhythm-set assignment (admin)
+    if ((req.method === 'PATCH' || req.method === 'PUT') && lastPart === 'rhythm-set' && secondLastPart) {
+      const auth = authMiddleware(req);
+      if (auth.error) {
+        return res.status(auth.status).json({ error: auth.error });
+      }
+
+      const adminCheck = requireAdmin(auth.user);
+      if (adminCheck) {
+        return res.status(adminCheck.status).json({ error: adminCheck.error });
+      }
+
+      await ensureSongsUseCanonicalIds(songsCollection, db);
+
+      const resolvedSongRef = await resolveCanonicalSongByRouteId(secondLastPart, songsCollection, db);
+      if (!resolvedSongRef.numericId) {
+        return res.status(400).json({ error: 'Song ID must be a positive integer' });
+      }
+
+      const existingSong = resolvedSongRef.song || await songsCollection.findOne({ id: resolvedSongRef.numericId });
+      if (!existingSong) {
+        return res.status(404).json({ error: 'Song not found' });
+      }
+
+      const actor = auth.user && (auth.user.firstName || auth.user.username || auth.user.email)
+        ? String(auth.user.firstName || auth.user.username || auth.user.email)
+        : 'admin';
+      const updatedBy = actor ? actor.charAt(0).toUpperCase() + actor.slice(1) : 'Admin';
+      const nextRhythmSetIdRaw = req.body && Object.prototype.hasOwnProperty.call(req.body, 'rhythmSetId')
+        ? req.body.rhythmSetId
+        : null;
+
+      const updateData = {
+        updatedAt: new Date().toISOString(),
+        updatedBy
+      };
+
+      if (!nextRhythmSetIdRaw) {
+        updateData.rhythmSetId = null;
+        updateData.rhythmFamily = null;
+        updateData.rhythmSetNo = null;
+      } else {
+        const parsed = parseRhythmSetId(String(nextRhythmSetIdRaw));
+        if (!parsed) {
+          return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+        }
+
+        updateData.rhythmSetId = parsed.rhythmSetId;
+        updateData.rhythmFamily = parsed.rhythmFamily;
+        updateData.rhythmSetNo = parsed.rhythmSetNo;
+      }
+
+      const updateResult = await songsCollection.updateOne(
+        { id: resolvedSongRef.numericId },
+        { $set: updateData }
+      );
+
+      if (!updateResult.matchedCount) {
+        return res.status(404).json({ error: 'Song not found' });
+      }
+
+      const updatedSong = await songsCollection.findOne({ id: resolvedSongRef.numericId });
+
+      if (updatedSong && updatedSong.rhythmSetId) {
+        await ensureRhythmSetDocument(
+          db,
+          updatedSong.rhythmSetId,
+          updatedSong.rhythmFamily,
+          updatedSong.rhythmSetNo,
+          updatedBy
+        );
+      }
+
+      await recomputeRhythmSetMappedSongCount(db, updatedSong && updatedSong.rhythmSetId);
+      if (existingSong.rhythmSetId && existingSong.rhythmSetId !== (updatedSong && updatedSong.rhythmSetId)) {
+        await recomputeRhythmSetMappedSongCount(db, existingSong.rhythmSetId);
+      }
+
+      if (existingSong.rhythmSetId !== (updatedSong && updatedSong.rhythmSetId)) {
+        await refreshRhythmSetProfiles(db, existingSong.rhythmSetId, updatedSong && updatedSong.rhythmSetId);
+      }
+
+      return res.status(200).json(formatSongForClient(updatedSong));
     }
 
     // PUT: Update song (requires auth)
@@ -338,6 +503,11 @@ module.exports = async (req, res) => {
       const resolvedSongRef = await resolveCanonicalSongByRouteId(id, songsCollection, db);
       if (!resolvedSongRef.numericId) {
         return res.status(400).json({ error: 'Song ID must be a positive integer' });
+      }
+
+      const existingSong = resolvedSongRef.song || await songsCollection.findOne({ id: resolvedSongRef.numericId });
+      if (!existingSong) {
+        return res.status(404).json({ error: 'Song not found' });
       }
       
       const updateData = req.body;
@@ -358,6 +528,28 @@ module.exports = async (req, res) => {
       
       if (result.matchedCount === 0 || !updatedSong) {
         return res.status(404).json({ error: 'Song not found' });
+      }
+
+      if (updatedSong.rhythmSetId) {
+        const actor = auth.user && (auth.user.firstName || auth.user.username || auth.user.email)
+          ? String(auth.user.firstName || auth.user.username || auth.user.email)
+          : 'admin';
+        await ensureRhythmSetDocument(
+          db,
+          updatedSong.rhythmSetId,
+          updatedSong.rhythmFamily,
+          updatedSong.rhythmSetNo,
+          actor
+        );
+      }
+
+      await recomputeRhythmSetMappedSongCount(db, updatedSong.rhythmSetId);
+      if (existingSong.rhythmSetId && existingSong.rhythmSetId !== updatedSong.rhythmSetId) {
+        await recomputeRhythmSetMappedSongCount(db, existingSong.rhythmSetId);
+      }
+
+      if (existingSong.rhythmSetId !== updatedSong.rhythmSetId) {
+        await refreshRhythmSetProfiles(db, existingSong.rhythmSetId, updatedSong.rhythmSetId);
       }
       
       return res.status(200).json(formatSongForClient(updatedSong));

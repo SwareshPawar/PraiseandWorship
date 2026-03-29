@@ -55,6 +55,9 @@ class LoopPlayerPad {
         this.currentSongId = null;
         this.currentLoopSet = null;
         this.pendingLoopReload = null;
+        this.melodicInventory = null;
+        this.melodicInventoryTimestamp = 0;
+        this.melodicMissingLogged = new Set();
         
         // Settings
         this.autoFill = true;
@@ -74,6 +77,97 @@ class LoopPlayerPad {
         this.onMelodicPadToggle = null;
         this.onMelodicError = null;
         this.onError = null;
+    }
+
+    _getEnharmonicMap() {
+        return {
+            'C#': 'Db', 'Db': 'C#',
+            'D#': 'Eb', 'Eb': 'D#',
+            'F#': 'Gb', 'Gb': 'F#',
+            'G#': 'Ab', 'Ab': 'G#',
+            'A#': 'Bb', 'Bb': 'A#'
+        };
+    }
+
+    _toInventoryKey(key) {
+        const normalized = this._normalizeKeyName(key);
+        const map = {
+            Db: 'C#',
+            'D#': 'Eb',
+            Gb: 'F#',
+            Ab: 'G#',
+            'A#': 'Bb'
+        };
+
+        return map[normalized] || normalized;
+    }
+
+    async _getMelodicInventory(forceRefresh = false) {
+        const now = Date.now();
+        const ttlMs = 60000;
+        if (!forceRefresh && this.melodicInventory && (now - this.melodicInventoryTimestamp) < ttlMs) {
+            return this.melodicInventory;
+        }
+
+        try {
+            const baseUrl = this._getMelodicBaseUrl();
+            const response = await fetch(`${baseUrl}/api/melodic-loops`);
+            if (!response.ok) {
+                return null;
+            }
+
+            const list = await response.json();
+            this.melodicInventory = Array.isArray(list) ? list : [];
+            this.melodicInventoryTimestamp = now;
+            return this.melodicInventory;
+        } catch {
+            return null;
+        }
+    }
+
+    async _resolveMelodicSampleUrl(sampleType, effectiveKey, baseUrl) {
+        const enharmonicMap = this._getEnharmonicMap();
+        const canonicalKey = this._toInventoryKey(effectiveKey);
+        const keysToTry = [canonicalKey];
+
+        if (enharmonicMap[canonicalKey]) {
+            keysToTry.push(enharmonicMap[canonicalKey]);
+        }
+
+        const inventory = await this._getMelodicInventory();
+        if (inventory) {
+            for (const keyToCheck of keysToTry) {
+                const inventoryKey = this._toInventoryKey(keyToCheck);
+                const match = inventory.find(item =>
+                    item &&
+                    item.type === sampleType &&
+                    this._toInventoryKey(String(item.key || '')) === inventoryKey &&
+                    item.filename
+                );
+
+                if (match) {
+                    return `${baseUrl}/loops/melodies/${sampleType}/${encodeURIComponent(match.filename)}`;
+                }
+            }
+
+            return null;
+        }
+
+        // Fallback to direct HEAD checks if inventory endpoint is unavailable.
+        for (const keyToCheck of keysToTry) {
+            const encodedKey = encodeURIComponent(keyToCheck);
+            const url = `${baseUrl}/loops/melodies/${sampleType}/${sampleType}_${encodedKey}.wav`;
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                if (response.ok) {
+                    return url;
+                }
+            } catch {
+                // ignore and try next key
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -168,7 +262,7 @@ class LoopPlayerPad {
      * Uses new naming convention v2.0: {taal}_{time}_{tempo}_{genre}_{TYPE}{num}.wav
      * Falls back to keherwa_4_4 files if no map provided (backward compatibility)
      */
-    async loadLoops(loopMap = null, songId = null) {
+    async loadLoops(loopMap = null, songId = null, forceReload = false) {
         // Default to keherwa_4_4 files if no map provided (backward compatibility)
         if (!loopMap) {
             loopMap = {
@@ -181,15 +275,15 @@ class LoopPlayerPad {
             };
         }
 
-        // Check if reload is needed
-        const needsReload = this.needsLoopReload(songId, loopMap);
+        // Check if reload is needed (forceReload bypasses cache checks after loop replacement)
+        const needsReload = forceReload || this.needsLoopReload(songId, loopMap);
         
         if (!needsReload && this.rawAudioData.size > 0) {
             return;
         }
         
         // If currently playing, queue reload for next play
-        if (needsReload && this.isPlaying) {
+        if (needsReload && this.isPlaying && !forceReload) {
             this.pendingLoopReload = { loopMap, songId };
             // Don't interrupt current playback
             return;
@@ -207,9 +301,11 @@ class LoopPlayerPad {
         }
 
         // Only fetch raw audio data (don't decode yet - requires user gesture)
+        const fetchOptions = forceReload ? { cache: 'reload' } : {};
+
         const loadPromises = Object.entries(loopMap).map(async ([name, url]) => {
             try {
-                const response = await this._fetchLoopAsset(url);
+                const response = await this._fetchLoopAsset(url, fetchOptions);
                 const arrayBuffer = await response.arrayBuffer();
                 this.rawAudioData.set(name, arrayBuffer);
             } catch (error) {
@@ -632,12 +728,7 @@ class LoopPlayerPad {
 
         if (isAbsolute) {
             candidates.push(raw);
-            try {
-                const parsed = new URL(raw);
-                assetPath = `${parsed.pathname}${parsed.search || ''}`;
-            } catch {
-                return Array.from(new Set(candidates));
-            }
+            return Array.from(new Set(candidates));
         } else {
             assetPath = raw.startsWith('/') ? raw : `/${raw}`;
         }
@@ -735,44 +826,10 @@ class LoopPlayerPad {
         const effectiveKey = this._getEffectiveKey();
         const availability = {};
         const baseUrl = this._getMelodicBaseUrl();
-        
-        
-        // Map to check enharmonic equivalents (e.g., Eb = D#)
-        const enharmonicMap = {
-            'C#': 'Db', 'Db': 'C#',
-            'D#': 'Eb', 'Eb': 'D#',
-            'F#': 'Gb', 'Gb': 'F#',
-            'G#': 'Ab', 'Ab': 'G#',
-            'A#': 'Bb', 'Bb': 'A#'
-        };
-        
+
         const checkPromises = sampleTypes.map(async (sampleType) => {
-            // Try the effective key first, then its enharmonic equivalent
-            const keysToTry = [effectiveKey];
-            if (enharmonicMap[effectiveKey]) {
-                keysToTry.push(enharmonicMap[effectiveKey]);
-            }
-            
-            
-            for (const keyToCheck of keysToTry) {
-                // URL encode the key to handle # symbol (e.g., D# becomes D%23)
-                const encodedKey = encodeURIComponent(keyToCheck);
-                const url = `${baseUrl}/loops/melodies/${sampleType}/${sampleType}_${encodedKey}.wav`;
-                try {
-                    // Use HEAD for lightweight check
-                    const response = await this._fetchLoopAsset(url, { method: 'HEAD' });
-                    if (response.ok) {
-                        availability[sampleType] = true;
-                        return; // Found it, stop trying other keys
-                    } else {
-                    }
-                } catch (error) {
-                    // Continue to next key
-                }
-            }
-            
-            // If we get here, neither key worked
-            availability[sampleType] = false;
+            const url = await this._resolveMelodicSampleUrl(sampleType, effectiveKey, baseUrl);
+            availability[sampleType] = Boolean(url);
         });
         
         await Promise.all(checkPromises);
@@ -790,16 +847,6 @@ class LoopPlayerPad {
         const tanpuraKey = `tanpura_${effectiveKey}`;
         const baseUrl = this._getMelodicBaseUrl();
 
-
-        // Map to check enharmonic equivalents (e.g., Eb = D#)
-        const enharmonicMap = {
-            'C#': 'Db', 'Db': 'C#',
-            'D#': 'Eb', 'Eb': 'D#',
-            'F#': 'Gb', 'Gb': 'F#',
-            'G#': 'Ab', 'Ab': 'G#',
-            'A#': 'Bb', 'Bb': 'A#'
-        };
-
         // Build sample map for only requested types
         const sampleMap = {};
         const needsDecode = [];
@@ -815,33 +862,15 @@ class LoopPlayerPad {
                 continue;
             }
             
-            // Try to find the file with effective key, then enharmonic equivalent
-            const keysToTry = [effectiveKey];
-            if (enharmonicMap[effectiveKey]) {
-                keysToTry.push(enharmonicMap[effectiveKey]);
-            }
-            
-            let foundUrl = null;
-            for (const keyToCheck of keysToTry) {
-                // URL encode the key to handle # symbol (e.g., D# becomes D%23)
-                const encodedKey = encodeURIComponent(keyToCheck);
-                const url = `${baseUrl}/loops/melodies/${sampleType}/${sampleType}_${encodedKey}.wav`;
-                try {
-                    // Quick HEAD check to see if file exists
-                    const response = await this._fetchLoopAsset(url, { method: 'HEAD' });
-                    if (response.ok) {
-                        foundUrl = url;
-                        break;
-                    }
-                } catch (error) {
-                    // Continue to next key
-                }
-            }
+            const foundUrl = await this._resolveMelodicSampleUrl(sampleType, effectiveKey, baseUrl);
             
             if (foundUrl) {
                 sampleMap[key] = foundUrl;
             } else {
-                console.warn(`Melodic sample ${key} not found (also tried enharmonic equivalent)`);
+                if (!this.melodicMissingLogged.has(key)) {
+                    console.warn(`Melodic sample ${key} not found (also tried enharmonic equivalent)`);
+                    this.melodicMissingLogged.add(key);
+                }
             }
         }
 

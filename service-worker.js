@@ -1,7 +1,7 @@
 // Enhanced Progressive Web App Service Worker for Praise & Worship Songs
-const CACHE_NAME = 'pw-ocean-v2.4-SMART-FALLBACK';
-const STATIC_CACHE = 'pw-static-v2.4-SMART-FALLBACK';
-const API_CACHE = 'pw-api-v2.4-SMART-FALLBACK';
+const CACHE_NAME = 'pw-ocean-v2.5-SMART-FALLBACK';
+const STATIC_CACHE = 'pw-static-v2.5-SMART-FALLBACK';
+const API_CACHE = 'pw-api-v2.5-SMART-FALLBACK';
 
 // Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [
@@ -179,11 +179,8 @@ async function simplePassThroughStrategy(request) {
   try {
     console.log('Service Worker: Pass-through for API:', request.url);
     
-    // Just pass through to network - let main thread handle Vercel→Render fallback
-    const networkResponse = await fetch(request, {
-      mode: 'cors',
-      credentials: 'include'
-    });
+    // Pass through to network using the original request options.
+    const networkResponse = await fetch(request);
     
     // Only cache successful GET requests
     if (networkResponse.ok && request.method === 'GET' && 
@@ -208,8 +205,16 @@ async function simplePassThroughStrategy(request) {
       return cachedResponse;
     }
     
-    // Let the error propagate so main thread can handle fallback
-    throw error;
+    // Return a structured response instead of throwing to avoid unhandled fetch warnings.
+    return new Response(JSON.stringify({
+      error: 'Network request failed',
+      offline: true,
+      requestUrl: request.url,
+      message: 'Unable to reach backend from service worker pass-through.'
+    }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 

@@ -9729,7 +9729,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 ${(song.time || song.timeSignature) ? `<span class="preview-meta-chip"><i class="fas fa-clock"></i> ${song.time || song.timeSignature}</span>` : ''}
                 ${song.taal ? `<span class="preview-meta-chip"><i class="fas fa-music"></i> ${song.taal}</span>` : ''}
             </div>
-            ${chordsDisplay || song.artistDetails || song.mood || song.genres || song.genre ? `
+            ${chordsDisplay || song.artistDetails || song.mood || song.genres || song.genre || song.rhythmCategory || isAdmin() ? `
             <button class="preview-meta-toggle" id="toggleMetaBtn">
                 <span class="toggle-text">More Info</span>
                 <i class="fas fa-chevron-down"></i>
@@ -9758,6 +9758,23 @@ window.viewSingleLyrics = function(songId, otherId) {
                 <div class="preview-meta-row">
                     <span class="preview-meta-label">Genre</span>
                     <span class="preview-meta-value">${song.genre}</span>
+                </div>` : ''}
+                ${song.rhythmCategory ? `
+                <div class="preview-meta-row">
+                    <span class="preview-meta-label">Rhythm Category</span>
+                    <span class="preview-meta-value">${song.rhythmCategory}</span>
+                </div>` : ''}
+                ${isAdmin() ? `
+                <div class="preview-meta-row preview-rhythm-set-row">
+                    <span class="preview-meta-label">Rhythm Set</span>
+                    <div class="preview-rhythm-set-editor">
+                        <select class="preview-rhythm-set-select" id="previewRhythmSetSelect">
+                            <option value="">-- Loading... --</option>
+                        </select>
+                        <button class="preview-rhythm-set-save-btn" id="previewRhythmSetSaveBtn" title="Save Rhythm Set">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </div>
                 </div>` : ''}
             </div>` : ''}
         </div>
@@ -9878,11 +9895,116 @@ window.viewSingleLyrics = function(songId, otherId) {
             const secondaryMetaInfo = document.getElementById('secondaryMetaInfo');
             if (toggleMetaBtn && secondaryMetaInfo) {
                 toggleMetaBtn.addEventListener('click', () => {
-                    secondaryMetaInfo.classList.toggle('collapsed');
                     const isCollapsed = secondaryMetaInfo.classList.contains('collapsed');
-                    toggleMetaBtn.querySelector('.toggle-text').textContent = isCollapsed ? 'More Info' : 'Less Info';
-                    toggleMetaBtn.querySelector('.fa-chevron-down').style.transform = isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)';
+                    if (isCollapsed) {
+                        secondaryMetaInfo.classList.remove('collapsed');
+                        toggleMetaBtn.classList.add('expanded');
+                        toggleMetaBtn.querySelector('.toggle-text').textContent = 'Less Info';
+                        toggleMetaBtn.querySelector('i').classList.remove('fa-chevron-down');
+                        toggleMetaBtn.querySelector('i').classList.add('fa-chevron-up');
+                    } else {
+                        secondaryMetaInfo.classList.add('collapsed');
+                        toggleMetaBtn.classList.remove('expanded');
+                        toggleMetaBtn.querySelector('.toggle-text').textContent = 'More Info';
+                        toggleMetaBtn.querySelector('i').classList.remove('fa-chevron-up');
+                        toggleMetaBtn.querySelector('i').classList.add('fa-chevron-down');
+                    }
                 });
+            }
+
+            if (isAdmin()) {
+                const rhythmSetSelect = document.getElementById('previewRhythmSetSelect');
+                const rhythmSetSaveBtn = document.getElementById('previewRhythmSetSaveBtn');
+
+                async function populateRhythmSetDropdown() {
+                    if (!rhythmSetSelect || rhythmSetSelect.dataset.loaded) return;
+                    rhythmSetSelect.dataset.loaded = 'true';
+
+                    try {
+                        const res = await authFetch(`${API_BASE_URL}/api/rhythm-sets`);
+                        if (!res.ok) throw new Error('Failed to fetch rhythm sets');
+
+                        const sets = await res.json();
+                        rhythmSetSelect.innerHTML = '<option value="">-- None --</option>';
+                        sets.sort((a, b) => String(a.rhythmSetId || '').localeCompare(String(b.rhythmSetId || '')));
+
+                        sets.forEach(rs => {
+                            const opt = document.createElement('option');
+                            opt.value = rs.rhythmSetId;
+
+                            let displayText = rs.rhythmSetId;
+                            if (rs.notes && rs.notes.trim()) {
+                                const notes = rs.notes.trim();
+                                displayText += ` -> ${notes.length > 50 ? notes.substring(0, 50) + '...' : notes}`;
+                            } else if (rs.rhythmFamily) {
+                                displayText += ` (${rs.rhythmFamily})`;
+                            }
+
+                            opt.textContent = displayText;
+                            opt.title = rs.notes ? `${rs.rhythmSetId}\n\nNotes: ${rs.notes}` : rs.rhythmSetId;
+                            if (rs.rhythmSetId === song.rhythmSetId) opt.selected = true;
+                            rhythmSetSelect.appendChild(opt);
+                        });
+
+                        if (song.rhythmSetId && !sets.find(rs => rs.rhythmSetId === song.rhythmSetId)) {
+                            const opt = document.createElement('option');
+                            opt.value = song.rhythmSetId;
+                            opt.textContent = `${song.rhythmSetId} (current)`;
+                            opt.selected = true;
+                            rhythmSetSelect.insertBefore(opt, rhythmSetSelect.children[1]);
+                        }
+                    } catch (e) {
+                        rhythmSetSelect.innerHTML = '<option value="">-- Error loading --</option>';
+                    }
+                }
+
+                if (toggleMetaBtn) {
+                    toggleMetaBtn.addEventListener('click', populateRhythmSetDropdown, { once: true });
+                } else {
+                    populateRhythmSetDropdown();
+                }
+
+                if (rhythmSetSaveBtn) {
+                    rhythmSetSaveBtn.addEventListener('click', async () => {
+                        const selectedId = rhythmSetSelect ? rhythmSetSelect.value : '';
+                        rhythmSetSaveBtn.disabled = true;
+                        rhythmSetSaveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+                        try {
+                            const res = await authFetch(`${API_BASE_URL}/api/songs/${song.id}/rhythm-set`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ rhythmSetId: selectedId || null })
+                            });
+
+                            if (!res.ok) {
+                                const err = await res.json().catch(() => ({}));
+                                throw new Error(err.error || 'Failed to update Rhythm Set');
+                            }
+
+                            const updated = await res.json();
+                            Object.assign(song, updated);
+                            updateSongInCache(updated, false);
+                            localStorage.setItem('loopsMetadataInvalidatedAt', Date.now().toString());
+
+                            const loopStatus = document.getElementById(`loopStatus-${song.id}`);
+                            if (loopStatus) {
+                                loopStatus.textContent = updated.rhythmSetId ? 'Refreshing loops...' : 'No Rhythm Set assigned';
+                            }
+
+                            if (typeof initializeLoopPlayer === 'function') {
+                                await initializeLoopPlayer(song.id);
+                            }
+
+                            showNotification(`Rhythm Set updated to "${updated.rhythmSetId || 'None'}" successfully!`);
+                        } catch (e) {
+                            showNotification(e.message || 'Error updating Rhythm Set', 'error');
+                        } finally {
+                            rhythmSetSaveBtn.disabled = false;
+                            rhythmSetSaveBtn.innerHTML = '<i class="fas fa-save"></i> Save';
+                        }
+                    });
+                }
             }
             
             document.getElementById('previewSetlistBtn').addEventListener('click', (e) => {

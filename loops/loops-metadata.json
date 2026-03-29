@@ -1,53 +1,6 @@
 {
   "version": "2.0",
-  "description": "Loop file metadata and matching conditions",
   "loops": [
-    {
-      "id": "dadra_3_4_medium_dholak_loop1",
-      "filename": "dadra_3_4_medium_dholak_LOOP1.wav",
-      "type": "loop",
-      "number": 1,
-      "conditions": {
-        "taal": "dadra",
-        "timeSignature": "3/4",
-        "tempo": "medium",
-        "genre": "dholak"
-      },
-      "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-15T14:19:00.495Z",
-        "description": ""
-      },
-      "files": {
-        "loop1": "dadra_3_4_medium_dholak_LOOP1.wav"
-      },
-      "rhythmFamily": "dadra",
-      "rhythmSetNo": 1,
-      "rhythmSetId": "dadra_1"
-    },
-    {
-      "id": "dadra_3_4_medium_dholak_loop2",
-      "filename": "dadra_3_4_medium_dholak_LOOP2.wav",
-      "type": "loop",
-      "number": 2,
-      "conditions": {
-        "taal": "dadra",
-        "timeSignature": "3/4",
-        "tempo": "medium",
-        "genre": "dholak"
-      },
-      "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-15T14:19:01.178Z",
-        "description": ""
-      },
-      "files": {
-        "loop2": "dadra_3_4_medium_dholak_LOOP2.wav"
-      },
-      "rhythmFamily": "dadra",
-      "rhythmSetNo": 1,
-      "rhythmSetId": "dadra_1"
-    },
     {
       "id": "dadra_3_4_medium_dholak_loop3",
       "filename": "dadra_3_4_medium_dholak_LOOP3.wav",
@@ -387,29 +340,6 @@
       "rhythmFamily": "keherwa",
       "rhythmSetNo": 1,
       "rhythmSetId": "keherwa_1"
-    },
-    {
-      "id": "dadra_3_4_slow_ghazal_loop1",
-      "filename": "dadra_3_4_slow_ghazal_LOOP1.wav",
-      "type": "loop",
-      "number": 1,
-      "conditions": {
-        "taal": "dadra",
-        "timeSignature": "3/4",
-        "tempo": "slow",
-        "genre": "ghazal"
-      },
-      "metadata": {
-        "duration": 0,
-        "uploadedAt": "2026-02-28T06:45:28.446Z",
-        "description": ""
-      },
-      "files": {
-        "loop1": "dadra_3_4_slow_ghazal_LOOP1.wav"
-      },
-      "rhythmFamily": "dadra",
-      "rhythmSetNo": 1,
-      "rhythmSetId": "dadra_1"
     },
     {
       "id": "rd pattern_3_4_slow_acoustic_fill2",
@@ -1366,6 +1296,178 @@
         "uploadedBy": "swareshpawar@gmail.com",
         "description": ""
       }
+    },
+    {
+      "id": "deepchandi_2_fill1",
+      "type": "fill",
+      "number": 1,
+      "rhythmSetId": "deepchandi_2",
+      "rhythmFamily": "deepchandi",
+      "rhythmSetNo": 2,
+      "filename": "deepchandi_2_fill1_oldandnew.wav",
+      "originalFilename": "deepchandi_2_FILL1.wav",
+      "conditions": {
+        "taal": "deepchandi"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-28T15:17:15.610Z",
+        "importedFrom": "oldandnew:deepchandi_2"
+      }
+    },
+    {
+      "id": "deepchandi_2_fill2",
+      "type": "fill",
+      "number": 2,
+      "rhythmSetId": "deepchandi_2",
+      "rhythmFamily": "deepchandi",
+      "rhythmSetNo": 2,
+      "filename": "deepchandi_2_fill2_oldandnew.wav",
+      "originalFilename": "deepchandi_2_FILL2.wav",
+      "conditions": {
+        "taal": "deepchandi"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-28T15:17:15.616Z",
+        "importedFrom": "oldandnew:deepchandi_2"
+      }
+    },
+    {
+      "id": "deepchandi_2_loop1",
+      "type": "loop",
+      "number": 1,
+      "rhythmSetId": "deepchandi_2",
+      "rhythmFamily": "deepchandi",
+      "rhythmSetNo": 2,
+      "filename": "deepchandi_2_loop1_oldandnew.wav",
+      "originalFilename": "deepchandi_2_LOOP1.wav",
+      "conditions": {
+        "taal": "deepchandi"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-28T15:17:15.620Z",
+        "importedFrom": "oldandnew:deepchandi_2"
+      }
+    },
+    {
+      "id": "deepchandi_2_loop2",
+      "type": "loop",
+      "number": 2,
+      "rhythmSetId": "deepchandi_2",
+      "rhythmFamily": "deepchandi",
+      "rhythmSetNo": 2,
+      "filename": "deepchandi_2_loop2_oldandnew.wav",
+      "originalFilename": "deepchandi_2_LOOP2.wav",
+      "conditions": {
+        "taal": "deepchandi"
+      },
+      "metadata": {
+        "updatedAt": "2026-03-28T15:17:15.623Z",
+        "importedFrom": "oldandnew:deepchandi_2"
+      }
+    },
+    {
+      "id": "dadra_3_4_medium_dholak_loop2",
+      "filename": "dadra_3_4_medium_dholak_LOOP2.wav",
+      "type": "loop",
+      "number": 2,
+      "conditions": {
+        "taal": "dadra",
+        "timeSignature": "3/4",
+        "tempo": "medium",
+        "genre": "dholak"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-02-15T14:19:01.178Z",
+        "description": ""
+      },
+      "files": {
+        "loop2": "dadra_3_4_medium_dholak_LOOP2.wav"
+      },
+      "rhythmFamily": "dadra",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "dadra_1"
+    },
+    {
+      "id": "dadra_1_loop1",
+      "filename": "dadra_3_4_medium_dholak_LOOP1.wav",
+      "type": "loop",
+      "number": 1,
+      "conditions": {
+        "taal": "dadra",
+        "timeSignature": "3/4",
+        "tempo": "slow",
+        "genre": "ghazal"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-02-28T06:45:28.446Z",
+        "description": "",
+        "updatedAt": "2026-03-29T05:00:31.435Z",
+        "assignedBy": "swareshpawar@gmail.com"
+      },
+      "files": {
+        "loop1": "dadra_3_4_medium_dholak_LOOP1.wav"
+      },
+      "rhythmFamily": "dadra",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "dadra_1"
+    }
+  ],
+  "rhythmSets": [
+    {
+      "rhythmSetId": "dadra_1",
+      "rhythmFamily": "dadra",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "deepchandi_1",
+      "rhythmFamily": "deepchandi",
+      "rhythmSetNo": 1,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "keherwa_1",
+      "rhythmFamily": "keherwa",
+      "rhythmSetNo": 1,
+      "fileCount": 18
+    },
+    {
+      "rhythmSetId": "rd_pattern_1",
+      "rhythmFamily": "rd_pattern",
+      "rhythmSetNo": 1,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "6beat_1",
+      "rhythmFamily": "6beat",
+      "rhythmSetNo": 1,
+      "fileCount": 8
+    },
+    {
+      "rhythmSetId": "rock_1",
+      "rhythmFamily": "rock",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "congo_1",
+      "rhythmFamily": "congo",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "swaresh_1",
+      "rhythmFamily": "swaresh",
+      "rhythmSetNo": 1,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "deepchandi_2",
+      "rhythmFamily": "deepchandi",
+      "rhythmSetNo": 2,
+      "fileCount": 4
     }
   ],
   "tempoRanges": {
@@ -1424,48 +1526,5 @@
     "12/8",
     "14/8"
   ],
-  "rhythmSets": [
-    {
-      "rhythmSetId": "dadra_1",
-      "rhythmFamily": "dadra",
-      "rhythmSetNo": 1,
-      "fileCount": 7
-    },
-    {
-      "rhythmSetId": "deepchandi_1",
-      "rhythmFamily": "deepchandi",
-      "rhythmSetNo": 1,
-      "fileCount": 4
-    },
-    {
-      "rhythmSetId": "keherwa_1",
-      "rhythmFamily": "keherwa",
-      "rhythmSetNo": 1,
-      "fileCount": 18
-    },
-    {
-      "rhythmSetId": "rd_pattern_1",
-      "rhythmFamily": "rd_pattern",
-      "rhythmSetNo": 1,
-      "fileCount": 4
-    },
-    {
-      "rhythmSetId": "6beat_1",
-      "rhythmFamily": "6beat",
-      "rhythmSetNo": 1,
-      "fileCount": 6
-    },
-    {
-      "rhythmSetId": "rock_1",
-      "rhythmFamily": "rock",
-      "rhythmSetNo": 1,
-      "fileCount": 6
-    },
-    {
-      "rhythmSetId": "congo_1",
-      "rhythmFamily": "congo",
-      "rhythmSetNo": 1,
-      "fileCount": 6
-    }
-  ]
+  "description": "Loop file metadata and matching conditions"
 }

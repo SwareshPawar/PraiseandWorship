@@ -684,6 +684,64 @@
             margin-bottom: 0;
         }
 
+        .preview-rhythm-set-row .preview-meta-value,
+        .preview-rhythm-set-row {
+            align-items: center;
+        }
+
+        .preview-rhythm-set-editor {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            min-width: 0;
+            flex-wrap: wrap;
+        }
+
+        .preview-rhythm-set-select {
+            flex: 1 1 180px;
+            min-width: 0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            background: rgba(var(--accent-color-rgb, 197, 177, 148), 0.12);
+            border: 1px solid rgba(var(--accent-color-rgb, 197, 177, 148), 0.35);
+            border-radius: 6px;
+            padding: 4px 8px;
+            cursor: pointer;
+        }
+
+        .preview-rhythm-set-select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .preview-rhythm-set-save-btn {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            background: var(--primary-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 6px;
+            padding: 4px 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .preview-rhythm-set-save-btn:hover:not(:disabled) {
+            background: var(--accent-color);
+            color: var(--primary-color);
+        }
+
+        .preview-rhythm-set-save-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .preview-meta-label {
             font-size: 0.7rem;
             font-weight: 800;
@@ -817,6 +875,33 @@
             .preview-meta-row {
                 min-width: fit-content;
                 gap: 6px;
+            }
+
+            .preview-meta-row.preview-rhythm-set-row {
+                min-width: 0;
+                flex-wrap: wrap;
+                align-items: flex-start;
+            }
+
+            .preview-rhythm-set-row .preview-meta-label {
+                min-width: 0;
+                flex: 0 0 100%;
+            }
+
+            .preview-rhythm-set-row .preview-rhythm-set-editor {
+                width: 100%;
+                min-width: 0;
+                gap: 6px;
+            }
+
+            .preview-rhythm-set-row .preview-rhythm-set-select {
+                flex: 1 1 100%;
+                min-width: 0;
+            }
+
+            .preview-rhythm-set-row .preview-rhythm-set-save-btn {
+                width: 100%;
+                justify-content: center;
             }
             
             .preview-meta-label {

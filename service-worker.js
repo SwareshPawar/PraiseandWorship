@@ -1,7 +1,7 @@
 // Enhanced Progressive Web App Service Worker for Praise & Worship Songs
-const CACHE_NAME = 'pw-ocean-v2.6-SMART-FALLBACK';
-const STATIC_CACHE = 'pw-static-v2.6-SMART-FALLBACK';
-const API_CACHE = 'pw-api-v2.6-SMART-FALLBACK';
+const CACHE_NAME = 'pw-ocean-v2.7-SMART-FALLBACK';
+const STATIC_CACHE = 'pw-static-v2.7-SMART-FALLBACK';
+const API_CACHE = 'pw-api-v2.7-SMART-FALLBACK';
 
 // Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [
@@ -125,6 +125,12 @@ self.addEventListener('fetch', (event) => {
   // Prefer fresh HTML so startup scripts do not run from stale cache.
   if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(networkFirstStrategy(request));
+    return;
+  }
+
+  // Force fresh UI assets on mobile/desktop to avoid stale JS layouts after deploy.
+  if (request.destination === 'script' || request.destination === 'style' || request.destination === 'font' || request.destination === 'image') {
+    event.respondWith(networkFirstStaticStrategy(request));
     return;
   }
   
@@ -317,6 +323,28 @@ async function networkFirstStrategy(request) {
       status: 503,
       headers: { 'Content-Type': 'application/json' }
     });
+  }
+}
+
+// Network First Strategy - for UI static assets (scripts/styles/fonts/images)
+async function networkFirstStaticStrategy(request) {
+  try {
+    const networkResponse = await fetch(request);
+
+    if (networkResponse.ok) {
+      const cache = await caches.open(STATIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+
+    return networkResponse;
+  } catch (error) {
+    const cache = await caches.open(STATIC_CACHE);
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    return new Response('Resource unavailable offline', { status: 503 });
   }
 }
 

@@ -1,7 +1,7 @@
 // Register service worker for PWA installability (skip on localhost)
 if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js')
+        navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
             .then(reg => console.log('Service Worker registered:', reg))
             .catch(err => console.warn('Service Worker registration failed:', err));
     });
@@ -1347,7 +1347,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         loginForm._submitListener = async e => {
             e.preventDefault();
-            const loginInput = document.getElementById('loginUsername').value.trim();
+            const rawLoginInput = document.getElementById('loginUsername').value;
+            const loginInput = String(rawLoginInput || '')
+                .trim()
+                .replace(/\s+/g, '')
+                .replace(/[\u200B-\u200D\uFEFF]/g, '');
+            const normalizedLoginInput = loginInput.includes('@') ? loginInput.toLowerCase() : loginInput;
             const password = document.getElementById('loginPassword').value;
             const errorDiv = document.getElementById('loginError');
             errorDiv.style.display = 'none';
@@ -1356,7 +1361,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const res = await authFetch(`${API_BASE_URL}/api/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usernameOrEmail: loginInput, password })
+                    body: JSON.stringify({ usernameOrEmail: normalizedLoginInput, password })
                 });
                 const data = await res.json().catch(() => ({}));
                 if (res.ok && data.token) {
@@ -9764,18 +9769,19 @@ window.viewSingleLyrics = function(songId, otherId) {
                     <span class="preview-meta-label">Rhythm Category</span>
                     <span class="preview-meta-value">${song.rhythmCategory}</span>
                 </div>` : ''}
-                ${isAdmin() ? `
-                <div class="preview-meta-row preview-rhythm-set-row">
-                    <span class="preview-meta-label">Rhythm Set</span>
-                    <div class="preview-rhythm-set-editor">
-                        <select class="preview-rhythm-set-select" id="previewRhythmSetSelect">
-                            <option value="">-- Loading... --</option>
-                        </select>
-                        <button class="preview-rhythm-set-save-btn" id="previewRhythmSetSaveBtn" title="Save Rhythm Set">
-                            <i class="fas fa-save"></i> Save
-                        </button>
-                    </div>
-                </div>` : ''}
+            </div>` : ''}
+
+            ${isAdmin() ? `
+            <div class="preview-meta-row preview-rhythm-set-row">
+                <span class="preview-meta-label">Rhythm Set</span>
+                <div class="preview-rhythm-set-editor">
+                    <select class="preview-rhythm-set-select" id="previewRhythmSetSelect">
+                        <option value="">-- Loading... --</option>
+                    </select>
+                    <button class="preview-rhythm-set-save-btn" id="previewRhythmSetSaveBtn" title="Save Rhythm Set">
+                        <i class="fas fa-save"></i> Save
+                    </button>
+                </div>
             </div>` : ''}
         </div>
 
@@ -9961,11 +9967,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     }
                 }
 
-                if (toggleMetaBtn) {
-                    toggleMetaBtn.addEventListener('click', populateRhythmSetDropdown, { once: true });
-                } else {
-                    populateRhythmSetDropdown();
-                }
+                populateRhythmSetDropdown();
 
                 if (rhythmSetSaveBtn) {
                     rhythmSetSaveBtn.addEventListener('click', async () => {

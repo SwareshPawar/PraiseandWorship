@@ -47,6 +47,20 @@
                 // GitHub Pages deployment
                 basePath = '/PraiseandWorship/';
                 scope = '/PraiseandWorship/';
+
+                // Keep one production frontend to avoid stale GH Pages vs Vercel drift.
+                // Add ?stay=1 to bypass redirect for debugging.
+                const shouldStay = new URLSearchParams(window.location.search).get('stay') === '1';
+                if (!shouldStay) {
+                    const canonicalHost = 'https://praiseand-worship.vercel.app';
+                    const normalizedPath = currentPath.startsWith('/PraiseandWorship')
+                        ? currentPath.replace('/PraiseandWorship', '') || '/'
+                        : currentPath;
+                    const targetUrl = `${canonicalHost}${normalizedPath}${window.location.search}${window.location.hash}`;
+                    console.log('↪ Redirecting GitHub Pages traffic to canonical Vercel URL:', targetUrl);
+                    window.location.replace(targetUrl);
+                    return;
+                }
             } else if (currentHost.includes('vercel.app')) {
                 // Vercel deployment
                 basePath = '/';
@@ -1504,9 +1518,9 @@ async function saveRecommendationWeightsToBackend(weights) {
         </div>
     </div>
 
-    <script src="main1.js?v=20260312e"></script>
+    <script src="main1.js?v=20260329-3"></script>
     <script src="loop-player-pad.js?v=20260312e"></script>
-    <script src="loop-player-pad-ui.js?v=20260329-3"></script>
+    <script src="loop-player-pad-ui.js?v=20260329-4"></script>
     <!-- Suggested Songs Drawer -->
 <div class="suggested-songs-drawer" id="suggestedSongsDrawer">
     <div class="suggested-songs-header">

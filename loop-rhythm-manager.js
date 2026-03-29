@@ -73,6 +73,52 @@ function togglePanelCollapse(contentId, buttonId, sectionName) {
 // Ensure inline onclick handlers can always find these functions.
 window.togglePanelCollapse = togglePanelCollapse;
 window.syncAllExternalLoops = syncAllExternalLoops;
+window.syncNotesOnly = syncNotesOnly;
+
+function buildNotesSummary(result) {
+    if (!result) return '';
+    if (!result.notesAvailable) return ' Notes not available from source.';
+    if (result.updatedCount > 0) return ` Notes synced: ${result.updatedCount} updated.`;
+    if (result.matchedRhythmSetCount > 0) {
+        const withNotes = result.matchedRhythmSetCount - (result.blankCount || 0);
+        return ` Notes already up to date (${withNotes} sets have notes).`;
+    }
+    return ' No matching rhythm sets found for notes.';
+}
+
+async function syncNotesOnly() {
+    if (!ensureWriteAccess()) return;
+
+    const sourceId = activeExternalSourceId || document.getElementById('externalLoopSourceSelect')?.value || 'oldandnew';
+    const btn = document.getElementById('syncNotesBtn');
+    const originalLabel = btn ? btn.innerHTML : '';
+
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing notes...';
+    }
+
+    try {
+        setExternalLibraryStatus('Fetching notes from OldandNew...');
+        const response = await authFetch(`${API_BASE_URL}/api/external-loop-sources/${sourceId}/sync-notes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await response.json();
+        const summary = buildNotesSummary(result);
+        await loadRhythmSets();
+        showAlert(`Notes sync complete.${summary}`, result.updatedCount > 0 ? 'success' : 'success');
+        setExternalLibraryStatus(`Notes sync done.${summary}`);
+    } catch (error) {
+        if (error.message === 'AUTH_REQUIRED') { handleAuthRequired(); return; }
+        showAlert(`Notes sync failed: ${error.message}`, 'error');
+    } finally {
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalLabel;
+        }
+    }
+}
 
 async function authFetch(url, options = {}) {
     const response = await window.AppAuth.authFetch(url, {
@@ -471,9 +517,7 @@ async function syncAllExternalLoops() {
         await loadRhythmSets();
         await loadExternalLoopLibrary(sourceId);
 
-        const notesSummary = notesSyncResult
-            ? ` Notes synced: ${notesSyncResult.updatedCount || 0} updated${notesSyncResult.changedCount && notesSyncResult.updatedCount !== notesSyncResult.changedCount ? ` of ${notesSyncResult.changedCount} changed` : ''}.`
-            : '';
+        const notesSummary = buildNotesSummary(notesSyncResult);
 
         if (!failedGroups.length && !notesSyncError) {
             showAlert(`Sync complete. Imported ${successCount} rhythm-set group(s) from OldandNew.${notesSummary}`, 'success');

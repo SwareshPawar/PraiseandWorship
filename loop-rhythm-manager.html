@@ -761,6 +761,9 @@
                 <button id="syncExternalLoopsBtn" class="btn btn-success" onclick="syncAllExternalLoops()">
                     <i class="fas fa-cloud-download-alt"></i> Sync All from OldandNew
                 </button>
+                <button id="syncNotesBtn" class="btn btn-secondary" onclick="syncNotesOnly()">
+                    <i class="fas fa-sticky-note"></i> Sync Notes
+                </button>
             </div>
 
             <div id="externalLoopLibraryStatus" class="library-status">Loading external loop sources...</div>
@@ -871,6 +874,6 @@
     <!-- Load Loop Player Engine (not the UI - we create custom UI) -->
     <script src="loop-player-pad.js"></script>
     <!-- Then load the manager script -->
-    <script src="loop-rhythm-manager.js?v=20260329-1"></script>
+    <script src="loop-rhythm-manager.js?v=20260329-2"></script>
 </body>
 </html>

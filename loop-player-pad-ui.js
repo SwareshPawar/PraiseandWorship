@@ -564,43 +564,43 @@ function getLoopPlayerHTML(songId) {
                 </button>
             </div>
         </div>
+    </div>
 
-        <div class="loop-startup-config" id="loopStartupConfig-${songId}">
-            <button class="loop-startup-toggle" id="loopStartupToggle-${songId}" type="button" aria-expanded="false">
-                <span><i class="fas fa-rocket"></i> Startup for this Song</span>
-                <i class="fas fa-chevron-down" id="loopStartupToggleIcon-${songId}"></i>
-            </button>
-            <div class="loop-startup-body collapsed" id="loopStartupBody-${songId}">
-                <div class="loop-startup-grid">
-                    <div>
-                        <label for="loopStartupLoop-${songId}">Start Loop</label>
-                        <select id="loopStartupLoop-${songId}" class="loop-startup-select">
-                            <option value="loop1">LOOP1</option>
-                            <option value="loop2">LOOP2</option>
-                            <option value="loop3">LOOP3</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="loopStartupFill-${songId}">Start Fill</label>
-                        <select id="loopStartupFill-${songId}" class="loop-startup-select">
-                            <option value="">None</option>
-                            <option value="fill1">FILL1</option>
-                            <option value="fill2">FILL2</option>
-                            <option value="fill3">FILL3</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="loopStartupTempo-${songId}">Startup Tempo (%)</label>
-                        <input id="loopStartupTempo-${songId}" class="loop-startup-input" type="number" min="50" max="200" value="100">
-                    </div>
+    <div class="loop-startup-config" id="loopStartupConfig-${songId}">
+        <button class="loop-startup-toggle" id="loopStartupToggle-${songId}" type="button" aria-expanded="true">
+            <span><i class="fas fa-rocket"></i> Startup for this Song</span>
+            <i class="fas fa-chevron-up" id="loopStartupToggleIcon-${songId}"></i>
+        </button>
+        <div class="loop-startup-body" id="loopStartupBody-${songId}">
+            <div class="loop-startup-grid">
+                <div>
+                    <label for="loopStartupLoop-${songId}">Start Loop</label>
+                    <select id="loopStartupLoop-${songId}" class="loop-startup-select">
+                        <option value="loop1">LOOP1</option>
+                        <option value="loop2">LOOP2</option>
+                        <option value="loop3">LOOP3</option>
+                    </select>
                 </div>
-                <div class="loop-startup-actions">
-                    <button class="loop-control-btn" id="loopStartupSaveBtn-${songId}">
-                        <i class="fas fa-save"></i>
-                        <span>Save Startup</span>
-                    </button>
-                    <span class="loop-startup-msg" id="loopStartupMsg-${songId}"></span>
+                <div>
+                    <label for="loopStartupFill-${songId}">Start Fill</label>
+                    <select id="loopStartupFill-${songId}" class="loop-startup-select">
+                        <option value="">None</option>
+                        <option value="fill1">FILL1</option>
+                        <option value="fill2">FILL2</option>
+                        <option value="fill3">FILL3</option>
+                    </select>
                 </div>
+                <div>
+                    <label for="loopStartupTempo-${songId}">Startup Tempo (%)</label>
+                    <input id="loopStartupTempo-${songId}" class="loop-startup-input" type="number" min="50" max="200" value="100">
+                </div>
+            </div>
+            <div class="loop-startup-actions">
+                <button class="loop-control-btn" id="loopStartupSaveBtn-${songId}">
+                    <i class="fas fa-save"></i>
+                    <span>Save Startup</span>
+                </button>
+                <span class="loop-startup-msg" id="loopStartupMsg-${songId}"></span>
             </div>
         </div>
     </div>

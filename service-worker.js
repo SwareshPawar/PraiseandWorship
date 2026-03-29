@@ -1,7 +1,7 @@
 // Enhanced Progressive Web App Service Worker for Praise & Worship Songs
-const CACHE_NAME = 'pw-ocean-v2.5-SMART-FALLBACK';
-const STATIC_CACHE = 'pw-static-v2.5-SMART-FALLBACK';
-const API_CACHE = 'pw-api-v2.5-SMART-FALLBACK';
+const CACHE_NAME = 'pw-ocean-v2.6-SMART-FALLBACK';
+const STATIC_CACHE = 'pw-static-v2.6-SMART-FALLBACK';
+const API_CACHE = 'pw-api-v2.6-SMART-FALLBACK';
 
 // Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [

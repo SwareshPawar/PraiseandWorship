@@ -9,7 +9,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "sync:external-notes": "node scripts/core/sync-external-rhythm-notes.js",
+    "sync:external-notes:apply": "node scripts/core/sync-external-rhythm-notes.js --apply"
   },
   "repository": {
     "type": "git",

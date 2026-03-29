@@ -430,6 +430,8 @@ async function syncAllExternalLoops() {
 
     let successCount = 0;
     const failedGroups = [];
+    let notesSyncResult = null;
+    let notesSyncError = null;
 
     try {
         for (let index = 0; index < syncableGroups.length; index += 1) {
@@ -454,19 +456,38 @@ async function syncAllExternalLoops() {
             }
         }
 
+        setExternalLibraryStatus('Syncing notes for imported rhythm sets...');
+        try {
+            const notesResponse = await authFetch(`${API_BASE_URL}/api/external-loop-sources/${sourceId}/sync-notes`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            notesSyncResult = await notesResponse.json();
+        } catch (noteError) {
+            notesSyncError = noteError;
+        }
+
         localStorage.setItem('loopFilesReplacedAt', Date.now().toString());
         await loadRhythmSets();
         await loadExternalLoopLibrary(sourceId);
 
-        if (!failedGroups.length) {
-            showAlert(`Sync complete. Imported ${successCount} rhythm-set group(s) from OldandNew.`, 'success');
-            setExternalLibraryStatus(`Sync complete: ${successCount}/${syncableGroups.length} imported.`);
+        const notesSummary = notesSyncResult
+            ? ` Notes synced: ${notesSyncResult.updatedCount || 0} updated${notesSyncResult.changedCount && notesSyncResult.updatedCount !== notesSyncResult.changedCount ? ` of ${notesSyncResult.changedCount} changed` : ''}.`
+            : '';
+
+        if (!failedGroups.length && !notesSyncError) {
+            showAlert(`Sync complete. Imported ${successCount} rhythm-set group(s) from OldandNew.${notesSummary}`, 'success');
+            setExternalLibraryStatus(`Sync complete: ${successCount}/${syncableGroups.length} imported.${notesSummary}`);
             return;
         }
 
         const failureSummary = failedGroups.slice(0, 3).map(item => item.sourceRhythmSetId).join(', ');
-        showAlert(`Sync finished with partial failures. Imported ${successCount}/${syncableGroups.length}. Failed: ${failedGroups.length} (${failureSummary}${failedGroups.length > 3 ? ', ...' : ''})`, 'warning');
-        setExternalLibraryStatus(`Sync partial: ${successCount}/${syncableGroups.length} imported, ${failedGroups.length} failed.`);
+        const importFailureSummary = failedGroups.length
+            ? ` Failed: ${failedGroups.length} (${failureSummary}${failedGroups.length > 3 ? ', ...' : ''}).`
+            : '';
+        const notesErrorSummary = notesSyncError ? ` Notes sync failed: ${notesSyncError.message}.` : notesSummary;
+        showAlert(`Sync finished with partial failures. Imported ${successCount}/${syncableGroups.length}.${importFailureSummary}${notesErrorSummary}`, 'warning');
+        setExternalLibraryStatus(`Sync partial: ${successCount}/${syncableGroups.length} imported, ${failedGroups.length} failed.${notesErrorSummary}`);
     } catch (error) {
         if (error.message === 'AUTH_REQUIRED') {
             handleAuthRequired();

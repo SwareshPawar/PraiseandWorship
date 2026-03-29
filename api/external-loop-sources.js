@@ -6,6 +6,7 @@ const {
 	getExternalLoopSources,
 	listExternalLoopGroups
 } = require('../utils/external-loop-sources');
+const { syncExternalRhythmNotes } = require('../utils/external-rhythm-notes-sync');
 
 function getRouteTail(url, basePath) {
 	const pathOnly = String(url || '').split('?')[0];
@@ -74,20 +75,26 @@ function syncRhythmSetsFromMetadata(metadata) {
 }
 
 async function ensureRhythmSetDocument(db, parsedTarget, actor, importLabel, notesText = '') {
-	const normalizedNotes = String(notesText || '').trim() || importLabel;
+	const normalizedNotes = String(notesText || '').trim();
+	const setPayload = {
+		rhythmSetId: parsedTarget.rhythmSetId,
+		rhythmFamily: parsedTarget.rhythmFamily,
+		rhythmSetNo: parsedTarget.rhythmSetNo,
+		updatedAt: new Date().toISOString(),
+		updatedBy: actor,
+		status: 'active',
+		lastSource: importLabel
+	};
+
+	if (normalizedNotes) {
+		setPayload.notes = normalizedNotes;
+	}
+
 	const rhythmSetsCollection = db.collection('RhythmSets');
 	await rhythmSetsCollection.updateOne(
 		{ rhythmSetId: parsedTarget.rhythmSetId },
 		{
-			$set: {
-				rhythmSetId: parsedTarget.rhythmSetId,
-				rhythmFamily: parsedTarget.rhythmFamily,
-				rhythmSetNo: parsedTarget.rhythmSetNo,
-				updatedAt: new Date().toISOString(),
-				updatedBy: actor,
-				notes: normalizedNotes,
-				status: 'active'
-			},
+			$set: setPayload,
 			$setOnInsert: {
 				createdAt: new Date().toISOString(),
 				createdBy: actor
@@ -233,8 +240,7 @@ module.exports = async (req, res) => {
 				return res.status(404).json({ error: `External rhythm set ${sourceRhythmSetId} not found` });
 			}
 
-			const importNotes = String(sourceGroup.notesHint || '').trim()
-				|| `Synced from ${sourceId}:${sourceRhythmSetId}`;
+			const importNotes = String(sourceGroup.notesHint || '').trim();
 
 			const writable = readWritableLoopsMetadata();
 			const metadata = writable.metadata;
@@ -305,6 +311,21 @@ module.exports = async (req, res) => {
 					importedCount: importedFiles.length,
 					skippedCount: skippedFiles.length
 				}
+			});
+		}
+
+		if (req.method === 'POST' && sourceId && action === 'sync-notes') {
+			const { db } = await connectToDatabase();
+			const result = await syncExternalRhythmNotes({
+				db,
+				sourceId,
+				apply: true,
+				actor: auth.user.username || auth.user.email || 'admin'
+			});
+
+			return res.status(200).json({
+				success: true,
+				...result
 			});
 		}
 

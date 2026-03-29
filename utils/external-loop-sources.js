@@ -1,4 +1,5 @@
 const fs = require('fs');
+const jwt = require('jsonwebtoken');
 const path = require('path');
 const { parseRhythmSetId } = require('./loops');
 
@@ -8,12 +9,15 @@ function getExternalLoopSources() {
 	const baseUrl = String(process.env.OLDANDNEW_BASE_URL || 'https://oldand-new.vercel.app')
 		.trim()
 		.replace(/\/$/, '');
+	const rhythmSetsUrl = String(process.env.OLDANDNEW_RHYTHM_SETS_URL || `${baseUrl}/api/rhythm-sets`)
+		.trim();
 
 	return [{
 		id: 'oldandnew',
 		label: 'OldandNew',
 		baseUrl,
 		metadataUrl: `${baseUrl}/api/loops/metadata`,
+		rhythmSetsUrl,
 		loopsBaseUrl: `${baseUrl}/loops`,
 		available: Boolean(baseUrl)
 	}];
@@ -64,9 +68,113 @@ async function fetchExternalLoopMetadata(sourceId) {
 	};
 }
 
+function buildExternalRhythmSetsRequestHeaders() {
+	const headers = {
+		'Accept': 'application/json'
+	};
+
+	const bearerToken = String(
+		process.env.OLDANDNEW_AUTH_TOKEN
+		|| process.env.OLDANDNEW_BEARER_TOKEN
+		|| process.env.OLDANDNEW_JWT
+		|| buildExternalRhythmSetsServiceToken()
+		|| ''
+	).trim();
+
+	if (bearerToken) {
+		headers.Authorization = `Bearer ${bearerToken}`;
+	}
+
+	const customHeaderName = String(process.env.OLDANDNEW_AUTH_HEADER_NAME || '').trim();
+	const customHeaderValue = String(process.env.OLDANDNEW_AUTH_HEADER_VALUE || '').trim();
+	if (customHeaderName && customHeaderValue) {
+		headers[customHeaderName] = customHeaderValue;
+	}
+
+	return headers;
+}
+
+function buildExternalRhythmSetsServiceToken() {
+	const jwtSecret = String(process.env.OLDANDNEW_JWT_SECRET || '').trim();
+	if (!jwtSecret) {
+		return '';
+	}
+
+	let payload = {
+		id: String(process.env.OLDANDNEW_AUTH_USER_ID || 'external-notes-sync'),
+		username: String(process.env.OLDANDNEW_AUTH_USERNAME || 'external-notes-sync'),
+		email: String(process.env.OLDANDNEW_AUTH_EMAIL || 'external-notes-sync@local.invalid'),
+		isAdmin: String(process.env.OLDANDNEW_AUTH_IS_ADMIN || 'true').trim().toLowerCase() !== 'false'
+	};
+
+	const payloadOverride = String(process.env.OLDANDNEW_AUTH_PAYLOAD_JSON || '').trim();
+	if (payloadOverride) {
+		try {
+			const parsedPayload = JSON.parse(payloadOverride);
+			if (parsedPayload && typeof parsedPayload === 'object' && !Array.isArray(parsedPayload)) {
+				payload = { ...payload, ...parsedPayload };
+			}
+		} catch (_error) {
+			// Ignore invalid override and fall back to the default service payload.
+		}
+	}
+
+	try {
+		return jwt.sign(payload, jwtSecret, {
+			expiresIn: String(process.env.OLDANDNEW_AUTH_EXPIRES_IN || '15m').trim() || '15m'
+		});
+	} catch (_error) {
+		return '';
+	}
+}
+
+async function fetchExternalRhythmSetNotesMap(source) {
+	if (!source || !source.rhythmSetsUrl) {
+		return new Map();
+	}
+
+	const headers = buildExternalRhythmSetsRequestHeaders();
+	const response = await fetch(source.rhythmSetsUrl, { headers });
+	if (!response.ok) {
+		return new Map();
+	}
+
+	const payload = await response.json();
+	if (!Array.isArray(payload)) {
+		return new Map();
+	}
+
+	return new Map(
+		payload
+			.map(set => {
+				const setId = String(set && set.rhythmSetId || '').trim().toLowerCase();
+				const notes = String((set && (set.notes || set.description || set.note)) || '').trim();
+				return [setId, notes];
+			})
+			.filter(([setId, notes]) => Boolean(setId && notes))
+	);
+}
+
 async function listExternalLoopGroups(sourceId) {
 	const { source, metadata } = await fetchExternalLoopMetadata(sourceId);
 	const loops = Array.isArray(metadata && metadata.loops) ? metadata.loops : [];
+	const rhythmSets = Array.isArray(metadata && metadata.rhythmSets) ? metadata.rhythmSets : [];
+	const metadataRhythmSetNotesMap = new Map(
+		rhythmSets.map(set => {
+			const setId = String(set && set.rhythmSetId || '').trim().toLowerCase();
+			const notes = String((set && (set.notes || set.description || set.note)) || '').trim();
+			return [setId, notes];
+		}).filter(([setId, notes]) => Boolean(setId && notes))
+	);
+
+	let externalRhythmSetNotesMap = new Map();
+	try {
+		externalRhythmSetNotesMap = await fetchExternalRhythmSetNotesMap(source);
+	} catch (_error) {
+		externalRhythmSetNotesMap = new Map();
+	}
+
+	const rhythmSetNotesMap = new Map([...metadataRhythmSetNotesMap, ...externalRhythmSetNotesMap]);
 	const groups = new Map();
 	let totalFiles = 0;
 
@@ -91,9 +199,12 @@ async function listExternalLoopGroups(sourceId) {
 			const loopNotesHint = String(
 				(loop && loop.notes)
 				|| (loop && loop.description)
+				|| (loop && loop.rhythmSetNotes)
+				|| (loop && loop.setNotes)
 				|| (loop && loop.metadata && loop.metadata.notes)
 				|| ''
 			).trim();
+			const mappedRhythmSetNotes = rhythmSetNotesMap.get(groupId) || '';
 
 			groups.set(groupId, {
 				sourceId: source.id,
@@ -108,7 +219,7 @@ async function listExternalLoopGroups(sourceId) {
 				importableAsRhythmSet: Boolean(parsed),
 				files: {},
 				availableFiles: [],
-				notesHint: loopNotesHint,
+				notesHint: mappedRhythmSetNotes || loopNotesHint,
 				conditionsHint: {
 					taal: String(loop && loop.conditions && loop.conditions.taal || ''),
 					timeSignature: String(loop && loop.conditions && loop.conditions.timeSignature || ''),
@@ -128,6 +239,8 @@ async function listExternalLoopGroups(sourceId) {
 			const loopNotesHint = String(
 				(loop && loop.notes)
 				|| (loop && loop.description)
+				|| (loop && loop.rhythmSetNotes)
+				|| (loop && loop.setNotes)
 				|| (loop && loop.metadata && loop.metadata.notes)
 				|| ''
 			).trim();

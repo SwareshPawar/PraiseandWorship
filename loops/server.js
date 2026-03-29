@@ -122,6 +122,7 @@ const {
   getExternalLoopSources,
   listExternalLoopGroups
 } = require('./utils/external-loop-sources');
+const { syncExternalRhythmNotes } = require('./utils/external-rhythm-notes-sync');
 
 const CANONICAL_CHROMATIC = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'G#', 'A', 'Bb', 'B'];
 const NOTE_TO_INDEX = {
@@ -2341,8 +2342,7 @@ app.post('/api/external-loop-sources/:sourceId/import-rhythm-set', authMiddlewar
       return res.status(404).json({ error: `External rhythm set ${sourceRhythmSetId} not found` });
     }
 
-    const importNotes = String(sourceGroup.notesHint || '').trim()
-      || `Synced from ${req.params.sourceId}:${sourceRhythmSetId}`;
+    const importNotes = String(sourceGroup.notesHint || '').trim();
 
     const writable = readWritableLoopsMetadata();
     const metadata = writable.metadata;
@@ -2401,7 +2401,7 @@ app.post('/api/external-loop-sources/:sourceId/import-rhythm-set', authMiddlewar
     writeLoopsMetadata(metadata, writable.metadataPath);
 
     await ensureRhythmSetDocument(parsedTarget, req.user.username || req.user.email || 'admin', 'external-rhythm-set-import');
-    if (db) {
+    if (db && importNotes) {
       const rhythmSetsCollection = db.collection('RhythmSets');
       await rhythmSetsCollection.updateOne(
         { rhythmSetId: parsedTarget.rhythmSetId },
@@ -2430,6 +2430,25 @@ app.post('/api/external-loop-sources/:sourceId/import-rhythm-set', authMiddlewar
     });
   } catch (err) {
     console.error('External rhythm set import error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/external-loop-sources/:sourceId/sync-notes', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const result = await syncExternalRhythmNotes({
+      db,
+      sourceId: req.params.sourceId,
+      apply: true,
+      actor: req.user.username || req.user.email || 'admin'
+    });
+
+    res.json({
+      success: true,
+      ...result
+    });
+  } catch (err) {
+    console.error('External rhythm note sync error:', err);
     res.status(500).json({ error: err.message });
   }
 });

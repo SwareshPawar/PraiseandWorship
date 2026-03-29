@@ -88,6 +88,13 @@ async function listExternalLoopGroups(sourceId) {
 		const groupId = parsed ? parsed.rhythmSetId : rawGroupId;
 
 		if (!groups.has(groupId)) {
+			const loopNotesHint = String(
+				(loop && loop.notes)
+				|| (loop && loop.description)
+				|| (loop && loop.metadata && loop.metadata.notes)
+				|| ''
+			).trim();
+
 			groups.set(groupId, {
 				sourceId: source.id,
 				sourceLabel: source.label,
@@ -101,6 +108,7 @@ async function listExternalLoopGroups(sourceId) {
 				importableAsRhythmSet: Boolean(parsed),
 				files: {},
 				availableFiles: [],
+				notesHint: loopNotesHint,
 				conditionsHint: {
 					taal: String(loop && loop.conditions && loop.conditions.taal || ''),
 					timeSignature: String(loop && loop.conditions && loop.conditions.timeSignature || ''),
@@ -114,6 +122,18 @@ async function listExternalLoopGroups(sourceId) {
 		group.files[slotKey] = filename;
 		if (!group.availableFiles.includes(slotKey)) {
 			group.availableFiles.push(slotKey);
+		}
+
+		if (!group.notesHint) {
+			const loopNotesHint = String(
+				(loop && loop.notes)
+				|| (loop && loop.description)
+				|| (loop && loop.metadata && loop.metadata.notes)
+				|| ''
+			).trim();
+			if (loopNotesHint) {
+				group.notesHint = loopNotesHint;
+			}
 		}
 	});
 

@@ -9932,16 +9932,19 @@ window.viewSingleLyrics = function(songId, otherId) {
                             const opt = document.createElement('option');
                             opt.value = rs.rhythmSetId;
 
+                            const rawNotes = [rs.notes, rs.description, rs.note]
+                                .map(value => String(value || '').trim())
+                                .find(Boolean) || '';
+
                             let displayText = rs.rhythmSetId;
-                            if (rs.notes && rs.notes.trim()) {
-                                const notes = rs.notes.trim();
-                                displayText += ` -> ${notes.length > 50 ? notes.substring(0, 50) + '...' : notes}`;
+                            if (rawNotes) {
+                                displayText += ` -> ${rawNotes.length > 50 ? rawNotes.substring(0, 50) + '...' : rawNotes}`;
                             } else if (rs.rhythmFamily) {
                                 displayText += ` (${rs.rhythmFamily})`;
                             }
 
                             opt.textContent = displayText;
-                            opt.title = rs.notes ? `${rs.rhythmSetId}\n\nNotes: ${rs.notes}` : rs.rhythmSetId;
+                            opt.title = rawNotes ? `${rs.rhythmSetId}\n\nNotes: ${rawNotes}` : rs.rhythmSetId;
                             if (rs.rhythmSetId === song.rhythmSetId) opt.selected = true;
                             rhythmSetSelect.appendChild(opt);
                         });

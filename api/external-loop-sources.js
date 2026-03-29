@@ -38,14 +38,26 @@ function shouldSyncExternalSlot(metadata, rhythmSetId, slotKey, sourceFilename) 
 	}
 
 	const existing = (metadata.loops || [])[loopIndex] || {};
-	const existingSourceFilename = String(existing.originalFilename || '').trim();
 	const incomingSourceFilename = String(sourceFilename || '').trim();
+	const incomingSourceBase = incomingSourceFilename.split('/').pop().toLowerCase();
+	const existingSourceFilename = String(existing.originalFilename || '').trim();
+	const existingSourceBase = existingSourceFilename.split('/').pop().toLowerCase();
+	const existingLocalFilename = String(existing.filename || '').trim();
+	const existingLocalBase = existingLocalFilename.split('/').pop().toLowerCase();
 
-	if (!existingSourceFilename) {
-		return { shouldImport: true, reason: 'missing-source-tracking' };
+	if (existingLocalFilename) {
+		return { shouldImport: false, reason: 'slot-already-has-loop' };
 	}
 
-	if (existingSourceFilename !== incomingSourceFilename) {
+	if (incomingSourceBase && (incomingSourceBase === existingSourceBase || incomingSourceBase === existingLocalBase)) {
+		return { shouldImport: false, reason: 'same-filename' };
+	}
+
+	if (!existingSourceFilename && existingLocalFilename) {
+		return { shouldImport: false, reason: 'existing-local-file-no-source-tracking' };
+	}
+
+	if (existingSourceFilename && incomingSourceFilename && existingSourceFilename !== incomingSourceFilename) {
 		return { shouldImport: true, reason: 'source-filename-changed' };
 	}
 
@@ -61,7 +73,8 @@ function syncRhythmSetsFromMetadata(metadata) {
 	}));
 }
 
-async function ensureRhythmSetDocument(db, parsedTarget, actor, importLabel) {
+async function ensureRhythmSetDocument(db, parsedTarget, actor, importLabel, notesText = '') {
+	const normalizedNotes = String(notesText || '').trim() || importLabel;
 	const rhythmSetsCollection = db.collection('RhythmSets');
 	await rhythmSetsCollection.updateOne(
 		{ rhythmSetId: parsedTarget.rhythmSetId },
@@ -72,7 +85,7 @@ async function ensureRhythmSetDocument(db, parsedTarget, actor, importLabel) {
 				rhythmSetNo: parsedTarget.rhythmSetNo,
 				updatedAt: new Date().toISOString(),
 				updatedBy: actor,
-				notes: importLabel,
+				notes: normalizedNotes,
 				status: 'active'
 			},
 			$setOnInsert: {
@@ -140,13 +153,31 @@ module.exports = async (req, res) => {
 			}
 
 			const writable = readWritableLoopsMetadata();
+			const metadata = writable.metadata;
+			const existingLoopIndex = findLoopIndexBySlot(metadata, targetSet.rhythmSetId, slotInfo.key);
+			const existingLoop = existingLoopIndex >= 0 ? (metadata.loops[existingLoopIndex] || {}) : null;
+			const existingSourceFilename = String(existingLoop && existingLoop.originalFilename || '').trim();
+			const existingLocalFilename = String(existingLoop && existingLoop.filename || '').trim();
+
+			if (existingLocalFilename || (existingSourceFilename && existingSourceFilename === sourceFilename)) {
+				return res.status(200).json({
+					success: true,
+					skipped: true,
+					reason: 'slot-already-has-loop',
+					targetRhythmSetId: targetSet.rhythmSetId,
+					targetLoopType: slotInfo.key,
+					existingFilename: existingLocalFilename,
+					existingSourceFilename
+				});
+			}
+
 			const copied = await copyExternalLoopFile({
 				sourceId,
 				sourceFilename,
 				destinationDir: writable.loopsDir,
 				targetBaseName: `${targetSet.rhythmSetId}_${slotInfo.key}_${sourceId}`
 			});
-			const metadata = writable.metadata;
+
 			const loopEntry = {
 				id: `${targetSet.rhythmSetId}_${slotInfo.key}`,
 				type: slotInfo.type,
@@ -201,6 +232,9 @@ module.exports = async (req, res) => {
 			if (!sourceGroup) {
 				return res.status(404).json({ error: `External rhythm set ${sourceRhythmSetId} not found` });
 			}
+
+			const importNotes = String(sourceGroup.notesHint || '').trim()
+				|| `Synced from ${sourceId}:${sourceRhythmSetId}`;
 
 			const writable = readWritableLoopsMetadata();
 			const metadata = writable.metadata;
@@ -259,7 +293,7 @@ module.exports = async (req, res) => {
 			writeLoopsMetadata(metadata, writable.metadataPath);
 
 			const { db } = await connectToDatabase();
-			await ensureRhythmSetDocument(db, parsedTarget, auth.user.username || auth.user.email || 'admin', 'external-rhythm-set-import');
+			await ensureRhythmSetDocument(db, parsedTarget, auth.user.username || auth.user.email || 'admin', 'external-rhythm-set-import', importNotes);
 
 			return res.status(importedFiles.length > 0 ? 201 : 200).json({
 				success: true,

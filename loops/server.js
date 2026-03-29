@@ -502,13 +502,18 @@ function shouldSyncExternalSlot(metadata, rhythmSetId, slotKey, sourceFilename) 
   const loops = Array.isArray(metadata && metadata.loops) ? metadata.loops : [];
   const existing = loops[loopIndex] || {};
   const existingSourceFilename = String(existing.originalFilename || '').trim();
+  const existingLocalFilename = String(existing.filename || '').trim();
   const incomingSourceFilename = String(sourceFilename || '').trim();
 
-  if (!existingSourceFilename) {
-    return { shouldImport: true, reason: 'missing-source-tracking' };
+  if (existingLocalFilename) {
+    return { shouldImport: false, reason: 'slot-already-has-loop' };
   }
 
-  if (existingSourceFilename !== incomingSourceFilename) {
+  if (!existingSourceFilename && existingLocalFilename) {
+    return { shouldImport: false, reason: 'existing-local-file-no-source-tracking' };
+  }
+
+  if (existingSourceFilename && incomingSourceFilename && existingSourceFilename !== incomingSourceFilename) {
     return { shouldImport: true, reason: 'source-filename-changed' };
   }
 
@@ -2252,6 +2257,24 @@ app.post('/api/external-loop-sources/:sourceId/import-loop', authMiddleware, req
     }
 
     const writable = readWritableLoopsMetadata();
+    const metadata = writable.metadata;
+    const targetIndex = findLoopIndexBySlot(metadata, targetSet.rhythmSetId, slotInfo.key);
+    const existingLoop = targetIndex >= 0 ? (metadata.loops[targetIndex] || {}) : null;
+    const existingSourceFilename = String(existingLoop && existingLoop.originalFilename || '').trim();
+    const existingLocalFilename = String(existingLoop && existingLoop.filename || '').trim();
+
+    if (existingLocalFilename || (existingSourceFilename && existingSourceFilename === sourceFilename)) {
+      return res.status(200).json({
+        success: true,
+        skipped: true,
+        reason: 'slot-already-has-loop',
+        targetRhythmSetId: targetSet.rhythmSetId,
+        targetLoopType: slotInfo.key,
+        existingFilename: existingLocalFilename,
+        existingSourceFilename
+      });
+    }
+
     const copied = await copyExternalLoopFile({
       sourceId: req.params.sourceId,
       sourceFilename,
@@ -2259,8 +2282,6 @@ app.post('/api/external-loop-sources/:sourceId/import-loop', authMiddleware, req
       targetBaseName: `${targetSet.rhythmSetId}_${slotInfo.key}_${req.params.sourceId}`
     });
 
-    const metadata = writable.metadata;
-    const targetIndex = findLoopIndexBySlot(metadata, targetSet.rhythmSetId, slotInfo.key);
     const loopEntry = {
       id: `${targetSet.rhythmSetId}_${slotInfo.key}`,
       type: slotInfo.type,
@@ -2320,6 +2341,9 @@ app.post('/api/external-loop-sources/:sourceId/import-rhythm-set', authMiddlewar
       return res.status(404).json({ error: `External rhythm set ${sourceRhythmSetId} not found` });
     }
 
+    const importNotes = String(sourceGroup.notesHint || '').trim()
+      || `Synced from ${req.params.sourceId}:${sourceRhythmSetId}`;
+
     const writable = readWritableLoopsMetadata();
     const metadata = writable.metadata;
     const importedFiles = [];
@@ -2377,6 +2401,21 @@ app.post('/api/external-loop-sources/:sourceId/import-rhythm-set', authMiddlewar
     writeLoopsMetadata(metadata, writable.metadataPath);
 
     await ensureRhythmSetDocument(parsedTarget, req.user.username || req.user.email || 'admin', 'external-rhythm-set-import');
+    if (db) {
+      const rhythmSetsCollection = db.collection('RhythmSets');
+      await rhythmSetsCollection.updateOne(
+        { rhythmSetId: parsedTarget.rhythmSetId },
+        {
+          $set: {
+            notes: importNotes,
+            updatedAt: new Date().toISOString(),
+            updatedBy: req.user.username || req.user.email || 'admin',
+            lastSource: 'external-rhythm-set-import'
+          }
+        },
+        { upsert: true }
+      );
+    }
 
     res.status(importedFiles.length > 0 ? 201 : 200).json({
       success: true,

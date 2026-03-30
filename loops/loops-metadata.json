@@ -1146,11 +1146,11 @@
       "filename": "swaresh_4_4_slow_acoustic_FILL3.wav",
       "type": "fill",
       "number": 3,
-      "rhythmFamily": "swaresh",
+      "rhythmFamily": "sambhal",
       "rhythmSetNo": 1,
-      "rhythmSetId": "swaresh_1",
+      "rhythmSetId": "sambhal_1",
       "conditions": {
-        "taal": "swaresh",
+        "taal": "sambhal",
         "timeSignature": "4/4",
         "tempo": "slow",
         "genre": "acoustic"
@@ -1167,11 +1167,11 @@
       "filename": "swaresh_4_4_slow_acoustic_FILL2.wav",
       "type": "fill",
       "number": 2,
-      "rhythmFamily": "swaresh",
+      "rhythmFamily": "sambhal",
       "rhythmSetNo": 1,
-      "rhythmSetId": "swaresh_1",
+      "rhythmSetId": "sambhal_1",
       "conditions": {
-        "taal": "swaresh",
+        "taal": "sambhal",
         "timeSignature": "4/4",
         "tempo": "slow",
         "genre": "acoustic"
@@ -1188,11 +1188,11 @@
       "filename": "swaresh_4_4_slow_acoustic_FILL1.wav",
       "type": "fill",
       "number": 1,
-      "rhythmFamily": "swaresh",
+      "rhythmFamily": "sambhal",
       "rhythmSetNo": 1,
-      "rhythmSetId": "swaresh_1",
+      "rhythmSetId": "sambhal_1",
       "conditions": {
-        "taal": "swaresh",
+        "taal": "sambhal",
         "timeSignature": "4/4",
         "tempo": "slow",
         "genre": "acoustic"
@@ -1209,11 +1209,11 @@
       "filename": "swaresh_4_4_slow_acoustic_LOOP3.wav",
       "type": "loop",
       "number": 3,
-      "rhythmFamily": "swaresh",
+      "rhythmFamily": "sambhal",
       "rhythmSetNo": 1,
-      "rhythmSetId": "swaresh_1",
+      "rhythmSetId": "sambhal_1",
       "conditions": {
-        "taal": "swaresh",
+        "taal": "sambhal",
         "timeSignature": "4/4",
         "tempo": "slow",
         "genre": "acoustic"
@@ -1230,11 +1230,11 @@
       "filename": "swaresh_4_4_slow_acoustic_LOOP2.wav",
       "type": "loop",
       "number": 2,
-      "rhythmFamily": "swaresh",
+      "rhythmFamily": "sambhal",
       "rhythmSetNo": 1,
-      "rhythmSetId": "swaresh_1",
+      "rhythmSetId": "sambhal_1",
       "conditions": {
-        "taal": "swaresh",
+        "taal": "sambhal",
         "timeSignature": "4/4",
         "tempo": "slow",
         "genre": "acoustic"
@@ -1251,11 +1251,11 @@
       "filename": "swaresh_4_4_slow_acoustic_LOOP1.wav",
       "type": "loop",
       "number": 1,
-      "rhythmFamily": "swaresh",
+      "rhythmFamily": "sambhal",
       "rhythmSetNo": 1,
-      "rhythmSetId": "swaresh_1",
+      "rhythmSetId": "sambhal_1",
       "conditions": {
-        "taal": "swaresh",
+        "taal": "sambhal",
         "timeSignature": "4/4",
         "tempo": "slow",
         "genre": "acoustic"
@@ -6443,8 +6443,8 @@
       "fileCount": 6
     },
     {
-      "rhythmSetId": "swaresh_1",
-      "rhythmFamily": "swaresh",
+      "rhythmSetId": "sambhal_1",
+      "rhythmFamily": "sambhal",
       "rhythmSetNo": 1,
       "fileCount": 6
     },

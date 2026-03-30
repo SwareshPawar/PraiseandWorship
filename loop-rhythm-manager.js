@@ -881,14 +881,19 @@ function updateRhythmSetPreview() {
     const family = document.getElementById('rhythmFamily').value.trim();
     const setNo = document.getElementById('rhythmSetNo').value;
     const previewDiv = document.getElementById('rhythmSetPreview');
-    const previewId = document.getElementById('previewRhythmSetId');
+    const previewId = document.getElementById('previewRhythmSetId') || document.getElementById('previewrhythmsetid');
+
+    if (!previewDiv || !previewId) {
+        return;
+    }
 
     if (family && setNo) {
         const rhythmSetId = buildRhythmSetId(family, setNo);
         previewId.textContent = rhythmSetId;
         previewDiv.style.display = 'block';
     } else {
-        previewDiv.style.display = 'none';
+        previewId.textContent = '-';
+        previewDiv.style.display = 'block';
     }
 }
 

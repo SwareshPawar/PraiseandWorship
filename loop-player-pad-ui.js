@@ -34,6 +34,8 @@ function getSongIdentifier(song) {
     return id === undefined || id === null ? '' : String(id);
 }
 
+const LOOP_PLAYER_STYLE_ELEMENT_ID = 'loop-player-pad-ui-styles';
+
 const DEFAULT_SONG_STARTUP = {
     startLoop: 'loop1',
     startFill: '',
@@ -451,6 +453,7 @@ async function shouldShowLoopPlayer(song) {
  * Generate HTML for loop player with pads
  */
 function getLoopPlayerHTML(songId) {
+    ensureLoopPlayerStylesInjected();
     return `
 <div class="loop-player-container" id="loopPlayerContainer-${songId}" style="display: none;">
     <div class="loop-player-header">
@@ -605,9 +608,45 @@ function getLoopPlayerHTML(songId) {
         </div>
     </div>
 </div>
-
-${loopPlayerStyles}
 `;
+}
+
+function setPadEnabledState(pad, isEnabled, enabledTitle, disabledTitle) {
+    pad.disabled = !isEnabled;
+    pad.classList.toggle('loop-pad-disabled', !isEnabled);
+    pad.title = isEnabled ? (enabledTitle || '') : (disabledTitle || 'Not available');
+}
+
+function applyPadAvailabilityState(container, loopSet, effectiveKey, melodicAvailability, rawAudioData) {
+    if (!container) return;
+
+    const pads = container.querySelectorAll('.loop-pad');
+    pads.forEach(pad => {
+        const melodicType = pad.dataset.melodic;
+        const loopName = pad.dataset.loop;
+
+        if (melodicType) {
+            const isAvailable = Boolean(melodicAvailability && melodicAvailability[melodicType]);
+            setPadEnabledState(
+                pad,
+                isAvailable,
+                `${melodicType} in key ${effectiveKey} (click to play)`,
+                `${melodicType}_${effectiveKey}.wav not available`
+            );
+            return;
+        }
+
+        if (loopSet && loopName) {
+            const loopFile = loopSet.files ? loopSet.files[loopName] : '';
+            const isLoaded = Boolean(loopFile && rawAudioData && rawAudioData.has(loopName));
+            setPadEnabledState(
+                pad,
+                isLoaded,
+                '',
+                loopFile ? `${loopName} failed to load` : `${loopName} not available`
+            );
+        }
+    });
 }
 
 /**
@@ -632,24 +671,7 @@ async function updateMelodicPadAvailability(songId, effectiveKey) {
         return;
     }
     
-    const pads = container.querySelectorAll('.loop-pad[data-melodic]');
-    pads.forEach(pad => {
-        const melodicType = pad.dataset.melodic;
-        
-        if (melodicType) {
-            const isAvailable = melodicAvailability[melodicType];
-            
-            if (isAvailable) {
-                pad.disabled = false;
-                pad.classList.remove('loop-pad-disabled');
-                pad.title = `${melodicType} in key ${effectiveKey} (click to play)`;
-            } else {
-                pad.disabled = true;
-                pad.classList.add('loop-pad-disabled');
-                pad.title = `${melodicType}_${effectiveKey}.wav not available`;
-            }
-        }
-    });
+    applyPadAvailabilityState(container, null, effectiveKey, melodicAvailability, null);
     
     // Return availability for status updates
     return melodicAvailability;
@@ -854,46 +876,8 @@ async function initializeLoopPlayer(songId) {
         // Check availability of melodic samples for the effective key
         const melodicAvailability = await loopPlayerInstance.checkMelodicAvailability(['atmosphere', 'tanpura']);
         
-        // Enable/disable pads based on successful fetch (ready for on-demand decode)
-        const pads = container.querySelectorAll('.loop-pad');
-        pads.forEach(pad => {
-            const loopName = pad.dataset.loop;
-            const melodicType = pad.dataset.melodic;
-            
-            if (melodicType) {
-                // Handle melodic pads (atmosphere/tanpura)
-                const isAvailable = melodicAvailability[melodicType];
-                
-                if (isAvailable) {
-                    pad.disabled = false;
-                    pad.classList.remove('loop-pad-disabled');
-                    pad.title = `${melodicType} in key ${effectiveKey} (click to play)`;
-                } else {
-                    pad.disabled = true;
-                    pad.classList.add('loop-pad-disabled');
-                    pad.title = `${melodicType}_${effectiveKey}.wav not available`;
-                }
-            } else if (loopName) {
-                // Handle rhythm pads
-                const loopFile = loopSet.files[loopName];
-                const isLoaded = loopPlayerInstance.rawAudioData && loopPlayerInstance.rawAudioData.has(loopName);
-                
-                // Enable pad if file exists and was successfully fetched
-                if (loopFile && isLoaded) {
-                    pad.disabled = false;
-                    pad.classList.remove('loop-pad-disabled');
-                    pad.title = '';
-                } else {
-                    pad.disabled = true;
-                    pad.classList.add('loop-pad-disabled');
-                    if (!loopFile) {
-                        pad.title = `${loopName} not available`;
-                    } else {
-                        pad.title = `${loopName} failed to load`;
-                    }
-                }
-            }
-        });
+        // Enable/disable pads using one shared path for both melodic and rhythm pads.
+        applyPadAvailabilityState(container, loopSet, effectiveKey, melodicAvailability, loopPlayerInstance.rawAudioData);
         
         // Update status and play button
         const loadedCount = loopPlayerInstance.rawAudioData ? loopPlayerInstance.rawAudioData.size : 0;
@@ -1174,8 +1158,17 @@ function toggleLoopPlayer(songId) {
 }
 
 // CSS Styles
-const loopPlayerStyles = `
-<style>
+function ensureLoopPlayerStylesInjected() {
+    if (typeof document === 'undefined') return;
+    if (document.getElementById(LOOP_PLAYER_STYLE_ELEMENT_ID)) return;
+
+    const styleElement = document.createElement('style');
+    styleElement.id = LOOP_PLAYER_STYLE_ELEMENT_ID;
+    styleElement.textContent = loopPlayerCss;
+    document.head.appendChild(styleElement);
+}
+
+const loopPlayerCss = `
 .loop-player-container {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 50%, var(--light-bg) 100%);
     border: 2px solid var(--accent-color);
@@ -2148,6 +2141,5 @@ body.dark-mode .loop-pad-fill.loop-pad-active {
         grid-template-columns: 1fr;
     }
 }
-</style>
 `;
 

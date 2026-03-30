@@ -1,10 +1,17 @@
 // Register service worker for PWA installability (skip on localhost)
-if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+const IS_GITHUB_PAGES_RUNTIME = window.location.hostname.endsWith('github.io');
+if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !IS_GITHUB_PAGES_RUNTIME) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
             .then(reg => console.log('Service Worker registered:', reg))
             .catch(err => console.warn('Service Worker registration failed:', err));
     });
+} else if ('serviceWorker' in navigator && IS_GITHUB_PAGES_RUNTIME) {
+    // GitHub Pages is a transient host in this setup; remove stale workers so users get fresh canonical frontend.
+    navigator.serviceWorker.getRegistrations()
+        .then(registrations => Promise.all(registrations.map(reg => reg.unregister())))
+        .then(() => console.log('Service Worker: Unregistered on GitHub Pages runtime'))
+        .catch(err => console.warn('Service Worker: Failed to unregister on GitHub Pages runtime', err));
 } else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     console.log('Service Worker: Skipped registration for localhost development');
 }
@@ -572,6 +579,11 @@ async function authFetch(url, options = {}) {
                 }
                 return response;
             } else {
+                // Auth errors are definitive for the request; do not fail over to other backends.
+                if (response.status === 401 || response.status === 403) {
+                    console.warn(`🔐 ${backendUrl} returned ${response.status}; using this response without backend fallback.`);
+                    return response;
+                }
                 lastError = new Error(`Backend error (${response.status}) from ${backendUrl}`);
                 console.warn(`❌ ${backendUrl} returned ${response.status}${isLocalhost ? '' : ', trying next backend...'}`);
                 // If not localhost, try next configured backend
@@ -1119,7 +1131,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 45000); // 45 seconds max loading time
 
     async function updateLocalTransposeCache() {
-        if (currentUser && currentUser.id) {
+        const token = localStorage.getItem('pw_jwtToken');
+        if (currentUser && currentUser.id && token && isJwtValid(token)) {
             try {
                 const response = await cachedFetch(`${API_BASE_URL}/api/userdata`);
                 if (response.ok) {
@@ -1186,7 +1199,9 @@ document.addEventListener('DOMContentLoaded', () => {
     populateRhythmCategoryDropdown('editSongRhythmCategory');
     bindRhythmSetPreviewSync('songRhythmFamily', 'songRhythmSetNo', 'songRhythmSetIdPreview');
     bindRhythmSetPreviewSync('editSongRhythmFamily', 'editSongRhythmSetNo', 'editSongRhythmSetIdPreview');
-    hydrateRhythmFamilies().catch((err) => console.warn('Failed to hydrate rhythm families:', err));
+    if (isAuthenticated) {
+        hydrateRhythmFamilies().catch((err) => console.warn('Failed to hydrate rhythm families:', err));
+    }
 
     // Genre multiselect (lazy setup; only once each)
     setupGenreMultiselect('songGenre', 'genreDropdown', 'selectedGenres');
@@ -1352,7 +1367,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .trim()
                 .replace(/\s+/g, '')
                 .replace(/[\u200B-\u200D\uFEFF]/g, '');
-            const normalizedLoginInput = loginInput.includes('@') ? loginInput.toLowerCase() : loginInput;
+            const normalizedLoginInput = loginInput.toLowerCase();
             const password = document.getElementById('loginPassword').value;
             const errorDiv = document.getElementById('loginError');
             errorDiv.style.display = 'none';

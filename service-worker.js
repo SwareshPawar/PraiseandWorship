@@ -1,7 +1,7 @@
 // Enhanced Progressive Web App Service Worker for Praise & Worship Songs
-const CACHE_NAME = 'pw-ocean-v2.7-SMART-FALLBACK';
-const STATIC_CACHE = 'pw-static-v2.7-SMART-FALLBACK';
-const API_CACHE = 'pw-api-v2.7-SMART-FALLBACK';
+const CACHE_NAME = 'pw-ocean-v2.8-LOOP-UI-PARITY';
+const STATIC_CACHE = 'pw-static-v2.8-LOOP-UI-PARITY';
+const API_CACHE = 'pw-api-v2.8-LOOP-UI-PARITY';
 
 // Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [
@@ -9,6 +9,8 @@ const STATIC_RESOURCES = [
   './index.html',
   './styles.css', 
   './main1.js',
+  './loop-player-pad.js',
+  './loop-player-pad-ui.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -17,6 +19,8 @@ const STATIC_RESOURCES = [
   '/index.html',
   '/styles.css',
   '/main1.js', 
+  '/loop-player-pad.js',
+  '/loop-player-pad-ui.js',
   '/manifest.json',
   '/icon-192.png',
   '/icon-512.png'

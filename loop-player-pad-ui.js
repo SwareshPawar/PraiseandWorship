@@ -569,6 +569,13 @@ function getLoopPlayerHTML(songId) {
         </div>
     </div>
 
+    ${getStartupConfigHTML(songId)}
+</div>
+`;
+}
+
+function getStartupConfigHTML(songId) {
+    return `
     <div class="loop-startup-config" id="loopStartupConfig-${songId}">
         <button class="loop-startup-toggle" id="loopStartupToggle-${songId}" type="button" aria-expanded="true">
             <span><i class="fas fa-rocket"></i> Startup for this Song</span>
@@ -606,9 +613,13 @@ function getLoopPlayerHTML(songId) {
                 <span class="loop-startup-msg" id="loopStartupMsg-${songId}"></span>
             </div>
         </div>
-    </div>
-</div>
-`;
+    </div>`;
+}
+
+function ensureStartupConfigPresent(container, songId) {
+    if (!container) return;
+    if (container.querySelector(`#loopStartupConfig-${songId}`)) return;
+    container.insertAdjacentHTML('beforeend', getStartupConfigHTML(songId));
 }
 
 function setPadEnabledState(pad, isEnabled, enabledTitle, disabledTitle) {
@@ -736,6 +747,7 @@ async function initializeLoopPlayer(songId) {
         return;
     }
     container.style.display = 'block';
+    ensureStartupConfigPresent(container, songId);
     
     // Restore expand/collapse state from localStorage
     const isExpanded = localStorage.getItem('loopPlayerExpanded') === 'true';

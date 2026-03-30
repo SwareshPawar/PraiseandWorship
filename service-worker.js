@@ -1,7 +1,7 @@
 // Enhanced Progressive Web App Service Worker for Praise & Worship Songs
-const CACHE_NAME = 'pw-ocean-v2.8-LOOP-UI-PARITY';
-const STATIC_CACHE = 'pw-static-v2.8-LOOP-UI-PARITY';
-const API_CACHE = 'pw-api-v2.8-LOOP-UI-PARITY';
+const CACHE_NAME = 'pw-ocean-v2.9-LOOP-UI-PARITY';
+const STATIC_CACHE = 'pw-static-v2.9-LOOP-UI-PARITY';
+const API_CACHE = 'pw-api-v2.9-LOOP-UI-PARITY';
 
 // Resources to cache for offline functionality (using relative paths for cross-deployment compatibility)
 const STATIC_RESOURCES = [

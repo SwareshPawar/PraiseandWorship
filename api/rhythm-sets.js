@@ -69,10 +69,26 @@ function updateRhythmSetIdInLoopMetadata(oldRhythmSetId, newRhythmSetId, newRhyt
       rhythmSetNo: set.rhythmSetNo,
       fileCount: set.loopCount
     }));
-    writeLoopsMetadata(metadata, writable.metadataPath);
+    try {
+      writeLoopsMetadata(metadata, writable.metadataPath);
+    } catch (error) {
+      // Vercel serverless filesystem is read-only (/var/task). Keep DB rename successful.
+      if (error && (error.code === 'EROFS' || error.code === 'ENOTSUP')) {
+        return {
+          touched,
+          persisted: false,
+          warning: 'loops-metadata is read-only in this runtime; DB rename succeeded, metadata file update skipped.'
+        };
+      }
+      throw error;
+    }
   }
 
-  return touched;
+  return {
+    touched,
+    persisted: true,
+    warning: null
+  };
 }
 
 function recommendRhythmSetForSong(metadataSets, song) {
@@ -755,6 +771,7 @@ module.exports = async (req, res) => {
 
       const now = new Date().toISOString();
       let updatedSongsCount = 0;
+      let loopsMetadataUpdate = { touched: 0, persisted: true, warning: null };
 
       const statusToPersist = normalizeStatusInput(body.status) || (existing && existing.status) || 'active';
       const notesToPersist = typeof body.notes === 'string'
@@ -796,7 +813,12 @@ module.exports = async (req, res) => {
         );
         updatedSongsCount = Number(songUpdateResult && songUpdateResult.modifiedCount) || 0;
 
-        updateRhythmSetIdInLoopMetadata(parsedOld.rhythmSetId, targetRhythmSetId, targetFamily, targetSetNo);
+        loopsMetadataUpdate = updateRhythmSetIdInLoopMetadata(
+          parsedOld.rhythmSetId,
+          targetRhythmSetId,
+          targetFamily,
+          targetSetNo
+        );
       }
 
       await recomputeRhythmSetDerivedMetadata(db, targetRhythmSetId);
@@ -809,7 +831,10 @@ module.exports = async (req, res) => {
         ...updated,
         previousRhythmSetId: parsedOld.rhythmSetId,
         renamed: targetRhythmSetId !== parsedOld.rhythmSetId,
-        updatedSongsCount
+        updatedSongsCount,
+        updatedLoopsCount: Number(loopsMetadataUpdate && loopsMetadataUpdate.touched) || 0,
+        loopsMetadataPersisted: Boolean(loopsMetadataUpdate && loopsMetadataUpdate.persisted),
+        loopsMetadataWarning: loopsMetadataUpdate && loopsMetadataUpdate.warning ? loopsMetadataUpdate.warning : null
       });
     }
 

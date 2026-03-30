@@ -1920,7 +1920,7 @@ async function deleteRhythmSet(rhythmSetId) {
     }
 
     try {
-        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${rhythmSetId}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${encodeURIComponent(rhythmSetId)}`, {
             method: 'DELETE'
         });
 
@@ -1971,7 +1971,7 @@ async function forceDeleteRhythmSet(rhythmSetId) {
     try {
         showAlert('Force deleting rhythm set...', 'success');
         
-        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${rhythmSetId}/force`, {
+        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${encodeURIComponent(rhythmSetId)}/force`, {
             method: 'DELETE'
         });
 
@@ -2542,7 +2542,7 @@ async function removeLoop(rhythmSetId, loopType) {
     }
 
     try {
-        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${rhythmSetId}/loops/${loopType}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${encodeURIComponent(rhythmSetId)}/loops/${loopType}`, {
             method: 'DELETE'
         });
 
@@ -3217,12 +3217,17 @@ function editRhythmSet(rhythmSetId, rhythmFamily, rhythmSetNo) {
     const familyInput = document.getElementById('editRhythmFamily');
     const setNoInput = document.getElementById('editRhythmSetNo');
     const originalIdInput = document.getElementById('editOriginalRhythmSetId');
+    const parsedFields = deriveRhythmSetFields(
+        String(rhythmSetId || ''),
+        String(rhythmFamily || ''),
+        parseInt(rhythmSetNo, 10) || 1
+    );
     
     // Set current values
-    currentId.textContent = rhythmSetId;
-    familyInput.value = rhythmFamily;
-    setNoInput.value = rhythmSetNo;
-    originalIdInput.value = rhythmSetId;
+    currentId.textContent = parsedFields.rhythmSetId;
+    familyInput.value = parsedFields.rhythmFamily;
+    setNoInput.value = parsedFields.rhythmSetNo;
+    originalIdInput.value = parsedFields.rhythmSetId;
     
     // Update preview
     updateEditPreview();
@@ -3231,8 +3236,8 @@ function editRhythmSet(rhythmSetId, rhythmFamily, rhythmSetNo) {
     modal.style.display = 'block';
     
     // Add event listeners for live preview
-    familyInput.addEventListener('input', updateEditPreview);
-    setNoInput.addEventListener('input', updateEditPreview);
+    familyInput.oninput = updateEditPreview;
+    setNoInput.oninput = updateEditPreview;
 }
 
 /**
@@ -3246,8 +3251,8 @@ async function updateEditPreview() {
     const conflictMessage = document.getElementById('editConflictMessage');
     const saveButton = document.getElementById('saveEditButton');
     
-    const family = familyInput.value.trim();
-    const setNo = parseInt(setNoInput.value);
+    const family = normalizeRhythmFamily(familyInput.value);
+    const setNo = parseInt(setNoInput.value, 10);
     
     if (!family || !setNo || setNo < 1) {
         preview.textContent = '-';
@@ -3256,7 +3261,13 @@ async function updateEditPreview() {
         return;
     }
     
-    const newRhythmSetId = `${family}_${setNo}`;
+    const newRhythmSetId = buildRhythmSetId(family, setNo);
+    if (!newRhythmSetId) {
+        preview.textContent = '-';
+        conflictWarning.style.display = 'none';
+        saveButton.disabled = true;
+        return;
+    }
     preview.textContent = newRhythmSetId;
     
     // Check for conflicts
@@ -3287,16 +3298,20 @@ async function saveRhythmSetEdit() {
         return;
     }
 
-    const originalId = document.getElementById('editOriginalRhythmSetId').value;
-    const newFamily = document.getElementById('editRhythmFamily').value.trim();
-    const newSetNo = parseInt(document.getElementById('editRhythmSetNo').value);
+    const originalId = String(document.getElementById('editOriginalRhythmSetId').value || '').trim();
+    const newFamily = normalizeRhythmFamily(document.getElementById('editRhythmFamily').value);
+    const newSetNo = parseInt(document.getElementById('editRhythmSetNo').value, 10);
     
     if (!newFamily || !newSetNo || newSetNo < 1) {
         showAlert('Please provide valid rhythm family and set number', 'error');
         return;
     }
     
-    const newRhythmSetId = `${newFamily}_${newSetNo}`;
+    const newRhythmSetId = buildRhythmSetId(newFamily, newSetNo);
+    if (!newRhythmSetId) {
+        showAlert('Please provide a valid rhythm family and set number', 'error');
+        return;
+    }
     
     // If no change, just close
     if (newRhythmSetId === originalId) {
@@ -3321,7 +3336,7 @@ async function saveRhythmSetEdit() {
     try {
         showAlert('Updating rhythm set...', 'success');
         
-        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${originalId}`, {
+        const response = await authFetch(`${API_BASE_URL}/api/rhythm-sets/${encodeURIComponent(originalId)}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'

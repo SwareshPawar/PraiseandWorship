@@ -167,7 +167,6 @@ const PW_CHORD_TYPES = [
 ];
 
 // Dynamic API base URL for local/dev/prod (Global scope)
-const API_BASE_URL_RENDER = 'https://praiseandworship.onrender.com';
 const IS_LOCALHOST = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 const IS_GITHUB_PAGES = window.location.hostname.endsWith('github.io');
 const API_BASE_URL_VERCEL = window.location.hostname.includes('vercel.app')
@@ -177,31 +176,26 @@ let API_BASE_URL = IS_LOCALHOST
     ? 'http://localhost:3001'
     : (IS_GITHUB_PAGES ? API_BASE_URL_VERCEL : window.location.origin); // Same-origin API on Vercel/custom domain
 
-// Admin-configurable backend switching for production
+// Backend selection is locked to local dev or Vercel.
 function getStoredBackend() {
-    return localStorage.getItem('pw_admin_backend') || 'vercel'; // Default to Vercel (single-function backend)
+    return 'vercel';
 }
 
 function setBackend(backend) {
-    if (backend === 'render') {
-        API_BASE_URL = API_BASE_URL_RENDER;
-    } else if (IS_LOCALHOST) {
+    if (IS_LOCALHOST) {
         API_BASE_URL = 'http://localhost:3001';
     } else if (IS_GITHUB_PAGES) {
         API_BASE_URL = API_BASE_URL_VERCEL;
     } else {
         API_BASE_URL = window.location.origin;
     }
-    localStorage.setItem('pw_admin_backend', backend);
-    console.log('🔄 Backend switched to:', backend.toUpperCase(), '- URL:', API_BASE_URL);
+    localStorage.setItem('pw_admin_backend', 'vercel');
+    console.log('🔄 Backend fixed to: VERCEL - URL:', API_BASE_URL);
 }
 
-// Initialize backend based on stored preference (production only)
-if (!IS_LOCALHOST) {
-    setBackend(getStoredBackend());
-}
+setBackend(getStoredBackend());
 // Frontend: GitHub Pages (https://swareshpawar.github.io/PraiseandWorship/)
-// Backend: Vercel same-origin (or Vercel hosted API for GitHub Pages), Render fallback
+// Backend: Vercel same-origin (or Vercel hosted API for GitHub Pages)
 
 console.log('API_BASE_URL:', API_BASE_URL);
 
@@ -528,22 +522,13 @@ let initializationState = {
     initPromise: null
 };
 
-// Enhanced authFetch function with Render cold-start retry logic
+// Enhanced authFetch function using a single active backend (no cross-backend failover)
 async function authFetch(url, options = {}) {
     const headers = options.headers || {};
     if (jwtToken) headers.Authorization = `Bearer ${jwtToken}`;
 
     // Helper to build fetch options
     function buildFetchOptions(url) {
-    const isRenderBackend = url.includes(API_BASE_URL_RENDER);
-    const isVercelBackend = url.includes(API_BASE_URL_VERCEL);
-    const isLocalFrontend = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const isLocalBackend = url.includes('localhost') || url.includes('127.0.0.1');
-    const isExternalBackend = isRenderBackend || isVercelBackend;
-    
-    // Use CORS in these cases:
-    // 1. External backends (Render/Vercel) from any frontend
-    // 2. Local backend from local frontend but different ports (localhost:5500 -> localhost:3001)
     const frontendOrigin = `${window.location.protocol}//${window.location.host}`;
     const backendUrl = new URL(url);
     const backendOrigin = `${backendUrl.protocol}//${backendUrl.host}`;
@@ -561,66 +546,32 @@ async function authFetch(url, options = {}) {
         };
     }
 
-    // If localhost, use it directly. Otherwise, try selected backend first, then fall back.
+    // If localhost, use direct URL. Otherwise, normalize /api paths to the active backend.
     const isLocalhost = url.includes('localhost') || url.includes('127.0.0.1');
-    const backendsToTry = isLocalhost
-        ? [API_BASE_URL]
-        : Array.from(new Set([API_BASE_URL, API_BASE_URL_VERCEL, API_BASE_URL_RENDER]));
-    
-    let lastError = null;
-    for (const backendUrl of backendsToTry) {
-        let fetchUrl = url;
-        if (!isLocalhost && url.includes('/api/')) {
-            fetchUrl = backendUrl + url.substring(url.indexOf('/api/'));
-        }
-        try {
-            const controller = new AbortController();
-            const timeoutDuration = isLocalhost ? 30000 : (backendUrl === API_BASE_URL_RENDER ? 60000 : 15000);
-            const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
-            const fetchOptions = { ...buildFetchOptions(fetchUrl), signal: controller.signal };
-            const response = await fetch(fetchUrl, fetchOptions);
-            clearTimeout(timeoutId);
-            if (response.ok) {
-                if (!isLocalhost) {
-                    const isRender = backendUrl === API_BASE_URL_RENDER;
-                    const message = isRender
-                        ? '⚠️ Using Render backend (Fallback)'
-                        : '✅ Connected to Vercel backend (Primary)';
-                    const level = isRender ? 'warning' : 'success';
-                    const duration = isRender ? 3000 : 2000;
-                    throttledShowNotification(message, level, duration);
-                }
-                return response;
-            } else {
-                // Auth errors are definitive for the request; do not fail over to other backends.
-                if (response.status === 401 || response.status === 403) {
-                    console.warn(`🔐 ${backendUrl} returned ${response.status}; using this response without backend fallback.`);
-                    return response;
-                }
-                lastError = new Error(`Backend error (${response.status}) from ${backendUrl}`);
-                console.warn(`❌ ${backendUrl} returned ${response.status}${isLocalhost ? '' : ', trying next backend...'}`);
-                // If not localhost, try next configured backend
-                if (!isLocalhost) continue;
-                else break;
-            }
-        } catch (error) {
-            lastError = error;
-            console.warn(`❌ ${backendUrl} failed: ${error.message}${isLocalhost ? '' : ', trying next backend...'}`);
-            // If not localhost, try next configured backend
-            if (!isLocalhost) continue;
-            else break;
-        }
+    let fetchUrl = url;
+    if (!isLocalhost && url.includes('/api/')) {
+        fetchUrl = API_BASE_URL + url.substring(url.indexOf('/api/'));
     }
-    // If all backends fail, throw last error
-    throw lastError;
+
+    const controller = new AbortController();
+    const timeoutDuration = isLocalhost ? 30000 : 15000;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+    try {
+        const fetchOptions = { ...buildFetchOptions(fetchUrl), signal: controller.signal };
+        const response = await fetch(fetchUrl, fetchOptions);
+        if (response.ok && !isLocalhost) {
+            throttledShowNotification('✅ Connected to Vercel backend', 'success', 2000);
+        }
+        return response;
+    } finally {
+        clearTimeout(timeoutId);
+    }
 }
 
 // Optimized fetch with caching (authFetch handles retries)
 async function cachedFetch(endpoint, forceRefresh = false, retries = 2) {
     const cacheKey = endpoint.replace(`${API_BASE_URL}/api/`, '').split('/')[0].split('?')[0];
     const now = Date.now();
-    const isRenderBackend = endpoint.includes('praiseandworship.onrender.com');
-    
     // Check if we have cached data and it's still fresh
     if (!forceRefresh && window.dataCache[cacheKey] && window.dataCache.lastFetch[cacheKey]) {
         const cacheAge = now - window.dataCache.lastFetch[cacheKey];
@@ -3366,11 +3317,10 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
 
     function updateBackendStatus() {
         console.log('📊 Updating backend status...');
-        const currentBackend = getStoredBackend();
         const statusElement = document.getElementById('currentBackendStatus');
         const apiUrlElement = document.getElementById('currentApiUrl');
         
-        console.log('Current backend:', currentBackend);
+        console.log('Current backend: vercel');
         console.log('Status element:', statusElement);
         console.log('API URL element:', apiUrlElement);
         
@@ -3379,15 +3329,9 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
             return;
         }
         
-        if (currentBackend === 'vercel') {
-            statusElement.textContent = 'Vercel';
-            statusElement.style.background = '#0070f3';
-            statusElement.style.color = 'white';
-        } else {
-            statusElement.textContent = 'Render';
-            statusElement.style.background = '#4CAF50';
-            statusElement.style.color = 'white';
-        }
+        statusElement.textContent = 'Vercel';
+        statusElement.style.background = '#0070f3';
+        statusElement.style.color = 'white';
         
         apiUrlElement.textContent = API_BASE_URL;
         console.log('✅ Backend status updated');
@@ -3404,9 +3348,8 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         console.log('Health button:', healthBtn);
         
         if (renderBtn) {
-            renderBtn.onclick = () => switchBackend('render');
-        } else {
-            console.error('❌ Switch to Render button not found!');
+            renderBtn.disabled = true;
+            renderBtn.title = 'Render fallback disabled';
         }
         
         if (vercelBtn) {
@@ -3425,16 +3368,14 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
     }
 
     function switchBackend(backend) {
-        const previousBackend = getStoredBackend();
-        
-        if (previousBackend === backend) {
-            showBackendNotification(`Already using ${backend.toUpperCase()} backend`, 'info');
+        if (backend !== 'vercel') {
+            showBackendNotification('Render fallback is disabled. Using Vercel only.', 'info');
             return;
         }
-        
-        setBackend(backend);
+
+        setBackend('vercel');
         updateBackendStatus();
-        showBackendNotification(`✅ Switched to ${backend.toUpperCase()} backend! All API calls now use ${API_BASE_URL}`, 'success');
+        showBackendNotification(`✅ Using VERCEL backend. All API calls now use ${API_BASE_URL}`, 'success');
         
         // Optionally refresh data to test the new backend
         setTimeout(() => {
@@ -3476,23 +3417,21 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
     async function checkAllBackendHealth() {
         const renderStatusEl = document.getElementById('renderHealthStatus');
         const vercelStatusEl = document.getElementById('vercelHealthStatus');
-        
-        renderStatusEl.textContent = 'Checking...';
-        vercelStatusEl.textContent = 'Checking...';
-        
-        // Check both backends in parallel (Render is primary)
-        const [renderHealth, vercelHealth] = await Promise.all([
-            checkSpecificBackendHealth(API_BASE_URL_RENDER, 'Render'),
-            checkSpecificBackendHealth(API_BASE_URL_VERCEL, 'Vercel')
-        ]);
-        
-        // Update Render status (Primary)
-        vercelStatusEl.textContent = renderHealth.message + ' (Primary - Render)';
-        vercelStatusEl.style.color = renderHealth.status === 'online' ? '#28a745' : '#dc3545';
-        
-        // Update Render status (Backup)
-        renderStatusEl.textContent = renderHealth.message + ' (Backup)';
-        renderStatusEl.style.color = renderHealth.status === 'online' ? '#28a745' : '#dc3545';
+
+        if (renderStatusEl) {
+            renderStatusEl.textContent = 'Disabled';
+            renderStatusEl.style.color = '#6c757d';
+        }
+        if (vercelStatusEl) {
+            vercelStatusEl.textContent = 'Checking...';
+        }
+
+        const vercelHealth = await checkSpecificBackendHealth(API_BASE_URL_VERCEL, 'Vercel');
+
+        if (vercelStatusEl) {
+            vercelStatusEl.textContent = `${vercelHealth.message} (Primary - Vercel)`;
+            vercelStatusEl.style.color = vercelHealth.status === 'online' ? '#28a745' : '#dc3545';
+        }
     }
 
     function showBackendNotification(msg, type = 'info') {
@@ -10577,13 +10516,6 @@ window.viewSingleLyrics = function(songId, otherId) {
                     showNotification('❌ Error adding song to setlist', 'error');
                 }
                 console.error('Error adding song to setlist:', error);
-                
-                // Try switching to Render backend if Vercel fails
-                if (API_BASE_URL.includes('vercel.app') && !window.location.hostname.includes('localhost')) {
-                    console.log('🔄 Vercel API failed, trying to switch to Render backend...');
-                    setBackend('render');
-                    showNotification('Switching to backup server, please try again in a moment', 'info');
-                }
             });
         }
 
@@ -10661,13 +10593,6 @@ window.viewSingleLyrics = function(songId, otherId) {
                     showNotification('❌ Error removing song from setlist', 'error');
                 }
                 console.error('Error removing song from setlist:', error);
-                
-                // Try switching to Render backend if Vercel fails
-                if (API_BASE_URL.includes('vercel.app') && !window.location.hostname.includes('localhost')) {
-                    console.log('🔄 Vercel API failed, trying to switch to Render backend...');
-                    setBackend('render');
-                    showNotification('Switching to backup server, please try again in a moment', 'info');
-                }
             });
         }
 

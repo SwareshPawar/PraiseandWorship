@@ -9530,11 +9530,33 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
 
         function isAdmin() {
+            const toBool = (value) => {
+                if (value === true) return true;
+                if (typeof value === 'string') {
+                    const normalized = value.trim().toLowerCase();
+                    return normalized === 'true' || normalized === '1' || normalized === 'yes';
+                }
+                if (typeof value === 'number') return value === 1;
+                return false;
+            };
+
+            // Prefer hydrated user state; this is refreshed via /api/userdata and survives token-claim drift.
+            if (currentUser && toBool(currentUser.isAdmin)) {
+                return true;
+            }
+
             if (!jwtToken) return false;
             try {
                 const payload = JSON.parse(atob(jwtToken.split('.')[1]));
-                // Accept both boolean true and string 'true' for isAdmin
-                return payload && (payload.isAdmin === true || payload.isAdmin === 'true');
+                if (!payload) return false;
+
+                if (toBool(payload.isAdmin)) return true;
+                if (payload.user && toBool(payload.user.isAdmin)) return true;
+
+                const roles = Array.isArray(payload.roles)
+                    ? payload.roles
+                    : (Array.isArray(payload.user && payload.user.roles) ? payload.user.roles : []);
+                return roles.some(role => String(role || '').trim().toLowerCase() === 'admin');
             } catch {
                 return false;
             }

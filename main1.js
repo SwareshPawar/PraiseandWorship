@@ -1,19 +1,32 @@
-// Register service worker for PWA installability (skip on localhost)
-const IS_GITHUB_PAGES_RUNTIME = window.location.hostname.endsWith('github.io');
-if ('serviceWorker' in navigator && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && !IS_GITHUB_PAGES_RUNTIME) {
+// Service worker is intentionally disabled to avoid stale asset/cache behavior.
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' })
-            .then(reg => console.log('Service Worker registered:', reg))
-            .catch(err => console.warn('Service Worker registration failed:', err));
+        navigator.serviceWorker.getRegistrations()
+            .then((registrations) => Promise.all(registrations.map((reg) => reg.unregister())))
+            .then(() => {
+                console.log('Service Worker: Disabled and unregistered existing registrations');
+            })
+            .catch((err) => {
+                console.warn('Service Worker: Failed to unregister existing registrations', err);
+            });
     });
-} else if ('serviceWorker' in navigator && IS_GITHUB_PAGES_RUNTIME) {
-    // GitHub Pages is a transient host in this setup; remove stale workers so users get fresh canonical frontend.
-    navigator.serviceWorker.getRegistrations()
-        .then(registrations => Promise.all(registrations.map(reg => reg.unregister())))
-        .then(() => console.log('Service Worker: Unregistered on GitHub Pages runtime'))
-        .catch(err => console.warn('Service Worker: Failed to unregister on GitHub Pages runtime', err));
-} else if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    console.log('Service Worker: Skipped registration for localhost development');
+}
+
+if ('caches' in window) {
+    window.addEventListener('load', () => {
+        caches.keys()
+            .then((keys) => Promise.all(
+                keys
+                    .filter((key) => key.startsWith('pw-'))
+                    .map((key) => caches.delete(key))
+            ))
+            .then(() => {
+                console.log('Cache Storage: Cleared Praise & Worship caches');
+            })
+            .catch((err) => {
+                console.warn('Cache Storage: Failed to clear Praise & Worship caches', err);
+            });
+    });
 }
 // --- GLOBAL CONSTANTS AND VARIABLES ---
 // --- Cache expiry times in milliseconds (move to top to avoid ReferenceError) ---
@@ -1616,27 +1629,7 @@ if (window.matchMedia) {
     });
 }
 
-// Listen for messages from service worker
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.addEventListener('message', (event) => {
-        const { type, data } = event.data;
-        
-        switch (type) {
-            case 'INSTALL_PROMPT_AVAILABLE':
-                console.log('📬 Service worker reports install prompt available');
-                if (!checkAppInstallStatus()) {
-                    showInstallButton();
-                }
-                break;
-                
-            case 'APP_INSTALLED':
-                console.log('📬 Service worker reports app installed');
-                isAppInstalled = true;
-                hideInstallButton();
-                break;
-        }
-    });
-}
+// Service worker messaging is intentionally disabled.
 
 // Initialize install status on page load
 document.addEventListener('DOMContentLoaded', () => {

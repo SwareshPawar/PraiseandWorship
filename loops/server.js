@@ -2641,7 +2641,10 @@ app.put('/api/rhythm-sets/:rhythmSetId', authMiddleware, requireAdmin, async (re
 
     const rhythmSetsCollection = db.collection('RhythmSets');
     const existing = await rhythmSetsCollection.findOne({ rhythmSetId: parsedOld.rhythmSetId });
-    if (!existing) {
+    const metadataSnapshot = readLoopsMetadataSafe();
+    const loopsInMetadata = Array.isArray(metadataSnapshot?.metadata?.loops) ? metadataSnapshot.metadata.loops : [];
+    const existsInMetadata = loopsInMetadata.some(loop => String(loop?.rhythmSetId || '') === parsedOld.rhythmSetId);
+    if (!existing && !existsInMetadata) {
       return res.status(404).json({ error: 'Rhythm set not found' });
     }
 
@@ -2689,7 +2692,16 @@ app.put('/api/rhythm-sets/:rhythmSetId', authMiddleware, requireAdmin, async (re
 
     await rhythmSetsCollection.updateOne(
       { rhythmSetId: parsedOld.rhythmSetId },
-      { $set: updates }
+      {
+        $set: updates,
+        $setOnInsert: {
+          createdAt: new Date().toISOString(),
+          createdBy: req.user.firstName || req.user.username || req.user.email || 'admin',
+          mappedSongCount: 0,
+          lastSource: existsInMetadata ? 'loops-metadata' : 'admin-edit'
+        }
+      },
+      { upsert: true }
     );
 
     let updatedSongsCount = 0;

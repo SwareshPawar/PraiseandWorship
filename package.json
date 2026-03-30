@@ -11,7 +11,11 @@
     "start": "node server.js",
     "dev": "node server.js",
     "sync:external-notes": "node scripts/core/sync-external-rhythm-notes.js",
-    "sync:external-notes:apply": "node scripts/core/sync-external-rhythm-notes.js --apply"
+    "sync:external-notes:apply": "node scripts/core/sync-external-rhythm-notes.js --apply",
+    "sync:loops-metadata": "node scripts/core/sync-loops-metadata-from-production.js",
+    "sync:loops-metadata:dry": "node scripts/core/sync-loops-metadata-from-production.js --dry-run",
+    "migrate:rhythm-sets-db": "node scripts/core/migrate-rhythm-sets-db.js",
+    "migrate:rhythm-sets-db:apply": "node scripts/core/migrate-rhythm-sets-db.js --apply"
   },
   "repository": {
     "type": "git",

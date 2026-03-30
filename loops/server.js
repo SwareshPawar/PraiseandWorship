@@ -2634,36 +2634,105 @@ app.post('/api/rhythm-sets', authMiddleware, requireAdmin, async (req, res) => {
 // PUT /api/rhythm-sets/:rhythmSetId - Update a rhythm set
 app.put('/api/rhythm-sets/:rhythmSetId', authMiddleware, requireAdmin, async (req, res) => {
   try {
-    const parsed = parseRhythmSetId(req.params.rhythmSetId);
-    if (!parsed) {
+    const parsedOld = parseRhythmSetId(req.params.rhythmSetId);
+    if (!parsedOld) {
       return res.status(400).json({ error: 'Invalid rhythmSetId format. Expected family_setNo' });
     }
 
     const rhythmSetsCollection = db.collection('RhythmSets');
-    const existing = await rhythmSetsCollection.findOne({ rhythmSetId: parsed.rhythmSetId });
+    const existing = await rhythmSetsCollection.findOne({ rhythmSetId: parsedOld.rhythmSetId });
     if (!existing) {
       return res.status(404).json({ error: 'Rhythm set not found' });
     }
 
+    const body = req.body || {};
+    const parsedFromNewId = parseRhythmSetId(String(body.newRhythmSetId || ''));
+    const targetFamily = normalizeRhythmFamily(
+      parsedFromNewId
+        ? parsedFromNewId.rhythmFamily
+        : (body.rhythmFamily || existing.rhythmFamily || parsedOld.rhythmFamily)
+    );
+    const targetSetNo = normalizeRhythmSetNo(
+      parsedFromNewId
+        ? parsedFromNewId.rhythmSetNo
+        : (body.rhythmSetNo || body.setNo || existing.rhythmSetNo || parsedOld.rhythmSetNo)
+    );
+    const targetRhythmSetId = buildRhythmSetId(targetFamily, targetSetNo);
+
+    if (!targetRhythmSetId) {
+      return res.status(400).json({ error: 'Valid target rhythm set id is required' });
+    }
+
+    if (targetRhythmSetId !== parsedOld.rhythmSetId) {
+      const conflict = await rhythmSetsCollection.findOne({ rhythmSetId: targetRhythmSetId });
+      if (conflict) {
+        return res.status(409).json({ error: `Rhythm set ${targetRhythmSetId} already exists` });
+      }
+    }
+
+    const statusToPersist = typeof body.status === 'string' && body.status.trim()
+      ? body.status.trim()
+      : (existing.status || 'active');
+    const notesToPersist = typeof body.notes === 'string'
+      ? body.notes
+      : (typeof existing.notes === 'string' ? existing.notes : '');
+
     const updates = {
+      rhythmSetId: targetRhythmSetId,
+      rhythmFamily: targetFamily,
+      rhythmSetNo: targetSetNo,
+      status: statusToPersist,
+      notes: notesToPersist,
       updatedAt: new Date().toISOString(),
       updatedBy: req.user.firstName || req.user.username
     };
 
-    if (typeof req.body?.status === 'string' && req.body.status.trim()) {
-      updates.status = req.body.status.trim();
-    }
-    if (typeof req.body?.notes === 'string') {
-      updates.notes = req.body.notes;
-    }
-
     await rhythmSetsCollection.updateOne(
-      { rhythmSetId: parsed.rhythmSetId },
+      { rhythmSetId: parsedOld.rhythmSetId },
       { $set: updates }
     );
 
-    const updated = await rhythmSetsCollection.findOne({ rhythmSetId: parsed.rhythmSetId });
-    res.json(updated);
+    let updatedSongsCount = 0;
+    let updatedLoopsCount = 0;
+
+    if (targetRhythmSetId !== parsedOld.rhythmSetId) {
+      const songUpdateResult = await songsCollection.updateMany(
+        { rhythmSetId: parsedOld.rhythmSetId },
+        {
+          $set: {
+            rhythmSetId: targetRhythmSetId,
+            rhythmFamily: targetFamily,
+            rhythmSetNo: targetSetNo,
+            updatedAt: new Date().toISOString(),
+            updatedBy: req.user.firstName || req.user.username
+          }
+        }
+      );
+      updatedSongsCount = Number(songUpdateResult?.modifiedCount || 0);
+
+      const metadataRename = await renameRhythmSetInLoopsMetadata(
+        parsedOld.rhythmSetId,
+        targetFamily,
+        targetSetNo,
+        targetRhythmSetId
+      );
+      updatedLoopsCount = Number(metadataRename?.updatedLoops || 0);
+    }
+
+    await recomputeRhythmSetDerivedMetadata(targetRhythmSetId);
+    if (targetRhythmSetId !== parsedOld.rhythmSetId) {
+      await recomputeRhythmSetDerivedMetadata(parsedOld.rhythmSetId);
+    }
+    await refreshRhythmSetProfiles(parsedOld.rhythmSetId, targetRhythmSetId);
+
+    const updated = await rhythmSetsCollection.findOne({ rhythmSetId: targetRhythmSetId });
+    res.json({
+      ...updated,
+      previousRhythmSetId: parsedOld.rhythmSetId,
+      renamed: targetRhythmSetId !== parsedOld.rhythmSetId,
+      updatedSongsCount,
+      updatedLoopsCount
+    });
   } catch (err) {
     console.error('Rhythm set update error:', err);
     res.status(500).json({ error: err.message });

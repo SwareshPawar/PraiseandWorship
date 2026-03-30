@@ -9728,7 +9728,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 : '';
             const isAdminUser = isAdmin();
             const shouldRenderSecondaryMeta = Boolean(
-                chordsDisplay || song.artistDetails || song.mood || song.genres || song.genre || song.rhythmCategory || isAdminUser || typeof getLoopPlayerHTML === 'function'
+                chordsDisplay || song.artistDetails || song.mood || song.genres || song.genre || song.rhythmCategory || isAdminUser
             );
             const isAdminUiDebugEnabled = (() => {
                 try {
@@ -9826,10 +9826,6 @@ window.viewSingleLyrics = function(songId, otherId) {
                         </button>
                     </div>
                 </div>` : ''}
-                <div class="preview-meta-row preview-loop-startup-row">
-                    <span class="preview-meta-label">Loop Startup</span>
-                    <div class="preview-meta-value" id="loopStartupConfigHost-${song.id}"></div>
-                </div>
             </div>` : ''}
         </div>
 

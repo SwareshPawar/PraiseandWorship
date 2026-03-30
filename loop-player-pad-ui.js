@@ -62,10 +62,13 @@ const DEFAULT_SONG_STARTUP = {
     tempoPercent: 100
 };
 
+const LOOP_TEMPO_MIN_PERCENT = 90;
+const LOOP_TEMPO_MAX_PERCENT = 110;
+
 function clampStartupTempo(value) {
     const parsed = parseInt(value, 10);
     if (!Number.isFinite(parsed)) return DEFAULT_SONG_STARTUP.tempoPercent;
-    return Math.max(50, Math.min(200, parsed));
+    return Math.max(LOOP_TEMPO_MIN_PERCENT, Math.min(LOOP_TEMPO_MAX_PERCENT, parsed));
 }
 
 function resolveSongStartupBehavior(song, loopSet) {
@@ -107,7 +110,13 @@ function bindStartupControls(songId, loopSet, startupBehavior) {
     const toggleBtn = document.getElementById(`loopStartupToggle-${songId}`);
     const startupBody = document.getElementById(`loopStartupBody-${songId}`);
     const toggleIcon = document.getElementById(`loopStartupToggleIcon-${songId}`);
+    const tempoSlider = document.getElementById(`loopTempo-${songId}`);
     if (!loopSelect || !fillSelect || !tempoInput || !saveBtn) return;
+
+    const sliderMin = tempoSlider ? Number(tempoSlider.min || LOOP_TEMPO_MIN_PERCENT) : LOOP_TEMPO_MIN_PERCENT;
+    const sliderMax = tempoSlider ? Number(tempoSlider.max || LOOP_TEMPO_MAX_PERCENT) : LOOP_TEMPO_MAX_PERCENT;
+    tempoInput.min = String(sliderMin);
+    tempoInput.max = String(sliderMax);
 
     if (toggleBtn && startupBody && !toggleBtn.dataset.boundToggle) {
         toggleBtn.addEventListener('click', () => {
@@ -157,6 +166,9 @@ function bindStartupControls(songId, loopSet, startupBehavior) {
         startupBehavior.tempoPercent = clampStartupTempo(tempoInput.value);
         applyStartupPadMarkers(songId, startupBehavior);
         applyStartupTempoToControls(songId, startupBehavior);
+        if (loopPlayerInstance) {
+            loopPlayerInstance.setPlaybackRate(startupBehavior.tempoPercent / 100);
+        }
     };
 
     loopSelect.addEventListener('change', applyCurrentStartupSelection);
@@ -252,12 +264,17 @@ function applyStartupTempoToControls(songId, startupBehavior) {
     const tempoValue = document.getElementById(`loopTempoValue-${songId}`);
     if (!tempoSlider) return;
 
-    const min = Number(tempoSlider.min || 50);
-    const max = Number(tempoSlider.max || 200);
+    const min = Number(tempoSlider.min || LOOP_TEMPO_MIN_PERCENT);
+    const max = Number(tempoSlider.max || LOOP_TEMPO_MAX_PERCENT);
     const clampedTempo = Math.max(min, Math.min(max, startupBehavior.tempoPercent));
     tempoSlider.value = String(clampedTempo);
     if (tempoValue) {
         tempoValue.textContent = `${clampedTempo}%`;
+    }
+
+    const startupTempoInput = document.getElementById(`loopStartupTempo-${songId}`);
+    if (startupTempoInput) {
+        startupTempoInput.value = String(clampedTempo);
     }
 }
 
@@ -623,7 +640,7 @@ function getStartupConfigHTML(songId) {
                 </div>
                 <div>
                     <label for="loopStartupTempo-${songId}">Startup Tempo (%)</label>
-                    <input id="loopStartupTempo-${songId}" class="loop-startup-input" type="number" min="50" max="200" value="100">
+                    <input id="loopStartupTempo-${songId}" class="loop-startup-input" type="number" min="${LOOP_TEMPO_MIN_PERCENT}" max="${LOOP_TEMPO_MAX_PERCENT}" value="100">
                 </div>
             </div>
             <div class="loop-startup-actions">
@@ -1173,7 +1190,15 @@ async function initializeLoopPlayer(songId) {
             const rate = tempoPercent / 100;
             loopPlayerInstance.setPlaybackRate(rate);
             if (tempoValue) tempoValue.textContent = `${tempoPercent}%`;
+
+            startupBehavior.tempoPercent = clampStartupTempo(tempoPercent);
+            const startupTempoInput = document.getElementById(`loopStartupTempo-${songId}`);
+            if (startupTempoInput) {
+                startupTempoInput.value = String(startupBehavior.tempoPercent);
+            }
         });
+
+        applyStartupTempoToControls(songId, startupBehavior);
     }
     
     if (tempoResetBtn) {
@@ -1186,6 +1211,11 @@ async function initializeLoopPlayer(songId) {
                 currentTempoSlider.value = '100';
                 loopPlayerInstance.setPlaybackRate(1.0);
                 if (tempoValue) tempoValue.textContent = '100%';
+                startupBehavior.tempoPercent = 100;
+                const startupTempoInput = document.getElementById(`loopStartupTempo-${songId}`);
+                if (startupTempoInput) {
+                    startupTempoInput.value = '100';
+                }
             }
         });
     }

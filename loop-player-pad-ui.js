@@ -1100,8 +1100,8 @@ async function initializeLoopPlayer(songId) {
                         window.showFloatingStopButton(songId, songTitle);
                     }
                     
-                    // Start background initialization and playback (non-blocking)
-                    loopPlayerInstance.play().catch(error => {
+                    // Start background initialization and playback (fill-first when configured)
+                    loopPlayerInstance.playWithStartup(startupBehavior.startLoop, startupBehavior.startFill).catch(error => {
                         // Handle any background initialization errors
                         console.error('Error during background initialization:', error);
                         
@@ -1116,11 +1116,6 @@ async function initializeLoopPlayer(songId) {
                         }
                     });
 
-                    if (startupBehavior.startFill) {
-                        loopPlayerInstance.playFill(startupBehavior.startFill);
-                        loopPlayerInstance.switchToLoop(startupBehavior.startLoop);
-                    }
-                    
                 } catch (error) {
                     console.error('Error playing loops:', error);
                     const status = document.getElementById(`loopStatus-${songId}`);

@@ -432,6 +432,69 @@ class LoopPlayerPad {
     }
 
     /**
+     * Start playback with optional fill-first startup behavior.
+     * If startFill is provided, playback begins with fill and then moves to startLoop.
+     * @param {string} startLoop
+     * @param {string} startFill
+     */
+    async playWithStartup(startLoop = 'loop1', startFill = '') {
+        if (this.isPlaying) return;
+
+        const normalizedLoop = ['loop1', 'loop2', 'loop3'].includes(startLoop)
+            ? startLoop
+            : 'loop1';
+        const normalizedFill = ['fill1', 'fill2', 'fill3'].includes(startFill)
+            ? startFill
+            : '';
+
+        if (this.pendingLoopReload) {
+            await this._applyPendingReload();
+        }
+
+        this.isInitializing = true;
+
+        try {
+            await this._initializeAllSamples(true);
+
+            if (this.audioBuffers.size === 0) {
+                if (this.onError) this.onError(new Error('No loops loaded'));
+                return;
+            }
+
+            this.isPlaying = true;
+            this.isInitializing = false;
+            this.currentLoop = normalizedLoop;
+            this.nextLoop = null;
+            this.nextFill = null;
+
+            if (normalizedFill && this.audioBuffers.has(normalizedFill)) {
+                if (this.onPadActive) this.onPadActive(normalizedFill);
+                if (this.onLoopChange) this.onLoopChange(normalizedFill);
+                this._playLoop(normalizedFill, false);
+
+                const fillBuffer = this.audioBuffers.get(normalizedFill);
+                const fillDuration = fillBuffer.duration / this.playbackRate;
+                this.loopTimeout = setTimeout(() => {
+                    if (!this.isPlaying) return;
+                    if (this.onPadActive) this.onPadActive(normalizedLoop);
+                    if (this.onLoopChange) this.onLoopChange(normalizedLoop);
+                    this._playLoop(normalizedLoop, true);
+                }, fillDuration * 1000);
+                return;
+            }
+
+            if (this.onPadActive) this.onPadActive(normalizedLoop);
+            if (this.onLoopChange) this.onLoopChange(normalizedLoop);
+            this._playLoop(normalizedLoop, true);
+
+        } catch (error) {
+            this.isInitializing = false;
+            console.error('Error during startup playback initialization:', error);
+            if (this.onError) this.onError(error);
+        }
+    }
+
+    /**
      * Initialize all available audio samples silently
      * @private
      */

@@ -9530,6 +9530,26 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
 
         function isAdmin() {
+            const isAdminDebugEnabled = (() => {
+                try {
+                    const queryFlag = new URLSearchParams(window.location.search).get('pwDebugAdminUi');
+                    if (queryFlag === '1' || queryFlag === 'true') return true;
+                    const stored = localStorage.getItem('pw_debug_admin_ui');
+                    return stored === '1' || stored === 'true';
+                } catch {
+                    return false;
+                }
+            })();
+
+            const logAdminDebug = (stage, details) => {
+                if (!isAdminDebugEnabled) return;
+                try {
+                    console.log(`[AdminUI Debug] ${stage}`, details || {});
+                } catch {
+                    // no-op
+                }
+            };
+
             const toBool = (value) => {
                 if (value === true) return true;
                 if (typeof value === 'string') {
@@ -9542,22 +9562,49 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             // Prefer hydrated user state; this is refreshed via /api/userdata and survives token-claim drift.
             if (currentUser && toBool(currentUser.isAdmin)) {
+                logAdminDebug('isAdmin-via-currentUser', {
+                    currentUserId: currentUser.id || currentUser._id || null,
+                    currentUserIsAdmin: currentUser.isAdmin
+                });
                 return true;
             }
 
-            if (!jwtToken) return false;
+            if (!jwtToken) {
+                logAdminDebug('isAdmin-false-no-token', {
+                    currentUserId: currentUser && (currentUser.id || currentUser._id) || null,
+                    currentUserIsAdmin: currentUser ? currentUser.isAdmin : null
+                });
+                return false;
+            }
             try {
                 const payload = JSON.parse(atob(jwtToken.split('.')[1]));
-                if (!payload) return false;
+                if (!payload) {
+                    logAdminDebug('isAdmin-false-empty-payload');
+                    return false;
+                }
 
-                if (toBool(payload.isAdmin)) return true;
-                if (payload.user && toBool(payload.user.isAdmin)) return true;
+                if (toBool(payload.isAdmin)) {
+                    logAdminDebug('isAdmin-via-payload-flag', { payloadIsAdmin: payload.isAdmin });
+                    return true;
+                }
+                if (payload.user && toBool(payload.user.isAdmin)) {
+                    logAdminDebug('isAdmin-via-payload-user-flag', { payloadUserIsAdmin: payload.user.isAdmin });
+                    return true;
+                }
 
                 const roles = Array.isArray(payload.roles)
                     ? payload.roles
                     : (Array.isArray(payload.user && payload.user.roles) ? payload.user.roles : []);
-                return roles.some(role => String(role || '').trim().toLowerCase() === 'admin');
+                const roleBasedAdmin = roles.some(role => String(role || '').trim().toLowerCase() === 'admin');
+                logAdminDebug('isAdmin-role-check', {
+                    roleBasedAdmin,
+                    roles,
+                    payloadIsAdmin: payload.isAdmin,
+                    payloadUserIsAdmin: payload.user ? payload.user.isAdmin : null
+                });
+                return roleBasedAdmin;
             } catch {
+                logAdminDebug('isAdmin-false-token-parse-failed');
                 return false;
             }
         }
@@ -9747,6 +9794,35 @@ window.viewSingleLyrics = function(songId, otherId) {
             const chordsDisplay = song.chords && song.chords.length > 0 
                 ? song.chords.join(', ') 
                 : '';
+            const isAdminUser = isAdmin();
+            const shouldRenderSecondaryMeta = Boolean(
+                chordsDisplay || song.artistDetails || song.mood || song.genres || song.genre || song.rhythmCategory || isAdminUser
+            );
+            const isAdminUiDebugEnabled = (() => {
+                try {
+                    const queryFlag = new URLSearchParams(window.location.search).get('pwDebugAdminUi');
+                    if (queryFlag === '1' || queryFlag === 'true') return true;
+                    const stored = localStorage.getItem('pw_debug_admin_ui');
+                    return stored === '1' || stored === 'true';
+                } catch {
+                    return false;
+                }
+            })();
+            if (isAdminUiDebugEnabled) {
+                console.log('[AdminUI Debug] showPreview-render-decision', {
+                    songId: song.id,
+                    title: song.title,
+                    isAdminUser,
+                    shouldRenderSecondaryMeta,
+                    hasChords: Boolean(chordsDisplay),
+                    hasArtist: Boolean(song.artistDetails),
+                    hasMood: Boolean(song.mood),
+                    hasGenresArray: Boolean(song.genres && song.genres.length),
+                    hasGenre: Boolean(song.genre),
+                    hasRhythmCategory: Boolean(song.rhythmCategory),
+                    currentUserIsAdmin: currentUser ? currentUser.isAdmin : null
+                });
+            }
             
             const displayKey = song.key || 'N/A';
             
@@ -9771,7 +9847,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 ${(song.time || song.timeSignature) ? `<span class="preview-meta-chip"><i class="fas fa-clock"></i> ${song.time || song.timeSignature}</span>` : ''}
                 ${song.taal ? `<span class="preview-meta-chip"><i class="fas fa-music"></i> ${song.taal}</span>` : ''}
             </div>
-            ${chordsDisplay || song.artistDetails || song.mood || song.genres || song.genre || song.rhythmCategory || isAdmin() ? `
+            ${shouldRenderSecondaryMeta ? `
             <button class="preview-meta-toggle" id="toggleMetaBtn">
                 <span class="toggle-text">More Info</span>
                 <i class="fas fa-chevron-down"></i>
@@ -9808,7 +9884,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 </div>` : ''}
             </div>` : ''}
 
-            ${isAdmin() ? `
+            ${isAdminUser ? `
             <div class="preview-meta-row preview-rhythm-set-row">
                 <span class="preview-meta-label">Rhythm Set</span>
                 <div class="preview-rhythm-set-editor">
@@ -9831,7 +9907,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 <i class="fas fa-edit"></i>
                 <span>Edit</span>
             </button>
-            ${isAdmin() ? `<button class="preview-action-btn preview-delete-btn" id="previewDeleteBtn">
+            ${isAdminUser ? `<button class="preview-action-btn preview-delete-btn" id="previewDeleteBtn">
                 <i class="fas fa-trash-alt"></i>
                 <span>Delete</span>
             </button>` : ''}
@@ -9891,6 +9967,17 @@ window.viewSingleLyrics = function(songId, otherId) {
             songPreviewEl.style.display = 'block';
             document.body.style.overflow = 'hidden';
 
+            if (isAdminUiDebugEnabled) {
+                console.log('[AdminUI Debug] showPreview-dom-presence-after-render', {
+                    songId: song.id,
+                    secondaryMetaExists: Boolean(document.getElementById('secondaryMetaInfo')),
+                    toggleMetaBtnExists: Boolean(document.getElementById('toggleMetaBtn')),
+                    previewRhythmSetSelectExists: Boolean(document.getElementById('previewRhythmSetSelect')),
+                    previewRhythmSetSaveBtnExists: Boolean(document.getElementById('previewRhythmSetSaveBtn')),
+                    previewDeleteBtnExists: Boolean(document.getElementById('previewDeleteBtn'))
+                });
+            }
+
             // Set the transpose-level element to the loaded value before attaching listeners
             document.getElementById('transpose-level').textContent = transposeLevel;
             
@@ -9906,7 +9993,34 @@ window.viewSingleLyrics = function(songId, otherId) {
                 
                 // Initialize loop player for this song
                 if (typeof initializeLoopPlayer === 'function') {
-                    initializeLoopPlayer(song.id);
+                    const loopInitPromise = initializeLoopPlayer(song.id);
+                    if (isAdminUiDebugEnabled && loopInitPromise && typeof loopInitPromise.then === 'function') {
+                        loopInitPromise
+                            .then(() => {
+                                const startupEl = document.getElementById(`loopStartupConfig-${song.id}`);
+                                let startupDisplay = null;
+                                try {
+                                    startupDisplay = startupEl ? getComputedStyle(startupEl).display : null;
+                                } catch {
+                                    startupDisplay = null;
+                                }
+                                console.log('[AdminUI Debug] loop-startup-after-init', {
+                                    songId: song.id,
+                                    loopStartupConfigExists: Boolean(startupEl),
+                                    loopStartupDisplay: startupDisplay,
+                                    loopStartupLoopExists: Boolean(document.getElementById(`loopStartupLoop-${song.id}`)),
+                                    loopStartupFillExists: Boolean(document.getElementById(`loopStartupFill-${song.id}`)),
+                                    loopStartupTempoExists: Boolean(document.getElementById(`loopStartupTempo-${song.id}`)),
+                                    loopStartupSaveBtnExists: Boolean(document.getElementById(`loopStartupSaveBtn-${song.id}`))
+                                });
+                            })
+                            .catch((error) => {
+                                console.warn('[AdminUI Debug] loop-startup-init-error', {
+                                    songId: song.id,
+                                    message: error && error.message ? error.message : String(error)
+                                });
+                            });
+                    }
                 }
             }, 10);
             

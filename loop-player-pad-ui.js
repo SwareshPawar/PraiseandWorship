@@ -19,6 +19,26 @@ let loopsMetadataCacheTimestamp = 0;
 const LOOPS_METADATA_CACHE_TTL = 30000;
 let loopFilesCheckedAt = 0;
 
+function isLoopUiDebugEnabled() {
+    try {
+        const queryFlag = new URLSearchParams(window.location.search).get('pwDebugLoopUi');
+        if (queryFlag === '1' || queryFlag === 'true') return true;
+        const stored = localStorage.getItem('pw_debug_loop_ui');
+        return stored === '1' || stored === 'true';
+    } catch {
+        return false;
+    }
+}
+
+function logLoopUiDebug(eventName, details) {
+    if (!isLoopUiDebugEnabled()) return;
+    try {
+        console.log(`[LoopUI Debug] ${eventName}`, details || {});
+    } catch {
+        // no-op
+    }
+}
+
 // Make loop player instance globally accessible for floating stop button
 window.getLoopPlayerInstance = () => loopPlayerInstance;
 
@@ -618,8 +638,26 @@ function getStartupConfigHTML(songId) {
 
 function ensureStartupConfigPresent(container, songId) {
     if (!container) return;
-    if (container.querySelector(`#loopStartupConfig-${songId}`)) return;
+    if (container.querySelector(`#loopStartupConfig-${songId}`)) {
+        logLoopUiDebug('startup-config-already-present', { songId });
+        return;
+    }
+
+    logLoopUiDebug('startup-config-insert-begin', {
+        songId,
+        containerId: container.id || null,
+        containerDisplay: container.style ? container.style.display : null
+    });
     container.insertAdjacentHTML('beforeend', getStartupConfigHTML(songId));
+
+    logLoopUiDebug('startup-config-insert-end', {
+        songId,
+        startupConfigExists: Boolean(container.querySelector(`#loopStartupConfig-${songId}`)),
+        startupLoopExists: Boolean(container.querySelector(`#loopStartupLoop-${songId}`)),
+        startupFillExists: Boolean(container.querySelector(`#loopStartupFill-${songId}`)),
+        startupTempoExists: Boolean(container.querySelector(`#loopStartupTempo-${songId}`)),
+        startupSaveExists: Boolean(container.querySelector(`#loopStartupSaveBtn-${songId}`))
+    });
 }
 
 function setPadEnabledState(pad, isEnabled, enabledTitle, disabledTitle) {
@@ -698,7 +736,13 @@ async function initializeLoopPlayer(songId) {
 
     const normalizedSongId = songId === undefined || songId === null ? '' : String(songId);
     const songList = Array.isArray(songs) ? songs : (Array.isArray(window.songs) ? window.songs : []);
+    logLoopUiDebug('init-start', {
+        songId,
+        normalizedSongId,
+        songListLength: songList.length
+    });
     if (!songList.length) {
+        logLoopUiDebug('init-abort-no-song-list', { songId });
         return;
     }
 
@@ -708,6 +752,11 @@ async function initializeLoopPlayer(songId) {
         return candidateId && candidateId === normalizedSongId;
     });
     if (!song) {
+        logLoopUiDebug('init-abort-song-not-found', {
+            songId,
+            normalizedSongId,
+            sampleSongIds: songList.slice(0, 8).map(item => getSongIdentifier(item))
+        });
         return;
     }
     
@@ -716,6 +765,13 @@ async function initializeLoopPlayer(songId) {
     const matchResult = await findMatchingLoopSet(song);
     
     if (!matchResult) {
+        logLoopUiDebug('init-abort-no-loopset-match', {
+            songId,
+            rhythmSetId: song.rhythmSetId || null,
+            rhythmFamily: song.rhythmFamily || null,
+            rhythmSetNo: song.rhythmSetNo || null,
+            title: song.title || null
+        });
         const container = document.getElementById(`loopPlayerContainer-${songId}`);
         if (container) container.style.display = 'none';
         return;
@@ -744,10 +800,23 @@ async function initializeLoopPlayer(songId) {
     // Show the container
     const container = document.getElementById(`loopPlayerContainer-${songId}`);
     if (!container) {
+        logLoopUiDebug('init-abort-container-missing', {
+            songId,
+            expectedContainerId: `loopPlayerContainer-${songId}`
+        });
         return;
     }
     container.style.display = 'block';
     ensureStartupConfigPresent(container, songId);
+
+    logLoopUiDebug('startup-config-dom-check', {
+        songId,
+        startupConfigExists: Boolean(document.getElementById(`loopStartupConfig-${songId}`)),
+        startupLoopExists: Boolean(document.getElementById(`loopStartupLoop-${songId}`)),
+        startupFillExists: Boolean(document.getElementById(`loopStartupFill-${songId}`)),
+        startupTempoExists: Boolean(document.getElementById(`loopStartupTempo-${songId}`)),
+        startupSaveExists: Boolean(document.getElementById(`loopStartupSaveBtn-${songId}`))
+    });
     
     // Restore expand/collapse state from localStorage
     const isExpanded = localStorage.getItem('loopPlayerExpanded') === 'true';
@@ -922,8 +991,30 @@ async function initializeLoopPlayer(songId) {
         applyStartupTempoToControls(songId, startupBehavior);
         loopPlayerInstance.setPlaybackRate(startupBehavior.tempoPercent / 100);
         bindStartupControls(songId, loopSet, startupBehavior);
+
+        const startupRootEl = document.getElementById(`loopStartupConfig-${songId}`);
+        let startupVisibility = null;
+        try {
+            startupVisibility = startupRootEl ? getComputedStyle(startupRootEl).display : null;
+        } catch {
+            startupVisibility = null;
+        }
+        logLoopUiDebug('startup-config-bind-complete', {
+            songId,
+            startupConfigExists: Boolean(startupRootEl),
+            startupDisplay: startupVisibility,
+            startupBehavior: {
+                startLoop: startupBehavior.startLoop,
+                startFill: startupBehavior.startFill,
+                tempoPercent: startupBehavior.tempoPercent
+            }
+        });
     } catch (error) {
         console.error('Error loading loops:', error);
+        logLoopUiDebug('init-error-loading-loops', {
+            songId,
+            message: error && error.message ? error.message : String(error)
+        });
         if (status) status.textContent = 'Failed to load loops';
         if (playBtn) {
             playBtn.disabled = false;

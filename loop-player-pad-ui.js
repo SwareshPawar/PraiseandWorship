@@ -589,7 +589,6 @@ function getLoopPlayerHTML(songId) {
         </div>
     </div>
 
-    ${getStartupConfigHTML(songId)}
 </div>
 `;
 }
@@ -807,7 +806,8 @@ async function initializeLoopPlayer(songId) {
         return;
     }
     container.style.display = 'block';
-    ensureStartupConfigPresent(container, songId);
+    const startupHost = document.getElementById(`loopStartupConfigHost-${songId}`);
+    ensureStartupConfigPresent(startupHost || container, songId);
 
     logLoopUiDebug('startup-config-dom-check', {
         songId,

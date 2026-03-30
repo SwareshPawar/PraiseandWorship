@@ -9728,7 +9728,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 : '';
             const isAdminUser = isAdmin();
             const shouldRenderSecondaryMeta = Boolean(
-                chordsDisplay || song.artistDetails || song.mood || song.genres || song.genre || song.rhythmCategory || isAdminUser
+                chordsDisplay || song.artistDetails || song.mood || song.genres || song.genre || song.rhythmCategory || isAdminUser || typeof getLoopPlayerHTML === 'function'
             );
             const isAdminUiDebugEnabled = (() => {
                 try {
@@ -9814,18 +9814,21 @@ window.viewSingleLyrics = function(songId, otherId) {
                     <span class="preview-meta-label">Rhythm Category</span>
                     <span class="preview-meta-value">${song.rhythmCategory}</span>
                 </div>` : ''}
-            </div>` : ''}
-
-            ${isAdminUser ? `
-            <div class="preview-meta-row preview-rhythm-set-row">
-                <span class="preview-meta-label">Rhythm Set</span>
-                <div class="preview-rhythm-set-editor">
-                    <select class="preview-rhythm-set-select" id="previewRhythmSetSelect">
-                        <option value="">-- Loading... --</option>
-                    </select>
-                    <button class="preview-rhythm-set-save-btn" id="previewRhythmSetSaveBtn" title="Save Rhythm Set">
-                        <i class="fas fa-save"></i> Save
-                    </button>
+                ${isAdminUser ? `
+                <div class="preview-meta-row preview-rhythm-set-row">
+                    <span class="preview-meta-label">Rhythm Set</span>
+                    <div class="preview-rhythm-set-editor">
+                        <select class="preview-rhythm-set-select" id="previewRhythmSetSelect">
+                            <option value="">-- Loading... --</option>
+                        </select>
+                        <button class="preview-rhythm-set-save-btn" id="previewRhythmSetSaveBtn" title="Save Rhythm Set">
+                            <i class="fas fa-save"></i> Save
+                        </button>
+                    </div>
+                </div>` : ''}
+                <div class="preview-meta-row preview-loop-startup-row">
+                    <span class="preview-meta-label">Loop Startup</span>
+                    <div class="preview-meta-value" id="loopStartupConfigHost-${song.id}"></div>
                 </div>
             </div>` : ''}
         </div>

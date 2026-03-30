@@ -586,6 +586,8 @@ function getLoopPlayerHTML(songId) {
                     <span class="pad-label">Karaoke</span>
                 </button>
             </div>
+
+            ${getStartupConfigHTML(songId)}
         </div>
     </div>
 
@@ -596,11 +598,11 @@ function getLoopPlayerHTML(songId) {
 function getStartupConfigHTML(songId) {
     return `
     <div class="loop-startup-config" id="loopStartupConfig-${songId}">
-        <button class="loop-startup-toggle" id="loopStartupToggle-${songId}" type="button" aria-expanded="true">
+        <button class="loop-startup-toggle" id="loopStartupToggle-${songId}" type="button" aria-expanded="false">
             <span><i class="fas fa-rocket"></i> Startup for this Song</span>
-            <i class="fas fa-chevron-up" id="loopStartupToggleIcon-${songId}"></i>
+            <i class="fas fa-chevron-down" id="loopStartupToggleIcon-${songId}"></i>
         </button>
-        <div class="loop-startup-body" id="loopStartupBody-${songId}">
+        <div class="loop-startup-body collapsed" id="loopStartupBody-${songId}">
             <div class="loop-startup-grid">
                 <div>
                     <label for="loopStartupLoop-${songId}">Start Loop</label>
@@ -806,8 +808,8 @@ async function initializeLoopPlayer(songId) {
         return;
     }
     container.style.display = 'block';
-    const startupHost = document.getElementById(`loopStartupConfigHost-${songId}`);
-    ensureStartupConfigPresent(startupHost || container, songId);
+    const loopContentContainer = container.querySelector(`#loopPlayerContent-${songId}`);
+    ensureStartupConfigPresent(loopContentContainer || container, songId);
 
     logLoopUiDebug('startup-config-dom-check', {
         songId,

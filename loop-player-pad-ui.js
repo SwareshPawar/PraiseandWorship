@@ -1058,6 +1058,11 @@ async function initializeLoopPlayer(songId) {
         newPad.addEventListener('click', () => {
             if (newPad.disabled) return; // Prevent clicks on disabled pads
             
+            // iOS Safari: resume AudioContext synchronously within user gesture
+            if (loopPlayerInstance.audioContext && loopPlayerInstance.audioContext.state === 'suspended') {
+                loopPlayerInstance.audioContext.resume();
+            }
+
             const loopName = newPad.dataset.loop;
             const melodicType = newPad.dataset.melodic;
             
@@ -1097,6 +1102,18 @@ async function initializeLoopPlayer(songId) {
                     window.hideFloatingStopButton(songId);
                 }
             } else {
+                // iOS Safari requires AudioContext.resume() to be called synchronously
+                // within a user gesture handler. By the time playWithStartup()'s async chain
+                // reaches _initializeSilent, the gesture context is expired and resume() fails
+                // silently, leaving audio suspended. Calling it here (before any await/async
+                // handoff) is the standard fix for "looks like playing but no sound" on iPhone.
+                if (!loopPlayerInstance.audioContext) {
+                    const AC = window.AudioContext || window.webkitAudioContext;
+                    if (AC) { try { loopPlayerInstance.audioContext = new AC(); } catch (_) {} }
+                }
+                if (loopPlayerInstance.audioContext && loopPlayerInstance.audioContext.state === 'suspended') {
+                    loopPlayerInstance.audioContext.resume(); // intentionally not awaited
+                }
                 try {
                     const startupTempo = clampStartupTempo(startupBehavior.tempoPercent);
                     loopPlayerInstance.currentLoop = startupBehavior.startLoop;
@@ -1292,6 +1309,20 @@ function toggleLoopPlayer(songId) {
         }
     }
 }
+
+// iOS Safari global audio unlock: On first touch anywhere on the page, resume the
+// AudioContext if it was created before a user gesture (e.g. during prewarm).
+// This is a one-time safety net; the play button also does its own sync resume.
+(function setupIosAudioUnlock() {
+    const unlock = () => {
+        const instance = window.getLoopPlayerInstance ? window.getLoopPlayerInstance() : null;
+        if (instance && instance.audioContext && instance.audioContext.state === 'suspended') {
+            instance.audioContext.resume().catch(() => {});
+        }
+    };
+    document.addEventListener('touchstart', unlock, { once: true, passive: true });
+    document.addEventListener('touchend', unlock, { once: true, passive: true });
+})();
 
 // CSS Styles
 function ensureLoopPlayerStylesInjected() {

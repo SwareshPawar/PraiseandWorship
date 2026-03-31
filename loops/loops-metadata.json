@@ -8115,6 +8115,300 @@
         "uploadedBy": "swareshpawar@gmail.com",
         "description": "loop3 for drum_desi_3"
       }
+    },
+    {
+      "id": "drum3-4_4_loop1",
+      "filename": "drum3-4_4_Loop1.wav",
+      "type": "loop",
+      "number": 1,
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 4,
+      "rhythmSetId": "drum3-4_4",
+      "conditions": {
+        "taal": "drum3-4",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:19:33.477Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "loop1 for drum3-4_4"
+      }
+    },
+    {
+      "id": "drum3-4_4_loop2",
+      "filename": "drum3-4_4_Loop2.wav",
+      "type": "loop",
+      "number": 2,
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 4,
+      "rhythmSetId": "drum3-4_4",
+      "conditions": {
+        "taal": "drum3-4",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:19:37.345Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "loop2 for drum3-4_4"
+      }
+    },
+    {
+      "id": "drum3-4_4_fill2",
+      "filename": "drum3-4_4_Fill2.wav",
+      "type": "fill",
+      "number": 2,
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 4,
+      "rhythmSetId": "drum3-4_4",
+      "conditions": {
+        "taal": "drum3-4",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:19:39.074Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "fill2 for drum3-4_4"
+      }
+    },
+    {
+      "id": "drum3-4_4_fill1",
+      "filename": "drum3-4_4_Fill1.wav",
+      "type": "fill",
+      "number": 1,
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 4,
+      "rhythmSetId": "drum3-4_4",
+      "conditions": {
+        "taal": "drum3-4",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:20:40.303Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "fill1 for drum3-4_4"
+      }
+    },
+    {
+      "id": "drum_4_mid_2_loop1",
+      "filename": "drum_4_mid_2_Loop1.wav",
+      "type": "loop",
+      "number": 1,
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 2,
+      "rhythmSetId": "drum_4_mid_2",
+      "conditions": {
+        "taal": "drum_4_mid",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:22:11.611Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "loop1 for drum_4_mid_2"
+      }
+    },
+    {
+      "id": "drum_4_mid_2_loop2",
+      "filename": "drum_4_mid_2_Loop2.wav",
+      "type": "loop",
+      "number": 2,
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 2,
+      "rhythmSetId": "drum_4_mid_2",
+      "conditions": {
+        "taal": "drum_4_mid",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:22:13.096Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "loop2 for drum_4_mid_2"
+      }
+    },
+    {
+      "id": "drum_4_mid_2_loop3",
+      "filename": "drum_4_mid_2_Loop3.wav",
+      "type": "loop",
+      "number": 3,
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 2,
+      "rhythmSetId": "drum_4_mid_2",
+      "conditions": {
+        "taal": "drum_4_mid",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:22:17.013Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "loop3 for drum_4_mid_2"
+      }
+    },
+    {
+      "id": "drum_4_mid_2_fill2",
+      "filename": "drum_4_mid_2_Fill2.wav",
+      "type": "fill",
+      "number": 2,
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 2,
+      "rhythmSetId": "drum_4_mid_2",
+      "conditions": {
+        "taal": "drum_4_mid",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:22:18.540Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "fill2 for drum_4_mid_2"
+      }
+    },
+    {
+      "id": "drum_4_mid_2_fill1",
+      "filename": "drum_4_mid_2_Fill1.wav",
+      "type": "fill",
+      "number": 1,
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 2,
+      "rhythmSetId": "drum_4_mid_2",
+      "conditions": {
+        "taal": "drum_4_mid",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:23:23.320Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "fill1 for drum_4_mid_2"
+      }
+    },
+    {
+      "id": "drum_4_mid_2_fill3",
+      "filename": "drum_4_mid_2_Fill3.wav",
+      "type": "fill",
+      "number": 3,
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 2,
+      "rhythmSetId": "drum_4_mid_2",
+      "conditions": {
+        "taal": "drum_4_mid",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:23:29.062Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "fill3 for drum_4_mid_2"
+      }
+    },
+    {
+      "id": "waltz_1_loop1",
+      "filename": "waltz_1_Loop1.wav",
+      "type": "loop",
+      "number": 1,
+      "rhythmFamily": "waltz",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "waltz_1",
+      "conditions": {
+        "taal": "waltz",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:24:22.407Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "loop1 for waltz_1"
+      }
+    },
+    {
+      "id": "waltz_1_loop2",
+      "filename": "waltz_1_Loop2.wav",
+      "type": "loop",
+      "number": 2,
+      "rhythmFamily": "waltz",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "waltz_1",
+      "conditions": {
+        "taal": "waltz",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:24:24.058Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "loop2 for waltz_1"
+      }
+    },
+    {
+      "id": "waltz_1_fill1",
+      "filename": "waltz_1_Fill1.wav",
+      "type": "fill",
+      "number": 1,
+      "rhythmFamily": "waltz",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "waltz_1",
+      "conditions": {
+        "taal": "waltz",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:24:25.760Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "fill1 for waltz_1"
+      }
+    },
+    {
+      "id": "waltz_1_fill2",
+      "filename": "waltz_1_Fill2.wav",
+      "type": "fill",
+      "number": 2,
+      "rhythmFamily": "waltz",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "waltz_1",
+      "conditions": {
+        "taal": "waltz",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-03-31T20:24:27.508Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "fill2 for waltz_1"
+      }
     }
   ],
   "rhythmSets": [
@@ -8536,7 +8830,25 @@
       "rhythmSetId": "drum_desi_3",
       "rhythmFamily": "drum_desi",
       "rhythmSetNo": 3,
-      "fileCount": 2
+      "fileCount": 3
+    },
+    {
+      "rhythmSetId": "drum3-4_4",
+      "rhythmFamily": "drum3-4",
+      "rhythmSetNo": 4,
+      "fileCount": 4
+    },
+    {
+      "rhythmSetId": "drum_4_mid_2",
+      "rhythmFamily": "drum_4_mid",
+      "rhythmSetNo": 2,
+      "fileCount": 6
+    },
+    {
+      "rhythmSetId": "waltz_1",
+      "rhythmFamily": "waltz",
+      "rhythmSetNo": 1,
+      "fileCount": 4
     }
   ],
   "tempoRanges": {

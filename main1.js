@@ -9247,8 +9247,20 @@ window.viewSingleLyrics = function(songId, otherId) {
                     score += recommendationWeights.timeSignature * 0.9;
                 }
 
-                // 4. Taal match
-                details.taalMatch = currentSong.taal === song.taal;
+                    // 4. Rhythm-set match takes priority over taal. If both songs already have
+                    // explicit rhythmSetId values and they differ, do not fall back to a broad
+                    // taal match because that would over-score songs from different set variants.
+                    const currentRhythmSetId = String(currentSong.rhythmSetId || '').trim().toLowerCase();
+                    const candidateRhythmSetId = String(song.rhythmSetId || '').trim().toLowerCase();
+                    details.rhythmSetMatch = Boolean(
+                        currentRhythmSetId &&
+                        candidateRhythmSetId &&
+                        currentRhythmSetId === candidateRhythmSetId
+                    );
+                    details.taalMatch = details.rhythmSetMatch || (
+                        !(currentRhythmSetId && candidateRhythmSetId) &&
+                        currentSong.taal === song.taal
+                    );
                 if (details.taalMatch) score += recommendationWeights.taal;
 
                 // 5. Tempo similarity

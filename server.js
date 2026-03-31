@@ -295,6 +295,103 @@ function isEquivalentTimeSignature(left, right) {
   return Array.isArray(map[left]) && map[left].includes(right);
 }
 
+async function recommendRhythmSetForSong(song) {
+  const { metadata } = readLoopsMetadataSafe();
+  const sets = buildRhythmSetIndexFromMetadata(metadata);
+  if (!sets.length) return null;
+
+  const rhythmSetsCollection = db ? db.collection('RhythmSets') : null;
+  const rhythmSetCategoryMap = new Map();
+  if (rhythmSetsCollection) {
+    try {
+      const setDocs = await rhythmSetsCollection.find(
+        {},
+        { projection: { _id: 0, rhythmSetId: 1, 'derivedTags.rhythmCategories': 1 } }
+      ).toArray();
+      setDocs.forEach(doc => {
+        const categories = Array.isArray(doc?.derivedTags?.rhythmCategories)
+          ? doc.derivedTags.rhythmCategories.map(normalizeRhythmCategory).filter(Boolean)
+          : [];
+        rhythmSetCategoryMap.set(doc.rhythmSetId, categories);
+      });
+    } catch (error) {
+      console.warn('Could not load rhythm-set category tags for recommendation:', error.message);
+    }
+  }
+
+  const explicitFamily = normalizeRhythmFamily(song?.rhythmFamily || song?.taal || '');
+  const explicitNo = normalizeRhythmSetNo(song?.rhythmSetNo || song?.setNo || null);
+  const explicitId = buildRhythmSetId(explicitFamily, explicitNo);
+  if (explicitId) {
+    const explicitMatch = sets.find(set => set.rhythmSetId === explicitId);
+    if (explicitMatch) {
+      return {
+        rhythmSetId: explicitMatch.rhythmSetId,
+        rhythmFamily: explicitMatch.rhythmFamily,
+        rhythmSetNo: explicitMatch.rhythmSetNo,
+        score: 100,
+        reason: 'explicit-selection'
+      };
+    }
+  }
+
+  const songFamily = normalizeRhythmFamily(song?.taal || song?.rhythmFamily || '');
+  const songRhythmCategory = normalizeRhythmCategory(song?.rhythmCategory || '');
+  const songTime = String(song?.time || song?.timeSignature || '').trim();
+  const songTempo = getTempoCategoryFromValue(song?.tempo || song?.bpm);
+  const songGenres = getSongGenreList(song);
+
+  let best = null;
+
+  for (const set of sets) {
+    let score = 0;
+
+    if (songFamily && set.rhythmFamily === songFamily) {
+      score += 20;
+    }
+
+    const setTime = String(set.conditionsHint?.timeSignature || '').trim();
+    if (songTime && setTime) {
+      if (songTime === setTime) {
+        score += 8;
+      } else if (isEquivalentTimeSignature(songTime, setTime)) {
+        score += 5;
+      }
+    }
+
+    const setTempo = String(set.conditionsHint?.tempo || '').trim().toLowerCase();
+    if (songTempo && setTempo && songTempo === setTempo) {
+      score += 4;
+    }
+
+    const setGenre = String(set.conditionsHint?.genre || '').trim().toLowerCase();
+    if (setGenre && songGenres.some(g => g === setGenre || g.includes(setGenre) || setGenre.includes(g))) {
+      score += 3;
+    }
+
+    const setRhythmCategories = rhythmSetCategoryMap.get(set.rhythmSetId) || [];
+    if (songRhythmCategory && setRhythmCategories.includes(songRhythmCategory)) {
+      score += 6;
+    }
+
+    if (set.loopCount >= 6) {
+      score += 1;
+    }
+
+    if (!best || score > best.score) {
+      best = {
+        rhythmSetId: set.rhythmSetId,
+        rhythmFamily: set.rhythmFamily,
+        rhythmSetNo: set.rhythmSetNo,
+        score,
+        reason: 'auto-top-recommendation'
+      };
+    }
+  }
+
+  return best;
+}
+
 function resolveSongRhythmSelection(songPayload, recommendation) {
   const parsedFromId = parseRhythmSetId(songPayload && songPayload.rhythmSetId || '');
 
@@ -1103,7 +1200,13 @@ app.post('/api/songs', authMiddleware, async (req, res) => {
     await ensureSongsUseCanonicalIds();
 
     req.body.rhythmCategory = normalizeRhythmCategory(req.body.rhythmCategory || '');
-    const resolvedRhythm = resolveSongRhythmSelection(req.body, null);
+    const recommendation = await recommendRhythmSetForSong(req.body);
+    const resolvedRhythm = resolveSongRhythmSelection(req.body, recommendation);
+    if (!resolvedRhythm.rhythmSetId) {
+      return res.status(400).json({
+        error: 'Unable to assign rhythmSetId. Provide Rhythm Family + Set No or ensure matching loop sets exist.'
+      });
+    }
     req.body.rhythmFamily = resolvedRhythm.rhythmFamily;
     req.body.rhythmSetNo = resolvedRhythm.rhythmSetNo;
     req.body.rhythmSetId = resolvedRhythm.rhythmSetId;
@@ -1209,13 +1312,33 @@ app.put('/api/songs/:id', authMiddleware, async (req, res) => {
     req.body.rhythmCategory = normalizeRhythmCategory(incomingRhythmCategory || '');
 
     const mergedSong = { ...existingSong, ...req.body };
-    const resolvedRhythm = resolveSongRhythmSelection(mergedSong, null);
+    const recommendation = await recommendRhythmSetForSong(mergedSong);
+    const resolvedRhythm = resolveSongRhythmSelection(mergedSong, recommendation);
+    if (!resolvedRhythm.rhythmSetId && !existingSong.rhythmSetId) {
+      return res.status(400).json({
+        error: 'Unable to assign rhythmSetId. Provide Rhythm Family + Set No or ensure matching loop sets exist.'
+      });
+    }
     req.body.rhythmFamily = resolvedRhythm.rhythmFamily || existingSong.rhythmFamily || '';
     req.body.rhythmSetNo = resolvedRhythm.rhythmSetNo || existingSong.rhythmSetNo || null;
     req.body.rhythmSetId = resolvedRhythm.rhythmSetId || existingSong.rhythmSetId || '';
     req.body.rhythmRecommendation = resolvedRhythm.recommendation || existingSong.rhythmRecommendation || null;
 
     if (req.body.category === 'Praise') {
+
+app.post('/api/rhythm-sets/recommend', authMiddleware, async (req, res) => {
+  try {
+    const recommendation = await recommendRhythmSetForSong(req.body || {});
+    if (!recommendation) {
+      return res.status(404).json({ error: 'No rhythm set recommendation available' });
+    }
+
+    res.json(recommendation);
+  } catch (error) {
+    console.error('Error recommending rhythm set:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
       req.body.category = 'praise';
     } else if (req.body.category === 'Worship') {
       req.body.category = 'worship';

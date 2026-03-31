@@ -158,6 +158,18 @@ class LoopPlayerPad {
                 if (this.nextFill) {
                     const fill = this.nextFill;
                     this.nextFill = null;
+
+                    if (!this._hasFillAvailable(fill)) {
+                        const targetLoop = this.nextLoop || this.currentLoop;
+                        this.currentLoop = targetLoop;
+                        this.nextLoop = null;
+
+                        if (this.onPadActive) this.onPadActive(targetLoop);
+                        if (this.onLoopChange) this.onLoopChange(targetLoop);
+
+                        this._playWithSoundtouch(targetLoop, true);
+                        return;
+                    }
                     
                     if (this.onPadActive) this.onPadActive(fill);
                     if (this.onLoopChange) this.onLoopChange(fill);
@@ -223,6 +235,10 @@ class LoopPlayerPad {
         await this._playWithSoundtouch(this.currentLoop, true);
     }
 
+    _hasFillAvailable(fillName) {
+        return ['fill1', 'fill2', 'fill3'].includes(fillName) && this.audioBuffers.has(fillName);
+    }
+
     /**
      * Pause playback
      */
@@ -250,7 +266,8 @@ class LoopPlayerPad {
 
         if (this.autoFill && loopName !== this.currentLoop) {
             const currentLoopNum = this.currentLoop.replace('loop', '');
-            this.nextFill = `fill${currentLoopNum}`;
+            const candidateFill = `fill${currentLoopNum}`;
+            this.nextFill = this._hasFillAvailable(candidateFill) ? candidateFill : null;
         }
 
         this.nextLoop = loopName;
@@ -260,7 +277,7 @@ class LoopPlayerPad {
      * Play fill
      */
     playFill(fillName) {
-        if (!['fill1', 'fill2', 'fill3'].includes(fillName)) return;
+        if (!this._hasFillAvailable(fillName)) return;
         this.nextFill = fillName;
     }
 

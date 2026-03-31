@@ -108,6 +108,9 @@ const {
 const {
   buildRhythmSetIndexFromMetadata,
   buildRhythmSetId,
+  buildLoopFilename,
+  buildLoopId,
+  normalizeLoopType,
   normalizeRhythmFamily,
   normalizeRhythmSetNo,
   parseRhythmSetId,
@@ -1235,6 +1238,13 @@ app.get('/api/songs/bulk-rhythm-recommend', authMiddleware, requireAdmin, async 
       });
     }
 
+    results.sort((a, b) => {
+      const scoreA = Number(a?.recommendation?.score || 0);
+      const scoreB = Number(b?.recommendation?.score || 0);
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return String(a?.title || '').localeCompare(String(b?.title || ''));
+    });
+
     res.json({
       results,
       total,
@@ -2156,12 +2166,13 @@ app.get('/api/loops/local-files', authMiddleware, requireAdmin, async (req, res)
 // POST /api/loops/upload-single - Upload a single loop/fill file
 app.post('/api/loops/upload-single', authMiddleware, loopUpload.single('file'), async (req, res) => {
   try {
-    const { timeSignature, tempo, genre, type, number, description } = req.body;
+    const { timeSignature, tempo, genre, number, description } = req.body;
     const requestedTaal = req.body?.taal || '';
     const rhythmFamily = normalizeRhythmFamily(req.body?.rhythmFamily || requestedTaal);
     const taal = rhythmFamily || normalizeRhythmFamily(requestedTaal);
     const rhythmSetNo = normalizeRhythmSetNo(req.body?.rhythmSetNo || req.body?.setNo || 1) || 1;
     const rhythmSetId = buildRhythmSetId(rhythmFamily, rhythmSetNo);
+    const type = normalizeLoopType(req.body?.type);
     const file = req.file;
 
     if (!file) {
@@ -2202,15 +2213,38 @@ app.post('/api/loops/upload-single', authMiddleware, loopUpload.single('file'), 
       return res.status(500).json({ error: 'Failed to read loop metadata' });
     }
 
-    // Generate correct filename based on naming convention
-    const taalSanitized = taal.replace(/[\/\\:*?"<>|]/g, '_').replace(/\s+/g, '_').trim();
-    const timeFormatted = timeSignature.replace(/[\/\\:*?"<>|]/g, '_').replace(/\s+/g, '_').trim();
-    const tempoSanitized = tempo.replace(/[\/\\:*?"<>|]/g, '_').replace(/\s+/g, '_').trim();
-    const genreSanitized = genre.replace(/[\/\\:*?"<>|]/g, '_').replace(/\s+/g, '_').trim();
-    
-    const basePattern = `${taalSanitized}_${timeFormatted}_${tempoSanitized}_${genreSanitized}`;
-    const typeUpper = type.toUpperCase();
-    const correctFilename = `${basePattern}_${typeUpper}${number}.wav`;
+    const correctFilename = buildLoopFilename({
+      taal,
+      rhythmSetNo,
+      timeSignature,
+      tempo,
+      genre,
+      type,
+      number
+    });
+    const loopId = buildLoopId({
+      taal,
+      rhythmSetNo,
+      timeSignature,
+      tempo,
+      genre,
+      type,
+      number
+    });
+
+    if (!correctFilename || !loopId) {
+      return res.status(400).json({ error: 'Could not derive filename/id from provided metadata' });
+    }
+
+    const conflictingLoop = Array.isArray(metadata.loops)
+      ? metadata.loops.find(loop => loop.filename === correctFilename && loop.rhythmSetId !== rhythmSetId)
+      : null;
+    if (conflictingLoop) {
+      return res.status(409).json({
+        error: `Filename collision for ${correctFilename}`,
+        details: `Existing loop belongs to ${conflictingLoop.rhythmSetId}. Review rhythm family/set number or conditions.`
+      });
+    }
 
     // Rename uploaded file
     const oldPath = file.path;
@@ -2232,7 +2266,6 @@ app.post('/api/loops/upload-single', authMiddleware, loopUpload.single('file'), 
     }
 
     // Create metadata entry
-    const loopId = `${basePattern}_${type}${number}`;
     const loopEntry = {
       id: loopId,
       filename: correctFilename,
@@ -2301,7 +2334,7 @@ app.post('/api/loops/upload-single', authMiddleware, loopUpload.single('file'), 
       success: true,
       filename: correctFilename,
       id: loopId,
-      pattern: basePattern,
+      pattern: correctFilename.replace(/_(LOOP|FILL)\d+\.wav$/i, ''),
       rhythmSetId
     });
   } catch (error) {

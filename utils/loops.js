@@ -270,34 +270,31 @@ function normalizeLoopType(value) {
   return '';
 }
 
-function buildLoopFilename({ taal, timeSignature, tempo, genre, type, number }) {
+function buildLoopFilename({ taal, rhythmSetNo, timeSignature, tempo, genre, type, number }) {
   const safeTaal = sanitizeFileSegment(taal).toLowerCase();
-  const safeTime = sanitizeFileSegment(String(timeSignature || '').replace('/', '_'));
-  const safeTempo = sanitizeFileSegment(tempo).toLowerCase();
-  const safeGenre = sanitizeFileSegment(genre).toLowerCase();
-  const safeType = String(type || '').toUpperCase();
+  const safeSetNo = normalizeRhythmSetNo(rhythmSetNo);
+  const safeType = String(type || '').trim().toLowerCase();
   const safeNo = parseInt(number, 10);
+  const typeLabel = safeType === 'loop' ? 'Loop' : safeType === 'fill' ? 'Fill' : '';
 
-  if (!safeTaal || !safeTime || !safeTempo || !safeGenre || !safeType || !safeNo) {
+  if (!safeTaal || !safeSetNo || !typeLabel || !safeNo) {
     return null;
   }
 
-  return `${safeTaal}_${safeTime}_${safeTempo}_${safeGenre}_${safeType}${safeNo}.wav`;
+  return `${safeTaal}_${safeSetNo}_${typeLabel}${safeNo}.wav`;
 }
 
-function buildLoopId({ taal, timeSignature, tempo, genre, type, number }) {
+function buildLoopId({ taal, rhythmSetNo, timeSignature, tempo, genre, type, number }) {
   const safeTaal = sanitizeFileSegment(taal).toLowerCase();
-  const safeTime = sanitizeFileSegment(String(timeSignature || '').replace('/', '_')).toLowerCase();
-  const safeTempo = sanitizeFileSegment(tempo).toLowerCase();
-  const safeGenre = sanitizeFileSegment(genre).toLowerCase();
+  const safeSetNo = normalizeRhythmSetNo(rhythmSetNo);
   const safeType = String(type || '').toLowerCase();
   const safeNo = parseInt(number, 10);
 
-  if (!safeTaal || !safeTime || !safeTempo || !safeGenre || !safeType || !safeNo) {
+  if (!safeTaal || !safeSetNo || !safeType || !safeNo) {
     return null;
   }
 
-  return `${safeTaal}_${safeTime}_${safeTempo}_${safeGenre}_${safeType}${safeNo}`;
+  return `${safeTaal}_${safeSetNo}_${safeType}${safeNo}`;
 }
 
 function readLoopsMetadataSafe() {

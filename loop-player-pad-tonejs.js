@@ -120,6 +120,13 @@ class LoopPlayerPad {
         this._playLoop(this.currentLoop, true);
     }
 
+    _hasFillAvailable(fillName) {
+        if (!['fill1', 'fill2', 'fill3'].includes(fillName)) return false;
+        if (!this.players || !this.players.has(fillName)) return false;
+        const player = this.players.player(fillName);
+        return Boolean(player && player.buffer);
+    }
+
     /**
      * Pause playback
      */
@@ -152,7 +159,8 @@ class LoopPlayerPad {
         // If auto-fill is on, queue fill matching the CURRENT loop (source)
         if (this.autoFill && loopName !== this.currentLoop) {
             const currentLoopNum = this.currentLoop.replace('loop', '');
-            this.nextFill = `fill${currentLoopNum}`;
+            const candidateFill = `fill${currentLoopNum}`;
+            this.nextFill = this._hasFillAvailable(candidateFill) ? candidateFill : null;
         }
 
         this.nextLoop = loopName;
@@ -163,7 +171,7 @@ class LoopPlayerPad {
      * @param {string} fillName - 'fill1', 'fill2', or 'fill3'
      */
     playFill(fillName) {
-        if (!['fill1', 'fill2', 'fill3'].includes(fillName)) {
+        if (!this._hasFillAvailable(fillName)) {
             return;
         }
 
@@ -255,6 +263,19 @@ class LoopPlayerPad {
                     // Play queued fill
                     const fill = this.nextFill;
                     this.nextFill = null;
+
+                    // If fill is missing in this set, switch loops without trying a fill.
+                    if (!this._hasFillAvailable(fill)) {
+                        const targetLoop = this.nextLoop || this.currentLoop;
+                        this.currentLoop = targetLoop;
+                        this.nextLoop = null;
+
+                        if (this.onPadActive) this.onPadActive(targetLoop);
+                        if (this.onLoopChange) this.onLoopChange(targetLoop);
+
+                        this._playLoop(targetLoop, true);
+                        return;
+                    }
                     
                     if (this.onPadActive) this.onPadActive(fill);
                     if (this.onLoopChange) this.onLoopChange(fill);

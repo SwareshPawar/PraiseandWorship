@@ -125,6 +125,7 @@ module.exports = async (req, res) => {
 
       const filename = buildLoopFilename({
         taal: rhythmFamily,
+        rhythmSetNo,
         timeSignature,
         tempo,
         genre,
@@ -133,6 +134,7 @@ module.exports = async (req, res) => {
       });
       const loopId = buildLoopId({
         taal: rhythmFamily,
+        rhythmSetNo,
         timeSignature,
         tempo,
         genre,
@@ -142,6 +144,16 @@ module.exports = async (req, res) => {
 
       if (!filename || !loopId) {
         return res.status(400).json({ error: 'Could not derive filename/id from provided metadata' });
+      }
+
+      const conflictingLoop = Array.isArray(metadata.loops)
+        ? metadata.loops.find(loop => loop.filename === filename && loop.rhythmSetId !== rhythmSetId)
+        : null;
+      if (conflictingLoop) {
+        return res.status(409).json({
+          error: `Filename collision for ${filename}`,
+          details: `Existing loop belongs to ${conflictingLoop.rhythmSetId}. Review rhythm family/set number or conditions.`
+        });
       }
 
       fs.mkdirSync(loopsDir, { recursive: true });

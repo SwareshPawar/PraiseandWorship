@@ -667,6 +667,10 @@ class LoopPlayerPad {
         }
     }
 
+    _hasFillAvailable(fillName) {
+        return ['fill1', 'fill2', 'fill3'].includes(fillName) && this.audioBuffers.has(fillName);
+    }
+
     /**
      * Switch to a different loop pad (queued - waits for current to finish)
      * @param {string} loopName - 'loop1', 'loop2', or 'loop3'
@@ -679,7 +683,8 @@ class LoopPlayerPad {
         // If auto-fill is on, queue fill matching the CURRENT loop (source)
         if (this.autoFill && loopName !== this.currentLoop) {
             const currentLoopNum = this.currentLoop.replace('loop', '');
-            this.nextFill = `fill${currentLoopNum}`;
+            const candidateFill = `fill${currentLoopNum}`;
+            this.nextFill = this._hasFillAvailable(candidateFill) ? candidateFill : null;
         }
 
         this.nextLoop = loopName;
@@ -690,7 +695,7 @@ class LoopPlayerPad {
      * @param {string} fillName - 'fill1', 'fill2', or 'fill3'
      */
     playFill(fillName) {
-        if (!['fill1', 'fill2', 'fill3'].includes(fillName)) {
+        if (!this._hasFillAvailable(fillName)) {
             return;
         }
 
@@ -1466,6 +1471,19 @@ class LoopPlayerPad {
                     // Play queued fill
                     const fill = this.nextFill;
                     this.nextFill = null;
+
+                    // Sparse sets can miss fills; skip directly to target loop.
+                    if (!this._hasFillAvailable(fill)) {
+                        const targetLoop = this.nextLoop || this.currentLoop;
+                        this.currentLoop = targetLoop;
+                        this.nextLoop = null;
+
+                        if (this.onPadActive && targetLoop) this.onPadActive(targetLoop);
+                        if (this.onLoopChange) this.onLoopChange(targetLoop);
+
+                        this._playLoop(targetLoop, true);
+                        return;
+                    }
                     
                     if (this.onPadActive && fill) this.onPadActive(fill);
                     if (this.onLoopChange) this.onLoopChange(fill);

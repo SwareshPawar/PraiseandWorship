@@ -268,25 +268,22 @@ function updateFilenamePreview() {
     const rhythmFamily = document.getElementById('rhythmFamilyInput').value;
     const rhythmSetNo = document.getElementById('rhythmSetNoInput').value;
     const taal = normalizeRhythmFamily(rhythmFamily);
-    const time = document.getElementById('timeInput').value.replace('/', '_');
-    const tempo = document.getElementById('tempoInput').value;
-    const genre = document.getElementById('genreInput').value;
     const rhythmSetId = buildRhythmSetId(rhythmFamily, rhythmSetNo);
 
     const preview = document.getElementById('filenamePreview');
     
-    if (rhythmSetId && time && tempo && genre) {
-        const pattern = `${taal}_${time}_${tempo}_${genre}`;
+    if (rhythmSetId) {
+        const pattern = `${taal}_${rhythmSetNo}`;
         preview.innerHTML = `
             <div style="margin-bottom: 8px; color: #2d3748; font-size: 0.95em;">Rhythm Set: <strong>${rhythmSetId}</strong></div>
-            <div style="margin-bottom: 10px; color: #667eea; font-size: 1.1em;">${pattern}_TYPE#.wav</div>
+            <div style="margin-bottom: 10px; color: #667eea; font-size: 1.1em;">${pattern}_Loop#.wav</div>
             <div style="font-size: 0.85em; color: #666;">
-                <div>• ${pattern}_LOOP1.wav</div>
-                <div>• ${pattern}_LOOP2.wav</div>
-                <div>• ${pattern}_LOOP3.wav</div>
-                <div>• ${pattern}_FILL1.wav</div>
-                <div>• ${pattern}_FILL2.wav</div>
-                <div>• ${pattern}_FILL3.wav</div>
+                <div>• ${pattern}_Loop1.wav</div>
+                <div>• ${pattern}_Loop2.wav</div>
+                <div>• ${pattern}_Loop3.wav</div>
+                <div>• ${pattern}_Fill1.wav</div>
+                <div>• ${pattern}_Fill2.wav</div>
+                <div>• ${pattern}_Fill3.wav</div>
             </div>
         `;
         

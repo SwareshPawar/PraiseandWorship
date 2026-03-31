@@ -3,7 +3,6 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.getRegistrations()
             .then((registrations) => Promise.all(registrations.map((reg) => reg.unregister())))
-            })
             .catch((err) => {
                 console.warn('Service Worker: Failed to unregister existing registrations', err);
             });
@@ -18,7 +17,6 @@ if ('caches' in window) {
                     .filter((key) => key.startsWith('pw-'))
                     .map((key) => caches.delete(key))
             ))
-            })
             .catch((err) => {
                 console.warn('Cache Storage: Failed to clear Praise & Worship caches', err);
             });
@@ -187,11 +185,10 @@ function setBackend(backend) {
     }
     localStorage.setItem('pw_admin_backend', 'vercel');
 }
-}
 
 setBackend(getStoredBackend());
 // Frontend: GitHub Pages (https://swareshpawar.github.io/PraiseandWorship/)
-// Backend: Vercel same-origin (or Vercel hosted API for GitHub Pages)S ---
+// Backend: Vercel same-origin (or Vercel hosted API for GitHub Pages)
 const PW_CHORDS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B"];
 const PW_NOTE_TO_SEMITONE = {
     C: 0,

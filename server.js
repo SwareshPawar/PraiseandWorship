@@ -1198,10 +1198,32 @@ app.get('/api/songs/deleted', async (req, res) => {
 app.get('/api/songs/bulk-rhythm-recommend', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const filter = req.query.filter || 'unassigned'; // 'unassigned' | 'all'
-    const allSongs = await songsCollection.find({}).toArray();
-    const targetSongs = filter === 'all'
-      ? allSongs
-      : allSongs.filter(s => !s.rhythmSetId);
+    const rawPage = parseInt(req.query.page, 10);
+    const rawLimit = parseInt(req.query.limit, 10);
+    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+    const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 100) : 25;
+
+    const query = filter === 'all'
+      ? {}
+      : {
+          $or: [
+            { rhythmSetId: { $exists: false } },
+            { rhythmSetId: null },
+            { rhythmSetId: '' }
+          ]
+        };
+
+    const total = await songsCollection.countDocuments(query);
+    const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
+    const safePage = Math.min(page, totalPages);
+    const skip = (safePage - 1) * limit;
+
+    const targetSongs = await songsCollection
+      .find(query)
+      .sort({ id: 1, _id: 1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
 
     const results = [];
     for (const song of targetSongs) {
@@ -1220,7 +1242,15 @@ app.get('/api/songs/bulk-rhythm-recommend', authMiddleware, requireAdmin, async 
       });
     }
 
-    res.json({ results, total: results.length, filter });
+    res.json({
+      results,
+      total,
+      filter,
+      page: safePage,
+      limit,
+      totalPages,
+      hasMore: safePage < totalPages
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

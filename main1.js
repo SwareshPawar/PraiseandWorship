@@ -3307,12 +3307,25 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
                         <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-color);">
                             <input type="radio" name="rhythmAssignFilter" value="all"> All Songs
                         </label>
+                        <label style="display: flex; align-items: center; gap: 6px; color: var(--text-color);">
+                            Page Size
+                            <select id="rhythmAssignPageSize" style="padding: 4px 6px; border-radius: 4px; border: 1px solid var(--input-border, #cfd8dc);">
+                                <option value="10">10</option>
+                                <option value="25" selected>25</option>
+                                <option value="50">50</option>
+                            </select>
+                        </label>
                         <button id="rhythmAssignRunBtn" class="btn" style="background: var(--accent-color, #3498db); color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;">
                             <i class="fas fa-play"></i> Run Recommendations
                         </button>
                         <button id="rhythmAssignApplyAllBtn" class="btn" style="background: #27ae60; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; display: none;">
                             <i class="fas fa-check-double"></i> Apply All Shown
                         </button>
+                    </div>
+                    <div id="rhythmAssignPager" style="display:none; align-items:center; gap:8px; margin: 0 0 8px 0;">
+                        <button id="rhythmAssignPrevBtn" class="btn" style="padding: 4px 10px;">Prev</button>
+                        <span id="rhythmAssignPageInfo" style="font-size: 0.88em; color: var(--text-muted);"></span>
+                        <button id="rhythmAssignNextBtn" class="btn" style="padding: 4px 10px;">Next</button>
                     </div>
                     <div id="rhythmAssignStatus" style="font-size: 0.92em; color: var(--text-muted); min-height: 20px;"></div>
                 </div>
@@ -3324,13 +3337,65 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         const applyAllBtn = container.querySelector('#rhythmAssignApplyAllBtn');
         const statusEl = container.querySelector('#rhythmAssignStatus');
         const resultsEl = container.querySelector('#rhythmAssignResults');
+        const pageSizeEl = container.querySelector('#rhythmAssignPageSize');
+        const pagerEl = container.querySelector('#rhythmAssignPager');
+        const prevBtn = container.querySelector('#rhythmAssignPrevBtn');
+        const nextBtn = container.querySelector('#rhythmAssignNextBtn');
+        const pageInfoEl = container.querySelector('#rhythmAssignPageInfo');
+
+        const state = container._rhythmAssignState || {
+            filter: 'unassigned',
+            page: 1,
+            limit: 25,
+            total: 0,
+            totalPages: 1
+        };
+        container._rhythmAssignState = state;
+
+        function updatePager() {
+            const showPager = state.total > 0;
+            pagerEl.style.display = showPager ? 'flex' : 'none';
+            if (!showPager) return;
+            pageInfoEl.textContent = `Page ${state.page} of ${state.totalPages} • ${state.total} total songs`;
+            prevBtn.disabled = state.page <= 1;
+            nextBtn.disabled = state.page >= state.totalPages;
+        }
+
+        async function loadRecommendationsPage(pageToLoad = 1) {
+            state.filter = container.querySelector('input[name="rhythmAssignFilter"]:checked')?.value || 'unassigned';
+            state.limit = parseInt(pageSizeEl?.value || '25', 10) || 25;
+            state.page = Math.max(1, pageToLoad);
+
+            statusEl.textContent = `Loading recommendations (page ${state.page})...`;
+            resultsEl.innerHTML = '';
+            applyAllBtn.style.display = 'none';
+
+            const res = await authFetch(`${API_BASE_URL}/api/songs/bulk-rhythm-recommend?filter=${state.filter}&page=${state.page}&limit=${state.limit}`);
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.error || `HTTP ${res.status}`);
+            }
+
+            const data = await res.json();
+            state.page = Number(data.page || 1);
+            state.total = Number(data.total || 0);
+            state.totalPages = Number(data.totalPages || 1);
+
+            renderRhythmAssignResults(data.results || [], resultsEl, statusEl, applyAllBtn);
+
+            const currentCount = Array.isArray(data.results) ? data.results.length : 0;
+            const withRecCount = (data.results || []).filter(item => item && item.recommendation).length;
+            const noRecCount = currentCount - withRecCount;
+            statusEl.textContent = `${currentCount} songs on this page — ${withRecCount} have recommendations, ${noRecCount} no match.`;
+
+            updatePager();
+        }
 
         // Bind run button (replace to avoid duplicate listeners)
         const newRunBtn = runBtn.cloneNode(true);
         runBtn.parentNode.replaceChild(newRunBtn, runBtn);
 
         newRunBtn.addEventListener('click', async () => {
-            const filter = container.querySelector('input[name="rhythmAssignFilter"]:checked')?.value || 'unassigned';
             newRunBtn.disabled = true;
             newRunBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
             statusEl.textContent = '';
@@ -3338,21 +3403,49 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
             applyAllBtn.style.display = 'none';
 
             try {
-                const res = await authFetch(`${API_BASE_URL}/api/songs/bulk-rhythm-recommend?filter=${filter}`);
-                if (!res.ok) {
-                    const err = await res.json().catch(() => ({}));
-                    statusEl.textContent = `Error: ${err.error || res.status}`;
-                    return;
-                }
-                const data = await res.json();
-                renderRhythmAssignResults(data.results || [], resultsEl, statusEl, applyAllBtn);
+                await loadRecommendationsPage(1);
             } catch (e) {
-                statusEl.textContent = `Network error: ${e.message}`;
+                const isAbort = e && (e.name === 'AbortError' || String(e.message || '').toLowerCase().includes('aborted'));
+                statusEl.textContent = isAbort
+                    ? 'Request timed out while scanning songs. Try smaller page size and rerun.'
+                    : `Network error: ${e.message}`;
             } finally {
                 newRunBtn.disabled = false;
                 newRunBtn.innerHTML = '<i class="fas fa-play"></i> Run Recommendations';
             }
         });
+
+        if (pageSizeEl) {
+            pageSizeEl.onchange = async () => {
+                try {
+                    await loadRecommendationsPage(1);
+                } catch (e) {
+                    statusEl.textContent = `Network error: ${e.message}`;
+                }
+            };
+        }
+
+        if (prevBtn) {
+            prevBtn.onclick = async () => {
+                if (state.page <= 1) return;
+                try {
+                    await loadRecommendationsPage(state.page - 1);
+                } catch (e) {
+                    statusEl.textContent = `Network error: ${e.message}`;
+                }
+            };
+        }
+
+        if (nextBtn) {
+            nextBtn.onclick = async () => {
+                if (state.page >= state.totalPages) return;
+                try {
+                    await loadRecommendationsPage(state.page + 1);
+                } catch (e) {
+                    statusEl.textContent = `Network error: ${e.message}`;
+                }
+            };
+        }
 
         // Apply-all button handler (bound once per render)
         const newApplyAllBtn = applyAllBtn.cloneNode(true);
@@ -3389,14 +3482,11 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         }
         if (!results.length) {
             resultsEl.innerHTML = '<p style="color: var(--text-muted); padding: 8px 0;">No songs found for selected filter.</p>';
-            statusEl.textContent = '';
             return;
         }
 
         const withRec = results.filter(r => r.recommendation);
         const noRec = results.filter(r => !r.recommendation);
-
-        statusEl.textContent = `${results.length} songs scanned — ${withRec.length} have recommendations, ${noRec.length} could not be matched.`;
 
         if (withRec.length) applyAllBtn.style.display = '';
 

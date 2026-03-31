@@ -262,10 +262,7 @@ function optimizeMemoryUsage() {
         window.CollectGarbage();
     } else {
         try {
-            if (window.performance && window.performance.memory) {
-                console.log("Memory usage:", 
-                    (window.performance.memory.usedJSHeapSize / 1048576).toFixed(2), "MB");
-            }
+                // Memory profiling disabled - enable with: window.DEBUG_MEMORY = true
         } catch(e) {}
     }
 }
@@ -3714,14 +3711,10 @@ function setupEventListeners() {
             }
             
             if (!window.currentUser || !jwtToken) {
-                console.warn('[Global] currentUser or token missing at submit time', window.currentUser);
+                 console.warn('[Global] currentUser or token missing at submit time');
                 showNotification('Session expired. Please log in again.');
                 return;
             }
-            
-            const debugAuthHeader = `Bearer ${jwtToken}`;
-            console.log('[Add Song] Authorization header:', debugAuthHeader);
-            
             const songCategory = document.getElementById('songCategory');
             const songKey = document.getElementById('songKey');
             const songTempo = document.getElementById('songTempo');

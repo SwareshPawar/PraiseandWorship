@@ -7,7 +7,7 @@
       "type": "loop",
       "number": 3,
       "conditions": {
-        "taal": "dadra",
+        "taal": "dadra_qawalli",
         "timeSignature": "3/4",
         "tempo": "medium",
         "genre": "dholak"
@@ -20,9 +20,9 @@
       "files": {
         "loop3": "dadra_3_4_medium_dholak_LOOP3.wav"
       },
-      "rhythmFamily": "dadra",
+      "rhythmFamily": "dadra_qawalli",
       "rhythmSetNo": 1,
-      "rhythmSetId": "dadra_1"
+      "rhythmSetId": "dadra_qawalli_1"
     },
     {
       "id": "dadra_3_4_medium_dholak_fill1",
@@ -30,7 +30,7 @@
       "type": "fill",
       "number": 1,
       "conditions": {
-        "taal": "dadra",
+        "taal": "dadra_qawalli",
         "timeSignature": "3/4",
         "tempo": "medium",
         "genre": "dholak"
@@ -43,9 +43,9 @@
       "files": {
         "fill1": "dadra_3_4_medium_dholak_FILL1.wav"
       },
-      "rhythmFamily": "dadra",
+      "rhythmFamily": "dadra_qawalli",
       "rhythmSetNo": 1,
-      "rhythmSetId": "dadra_1"
+      "rhythmSetId": "dadra_qawalli_1"
     },
     {
       "id": "dadra_3_4_medium_dholak_fill2",
@@ -53,7 +53,7 @@
       "type": "fill",
       "number": 2,
       "conditions": {
-        "taal": "dadra",
+        "taal": "dadra_qawalli",
         "timeSignature": "3/4",
         "tempo": "medium",
         "genre": "dholak"
@@ -66,9 +66,9 @@
       "files": {
         "fill2": "dadra_3_4_medium_dholak_FILL2.wav"
       },
-      "rhythmFamily": "dadra",
+      "rhythmFamily": "dadra_qawalli",
       "rhythmSetNo": 1,
-      "rhythmSetId": "dadra_1"
+      "rhythmSetId": "dadra_qawalli_1"
     },
     {
       "id": "dadra_3_4_medium_dholak_fill3",
@@ -76,7 +76,7 @@
       "type": "fill",
       "number": 3,
       "conditions": {
-        "taal": "dadra",
+        "taal": "dadra_qawalli",
         "timeSignature": "3/4",
         "tempo": "medium",
         "genre": "dholak"
@@ -89,9 +89,9 @@
       "files": {
         "fill3": "dadra_3_4_medium_dholak_FILL3.wav"
       },
-      "rhythmFamily": "dadra",
+      "rhythmFamily": "dadra_qawalli",
       "rhythmSetNo": 1,
-      "rhythmSetId": "dadra_1"
+      "rhythmSetId": "dadra_qawalli_1"
     },
     {
       "id": "deepchandi_1_loop1",
@@ -1341,7 +1341,7 @@
       "type": "loop",
       "number": 2,
       "conditions": {
-        "taal": "dadra",
+        "taal": "dadra_qawalli",
         "timeSignature": "3/4",
         "tempo": "medium",
         "genre": "dholak"
@@ -1354,9 +1354,9 @@
       "files": {
         "loop2": "dadra_3_4_medium_dholak_LOOP2.wav"
       },
-      "rhythmFamily": "dadra",
+      "rhythmFamily": "dadra_qawalli",
       "rhythmSetNo": 1,
-      "rhythmSetId": "dadra_1"
+      "rhythmSetId": "dadra_qawalli_1"
     },
     {
       "id": "dadra_1_loop1",
@@ -1364,7 +1364,7 @@
       "type": "loop",
       "number": 1,
       "conditions": {
-        "taal": "dadra",
+        "taal": "dadra_qawalli",
         "timeSignature": "3/4",
         "tempo": "slow",
         "genre": "ghazal"
@@ -1379,9 +1379,9 @@
       "files": {
         "loop1": "dadra_3_4_medium_dholak_LOOP1.wav"
       },
-      "rhythmFamily": "dadra",
+      "rhythmFamily": "dadra_qawalli",
       "rhythmSetNo": 1,
-      "rhythmSetId": "dadra_1"
+      "rhythmSetId": "dadra_qawalli_1"
     },
     {
       "id": "dadra_fast_1_fill1",
@@ -6401,8 +6401,8 @@
   ],
   "rhythmSets": [
     {
-      "rhythmSetId": "dadra_1",
-      "rhythmFamily": "dadra",
+      "rhythmSetId": "dadra_qawalli_1",
+      "rhythmFamily": "dadra_qawalli",
       "rhythmSetNo": 1,
       "fileCount": 6
     },

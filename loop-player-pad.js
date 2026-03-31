@@ -77,6 +77,9 @@ class LoopPlayerPad {
         this.onMelodicPadToggle = null;
         this.onMelodicError = null;
         this.onError = null;
+        
+        // Setup visibility handling for iOS app switching
+        this._setupVisibilityHandling();
     }
 
     _getEnharmonicMap() {
@@ -636,6 +639,35 @@ class LoopPlayerPad {
     }
 
     /**
+     * Handle visibility changes (user switches app, locks screen, or returns to app).
+     * On iOS Safari, Web Audio API requires explicit resumption after app backgrounding.
+     * @private
+     */
+    _setupVisibilityHandling() {
+        if (typeof document !== 'undefined' && !this._visibilityHandlerSetup) {
+            this._visibilityHandlerSetup = true;
+            
+            document.addEventListener('visibilitychange', async () => {
+                if (document.hidden) {
+                    // App backgrounded - pause audio to free resources
+                    if (this.isPlaying) {
+                        this.pause();
+                    }
+                } else {
+                    // App returned to foreground - resume AudioContext if it was suspended (iOS Safari)
+                    if (this.audioContext && this.audioContext.state === 'suspended') {
+                        try {
+                            await this.audioContext.resume();
+                        } catch (e) {
+                            console.warn('Failed to resume audio context on app return:', e);
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    /**
      * Switch to a different loop pad (queued - waits for current to finish)
      * @param {string} loopName - 'loop1', 'loop2', or 'loop3'
      */
@@ -742,6 +774,82 @@ class LoopPlayerPad {
         }
         
         return newKey;
+    }
+
+    /**
+     * Update key and reload melodic samples in the background WITHOUT stopping playback.
+     * Any currently-playing pads are seamlessly crossfaded to the new key sample.
+     */
+    async updateKeyLive(key, transpose = 0) {
+        const oldKey = this._getEffectiveKey();
+        this.currentSongKey = key;
+        this.currentTranspose = transpose;
+        const newKey = this._getEffectiveKey();
+
+        if (oldKey === newKey) return newKey;
+
+        // Remember playing state before we touch anything
+        const wasPlayingAtmosphere = this.melodicPads.atmosphere.isPlaying;
+        const wasPlayingTanpura = this.melodicPads.tanpura.isPlaying;
+
+        // Drop old key from cache so loadMelodicSamples fetches fresh for newKey
+        this.rawAudioData.delete(`atmosphere_${oldKey}`);
+        this.rawAudioData.delete(`tanpura_${oldKey}`);
+        this.audioBuffers.delete(`atmosphere_${oldKey}`);
+        this.audioBuffers.delete(`tanpura_${oldKey}`);
+
+        // Fetch + decode new key samples in the background
+        try {
+            await this.loadMelodicSamples(true, ['atmosphere', 'tanpura']);
+        } catch (error) {
+            console.warn('Failed to load melodic samples for live key update:', error);
+        }
+
+        // Crossfade any playing pads over to the new key sample
+        if (wasPlayingAtmosphere) await this._hotSwapMelodicPad('atmosphere');
+        if (wasPlayingTanpura)    await this._hotSwapMelodicPad('tanpura');
+
+        return newKey;
+    }
+
+    /**
+     * Crossfade a currently-playing melodic pad to the buffer for the current key
+     * without any silence gap.
+     * @private
+     */
+    async _hotSwapMelodicPad(padType) {
+        const effectiveKey = this._getEffectiveKey();
+        const sampleName = `${padType}_${effectiveKey}`;
+        const buffer = this.audioBuffers.get(sampleName);
+        const pad = this.melodicPads[padType];
+        if (!buffer || !pad || !pad.isPlaying || !this.audioContext) return;
+
+        // Cancel the scheduled loop-crossfade so we can install the new one
+        if (pad.loopTimer) {
+            clearTimeout(pad.loopTimer);
+            pad.loopTimer = null;
+        }
+
+        const now = this.audioContext.currentTime;
+        const fadeSeconds = this._getMelodicCrossfadeDuration(buffer.duration);
+        const oldSource = pad.source;
+        const oldSourceGain = pad.sourceGainNode;
+
+        // Start the new key sample with a fade-in
+        const next = this._startMelodicSource(padType, buffer, now, fadeSeconds);
+        pad.source = next.source;
+        pad.sourceGainNode = next.sourceGainNode;
+
+        // Fade out the old key sample simultaneously
+        if (oldSource && oldSourceGain) {
+            oldSourceGain.gain.cancelScheduledValues(now);
+            oldSourceGain.gain.setValueAtTime(Math.max(0, oldSourceGain.gain.value), now);
+            oldSourceGain.gain.linearRampToValueAtTime(0, now + fadeSeconds);
+            try { oldSource.stop(now + fadeSeconds + 0.03); } catch (e) { /* already stopped */ }
+        }
+
+        // Schedule looping for the new buffer
+        this._scheduleMelodicPadCrossfade(padType, buffer);
     }
 
     /**

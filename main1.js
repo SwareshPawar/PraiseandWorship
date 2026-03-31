@@ -3,8 +3,6 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.getRegistrations()
             .then((registrations) => Promise.all(registrations.map((reg) => reg.unregister())))
-            .then(() => {
-                console.log('Service Worker: Disabled and unregistered existing registrations');
             })
             .catch((err) => {
                 console.warn('Service Worker: Failed to unregister existing registrations', err);
@@ -20,8 +18,6 @@ if ('caches' in window) {
                     .filter((key) => key.startsWith('pw-'))
                     .map((key) => caches.delete(key))
             ))
-            .then(() => {
-                console.log('Cache Storage: Cleared Praise & Worship caches');
             })
             .catch((err) => {
                 console.warn('Cache Storage: Failed to clear Praise & Worship caches', err);
@@ -190,16 +186,12 @@ function setBackend(backend) {
         API_BASE_URL = window.location.origin;
     }
     localStorage.setItem('pw_admin_backend', 'vercel');
-    console.log('🔄 Backend fixed to: VERCEL - URL:', API_BASE_URL);
+}
 }
 
 setBackend(getStoredBackend());
 // Frontend: GitHub Pages (https://swareshpawar.github.io/PraiseandWorship/)
-// Backend: Vercel same-origin (or Vercel hosted API for GitHub Pages)
-
-console.log('API_BASE_URL:', API_BASE_URL);
-
-// --- CHORD REGEXES: always use CHORD_TYPES ---
+// Backend: Vercel same-origin (or Vercel hosted API for GitHub Pages)S ---
 const PW_CHORDS = ["C", "C#", "D", "Eb", "E", "F", "F#", "G", "G#", "A", "Bb", "B"];
 const PW_NOTE_TO_SEMITONE = {
     C: 0,
@@ -578,7 +570,6 @@ async function cachedFetch(endpoint, forceRefresh = false, retries = 2) {
         const expiry = CACHE_EXPIRY[cacheKey] || CACHE_EXPIRY.setlists;
         
         if (cacheAge < expiry) {
-            console.log(`📦 Using cached data for ${cacheKey} (${Math.round(cacheAge/1000)}s old)`);
             return { ok: true, json: () => Promise.resolve(window.dataCache[cacheKey]) };
         }
     }
@@ -593,7 +584,6 @@ async function cachedFetch(endpoint, forceRefresh = false, retries = 2) {
                 const data = await response.json();
                 window.dataCache[cacheKey] = data;
                 window.dataCache.lastFetch[cacheKey] = now;
-                console.log(`💾 Cached fresh data for ${cacheKey}`);
                 return { ok: true, json: () => Promise.resolve(data) };
             }
             
@@ -609,7 +599,6 @@ async function cachedFetch(endpoint, forceRefresh = false, retries = 2) {
             // Try to use stale cached data as fallback
             if (window.dataCache[cacheKey]) {
                 const cacheAge = now - (window.dataCache.lastFetch[cacheKey] || 0);
-                console.log(`📦 Using stale cached data for ${cacheKey} (${Math.round(cacheAge/1000)}s old) due to error (attempt ${attempt + 1}/${retries + 1})`);
                 
                 if (isRenderBackend) {
                     throttledShowNotification(`⚠️ Using cached data - Render backend unavailable`, 'warning', 4000);
@@ -626,9 +615,9 @@ async function cachedFetch(endpoint, forceRefresh = false, retries = 2) {
             // If not last attempt, wait with exponential backoff
             if (attempt < retries) {
                 const waitTime = Math.pow(2, attempt) * 1000; // 1s, 2s, 4s
-                console.log(`⏳ Retrying in ${waitTime/1000}s... (attempt ${attempt + 1}/${retries + 1})`);
                 await new Promise(resolve => setTimeout(resolve, waitTime));
             }
+                
         }
     }
     
@@ -663,7 +652,6 @@ function updateSongInCache(song, isNewSong = false) {
         // Check for duplicate before adding
         const existingIndex = window.dataCache.songs.findIndex(s => s.id === song.id);
         if (existingIndex !== -1) {
-            console.log(`⚠️ Song ID ${song.id} already exists in cache, updating instead of adding`);
             window.dataCache.songs[existingIndex] = song;
         } else {
             window.dataCache.songs.push(song);
@@ -778,9 +766,7 @@ function hideLoading() {
     const overlay = document.getElementById('loadingOverlay');
     if (overlay) {
         overlay.style.display = 'none';
-        console.log('Loading hidden');
     }
-    
     // Clear the safety timeout
     clearTimeout(window.loadingTimeout);
 }
@@ -9613,6 +9599,15 @@ window.viewSingleLyrics = function(songId, otherId) {
                     } catch (e) { localTranspose = {}; }
                     localTranspose[song.id] = level;
                     localStorage.setItem('pw_transposeCache', JSON.stringify(localTranspose));
+
+                    // Sync internal key state after save (samples already loaded live; no reload needed)
+                    const loopPlayer = window.getLoopPlayerInstance?.();
+                    if (loopPlayer && song.key) {
+                        // song.key is now the new (transposed) key; transpose resets to 0
+                        loopPlayer.setSongKeyAndTranspose(song.key, 0, false)
+                            .then(() => window.updateMelodicPadAvailability?.(song.id, song.key))
+                            .catch(err => console.warn('Failed to sync melodic pad key after save:', err));
+                    }
                 });
             }
             // Setup auto-scroll if needed
@@ -10313,6 +10308,16 @@ window.viewSingleLyrics = function(songId, otherId) {
             const lyricsContainer = document.querySelector('.song-lyrics');
             if (lyricsContainer) {
                 lyricsContainer.innerHTML = formatLyricsWithChords(lyrics, transposeLevel);
+            }
+
+            // Update melodic loop player pads live — no interruption to currently-playing pads
+            const loopPlayer = window.getLoopPlayerInstance?.();
+            if (loopPlayer && originalKey) {
+                const songId = songPreviewEl.dataset.songId;
+                const newEffectiveKey = transposeLevel === 0 ? originalKey : transposeChord(originalKey, transposeLevel);
+                loopPlayer.updateKeyLive(originalKey, transposeLevel)
+                    .then(() => window.updateMelodicPadAvailability?.(songId, newEffectiveKey))
+                    .catch(err => console.warn('Failed to update melodic pads on transpose:', err));
             }
         }
     

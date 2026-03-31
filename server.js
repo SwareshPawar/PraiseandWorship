@@ -2780,6 +2780,123 @@ app.put('/api/rhythm-sets/:rhythmSetId/recompute', authMiddleware, requireAdmin,
   }
 });
 
+// DELETE /api/rhythm-sets/:rhythmSetId - Delete a rhythm set
+app.delete('/api/rhythm-sets/:rhythmSetId', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const rhythmSetsCollection = db.collection('RhythmSets');
+    const songsCollection = db.collection('PraiseAndWorships');
+    
+    const parsed = parseRhythmSetId(req.params.rhythmSetId);
+    if (!parsed) {
+      return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+    }
+
+    const mappedSongs = await songsCollection.find(
+      { rhythmSetId: parsed.rhythmSetId },
+      { projection: { _id: 0, id: 1, title: 1 } }
+    ).toArray();
+
+    if (mappedSongs.length > 0) {
+      return res.status(409).json({
+        error: `Rhythm set ${parsed.rhythmSetId} has mapped songs`,
+        mappedSongsCount: mappedSongs.length,
+        mappedSongs
+      });
+    }
+
+    await rhythmSetsCollection.deleteOne({ rhythmSetId: parsed.rhythmSetId });
+    const writable = readWritableLoopsMetadata();
+    const metadata = writable.metadata;
+    metadata.loops = (metadata.loops || []).filter(loop => String(loop.rhythmSetId || '') !== parsed.rhythmSetId);
+    syncRhythmSetsFromMetadata(metadata);
+    writeLoopsMetadata(metadata, writable.metadataPath);
+
+    return res.status(200).json({ success: true, message: `Deleted ${parsed.rhythmSetId}` });
+  } catch (err) {
+    console.error('Rhythm set delete error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/rhythm-sets/:rhythmSetId/force - Force delete rhythm set and unmap all songs
+app.delete('/api/rhythm-sets/:rhythmSetId/force', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const rhythmSetsCollection = db.collection('RhythmSets');
+    const songsCollection = db.collection('PraiseAndWorships');
+    
+    const parsed = parseRhythmSetId(req.params.rhythmSetId);
+    if (!parsed) {
+      return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+    }
+
+    const now = new Date().toISOString();
+    const userInfo = req.user.username || req.user.email || 'admin';
+    await songsCollection.updateMany(
+      { rhythmSetId: parsed.rhythmSetId },
+      {
+        $set: {
+          updatedAt: now,
+          updatedBy: userInfo
+        },
+        $unset: {
+          rhythmSetId: '',
+          rhythmFamily: '',
+          rhythmSetNo: ''
+        }
+      }
+    );
+
+    await rhythmSetsCollection.deleteOne({ rhythmSetId: parsed.rhythmSetId });
+    const writable = readWritableLoopsMetadata();
+    const metadata = writable.metadata;
+    metadata.loops = (metadata.loops || []).filter(loop => String(loop.rhythmSetId || '') !== parsed.rhythmSetId);
+    syncRhythmSetsFromMetadata(metadata);
+    writeLoopsMetadata(metadata, writable.metadataPath);
+
+    return res.status(200).json({ success: true, message: `Force deleted ${parsed.rhythmSetId}` });
+  } catch (err) {
+    console.error('Rhythm set force delete error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /api/rhythm-sets/:rhythmSetId/loops/:loopKey - Delete a specific loop
+app.delete('/api/rhythm-sets/:rhythmSetId/loops/:loopKey', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const parsed = parseRhythmSetId(req.params.rhythmSetId);
+    if (!parsed) {
+      return res.status(400).json({ error: 'Invalid rhythmSetId format' });
+    }
+
+    const writable = readWritableLoopsMetadata();
+    const metadata = writable.metadata;
+    
+    // Find and remove the loop from metadata
+    const loopKey = req.params.loopKey.toLowerCase();
+    const index = (metadata.loops || []).findIndex(loop =>
+      String(loop.rhythmSetId || '') === parsed.rhythmSetId &&
+      String(loop.slotKey || '').toLowerCase() === loopKey
+    );
+
+    if (index < 0) {
+      return res.status(404).json({ error: `${loopKey} not found for ${parsed.rhythmSetId}` });
+    }
+
+    const removed = metadata.loops.splice(index, 1)[0];
+    syncRhythmSetsFromMetadata(metadata);
+    writeLoopsMetadata(metadata, writable.metadataPath);
+
+    return res.status(200).json({
+      success: true,
+      message: `${loopKey} removed from ${parsed.rhythmSetId}`,
+      removedFilename: removed && removed.filename ? removed.filename : null
+    });
+  } catch (err) {
+    console.error('Rhythm set loop delete error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ============================================================================
 // END LOOP MANAGEMENT API
 // ============================================================================

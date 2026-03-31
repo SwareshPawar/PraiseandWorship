@@ -32,11 +32,7 @@ function isLoopUiDebugEnabled() {
 
 function logLoopUiDebug(eventName, details) {
     if (!isLoopUiDebugEnabled()) return;
-    try {
-        console.log(`[LoopUI Debug] ${eventName}`, details || {});
-    } catch {
-        // no-op
-    }
+    // Debug logging disabled by default - enable with: localStorage.setItem('pw_debug_loop_ui', '1')
 }
 
 // Make loop player instance globally accessible for floating stop button
@@ -340,7 +336,7 @@ function getTransposeLevel(song) {
     } else {
         // Use user's personal transpose
         try {
-            const localTranspose = JSON.parse(localStorage.getItem('transposeCache') || '{}');
+            const localTranspose = JSON.parse(localStorage.getItem('pw_transposeCache') || '{}');
             if (typeof localTranspose[songId] === 'number') {
                 transposeLevel = localTranspose[songId];
             } else if (typeof window.userData !== 'undefined' && window.userData && window.userData.transpose && songId in window.userData.transpose) {
@@ -739,6 +735,16 @@ async function updateMelodicPadAvailability(songId, effectiveKey) {
     }
     
     applyPadAvailabilityState(container, null, effectiveKey, melodicAvailability, null);
+    
+    // Update the key display indicators
+    const atmosphereKeyIndicator = document.getElementById(`atmosphere-key-${songId}`);
+    const tanpuraKeyIndicator = document.getElementById(`tanpura-key-${songId}`);
+    if (atmosphereKeyIndicator) {
+        atmosphereKeyIndicator.textContent = effectiveKey;
+    }
+    if (tanpuraKeyIndicator) {
+        tanpuraKeyIndicator.textContent = effectiveKey;
+    }
     
     // Return availability for status updates
     return melodicAvailability;

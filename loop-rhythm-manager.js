@@ -184,15 +184,7 @@ async function loadRhythmSets() {
             isReadOnlyMode = true;
         }
 
-        console.log('Loaded rhythm sets:', rhythmSets.length);
-        console.log('Loop manager API base URL:', API_BASE_URL);
-        // Debug: Show first set's data structure
-        if (rhythmSets.length > 0) {
-            console.log('Sample rhythm set:', rhythmSets[0]);
-            console.log('availableFiles:', rhythmSets[0].availableFiles);
-            console.log('files mapping:', rhythmSets[0].files);
-            console.log('conditionsHint:', rhythmSets[0].conditionsHint);
-        }
+        // Rhythm sets loaded successfully
         applyReadOnlyModeUI();
         populateRhythmFamilyList();
         renderRhythmSetsTable();
@@ -749,8 +741,6 @@ function populateRhythmFamilyList() {
         option.textContent = family;
         selectElement.appendChild(option);
     });
-    
-    console.log(`Populated ${sortedFamilies.length} rhythm families:`, sortedFamilies);
 }
 
 function handleRhythmFamilySelect() {
@@ -1435,8 +1425,6 @@ async function playLoop(rhythmSetId, loopType, filename) {
     // Add cache-buster so freshly uploaded/replaced files are always fetched fresh
     const loopUrl = `${API_BASE_URL}/loops/${filename}?t=${Date.now()}`;
     const player = document.getElementById('loopPlayer');
-    
-    console.log('Playing loop:', { rhythmSetId, loopType, filename, loopUrl });
     
     try {
         player.src = loopUrl;
@@ -2897,8 +2885,6 @@ async function loadRhythmSetIntoPlayer(rhythmSet, forceReload = false) {
             loopMap[loopType] = `${API_BASE_URL}/loops/${filename}${cacheBuster}`;
         }
     });
-
-    console.log('Loading rhythm set into player:', rhythmSetId, forceReload ? '(force reload)' : '', loopMap);
 
     // Load loops into player
     try {

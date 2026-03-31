@@ -138,9 +138,9 @@ Started (new cycle):
 ## 1) Source Of Truth
 
 Primary references:
-- FEATURE_PARITY_MASTER_GAP_ANALYSIS.md
-- RHYTHM_SETS_MANAGER_GAPS.md
-- FEATURE_MIGRATION_PLAYBOOK.md
+- docs/migration/FEATURE_PARITY_MASTER_GAP_ANALYSIS.md
+- docs/migration/RHYTHM_SETS_MANAGER_GAPS.md
+- docs/migration/FEATURE_MIGRATION_PLAYBOOK.md
 
 Planning assumption:
 - Source repository and branch are the same as the previous migration cycle.
@@ -183,7 +183,7 @@ Target files:
 - api/_loops.js
 - utils/loops.js
 - server.js
-- DEPLOYMENT.md
+- docs/deployment/DEPLOYMENT.md
 
 Risk: High
 

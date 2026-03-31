@@ -29,6 +29,7 @@ The PraiseandWorship app successfully implements:
 - ✅ **100%** API endpoint parity
 - ✅ **100%** Authentication flow parity
 - ✅ **95%** Admin panel parity
+- ✅ **Admin Rhythm Recommender tab implemented** (scan, review, apply, preview)
 - ✅ **Delta song sync parity** (incremental updates + deleted-song sync)
 - ✅ **Loop player files present** and active pad UI wiring in app shell
 - ✅ **Chord/note normalization helpers present** in main flow
@@ -80,7 +81,31 @@ The previously reported P1 items are now verified in the current codebase:
 - [x] Add time-signature compatibility scoring
 - [x] Integrate genre/mood weighting (client-side)
 - [x] Return/display confidence reasoning
+- [x] Add admin-side batch recommendation scan for existing songs
+- [x] Add in-tab assignment actions (single + bulk apply)
+- [x] Add inline loop-player preview from recommendation results
 - [ ] Validate recommendation quality against production song dataset and tune weights if needed
+
+---
+
+### 1b. ✅ Admin Recommender Workflow (New)
+
+**Status:** IMPLEMENTED (Render/local path)  
+**Impact:** Faster remediation of legacy/unassigned songs and safer operator review before applying assignments
+
+#### Implemented Behavior:
+- New admin tab in main panel: `Rhythm Recommender`
+- Backend scan endpoint: `GET /api/songs/bulk-rhythm-recommend?filter=unassigned|all` (admin only)
+- Results include current set, recommended set, and score
+- Actions:
+   - Apply one song
+   - Apply checked songs in bulk
+   - Open inline loop player preview below row
+   - Choose alternate rhythm set from dropdown and load in player
+   - Save selected rhythm set directly from same inline panel
+
+#### Remaining Caveat:
+- Serverless-only `api/songs.js` path still needs explicit parity implementation if deployment routing bypasses `server.js` for this workflow.
 
 ---
 

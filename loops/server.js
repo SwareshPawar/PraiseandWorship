@@ -1187,6 +1187,38 @@ app.get('/api/songs/deleted', async (req, res) => {
   }
 });
 
+// Admin: bulk rhythm-set recommendation scan
+app.get('/api/songs/bulk-rhythm-recommend', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const filter = req.query.filter || 'unassigned'; // 'unassigned' | 'all'
+    const allSongs = await songsCollection.find({}).toArray();
+    const targetSongs = filter === 'all'
+      ? allSongs
+      : allSongs.filter(s => !s.rhythmSetId);
+
+    const results = [];
+    for (const song of targetSongs) {
+      const recommendation = await recommendRhythmSetForSong(song);
+      results.push({
+        id: song.id,
+        title: song.title || '',
+        taal: song.taal || null,
+        rhythmFamily: song.rhythmFamily || null,
+        rhythmSetNo: song.rhythmSetNo || null,
+        currentRhythmSetId: song.rhythmSetId || null,
+        timeSignature: song.timeSignature || null,
+        tempo: song.tempo || null,
+        key: song.key || null,
+        recommendation: recommendation || null
+      });
+    }
+
+    res.json({ results, total: results.length, filter });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Protected: only logged-in users can add, update, or delete songs
 app.post('/api/songs', authMiddleware, async (req, res) => {
   try {

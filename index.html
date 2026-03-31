@@ -533,6 +533,7 @@ async function saveRecommendationWeightsToBackend(weights) {
                 <button class="admin-tab" id="duplicateDetectionTab" title="Duplicate Detection - Find and manage duplicate songs in database" aria-label="Duplicate Detection Tab">Duplicate Detection</button>
                 <button class="admin-tab" id="backendMgmtTab" title="Backend Management - Switch between Vercel and Render deployments for all users" aria-label="Backend Management Tab">Backend Management</button>
                 <button class="admin-tab" id="featureManagersTab" title="Feature Managers - Open loops and rhythm managers" aria-label="Feature Managers Tab">Feature Managers</button>
+                <button class="admin-tab" id="rhythmAssignTab" title="Rhythm Set Recommender - Auto-recommend and apply rhythm sets for songs in DB" aria-label="Rhythm Set Recommender Tab">Rhythm Recommender</button>
             </div>
             <div class="admin-tab-content" id="userMgmtTabContent">
                 <div class="notification" id="adminNotification"></div>
@@ -714,10 +715,11 @@ async function saveRecommendationWeightsToBackend(weights) {
                     </div>
                 </div>
             </div>
+            <div class="admin-tab-content" id="rhythmAssignTabContent" style="display:none;">
+                <!-- Rhythm Set Recommender — rendered by JS -->
+            </div>
         </div>
     </div>
-
-    <div class="modal" id="addSongModal">
         <div class="modal-content">
             <span class="close-modal" aria-label="Close" title="Close Add Song Modal">×</span>
             <h3>Add New Song</h3>

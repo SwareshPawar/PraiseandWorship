@@ -3197,6 +3197,9 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         document.getElementById('featureManagersTab').classList.remove('active');
         document.getElementById('featureManagersTabContent').classList.remove('active');
         document.getElementById('featureManagersTabContent').style.display = 'none';
+        document.getElementById('rhythmAssignTab').classList.remove('active');
+        document.getElementById('rhythmAssignTabContent').classList.remove('active');
+        document.getElementById('rhythmAssignTabContent').style.display = 'none';
         
         // Load users and set up functions
         loadUsers();
@@ -3220,6 +3223,7 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         setupAdminTabHandler('duplicateDetectionTab', 'duplicateDetectionTabContent', renderDuplicateDetection);
         setupAdminTabHandler('backendMgmtTab', 'backendMgmtTabContent', initializeBackendManagement);
         setupAdminTabHandler('featureManagersTab', 'featureManagersTabContent', null);
+        setupAdminTabHandler('rhythmAssignTab', 'rhythmAssignTabContent', initializeRhythmAssigner);
     }
     
     function setupAdminTabHandler(tabId, contentId, initFunction) {
@@ -3233,8 +3237,8 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
             console.log(`🖱️ ${tabId} clicked!`);
             
             // Remove active from all tabs
-            const allTabs = ['userMgmtTab', 'weightsTab', 'duplicateDetectionTab', 'backendMgmtTab', 'featureManagersTab'];
-            const allContents = ['userMgmtTabContent', 'weightsTabContent', 'duplicateDetectionTabContent', 'backendMgmtTabContent', 'featureManagersTabContent'];
+            const allTabs = ['userMgmtTab', 'weightsTab', 'duplicateDetectionTab', 'backendMgmtTab', 'featureManagersTab', 'rhythmAssignTab'];
+            const allContents = ['userMgmtTabContent', 'weightsTabContent', 'duplicateDetectionTabContent', 'backendMgmtTabContent', 'featureManagersTabContent', 'rhythmAssignTabContent'];
             
             allTabs.forEach(id => {
                 const el = document.getElementById(id);
@@ -3278,6 +3282,427 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         };
         
         console.log(`✅ Handler set for ${tabId}`);
+    }
+
+    // --- Rhythm Set Recommender Admin Tab ---
+    function initializeRhythmAssigner() {
+        const container = document.getElementById('rhythmAssignTabContent');
+        if (!container) return;
+
+        // Render the control panel if not yet rendered
+        if (!container.querySelector('#rhythmAssignControls')) {
+            container.innerHTML = `
+                <div id="rhythmAssignControls" style="padding: 16px 12px 8px;">
+                    <h3 style="margin: 0 0 10px; color: var(--text-color); font-size: 1.1em;">
+                        <i class="fas fa-magic" style="color: var(--accent-color);"></i>
+                        Rhythm Set Recommender
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 0.92em; margin: 0 0 12px;">
+                        Runs the auto-recommendation engine on songs in the database and lets you choose which suggestions to apply.
+                    </p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 12px;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-color);">
+                            <input type="radio" name="rhythmAssignFilter" value="unassigned" checked> Songs without Rhythm Set
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-color);">
+                            <input type="radio" name="rhythmAssignFilter" value="all"> All Songs
+                        </label>
+                        <button id="rhythmAssignRunBtn" class="btn" style="background: var(--accent-color, #3498db); color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            <i class="fas fa-play"></i> Run Recommendations
+                        </button>
+                        <button id="rhythmAssignApplyAllBtn" class="btn" style="background: #27ae60; color: #fff; border: none; padding: 8px 18px; border-radius: 6px; cursor: pointer; font-weight: 600; display: none;">
+                            <i class="fas fa-check-double"></i> Apply All Shown
+                        </button>
+                    </div>
+                    <div id="rhythmAssignStatus" style="font-size: 0.92em; color: var(--text-muted); min-height: 20px;"></div>
+                </div>
+                <div id="rhythmAssignResults" style="padding: 0 12px 16px; overflow-x: auto;"></div>
+            `;
+        }
+
+        const runBtn = container.querySelector('#rhythmAssignRunBtn');
+        const applyAllBtn = container.querySelector('#rhythmAssignApplyAllBtn');
+        const statusEl = container.querySelector('#rhythmAssignStatus');
+        const resultsEl = container.querySelector('#rhythmAssignResults');
+
+        // Bind run button (replace to avoid duplicate listeners)
+        const newRunBtn = runBtn.cloneNode(true);
+        runBtn.parentNode.replaceChild(newRunBtn, runBtn);
+
+        newRunBtn.addEventListener('click', async () => {
+            const filter = container.querySelector('input[name="rhythmAssignFilter"]:checked')?.value || 'unassigned';
+            newRunBtn.disabled = true;
+            newRunBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Running...';
+            statusEl.textContent = '';
+            resultsEl.innerHTML = '';
+            applyAllBtn.style.display = 'none';
+
+            try {
+                const res = await authFetch(`${API_BASE_URL}/api/songs/bulk-rhythm-recommend?filter=${filter}`);
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    statusEl.textContent = `Error: ${err.error || res.status}`;
+                    return;
+                }
+                const data = await res.json();
+                renderRhythmAssignResults(data.results || [], resultsEl, statusEl, applyAllBtn);
+            } catch (e) {
+                statusEl.textContent = `Network error: ${e.message}`;
+            } finally {
+                newRunBtn.disabled = false;
+                newRunBtn.innerHTML = '<i class="fas fa-play"></i> Run Recommendations';
+            }
+        });
+
+        // Apply-all button handler (bound once per render)
+        const newApplyAllBtn = applyAllBtn.cloneNode(true);
+        applyAllBtn.parentNode.replaceChild(newApplyAllBtn, applyAllBtn);
+        newApplyAllBtn.addEventListener('click', async () => {
+            const checkboxes = resultsEl.querySelectorAll('.rhythm-assign-check:checked');
+            if (!checkboxes.length) {
+                statusEl.textContent = 'No songs selected.';
+                return;
+            }
+            newApplyAllBtn.disabled = true;
+            statusEl.textContent = `Applying ${checkboxes.length} assignments…`;
+            let applied = 0;
+            let failed = 0;
+            for (const cb of checkboxes) {
+                const row = cb.closest('tr');
+                const songId = cb.dataset.songId;
+                const rhythmSetId = cb.dataset.rhythmSetId;
+                try {
+                    await applyRhythmSetRecommendation(songId, rhythmSetId, row);
+                    applied++;
+                } catch {
+                    failed++;
+                }
+            }
+            statusEl.textContent = `Done — ${applied} applied${failed ? `, ${failed} failed` : ''}.`;
+            newApplyAllBtn.disabled = false;
+        });
+    }
+
+    function renderRhythmAssignResults(results, resultsEl, statusEl, applyAllBtn) {
+        function escapeHtml(str) {
+            return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+        if (!results.length) {
+            resultsEl.innerHTML = '<p style="color: var(--text-muted); padding: 8px 0;">No songs found for selected filter.</p>';
+            statusEl.textContent = '';
+            return;
+        }
+
+        const withRec = results.filter(r => r.recommendation);
+        const noRec = results.filter(r => !r.recommendation);
+
+        statusEl.textContent = `${results.length} songs scanned — ${withRec.length} have recommendations, ${noRec.length} could not be matched.`;
+
+        if (withRec.length) applyAllBtn.style.display = '';
+
+        let html = `
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.9em; margin-top: 10px;">
+                <thead>
+                    <tr style="background: var(--surface-1, #f0f4f8); color: var(--text-color); text-align: left;">
+                        <th style="padding: 8px 6px; white-space: nowrap;">
+                            <input type="checkbox" id="rhythmAssignSelectAll" title="Select / deselect all"> Song
+                        </th>
+                        <th style="padding: 8px 6px;">Taal</th>
+                        <th style="padding: 8px 6px;">Current Set</th>
+                        <th style="padding: 8px 6px;">Recommended</th>
+                        <th style="padding: 8px 6px; text-align: center;">Score</th>
+                        <th style="padding: 8px 6px; text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        withRec.forEach(r => {
+            const rec = r.recommendation;
+            const isSame = r.currentRhythmSetId === rec.rhythmSetId;
+            const rowBg = isSame ? 'color-mix(in srgb, #27ae60 8%, transparent)' : 'transparent';
+            html += `
+                <tr data-song-id="${r.id}" style="border-bottom: 1px solid var(--panel-divider, #e0e0e0); background: ${rowBg};">
+                    <td style="padding: 8px 6px; vertical-align: middle;">
+                        <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="checkbox" class="rhythm-assign-check"
+                                data-song-id="${r.id}"
+                                data-rhythm-set-id="${rec.rhythmSetId}"
+                                ${isSame ? 'disabled title="Already assigned"' : 'checked'}>
+                            <span style="font-weight: 600; color: var(--text-color);">${escapeHtml(r.title)}</span>
+                        </label>
+                        <div style="font-size: 0.82em; color: var(--text-muted); margin-left: 22px;">ID ${r.id}${r.key ? ' · ' + escapeHtml(r.key) : ''}${r.timeSignature ? ' · ' + escapeHtml(r.timeSignature) : ''}</div>
+                    </td>
+                    <td style="padding: 8px 6px; color: var(--text-muted);">${r.taal ? escapeHtml(r.taal) : '<span style="opacity:.5">—</span>'}</td>
+                    <td style="padding: 8px 6px; font-family: monospace; font-size: 0.88em; color: var(--text-muted);">
+                        ${r.currentRhythmSetId ? escapeHtml(r.currentRhythmSetId) : '<span style="opacity:.5">none</span>'}
+                    </td>
+                    <td style="padding: 8px 6px;">
+                        <span style="font-family: monospace; font-size: 0.9em; color: var(--accent-color, #3498db); font-weight: 600;">${escapeHtml(rec.rhythmSetId)}</span>
+                        ${isSame ? '<span style="font-size:0.78em; color:#27ae60; margin-left:4px;">✓ same</span>' : ''}
+                    </td>
+                    <td style="padding: 8px 6px; text-align: center;">
+                        <span style="background: var(--surface-1, #f0f4f8); border-radius: 10px; padding: 2px 8px; font-size: 0.85em; font-weight: 600;">${rec.score ?? '—'}</span>
+                    </td>
+                    <td style="padding: 8px 6px; text-align: center; white-space: nowrap;">
+                        ${isSame ? '' : `<button class="btn rhythm-assign-apply-btn" data-song-id="${r.id}" data-rhythm-set-id="${rec.rhythmSetId}"
+                            style="font-size: 0.82em; padding: 4px 10px; background: #27ae60; color: #fff; border: none; border-radius: 5px; cursor: pointer; margin-right: 4px;">
+                            Apply
+                        </button>`}
+                        <button class="btn rhythm-assign-preview-btn" data-song-id="${r.id}" data-rec-rhythm-set-id="${rec.rhythmSetId}"
+                            style="font-size: 0.82em; padding: 4px 10px; background: var(--surface-1, #e8f0f8); color: var(--text-color); border: 1px solid var(--panel-divider, #ccc); border-radius: 5px; cursor: pointer;">
+                            <i class="fas fa-headphones"></i> Preview
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        if (noRec.length) {
+            html += `
+                <tr>
+                    <td colspan="6" style="padding: 10px 6px; color: var(--text-muted); font-style: italic; font-size: 0.88em; border-top: 2px solid var(--panel-divider, #ddd);">
+                        ${noRec.length} song(s) had no matching rhythm set: ${noRec.map(r => escapeHtml(r.title)).slice(0, 8).join(', ')}${noRec.length > 8 ? '…' : ''}
+                    </td>
+                </tr>
+            `;
+        }
+
+        html += '</tbody></table>';
+        resultsEl.innerHTML = html;
+
+        // Select-all checkbox
+        const selectAll = resultsEl.querySelector('#rhythmAssignSelectAll');
+        if (selectAll) {
+            selectAll.addEventListener('change', () => {
+                resultsEl.querySelectorAll('.rhythm-assign-check:not(:disabled)').forEach(cb => {
+                    cb.checked = selectAll.checked;
+                });
+            });
+        }
+
+        // Per-row Apply buttons
+        resultsEl.querySelectorAll('.rhythm-assign-apply-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const songId = btn.dataset.songId;
+                const rhythmSetId = btn.dataset.rhythmSetId;
+                const row = btn.closest('tr');
+                btn.disabled = true;
+                btn.textContent = '…';
+                try {
+                    await applyRhythmSetRecommendation(songId, rhythmSetId, row);
+                } catch (e) {
+                    btn.disabled = false;
+                    btn.textContent = 'Apply';
+                    statusEl.textContent = `Failed to apply: ${e.message}`;
+                }
+            });
+        });
+
+        // Per-row Preview buttons — inject inline loop player below the row
+        resultsEl.querySelectorAll('.rhythm-assign-preview-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const songId = Number(btn.dataset.songId);
+                const recRhythmSetId = btn.dataset.recRhythmSetId;
+                const row = btn.closest('tr');
+                const table = row.closest('table');
+                const existingInlineId = `loopInlineRow-${songId}`;
+                const existingInline = document.getElementById(existingInlineId);
+
+                // Toggle off if already open
+                if (existingInline) {
+                    // Stop any playing audio before removing
+                    const lp = window.getLoopPlayerInstance && window.getLoopPlayerInstance();
+                    if (lp && lp.currentSongId == songId) {
+                        if (typeof lp.pause === 'function') lp.pause();
+                        if (typeof lp.stopAllMelodicPads === 'function') lp.stopAllMelodicPads();
+                    }
+                    existingInline.remove();
+                    btn.innerHTML = '<i class="fas fa-headphones"></i> Preview';
+                    return;
+                }
+
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+                // Find song in local cache
+                const baseSong = (window.songs || []).find(s => s.id === songId);
+                if (!baseSong) {
+                    statusEl.textContent = `Song ID ${songId} not in local cache — refresh songs first.`;
+                    btn.innerHTML = '<i class="fas fa-headphones"></i> Preview';
+                    return;
+                }
+
+                // Build patched song with recommended rhythmSetId so loop player can find its loop set
+                const originalRhythmSetId = baseSong.rhythmSetId;
+                const patchedSong = { ...baseSong, rhythmSetId: recRhythmSetId || baseSong.rhythmSetId };
+
+                // Temporarily swap into window.songs for initializeLoopPlayer lookup
+                const songIdx = window.songs.findIndex(s => s.id === songId);
+                if (songIdx !== -1) window.songs[songIdx] = patchedSong;
+
+                // Build inline row with loop player shell
+                const inlineRow = document.createElement('tr');
+                inlineRow.id = existingInlineId;
+                inlineRow.style.cssText = 'background: var(--surface-1, #f0f4f8);';
+                const inlineTd = document.createElement('td');
+                inlineTd.colSpan = 6;
+                inlineTd.style.cssText = 'padding: 0; border-bottom: 2px solid var(--accent-color, #3498db);';
+
+                // Rhythm-set picker toolbar
+                const pickerToolbar = document.createElement('div');
+                pickerToolbar.style.cssText = 'display:flex; flex-wrap:wrap; align-items:center; gap:8px; padding:10px 14px 6px; background:var(--surface-0,#fff); border-bottom:1px solid var(--panel-divider,#e0e0e0);';
+                pickerToolbar.innerHTML = `
+                    <span style="font-size:0.85em;font-weight:600;color:var(--text-color);white-space:nowrap;">Rhythm Set:</span>
+                    <select id="rhythmAssignInlinePicker-${songId}" style="flex:1;min-width:180px;max-width:320px;padding:4px 6px;border:1px solid var(--input-border,#ccc);border-radius:5px;background:var(--form-bg,#fff);color:var(--text-color);font-size:0.88em;">
+                        <option value="">Loading…</option>
+                    </select>
+                    <button id="rhythmAssignInlineLoad-${songId}" style="padding:5px 12px;font-size:0.84em;background:var(--accent-color,#3498db);color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;">
+                        <i class="fas fa-sync-alt"></i> Load in Player
+                    </button>
+                    <button id="rhythmAssignInlineSave-${songId}" style="padding:5px 12px;font-size:0.84em;background:#27ae60;color:#fff;border:none;border-radius:5px;cursor:pointer;white-space:nowrap;">
+                        <i class="fas fa-check"></i> Save to Song
+                    </button>
+                    <span id="rhythmAssignInlineMsg-${songId}" style="font-size:0.82em;color:var(--text-muted);"></span>
+                `;
+                inlineTd.appendChild(pickerToolbar);
+
+                // Loop player HTML
+                const loopPlayerWrap = document.createElement('div');
+                loopPlayerWrap.innerHTML = typeof getLoopPlayerHTML === 'function' ? getLoopPlayerHTML(songId) : '<p style="padding:12px;color:var(--text-muted);">Loop player unavailable.</p>';
+                inlineTd.appendChild(loopPlayerWrap);
+
+                inlineRow.appendChild(inlineTd);
+                row.insertAdjacentElement('afterend', inlineRow);
+
+                // Force the container visible
+                const loopContainer = document.getElementById(`loopPlayerContainer-${songId}`);
+                if (loopContainer) loopContainer.style.display = 'block';
+
+                // Helper: load a specific rhythmSetId into the player
+                async function loadSetInPlayer(targetSetId) {
+                    const msgEl = document.getElementById(`rhythmAssignInlineMsg-${songId}`);
+                    if (msgEl) msgEl.textContent = 'Loading…';
+                    // Patch song in cache temporarily
+                    const idx2 = window.songs ? window.songs.findIndex(s => s.id === songId) : -1;
+                    const prevSong = idx2 !== -1 ? { ...window.songs[idx2] } : null;
+                    if (idx2 !== -1) window.songs[idx2] = { ...window.songs[idx2], rhythmSetId: targetSetId };
+                    if (loopContainer) loopContainer.style.display = 'block';
+                    if (typeof initializeLoopPlayer === 'function') {
+                        await initializeLoopPlayer(songId);
+                    }
+                    // Restore
+                    if (idx2 !== -1 && prevSong) window.songs[idx2] = prevSong;
+                    if (msgEl) msgEl.textContent = targetSetId ? `Previewing: ${targetSetId}` : '';
+                }
+
+                // Populate the dropdown lazily via loadRhythmSets
+                const pickerSelect = document.getElementById(`rhythmAssignInlinePicker-${songId}`);
+                (async () => {
+                    try {
+                        const sets = await loadRhythmSets();
+                        if (!pickerSelect) return;
+                        pickerSelect.innerHTML = '<option value="">-- None --</option>';
+                        sets.sort((a, b) => String(a.rhythmSetId || '').localeCompare(String(b.rhythmSetId || '')));
+                        sets.forEach(rs => {
+                            const opt = document.createElement('option');
+                            opt.value = rs.rhythmSetId;
+                            const notes = [rs.notes, rs.description, rs.note].map(v => String(v || '').trim()).find(Boolean) || '';
+                            opt.textContent = notes ? `${rs.rhythmSetId} — ${notes.length > 40 ? notes.slice(0, 40) + '…' : notes}` : rs.rhythmSetId;
+                            opt.title = notes ? `${rs.rhythmSetId}\n${notes}` : rs.rhythmSetId;
+                            if (rs.rhythmSetId === recRhythmSetId) opt.selected = true;
+                            pickerSelect.appendChild(opt);
+                        });
+                        // If recommended set not in list, add it
+                        if (recRhythmSetId && !sets.find(rs => rs.rhythmSetId === recRhythmSetId)) {
+                            const opt = document.createElement('option');
+                            opt.value = recRhythmSetId;
+                            opt.textContent = `${recRhythmSetId} (recommended)`;
+                            opt.selected = true;
+                            pickerSelect.insertBefore(opt, pickerSelect.children[1]);
+                        }
+                    } catch {
+                        if (pickerSelect) pickerSelect.innerHTML = '<option value="">— error loading —</option>';
+                    }
+                })();
+
+                // Load button
+                const loadBtn = document.getElementById(`rhythmAssignInlineLoad-${songId}`);
+                if (loadBtn) {
+                    loadBtn.addEventListener('click', async () => {
+                        const sel = document.getElementById(`rhythmAssignInlinePicker-${songId}`);
+                        if (!sel || !sel.value) return;
+                        loadBtn.disabled = true;
+                        loadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        await loadSetInPlayer(sel.value);
+                        loadBtn.disabled = false;
+                        loadBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Load in Player';
+                    });
+                }
+
+                // Save button
+                const saveBtn = document.getElementById(`rhythmAssignInlineSave-${songId}`);
+                const msgEl = document.getElementById(`rhythmAssignInlineMsg-${songId}`);
+                if (saveBtn) {
+                    saveBtn.addEventListener('click', async () => {
+                        const sel = document.getElementById(`rhythmAssignInlinePicker-${songId}`);
+                        if (!sel) return;
+                        saveBtn.disabled = true;
+                        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        try {
+                            await applyRhythmSetRecommendation(songId, sel.value, row);
+                            if (msgEl) msgEl.textContent = `Saved: ${sel.value}`;
+                            // Reload player with the now-saved set
+                            await loadSetInPlayer(sel.value);
+                        } catch (e) {
+                            if (msgEl) msgEl.textContent = `Error: ${e.message}`;
+                        } finally {
+                            saveBtn.disabled = false;
+                            saveBtn.innerHTML = '<i class="fas fa-check"></i> Save to Song';
+                        }
+                    });
+                }
+
+                // Initialize the loop player with the recommended set
+                await loadSetInPlayer(recRhythmSetId || baseSong.rhythmSetId || '');
+
+                // Restore original song data
+                if (songIdx !== -1) window.songs[songIdx] = { ...patchedSong, rhythmSetId: originalRhythmSetId };
+
+                btn.innerHTML = '<i class="fas fa-times"></i> Close';
+            });
+        });
+    }
+
+    async function applyRhythmSetRecommendation(songId, rhythmSetId, rowEl) {
+        const res = await authFetch(`${API_BASE_URL}/api/songs/${songId}/rhythm-set`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rhythmSetId })
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || `HTTP ${res.status}`);
+        }
+        const updated = await res.json();
+        // Update local songs cache
+        if (window.songs) {
+            const idx = window.songs.findIndex(s => s.id === updated.id);
+            if (idx !== -1) window.songs[idx] = { ...window.songs[idx], ...updated };
+        }
+        // Mark row as applied
+        if (rowEl) {
+            rowEl.style.background = 'color-mix(in srgb, #27ae60 12%, transparent)';
+            const applyBtn = rowEl.querySelector('.rhythm-assign-apply-btn');
+            if (applyBtn) {
+                applyBtn.textContent = '✓ Applied';
+                applyBtn.disabled = true;
+                applyBtn.style.background = '#27ae60';
+            }
+            const cb = rowEl.querySelector('.rhythm-assign-check');
+            if (cb) { cb.checked = false; cb.disabled = true; }
+            const currentCell = rowEl.querySelector('td:nth-child(3)');
+            if (currentCell) currentCell.innerHTML = `<span style="font-family:monospace;font-size:0.88em;">${String(rhythmSetId).replace(/</g,'&lt;')}</span>`;
+        }
     }
 
     // Initialize admin panel after DOM is ready
@@ -9625,6 +10050,8 @@ window.viewSingleLyrics = function(songId, otherId) {
     
         async function showPreview(song, fromHistory = false, openingContext = 'all-songs') {
             if (!song || typeof song !== 'object') return;
+            // Expose for admin rhythm assigner and other cross-scope callers
+            window.adminOpenSongPreview = (s) => showPreview(s, false, 'rhythm-assigner');
 
             const previewSongId = song.id;
             if (!previewSongId) {

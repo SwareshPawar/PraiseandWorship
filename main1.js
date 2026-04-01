@@ -11537,12 +11537,14 @@ window.viewSingleLyrics = function(songId, otherId) {
             populateRhythmFamilyDropdown('editSongRhythmFamily', knownRhythmFamilies);
             populateRhythmCategoryDropdown('editSongRhythmCategory');
 
-            const editRhythmFamily = String(song.rhythmFamily || '').trim();
+            const storedRhythmSetId = String(song.rhythmSetId || '').trim().toLowerCase();
+            const parsedRhythmSetIdMatch = storedRhythmSetId.match(/^(.+)_([0-9]+)$/);
+            const editRhythmFamily = String(song.rhythmFamily || '').trim()
+                || (parsedRhythmSetIdMatch ? parsedRhythmSetIdMatch[1] : '');
             const rhythmSetNoFromSong = parseInt(song.rhythmSetNo, 10);
-            const rhythmSetNoFromIdMatch = String(song.rhythmSetId || '').match(/_(\d+)$/);
             const editRhythmSetNo = Number.isInteger(rhythmSetNoFromSong) && rhythmSetNoFromSong > 0
                 ? rhythmSetNoFromSong
-                : (rhythmSetNoFromIdMatch ? parseInt(rhythmSetNoFromIdMatch[1], 10) : '');
+                : (parsedRhythmSetIdMatch ? parseInt(parsedRhythmSetIdMatch[2], 10) : '');
 
             const editRhythmFamilyEl = document.getElementById('editSongRhythmFamily');
             const editRhythmSetNoEl = document.getElementById('editSongRhythmSetNo');
@@ -11554,8 +11556,8 @@ window.viewSingleLyrics = function(songId, otherId) {
                 editRhythmCategoryEl.value = normalizeRhythmCategoryValue(song.rhythmCategory || '');
             }
             updateRhythmSetIdPreview('editSongRhythmFamily', 'editSongRhythmSetNo', 'editSongRhythmSetIdPreview');
-            if (editRhythmSetIdPreviewEl && !editRhythmSetIdPreviewEl.value && song.rhythmSetId) {
-                editRhythmSetIdPreviewEl.value = song.rhythmSetId;
+            if (editRhythmSetIdPreviewEl) {
+                editRhythmSetIdPreviewEl.value = buildRhythmSetIdValue(editRhythmFamily, editRhythmSetNo) || '';
             }
 
             // Render correct genre options for multiselect
@@ -12116,8 +12118,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     const songRhythmFamily = document.getElementById('songRhythmFamily')?.value || '';
                     const songRhythmSetNoRaw = parseInt(document.getElementById('songRhythmSetNo')?.value, 10);
                     const songRhythmSetNo = Number.isInteger(songRhythmSetNoRaw) && songRhythmSetNoRaw > 0 ? songRhythmSetNoRaw : null;
-                    const songRhythmSetId = buildRhythmSetIdValue(songRhythmFamily, songRhythmSetNo)
-                        || (document.getElementById('songRhythmSetIdPreview')?.value || '');
+                    const songRhythmSetId = document.getElementById('songRhythmSetIdPreview')?.value || '';
                     const songRhythmCategory = normalizeRhythmCategoryValue(document.getElementById('songRhythmCategory')?.value || '');
                     
                     const newSong = {
@@ -12222,8 +12223,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const editSongRhythmFamily = document.getElementById('editSongRhythmFamily')?.value || '';
                 const editSongRhythmSetNoRaw = parseInt(document.getElementById('editSongRhythmSetNo')?.value, 10);
                 const editSongRhythmSetNo = Number.isInteger(editSongRhythmSetNoRaw) && editSongRhythmSetNoRaw > 0 ? editSongRhythmSetNoRaw : null;
-                const editSongRhythmSetId = buildRhythmSetIdValue(editSongRhythmFamily, editSongRhythmSetNo)
-                    || (document.getElementById('editSongRhythmSetIdPreview')?.value || '');
+                const editSongRhythmSetId = document.getElementById('editSongRhythmSetIdPreview')?.value || '';
                 const editSongRhythmCategory = normalizeRhythmCategoryValue(document.getElementById('editSongRhythmCategory')?.value || '');
 
                 // Find the original song for missing fields

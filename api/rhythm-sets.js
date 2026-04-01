@@ -180,6 +180,10 @@ function normalizeStatusInput(value) {
   return trimmed ? trimmed : null;
 }
 
+function isReadOnlyFsError(error) {
+  return Boolean(error && (error.code === 'EROFS' || error.code === 'ENOTSUP'));
+}
+
 module.exports = async (req, res) => {
   const origin = req.headers.origin || req.headers.Origin;
   const corsHeaders = getCorsHeaders(origin);
@@ -218,10 +222,17 @@ module.exports = async (req, res) => {
 
       const merged = dbSets.map(set => {
         const loopSet = metadataMap.get(set.rhythmSetId);
-        const fileKeys = loopSet ? Object.keys(loopSet.files || {}) : [];
+        const metadataFiles = loopSet && loopSet.files && typeof loopSet.files === 'object' ? loopSet.files : {};
+        const dbFiles = set && set.files && typeof set.files === 'object' ? set.files : {};
+        const effectiveFiles = {
+          ...metadataFiles,
+          ...dbFiles
+        };
+        const fileKeys = Object.keys(effectiveFiles).filter(key => Boolean(effectiveFiles[key]));
 
         return {
           ...set,
+          files: effectiveFiles,
           mappedSongCount: songCountMap.get(String(set.rhythmSetId)) || 0,
           availableFiles: fileKeys,
           isComplete: COMPLETE_LOOP_KEYS.every(k => fileKeys.includes(k))
@@ -439,6 +450,7 @@ module.exports = async (req, res) => {
       const targetExisting = targetIndex >= 0 ? metadata.loops[targetIndex] : null;
       const base = targetExisting || template || {};
       const now = new Date().toISOString();
+      const actor = auth.user.username || auth.user.email || 'admin';
       const assignedLoop = {
         ...base,
         id: `${parsedSet.rhythmSetId}_${slotInfo.key}`,
@@ -456,9 +468,32 @@ module.exports = async (req, res) => {
         metadata: {
           ...(base.metadata || {}),
           updatedAt: now,
-          assignedBy: auth.user.username || auth.user.email || 'admin'
+          assignedBy: actor
         }
       };
+
+      const { db } = await connectToDatabase();
+      const rhythmSetsCollection = db.collection('RhythmSets');
+      await rhythmSetsCollection.updateOne(
+        { rhythmSetId: parsedSet.rhythmSetId },
+        {
+          $setOnInsert: {
+            rhythmSetId: parsedSet.rhythmSetId,
+            rhythmFamily: parsedSet.rhythmFamily,
+            rhythmSetNo: parsedSet.rhythmSetNo,
+            createdAt: now,
+            createdBy: actor,
+            status: 'active',
+            mappedSongCount: 0
+          },
+          $set: {
+            [`files.${slotInfo.key}`]: filename,
+            updatedAt: now,
+            updatedBy: actor
+          }
+        },
+        { upsert: true }
+      );
 
       const slotMatches = (loop) => String(loop && loop.rhythmSetId || '') === String(parsedSet.rhythmSetId) &&
         `${String(loop && loop.type || '').toLowerCase()}${Number(loop && loop.number || 0)}` === slotInfo.key;
@@ -466,9 +501,25 @@ module.exports = async (req, res) => {
       metadata.loops.push(assignedLoop);
 
       syncRhythmSetsFromMetadata(metadata);
-      writeLoopsMetadata(metadata, writable.metadataPath);
+      let loopsMetadataPersisted = true;
+      let loopsMetadataWarning = null;
+      try {
+        writeLoopsMetadata(metadata, writable.metadataPath);
+      } catch (error) {
+        if (isReadOnlyFsError(error)) {
+          loopsMetadataPersisted = false;
+          loopsMetadataWarning = 'loops-metadata is read-only in this runtime; assignment was saved in DB files mapping only.';
+        } else {
+          throw error;
+        }
+      }
 
-      return res.status(200).json({ success: true, message: `${slotInfo.key} assigned successfully` });
+      return res.status(200).json({
+        success: true,
+        message: `${slotInfo.key} assigned successfully`,
+        loopsMetadataPersisted,
+        loopsMetadataWarning
+      });
     }
 
     if (req.method === 'GET' && /\/profile$/.test(routeTail)) {

@@ -14,7 +14,8 @@ const {
 function parseArgs(argv) {
   const args = new Set(argv.slice(2));
   return {
-    apply: args.has('--apply')
+    apply: args.has('--apply'),
+    syncFiles: args.has('--sync-files')
   };
 }
 
@@ -46,12 +47,14 @@ function buildCanonicalEntryFromMetadataSet(set) {
 }
 
 async function run() {
-  const { apply } = parseArgs(process.argv);
+  const { apply, syncFiles } = parseArgs(process.argv);
   console.log(`Mode: ${apply ? 'APPLY' : 'DRY RUN'}`);
+  console.log(`Sync files from metadata: ${syncFiles ? 'yes' : 'no'}`);
 
   const { metadata } = readLoopsMetadataSafe();
   const metadataSets = buildRhythmSetIndexFromMetadata(metadata);
   console.log(`Metadata rhythm sets discovered: ${metadataSets.length}`);
+  const metadataSetMap = new Map(metadataSets.map(set => [String(set.rhythmSetId || ''), set]));
 
   const { db, client } = await connectToDatabase();
 
@@ -116,11 +119,19 @@ async function run() {
         lastSource: 'migration-rhythm-sets-db'
       };
 
+      const metadataSet = metadataSetMap.get(entry.rhythmSetId);
+      if (syncFiles && metadataSet) {
+        payload.files = {
+          ...(metadataSet.files || {})
+        };
+      }
+
       return {
         entry,
         existing,
         payload,
-        mappedSongCount
+        mappedSongCount,
+        metadataFileCount: metadataSet ? Object.keys(metadataSet.files || {}).length : 0
       };
     });
 
@@ -131,6 +142,10 @@ async function run() {
     console.log(`Will create: ${createCount}`);
     console.log(`Will update: ${updateCount}`);
     console.log(`Songs grouped with invalid rhythmSetId format: ${invalidSongIds}`);
+    if (syncFiles) {
+      const setsWithMetadataFiles = plan.filter(item => item.metadataFileCount > 0).length;
+      console.log(`Will sync slot files for metadata-backed rhythm sets: ${setsWithMetadataFiles}`);
+    }
 
     if (!apply) {
       console.log('Dry run complete. Re-run with --apply to persist changes.');

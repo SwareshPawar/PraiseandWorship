@@ -8369,36 +8369,14 @@
       }
     },
     {
-      "id": "dadra_slow_1_loop1",
-      "type": "loop",
-      "number": 1,
-      "rhythmSetId": "dadra_slow_1",
-      "rhythmFamily": "dadra_slow",
-      "rhythmSetNo": 1,
-      "filename": "dadra_slow_1_Loop2.wav",
-      "originalFilename": "dadra_slow_1_LOOP2.wav",
-      "conditions": {
-        "taal": "dadra_slow"
-      },
-      "metadata": {
-        "updatedAt": "2026-04-01T05:49:16.280Z",
-        "importedFrom": "oldandnew:dadra_slow_1",
-        "renamedToCanonicalScheme": true,
-        "assignedBy": "swareshpawar@gmail.com"
-      },
-      "files": {
-        "loop1": "dadra_slow_1_Loop2.wav"
-      }
-    },
-    {
       "id": "dadra_slow_1_fill1",
       "type": "fill",
       "number": 1,
       "rhythmSetId": "dadra_slow_1",
       "rhythmFamily": "dadra_slow",
       "rhythmSetNo": 1,
-      "filename": "dadra_slow_1_Fill2.wav",
-      "originalFilename": "dadra_slow_1_FILL2.wav",
+      "filename": "dadra_slow_1_Fill1.wav",
+      "originalFilename": "dadra_slow_1_FILL1.wav",
       "conditions": {
         "taal": "dadra_slow"
       },
@@ -8409,7 +8387,7 @@
         "assignedBy": "swareshpawar@gmail.com"
       },
       "files": {
-        "fill1": "dadra_slow_1_Fill2.wav"
+        "fill1": "dadra_slow_1_Fill1.wav"
       }
     },
     {
@@ -8452,6 +8430,27 @@
         "uploadedAt": "2026-04-01T05:50:23.794Z",
         "uploadedBy": "swareshpawar@gmail.com",
         "description": "fill2 for dadra_slow_1"
+      }
+    },
+    {
+      "id": "dadra_slow_1_loop1",
+      "filename": "dadra_slow_1_Loop1.wav",
+      "type": "loop",
+      "number": 1,
+      "rhythmFamily": "dadra_slow",
+      "rhythmSetNo": 1,
+      "rhythmSetId": "dadra_slow_1",
+      "conditions": {
+        "taal": "dadra_slow",
+        "timeSignature": "4/4",
+        "tempo": "medium",
+        "genre": "acoustic"
+      },
+      "metadata": {
+        "duration": 0,
+        "uploadedAt": "2026-04-01T06:07:49.777Z",
+        "uploadedBy": "swareshpawar@gmail.com",
+        "description": "loop1 for dadra_slow_1"
       }
     }
   ],
@@ -8568,7 +8567,7 @@
       "rhythmSetId": "dadra_slow_1",
       "rhythmFamily": "dadra_slow",
       "rhythmSetNo": 1,
-      "fileCount": 6
+      "fileCount": 5
     },
     {
       "rhythmSetId": "dadra_slow_2",

@@ -456,6 +456,58 @@ async function ensureRhythmSetDocument({ rhythmSetId, rhythmFamily, rhythmSetNo 
   );
 }
 
+async function setRhythmSetSlotFilenames(rhythmSetFields, slotFilenameMap, actor = 'system', source = 'loop-slot-update') {
+  if (!db || !rhythmSetFields || !rhythmSetFields.rhythmSetId || !slotFilenameMap || typeof slotFilenameMap !== 'object') {
+    return;
+  }
+
+  const entries = Object.entries(slotFilenameMap).filter(([slotKey, filename]) => Boolean(slotKey) && Boolean(filename));
+  if (!entries.length) {
+    return;
+  }
+
+  await ensureRhythmSetDocument(rhythmSetFields, actor, source);
+
+  const rhythmSetsCollection = db.collection('RhythmSets');
+  const now = new Date().toISOString();
+  const setFields = {
+    updatedAt: now,
+    updatedBy: actor,
+    lastSource: source
+  };
+
+  entries.forEach(([slotKey, filename]) => {
+    setFields[`files.${slotKey}`] = filename;
+  });
+
+  await rhythmSetsCollection.updateOne(
+    { rhythmSetId: rhythmSetFields.rhythmSetId },
+    { $set: setFields }
+  );
+}
+
+async function unsetRhythmSetSlotFilename(rhythmSetId, slotKey, actor = 'system', source = 'loop-slot-delete') {
+  if (!db || !rhythmSetId || !slotKey) {
+    return;
+  }
+
+  const rhythmSetsCollection = db.collection('RhythmSets');
+  const now = new Date().toISOString();
+  await rhythmSetsCollection.updateOne(
+    { rhythmSetId },
+    {
+      $set: {
+        updatedAt: now,
+        updatedBy: actor,
+        lastSource: source
+      },
+      $unset: {
+        [`files.${slotKey}`]: ''
+      }
+    }
+  );
+}
+
 async function recomputeRhythmSetDerivedMetadata(rhythmSetId) {
   if (!db || !rhythmSetId) return;
 
@@ -2313,29 +2365,13 @@ app.post('/api/loops/upload-single', authMiddleware, loopUpload.single('file'), 
       return res.status(500).json({ error: 'Failed to update loop metadata' });
     }
 
-    // Auto-create rhythm set document in database
+    // Auto-create rhythm set document in database and keep slot mapping in sync.
     try {
-      const rhythmSetsCollection = db.collection('RhythmSets');
-      const now = new Date().toISOString();
-      await rhythmSetsCollection.updateOne(
-        { rhythmSetId },
-        {
-          $setOnInsert: {
-            rhythmSetId,
-            rhythmFamily,
-            rhythmSetNo,
-            createdAt: now,
-            createdBy: req.user.username || req.user.email || 'admin',
-            status: 'active',
-            mappedSongCount: 0
-          },
-          $set: {
-            updatedAt: now,
-            updatedBy: req.user.username || req.user.email || 'admin',
-            lastSource: 'loop-upload-single'
-          }
-        },
-        { upsert: true }
+      await setRhythmSetSlotFilenames(
+        { rhythmSetId, rhythmFamily, rhythmSetNo },
+        { [`${type}${parseInt(number, 10)}`]: correctFilename },
+        req.user.username || req.user.email || 'admin',
+        'loop-upload-single'
       );
     } catch (dbErr) {
       console.error('Could not auto-create rhythm set document:', dbErr);
@@ -2549,6 +2585,12 @@ app.post('/api/external-loop-sources/:sourceId/import-loop', authMiddleware, req
     writeLoopsMetadata(metadata, writable.metadataPath);
 
     await ensureRhythmSetDocument(targetSet, req.user.username || req.user.email || 'admin', 'external-loop-import');
+    await setRhythmSetSlotFilenames(
+      targetSet,
+      { [slotInfo.key]: copied.filename },
+      req.user.username || req.user.email || 'admin',
+      'external-loop-import'
+    );
 
     res.status(201).json({
       success: true,
@@ -2583,6 +2625,7 @@ app.post('/api/external-loop-sources/:sourceId/import-rhythm-set', authMiddlewar
     const metadata = writable.metadata;
     const importedFiles = [];
     const skippedFiles = [];
+    const importedSlotMap = {};
 
     for (const [slotKey, sourceFilename] of Object.entries(sourceGroup.files || {})) {
       const slotInfo = parseLoopSlotKey(slotKey);
@@ -2630,12 +2673,19 @@ app.post('/api/external-loop-sources/:sourceId/import-rhythm-set', authMiddlewar
       }
 
       importedFiles.push({ slotKey: slotInfo.key, filename: copied.filename, sourceFilename });
+      importedSlotMap[slotInfo.key] = copied.filename;
     }
 
     syncRhythmSetsFromMetadata(metadata);
     writeLoopsMetadata(metadata, writable.metadataPath);
 
     await ensureRhythmSetDocument(parsedTarget, req.user.username || req.user.email || 'admin', 'external-rhythm-set-import');
+    await setRhythmSetSlotFilenames(
+      parsedTarget,
+      importedSlotMap,
+      req.user.username || req.user.email || 'admin',
+      'external-rhythm-set-import'
+    );
     if (db && importNotes) {
       const rhythmSetsCollection = db.collection('RhythmSets');
       await rhythmSetsCollection.updateOne(
@@ -2720,6 +2770,7 @@ app.post('/api/rhythm-sets/loops/swap', authMiddleware, requireAdmin, async (req
 
     const filename1 = metadata.loops[index1].filename;
     const filename2 = metadata.loops[index2].filename;
+    const actor = req.user.username || req.user.email || 'admin';
 
     metadata.loops[index1].filename = filename2;
     metadata.loops[index1].files = { [slot1Info.key]: filename2 };
@@ -2739,6 +2790,18 @@ app.post('/api/rhythm-sets/loops/swap', authMiddleware, requireAdmin, async (req
 
     syncRhythmSetsFromMetadata(metadata);
     writeLoopsMetadata(metadata, writable.metadataPath);
+    await setRhythmSetSlotFilenames(
+      parseRhythmSetId(String(slot1.rhythmSetId || '').trim().toLowerCase()),
+      { [slot1Info.key]: filename2 },
+      actor,
+      'loop-swap'
+    );
+    await setRhythmSetSlotFilenames(
+      parseRhythmSetId(String(slot2.rhythmSetId || '').trim().toLowerCase()),
+      { [slot2Info.key]: filename1 },
+      actor,
+      'loop-swap'
+    );
 
     return res.status(200).json({
       success: true,
@@ -3140,21 +3203,34 @@ app.delete('/api/rhythm-sets/:rhythmSetId/loops/:loopKey', authMiddleware, requi
     const writable = readWritableLoopsMetadata();
     const metadata = writable.metadata;
 
+    const rhythmSetsCollection = db.collection('RhythmSets');
+    const existingSet = await rhythmSetsCollection.findOne(
+      { rhythmSetId: parsed.rhythmSetId },
+      { projection: { files: 1 } }
+    );
+    const dbFilename = existingSet && existingSet.files ? existingSet.files[slotInfo.key] : null;
+
     // Find and remove the loop from metadata using canonical slot key matching.
     const index = findLoopIndexBySlot(metadata, parsed.rhythmSetId, slotInfo.key);
 
-    if (index < 0) {
+    if (index < 0 && !dbFilename) {
       return res.status(404).json({ error: `${slotInfo.key} not found for ${parsed.rhythmSetId}` });
     }
 
-    const removed = metadata.loops.splice(index, 1)[0];
+    const removed = index >= 0 ? metadata.loops.splice(index, 1)[0] : null;
     syncRhythmSetsFromMetadata(metadata);
     writeLoopsMetadata(metadata, writable.metadataPath);
+    await unsetRhythmSetSlotFilename(
+      parsed.rhythmSetId,
+      slotInfo.key,
+      req.user.username || req.user.email || 'admin',
+      'loop-delete'
+    );
 
     return res.status(200).json({
       success: true,
       message: `${slotInfo.key} removed from ${parsed.rhythmSetId}`,
-      removedFilename: removed && removed.filename ? removed.filename : null
+      removedFilename: removed && removed.filename ? removed.filename : (dbFilename || null)
     });
   } catch (err) {
     console.error('Rhythm set loop delete error:', err);

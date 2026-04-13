@@ -186,7 +186,7 @@ const PW_CHORD_TYPES = [
     "dim7", "dim", "aug7", "aug", // Diminished and augmented
     "sus4", "sus2", "sus", // Suspended chords
     "b13", "#13", "b11", "#11", "b9", "#9", "b5", "#5", // Altered extensions
-    "13", "11", "9", "7", "6", "5" // Basic numbered chords (7 should come last)
+    "13", "11", "9", "7", "6", "5", "4", "2" // Basic numbered chords
 ];
 
 // Dynamic API base URL for local/dev/prod (Global scope)

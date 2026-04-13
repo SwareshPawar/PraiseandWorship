@@ -145,6 +145,35 @@ function setRecommendationWeightsState(nextWeights) {
 
 setRecommendationWeightsState(recommendationWeights);
 
+const DEFAULT_FEATURE_FLAGS = {
+    loopsEnabled: true
+};
+
+let globalFeatureFlags = (() => {
+    try {
+        const stored = JSON.parse(localStorage.getItem('pw_featureFlags') || '{}');
+        return { ...DEFAULT_FEATURE_FLAGS, ...(stored || {}) };
+    } catch {
+        return { ...DEFAULT_FEATURE_FLAGS };
+    }
+})();
+
+function setFeatureFlagsState(nextFlags) {
+    globalFeatureFlags = {
+        ...DEFAULT_FEATURE_FLAGS,
+        ...(nextFlags || {})
+    };
+
+    globalThis.PW_FEATURE_FLAGS = globalFeatureFlags;
+    return globalFeatureFlags;
+}
+
+function areLoopsEnabledGlobally() {
+    return globalFeatureFlags.loopsEnabled !== false;
+}
+
+setFeatureFlagsState(globalFeatureFlags);
+
 // --- CHORD TYPES: single source of truth ---
 const PW_CHORD_TYPES = [
     // Longest patterns first to prevent partial matches
@@ -1065,6 +1094,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Always fetch latest weights on app load
     fetchRecommendationWeights();
+    fetchGlobalFeatureFlags();
     
     // Auth state is already initialized globally - no need to reload
 
@@ -3175,6 +3205,87 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         document.getElementById('weightMood').value = recommendationWeights.mood;
         document.getElementById('weightRhythmCategory').value = recommendationWeights.rhythmCategory ?? 0;
     }
+
+    function updateGlobalLoopsSettingStatus(message, isError = false) {
+        const statusEl = document.getElementById('globalLoopsSettingStatus');
+        if (!statusEl) return;
+        statusEl.textContent = message || '';
+        statusEl.style.color = isError ? '#b30000' : 'var(--text-muted)';
+    }
+
+    function applyGlobalLoopsToggleToForm() {
+        const loopsToggle = document.getElementById('globalLoopsEnabledToggle');
+        if (!loopsToggle) return;
+        loopsToggle.checked = areLoopsEnabledGlobally();
+        updateGlobalLoopsSettingStatus(`Loops are currently ${areLoopsEnabledGlobally() ? 'enabled' : 'disabled'} globally.`);
+    }
+
+    async function fetchGlobalFeatureFlags() {
+        try {
+            const res = await authFetch(`${API_BASE_URL}/api/feature-flags`);
+            if (!res.ok) return globalFeatureFlags;
+            const data = await res.json();
+            setFeatureFlagsState(data);
+            localStorage.setItem('pw_featureFlags', JSON.stringify(globalFeatureFlags));
+            return globalFeatureFlags;
+        } catch {
+            return globalFeatureFlags;
+        }
+    }
+
+    async function saveGlobalFeatureFlagsToBackend(nextFlags) {
+        try {
+            const res = await authFetch(`${API_BASE_URL}/api/feature-flags`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('pw_jwtToken') || ''}`
+                },
+                body: JSON.stringify(nextFlags)
+            });
+
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                return { success: false, message: err.error || 'Failed to save feature flags' };
+            }
+
+            const data = await res.json();
+            setFeatureFlagsState(data);
+            localStorage.setItem('pw_featureFlags', JSON.stringify(globalFeatureFlags));
+            return { success: true, message: 'Feature flags saved' };
+        } catch {
+            return { success: false, message: 'Network error while saving feature flags' };
+        }
+    }
+
+    function initializeFeatureManagersTab() {
+        const loopsToggle = document.getElementById('globalLoopsEnabledToggle');
+        const saveBtn = document.getElementById('saveGlobalLoopsSettingBtn');
+        if (!loopsToggle || !saveBtn) return;
+
+        fetchGlobalFeatureFlags().then(() => {
+            applyGlobalLoopsToggleToForm();
+        });
+
+        if (saveBtn.dataset.bound === 'true') return;
+        saveBtn.dataset.bound = 'true';
+
+        saveBtn.addEventListener('click', async () => {
+            const next = { loopsEnabled: Boolean(loopsToggle.checked) };
+            saveBtn.disabled = true;
+            updateGlobalLoopsSettingStatus('Saving...');
+            const result = await saveGlobalFeatureFlagsToBackend(next);
+            if (result.success) {
+                updateGlobalLoopsSettingStatus(`Saved. Loops are now ${next.loopsEnabled ? 'enabled' : 'disabled'} globally.`);
+                showNotification(`Global loop visibility ${next.loopsEnabled ? 'enabled' : 'disabled'}.`, 'success');
+            } else {
+                updateGlobalLoopsSettingStatus(result.message, true);
+                showNotification(result.message, 'error');
+                loopsToggle.checked = areLoopsEnabledGlobally();
+            }
+            saveBtn.disabled = false;
+        });
+    }
     
     function showAdminPanelModal() {
         document.getElementById('adminPanelModal').style.display = 'flex';
@@ -3222,7 +3333,7 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         setupAdminTabHandler('weightsTab', 'weightsTabContent', loadWeightsToForm);
         setupAdminTabHandler('duplicateDetectionTab', 'duplicateDetectionTabContent', renderDuplicateDetection);
         setupAdminTabHandler('backendMgmtTab', 'backendMgmtTabContent', initializeBackendManagement);
-        setupAdminTabHandler('featureManagersTab', 'featureManagersTabContent', null);
+        setupAdminTabHandler('featureManagersTab', 'featureManagersTabContent', initializeFeatureManagersTab);
         setupAdminTabHandler('rhythmAssignTab', 'rhythmAssignTabContent', initializeRhythmAssigner);
     }
     
@@ -3658,7 +3769,11 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
 
                 // Loop player HTML
                 const loopPlayerWrap = document.createElement('div');
-                loopPlayerWrap.innerHTML = typeof getLoopPlayerHTML === 'function' ? getLoopPlayerHTML(songId) : '<p style="padding:12px;color:var(--text-muted);">Loop player unavailable.</p>';
+                if (areLoopsEnabledGlobally()) {
+                    loopPlayerWrap.innerHTML = typeof getLoopPlayerHTML === 'function' ? getLoopPlayerHTML(songId) : '<p style="padding:12px;color:var(--text-muted);">Loop player unavailable.</p>';
+                } else {
+                    loopPlayerWrap.innerHTML = '<p style="padding:12px;color:var(--text-muted);">Loops are disabled globally.</p>';
+                }
                 inlineTd.appendChild(loopPlayerWrap);
 
                 inlineRow.appendChild(inlineTd);
@@ -3671,6 +3786,10 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
                 // Helper: load a specific rhythmSetId into the player
                 async function loadSetInPlayer(targetSetId) {
                     const msgEl = document.getElementById(`rhythmAssignInlineMsg-${songId}`);
+                    if (!areLoopsEnabledGlobally()) {
+                        if (msgEl) msgEl.textContent = 'Loops are disabled globally.';
+                        return;
+                    }
                     if (msgEl) msgEl.textContent = 'Loading…';
                     // Patch song in cache temporarily
                     const idx2 = window.songs ? window.songs.findIndex(s => s.id === songId) : -1;
@@ -4445,25 +4564,39 @@ window.viewSingleLyrics = function(songId, otherId) {
         
         // Set up custom dropdown event handlers
         setupCustomDropdownHandlers();
+
+        function restoreSelectionAndView(selectionValue) {
+            if (!selectionValue) return;
+
+            const optionExists = Array.from(setlistDropdown.options).some(option => option.value === selectionValue);
+            if (!optionExists) return;
+
+            setlistDropdown.value = selectionValue;
+            updateCustomDropdownDisplay(selectionValue);
+            updateSetlistDropdownStyle(true);
+
+            // Keep selected setlist visible across refresh (including mobile timing).
+            if (!window.__pwDidInitialSetlistRestore && !window.updatingFromFolderNav && !currentViewingSetlist) {
+                const [type, id] = selectionValue.split('_');
+                if (type === 'global') {
+                    showGlobalSetlistInMainSection(id);
+                } else if (type === 'my') {
+                    showMySetlistInMainSection(id);
+                } else if (type === 'smart') {
+                    showSmartSetlistInMainSection(id);
+                }
+                window.__pwDidInitialSetlistRestore = true;
+            }
+        }
         
         // Restore the previous selection if it still exists
         if (currentSelection) {
-            const optionExists = Array.from(setlistDropdown.options).some(option => option.value === currentSelection);
-            if (optionExists) {
-                setlistDropdown.value = currentSelection;
-                updateCustomDropdownDisplay(currentSelection);
-                updateSetlistDropdownStyle(true);
-            }
+            restoreSelectionAndView(currentSelection);
         } else {
             // If no current selection, check localStorage
             const savedSelection = localStorage.getItem('pw_selectedSetlist');
             if (savedSelection) {
-                const optionExists = Array.from(setlistDropdown.options).some(option => option.value === savedSelection);
-                if (optionExists) {
-                    setlistDropdown.value = savedSelection;
-                    updateCustomDropdownDisplay(savedSelection);
-                    updateSetlistDropdownStyle(true);
-                }
+                restoreSelectionAndView(savedSelection);
             }
         }
     }
@@ -10404,7 +10537,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             }
         </div>` : ''}
 
-        ${typeof getLoopPlayerHTML === 'function' ? getLoopPlayerHTML(song.id) : ''}
+        ${areLoopsEnabledGlobally() && typeof getLoopPlayerHTML === 'function' ? getLoopPlayerHTML(song.id) : ''}
         
         <!-- LYRICS SECTION -->
         <div class="song-lyrics" id="preview-lyrics-container">Loading lyrics...</div>
@@ -10444,7 +10577,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 }
                 
                 // Initialize loop player for this song
-                if (typeof initializeLoopPlayer === 'function') {
+                if (areLoopsEnabledGlobally() && typeof initializeLoopPlayer === 'function') {
                     const loopInitPromise = initializeLoopPlayer(song.id);
                     if (isAdminUiDebugEnabled && loopInitPromise && typeof loopInitPromise.then === 'function') {
                         loopInitPromise
@@ -10712,7 +10845,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const line = lines[i];
     
                 if (line.trim() === '') {
-                    output.push(`<div class="lyric-line">${line}</div>`);
+                    output.push('<div class="lyric-line">&nbsp;</div>');
                     continue;
                 }
     
@@ -10742,8 +10875,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                     output.push(`<div class="chord-line">${processedLine}</div>`);
                 }
                 else if (hasInlineChords(line)) {
-                    // Use INLINE_CHORD_REGEX to find and render inline chords
-                    let processedLine = line.replace(INLINE_CHORD_REGEX, (match, chord) => {
+                    // Reset lastIndex because the regex is global and reused across lines.
+                    PW_INLINE_CHORD_REGEX.lastIndex = 0;
+                    let processedLine = line.replace(PW_INLINE_CHORD_REGEX, (match, chord) => {
                         if (chord.includes('/')) {
                             const [baseChord, bassNote] = chord.split('/');
                             const transposedBase = transposeChord(baseChord, transposeLevel);
@@ -10768,7 +10902,8 @@ window.viewSingleLyrics = function(songId, otherId) {
         }
 
         function hasInlineChords(line) {
-            // Use only the defined constant for inline chord detection
+            // Reset lastIndex because the regex is global and reused across calls.
+            PW_INLINE_CHORD_REGEX.lastIndex = 0;
             return PW_INLINE_CHORD_REGEX.test(line);
         }
     
@@ -10953,6 +11088,11 @@ window.viewSingleLyrics = function(songId, otherId) {
                 showNotification('Please login to add songs to your setlist.');
                 return;
             }
+
+            if (String(setlistId || '').startsWith('smart_')) {
+                showNotification('This is a smart setlist.', 'error');
+                return;
+            }
             
             // Check if user has permission to modify global setlists
             if (setlistId.startsWith('global_') && (!currentUser || !currentUser.isAdmin)) {
@@ -11054,6 +11194,11 @@ window.viewSingleLyrics = function(songId, otherId) {
                 showNotification('Please login to remove songs from your setlist.');
                 return;
             }
+
+            if (String(setlistId || '').startsWith('smart_')) {
+                showNotification('This is a smart setlist.', 'error');
+                return;
+            }
             
             const song = songs.find(s => s.id === songId);
             if (!song) {
@@ -11129,6 +11274,11 @@ window.viewSingleLyrics = function(songId, otherId) {
         function checkSongInSetlistAndToggle(songId, setlistId) {
             if (!setlistId) {
                 showNotification('Please select a setlist first');
+                return;
+            }
+
+            if (String(setlistId).startsWith('smart_')) {
+                showNotification('This is a smart setlist.', 'error');
                 return;
             }
             
@@ -11939,11 +12089,17 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             showAllEl.addEventListener('click', (e) => {
                 e.preventDefault();
+
+                currentViewingSetlist = null;
+                currentSetlistType = null;
                 PraiseContent.classList.add('active');
                 WorshipContent.classList.remove('active');
+                PraiseContent.style.display = 'block';
+                WorshipContent.style.display = 'none';
                 setlistSection.style.display = 'none';
                 deleteSection.style.display = 'none';
                 favoritesSection.style.display = 'none';
+                if (setlistSectionActions) setlistSectionActions.style.display = 'none';
                 
                 // Reset setlist header to default text
                 const setlistHeader = document.getElementById('setlistViewHeader');
@@ -11951,7 +12107,8 @@ window.viewSingleLyrics = function(songId, otherId) {
                     setlistHeader.textContent = 'Setlist View';
                 }
                 
-                renderSongs('Praise', keyFilter.value, genreFilter.value);
+                const filters = getCurrentFilterValues();
+                renderSongs('Praise', filters.key, filters.genre, filters.mood, filters.artist);
                 document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
                 e.target.classList.add('active');
                 

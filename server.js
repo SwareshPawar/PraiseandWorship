@@ -995,6 +995,49 @@ app.put('/api/recommendation-weights', authMiddleware, requireAdmin, async (req,
   }
 });
 
+// Get global feature flags
+app.get('/api/feature-flags', async (req, res) => {
+  try {
+    const config = await db.collection('config').findOne({ _id: 'featureFlags' });
+    if (!config) {
+      return res.json({
+        loopsEnabled: true,
+        lastModified: null
+      });
+    }
+
+    return res.json({
+      loopsEnabled: config.loopsEnabled !== false,
+      lastModified: config.lastModified || null,
+      updatedBy: config.updatedBy || null
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update global feature flags (admin only)
+app.put('/api/feature-flags', authMiddleware, requireAdmin, async (req, res) => {
+  try {
+    const { loopsEnabled } = req.body || {};
+    if (typeof loopsEnabled !== 'boolean') {
+      return res.status(400).json({ error: 'loopsEnabled must be a boolean' });
+    }
+
+    const lastModified = new Date().toISOString();
+    const updatedBy = (req.user && (req.user.firstName || req.user.username || req.user.email)) || 'admin';
+    await db.collection('config').updateOne(
+      { _id: 'featureFlags' },
+      { $set: { loopsEnabled, lastModified, updatedBy } },
+      { upsert: true }
+    );
+
+    res.json({ loopsEnabled, lastModified, updatedBy });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Do NOT use global auth middleware
 // Only use authMiddleware on protected routes below
 

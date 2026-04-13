@@ -670,6 +670,18 @@ async function saveRecommendationWeightsToBackend(weights) {
             <div class="admin-tab-content" id="featureManagersTabContent" style="display:none;">
                 <div class="feature-managers-wrap">
                     <div class="notification" id="featureManagersNotification">Slice 4 enabled: manager write operations are available for admin users on local backend. Serverless runtime keeps write paths disabled.</div>
+                    <div class="feature-manager-global-toggle" style="margin-bottom: 16px; padding: 14px; border: 1px solid var(--input-border); border-radius: 8px; background: var(--form-bg);">
+                        <h4 style="margin: 0 0 10px 0;">Global Loop Visibility</h4>
+                        <p style="margin: 0 0 10px 0; color: var(--text-muted); font-size: 0.92em;">When disabled, loop player controls are hidden across the app even if loop data exists.</p>
+                        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+                            <label for="globalLoopsEnabledToggle" style="display: inline-flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="globalLoopsEnabledToggle">
+                                <span>Enable loops globally</span>
+                            </label>
+                            <button type="button" id="saveGlobalLoopsSettingBtn" class="btn btn-primary">Save</button>
+                            <span id="globalLoopsSettingStatus" style="font-size: 0.9em; color: var(--text-muted);"></span>
+                        </div>
+                    </div>
                     <div class="feature-manager-quick-create" style="margin-bottom: 16px; padding: 14px; border: 1px solid var(--input-border); border-radius: 8px; background: var(--form-bg);">
                         <h4 style="margin: 0 0 10px 0;">Quick Rhythm Set Create</h4>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">

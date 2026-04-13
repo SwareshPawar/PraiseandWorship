@@ -1235,6 +1235,10 @@
             margin-bottom: -1px;
         }
 
+        .lyric-line {
+            white-space: pre-wrap;
+        }
+
         /* Mobile Responsive Adjustments */
         @media (max-width: 480px) {
             .song-preview-title {

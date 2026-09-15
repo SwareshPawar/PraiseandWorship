@@ -837,6 +837,8 @@
 
     body.mobile-modern-mode .mobile-preview-more-menu {
         display: none;
+        position: relative;
+        z-index: 2550;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 5px;
         margin-top: 5px;
@@ -897,7 +899,7 @@
 
     body.mobile-modern-mode .notification {
         bottom: calc(74px + env(safe-area-inset-bottom, 0px));
-        z-index: 2600;
+        z-index: 5300;
     }
 
     body.ui-v2-shell .mobile-nav-container {
@@ -1026,23 +1028,34 @@
         margin: 2px 0;
     }
 
-    body.ui-v2-shell #setlistSection {
+    body.ui-v2-shell #setlistSection,
+    body.ui-v2-shell #favoritesSection {
         padding: 1px;
     }
 
-    body.ui-v2-shell #setlistSection .setlist-tabs {
+    body.ui-v2-shell #setlistSection .setlist-header,
+    body.ui-v2-shell #favoritesSection .favorites-header {
+        min-height: 45px;
+        gap: 8px;
+        padding-right: 0;
+    }
+
+    body.ui-v2-shell #setlistSection .setlist-tabs,
+    body.ui-v2-shell #favoritesSection .setlist-tabs {
         gap: 1px;
         margin: 0 0 1px;
         padding: 3px;
     }
 
-    body.ui-v2-shell #setlistSection .setlist-tab {
+    body.ui-v2-shell #setlistSection .setlist-tab,
+    body.ui-v2-shell #favoritesSection .setlist-tab {
         min-height: 20px;
         padding: 1px 4px;
         font-size: 0.72rem;
     }
 
-    body.ui-v2-shell #setlistSection .setlist-content {
+    body.ui-v2-shell #setlistSection .setlist-content,
+    body.ui-v2-shell #favoritesSection .setlist-content {
         padding: 1px;
         min-height: 0;
     }

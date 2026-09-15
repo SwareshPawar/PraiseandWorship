@@ -182,12 +182,14 @@ body.ui-v2-shell .setlist-songs-list {
     padding: 0;
 }
 
-body.ui-v2-shell #setlistSection {
+body.ui-v2-shell #setlistSection,
+body.ui-v2-shell #favoritesSection {
     margin: 0;
     padding: 2px;
 }
 
-body.ui-v2-shell #setlistSection .setlist-header {
+body.ui-v2-shell #setlistSection .setlist-header,
+body.ui-v2-shell #favoritesSection .favorites-header {
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -198,10 +200,12 @@ body.ui-v2-shell #setlistSection .setlist-header {
     padding: 0 0 2px;
 }
 
-body.ui-v2-shell #setlistSection .setlist-header h3 {
+body.ui-v2-shell #setlistSection .setlist-header h3,
+body.ui-v2-shell #favoritesSection .favorites-header h3 {
     margin: 0;
     font-size: 0.99rem;
     line-height: 1.5;
+    color: var(--text-900);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -301,21 +305,24 @@ body.ui-v2-shell #setlistSection .setlist-header-actions .setlist-delete-btn:foc
     }
 }
 
-body.ui-v2-shell #setlistSection .setlist-tabs {
+body.ui-v2-shell #setlistSection .setlist-tabs,
+body.ui-v2-shell #favoritesSection .setlist-tabs {
     margin: 0 0 1px;
     gap: 1px;
     padding: 0;
     border-width: 1px;
 }
 
-body.ui-v2-shell #setlistSection .setlist-tab {
+body.ui-v2-shell #setlistSection .setlist-tab,
+body.ui-v2-shell #favoritesSection .setlist-tab {
     padding: 2px 5px;
     min-height: 22px;
     font-size: 0.7rem;
     border-width: 1px;
 }
 
-body.ui-v2-shell #setlistSection .setlist-content {
+body.ui-v2-shell #setlistSection .setlist-content,
+body.ui-v2-shell #favoritesSection .setlist-content {
     margin: 0;
     padding: 2px;
     border-radius: 4px;
@@ -324,7 +331,9 @@ body.ui-v2-shell #setlistSection .setlist-content {
 }
 
 body.ui-v2-shell #setlistSection #PraiseSetlistSongs,
-body.ui-v2-shell #setlistSection #WorshipSetlistSongs {
+body.ui-v2-shell #setlistSection #WorshipSetlistSongs,
+body.ui-v2-shell #favoritesSection #FavoritesPraiseSongs,
+body.ui-v2-shell #favoritesSection #FavoritesWorshipSongs {
     margin: 0;
     padding: 0;
 }

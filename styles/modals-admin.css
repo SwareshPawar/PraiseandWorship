@@ -1,7 +1,7 @@
 body.ui-v2-shell .modal {
     position: fixed;
     inset: 0;
-    z-index: 2000;
+    z-index: 5000;
     background: rgba(9, 31, 44, 0.48);
     backdrop-filter: blur(5px);
     padding: 8px;
@@ -11,7 +11,7 @@ body.ui-v2-shell .modal {
 }
 
 body.ui-v2-shell #settingsModal {
-    z-index: 3000;
+    z-index: 5100;
 }
 
 body.ui-v2-shell .modal-content {
@@ -143,6 +143,312 @@ body.ui-v2-shell .auth-form input:focus,
 body.ui-v2-shell .auth-form select:focus {
     outline: 2px solid var(--focus-ring);
     outline-offset: 1px;
+}
+
+body.ui-v2-shell #addSongModal,
+body.ui-v2-shell #editSongModal {
+    padding: 10px;
+}
+
+body.ui-v2-shell #addSongModal .song-form-modal-content,
+body.ui-v2-shell #editSongModal .song-form-modal-content {
+    position: relative;
+    width: min(660px, 96vw);
+    max-height: 94vh;
+    padding: 18px 20px 16px;
+    border-radius: 18px;
+    border: 1px solid color-mix(in srgb, var(--border-color) 78%, #ffffff 22%);
+    background:
+        linear-gradient(180deg, color-mix(in srgb, var(--surface-0) 94%, transparent 6%) 0%, color-mix(in srgb, var(--surface-1) 96%, var(--surface-0) 4%) 100%);
+    box-shadow: var(--modal-shadow);
+}
+
+body.ui-v2-shell #addSongModal .close-modal,
+body.ui-v2-shell #editSongModal .close-modal {
+    position: absolute;
+    top: 22px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border-color: color-mix(in srgb, var(--brand-400) 36%, var(--border-color) 64%);
+    background: color-mix(in srgb, var(--surface-0) 82%, var(--interactive-soft) 18%);
+    color: var(--text-900);
+    font-size: 1.55rem;
+    box-shadow: var(--shadow-sm);
+}
+
+body.ui-v2-shell #addSongModal .close-modal:hover,
+body.ui-v2-shell #editSongModal .close-modal:hover {
+    background: var(--interactive-soft);
+    color: var(--brand-600);
+}
+
+body.ui-v2-shell .song-form-heading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    min-height: 70px;
+    margin: 0 52px 10px;
+    text-align: center;
+}
+
+body.ui-v2-shell .song-form-heading > i {
+    color: var(--brand-500);
+    font-size: 1.85rem;
+}
+
+body.ui-v2-shell .song-form-heading h3 {
+    margin: 0;
+    color: var(--text-900);
+    font-size: clamp(1.45rem, 3vw, 1.95rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: 0;
+}
+
+body.ui-v2-shell .song-form-heading p {
+    margin: 6px 0 0;
+    color: var(--text-500);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+body.ui-v2-shell .add-song-form,
+body.ui-v2-shell .edit-song-form {
+    display: grid;
+    gap: 10px;
+    overflow: visible;
+}
+
+body.ui-v2-shell .song-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+body.ui-v2-shell .song-form-grid-compact {
+    gap: 8px 12px;
+}
+
+body.ui-v2-shell .song-form-field-wide,
+body.ui-v2-shell .song-form-section-wide {
+    grid-column: 1 / -1;
+}
+
+body.ui-v2-shell .song-form-field {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 12px;
+    min-width: 0;
+    padding: 12px 14px;
+    border: 1px solid color-mix(in srgb, var(--border-color) 78%, transparent 22%);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--surface-0) 88%, var(--surface-1) 12%);
+    box-shadow: var(--shadow-sm);
+}
+
+body.ui-v2-shell .song-form-field > i {
+    color: var(--brand-500);
+    font-size: 1.45rem;
+    line-height: 1;
+    padding-top: 3px;
+    text-align: center;
+}
+
+body.ui-v2-shell .song-form-control {
+    display: grid;
+    gap: 7px;
+    min-width: 0;
+}
+
+body.ui-v2-shell .song-form-control label,
+body.ui-v2-shell .add-song-form > label,
+body.ui-v2-shell .edit-song-form > label {
+    color: var(--text-900);
+    font-size: 0.98rem;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+body.ui-v2-shell .song-form-control label span {
+    color: var(--danger-500);
+}
+
+body.ui-v2-shell .song-form-control label small,
+body.ui-v2-shell .structure-tags-header small {
+    display: block;
+    margin-top: 2px;
+    color: var(--text-500);
+    font-size: 0.76rem;
+    font-weight: 500;
+}
+
+body.ui-v2-shell .add-song-form input,
+body.ui-v2-shell .add-song-form select,
+body.ui-v2-shell .add-song-form textarea,
+body.ui-v2-shell .edit-song-form input,
+body.ui-v2-shell .edit-song-form select,
+body.ui-v2-shell .edit-song-form textarea {
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--input-bg) 92%, var(--surface-1) 8%);
+    color: var(--input-text);
+    font-size: 0.96rem;
+    font-family: var(--font-family);
+    transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+body.ui-v2-shell .add-song-form input:focus,
+body.ui-v2-shell .add-song-form select:focus,
+body.ui-v2-shell .add-song-form textarea:focus,
+body.ui-v2-shell .edit-song-form input:focus,
+body.ui-v2-shell .edit-song-form select:focus,
+body.ui-v2-shell .edit-song-form textarea:focus {
+    border-color: var(--brand-400);
+    box-shadow: 0 0 0 3px var(--focus-ring);
+    outline: none;
+}
+
+body.ui-v2-shell .add-song-form input::placeholder,
+body.ui-v2-shell .add-song-form textarea::placeholder,
+body.ui-v2-shell .edit-song-form input::placeholder,
+body.ui-v2-shell .edit-song-form textarea::placeholder {
+    color: var(--text-500);
+    opacity: 0.72;
+}
+
+body.ui-v2-shell .song-tempo-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+}
+
+body.ui-v2-shell .song-tempo-row .tap-tempo-btn {
+    justify-content: center;
+    min-height: 38px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--interactive-soft);
+    color: var(--brand-600);
+    font-weight: 800;
+    box-shadow: none;
+}
+
+body.ui-v2-shell .song-tempo-row .tap-tempo-btn:hover,
+body.ui-v2-shell .song-tempo-row .tap-tempo-btn:focus-visible {
+    background: color-mix(in srgb, var(--brand-400) 22%, var(--interactive-soft) 78%);
+    color: var(--text-900);
+    outline: none;
+}
+
+body.ui-v2-shell .song-form-section {
+    min-width: 0;
+    margin: 0;
+    padding: 12px 14px 14px;
+    border: 1px solid color-mix(in srgb, var(--brand-400) 26%, var(--border-color) 74%);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--interactive-soft) 44%, var(--surface-0) 56%);
+    box-shadow: var(--shadow-sm);
+}
+
+body.ui-v2-shell .song-form-section legend,
+body.ui-v2-shell .structure-tags-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 9px;
+    align-items: center;
+    margin: 0 0 9px;
+    color: var(--text-900);
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+body.ui-v2-shell .song-form-section legend {
+    padding: 0 6px;
+}
+
+body.ui-v2-shell .song-form-section legend i,
+body.ui-v2-shell .structure-tags-header i {
+    color: var(--brand-500);
+    font-size: 1.3rem;
+}
+
+body.ui-v2-shell .structure-tags-header small {
+    grid-column: 2;
+    margin: -2px 0 0;
+}
+
+body.ui-v2-shell .song-structure-tags {
+    margin: 0;
+    padding: 12px 14px 14px;
+    border-color: color-mix(in srgb, var(--brand-400) 26%, var(--border-color) 74%);
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--interactive-soft) 40%, var(--surface-0) 60%);
+    box-shadow: var(--shadow-sm);
+}
+
+body.ui-v2-shell .structure-tags-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+body.ui-v2-shell .structure-tag-btn {
+    min-height: 38px;
+    padding: 7px 8px;
+    border: 1px solid color-mix(in srgb, var(--brand-400) 42%, var(--border-color) 58%);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--interactive-soft) 78%, var(--surface-0) 22%);
+    color: var(--brand-600);
+    font-weight: 800;
+    box-shadow: none;
+}
+
+body.ui-v2-shell .structure-tag-btn:hover,
+body.ui-v2-shell .structure-tag-btn:focus-visible {
+    background: color-mix(in srgb, var(--brand-400) 22%, var(--interactive-soft) 78%);
+    color: var(--text-900);
+    transform: none;
+    outline: none;
+}
+
+body.ui-v2-shell .song-form-lyrics-field textarea {
+    min-height: 82px;
+    height: 82px;
+    resize: vertical;
+    font-family: var(--font-family);
+}
+
+body.ui-v2-shell .song-form-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    min-height: 56px;
+    width: 100%;
+    border: 0;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--brand-500), var(--interactive-strong));
+    color: #ffffff;
+    font-size: 1.15rem;
+    font-weight: 800;
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--brand-600) 24%, transparent 76%);
+}
+
+body.ui-v2-shell .song-form-submit:hover,
+body.ui-v2-shell .song-form-submit:focus-visible {
+    background: linear-gradient(135deg, var(--interactive-strong), var(--brand-500));
+    color: #ffffff;
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+}
+
+body.ui-v2-shell .song-form-submit i {
+    font-size: 1.35rem;
 }
 
 body.ui-v2-shell #adminPanelModal .modal-content {
@@ -316,6 +622,82 @@ body.ui-v2-shell #adminPanelModal .health-card:hover {
         width: 98vw;
         max-width: 98vw;
         max-height: 94vh;
+    }
+
+    body.ui-v2-shell #addSongModal .song-form-modal-content,
+    body.ui-v2-shell #editSongModal .song-form-modal-content {
+        padding: 14px 10px 12px;
+        border-radius: 14px;
+    }
+
+    body.ui-v2-shell #addSongModal .close-modal,
+    body.ui-v2-shell #editSongModal .close-modal {
+        top: 14px;
+        left: 12px;
+        width: 36px;
+        height: 36px;
+        font-size: 1.35rem;
+    }
+
+    body.ui-v2-shell .song-form-heading {
+        min-height: 58px;
+        margin: 0 42px 8px;
+        gap: 8px;
+    }
+
+    body.ui-v2-shell .song-form-heading > i {
+        font-size: 1.45rem;
+    }
+
+    body.ui-v2-shell .song-form-heading p {
+        font-size: 0.86rem;
+    }
+
+    body.ui-v2-shell .song-form-grid,
+    body.ui-v2-shell .song-form-grid-compact {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    body.ui-v2-shell .song-form-field {
+        grid-template-columns: 30px minmax(0, 1fr);
+        gap: 8px;
+        padding: 10px;
+    }
+
+    body.ui-v2-shell .song-form-field > i {
+        font-size: 1.2rem;
+    }
+
+    body.ui-v2-shell .song-form-control label,
+    body.ui-v2-shell .add-song-form > label,
+    body.ui-v2-shell .edit-song-form > label {
+        font-size: 0.88rem;
+    }
+
+    body.ui-v2-shell .add-song-form input,
+    body.ui-v2-shell .add-song-form select,
+    body.ui-v2-shell .add-song-form textarea,
+    body.ui-v2-shell .edit-song-form input,
+    body.ui-v2-shell .edit-song-form select,
+    body.ui-v2-shell .edit-song-form textarea {
+        min-height: 38px;
+        font-size: 0.9rem;
+    }
+
+    body.ui-v2-shell .structure-tags-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+
+    body.ui-v2-shell .song-form-section,
+    body.ui-v2-shell .song-structure-tags {
+        padding: 10px;
+    }
+
+    body.ui-v2-shell .song-form-submit {
+        min-height: 52px;
+        font-size: 1rem;
     }
 
     body.ui-v2-shell #adminPanelModal .admin-tabs {

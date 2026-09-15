@@ -6616,6 +6616,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             WorshipContent.classList.remove('active');
             WorshipContent.style.display = 'none';
         }
+        if (PraiseTab) PraiseTab.classList.add('active');
+        if (WorshipTab) WorshipTab.classList.remove('active');
 
         const setlistDropdown = document.getElementById('setlistDropdown');
         if (setlistDropdown) {
@@ -8611,20 +8613,68 @@ window.viewSingleLyrics = function(songId, otherId) {
             // Remove the outside click handler completely
         }
     
+        function setFavoritesTab(activeCategory) {
+            const praiseTab = document.getElementById('FavoritesPraiseTab');
+            const worshipTab = document.getElementById('FavoritesWorshipTab');
+            const praiseContent = document.getElementById('FavoritesPraiseSongs');
+            const worshipContent = document.getElementById('FavoritesWorshipSongs');
+            if (!praiseTab || !worshipTab || !praiseContent || !worshipContent) return;
+
+            const showWorship = activeCategory === 'Worship';
+            praiseTab.classList.toggle('active', !showWorship);
+            worshipTab.classList.toggle('active', showWorship);
+            praiseContent.style.display = showWorship ? 'none' : 'block';
+            worshipContent.style.display = showWorship ? 'block' : 'none';
+        }
+
         function renderFavorites() {
-            favoritesContent.innerHTML = '';
+            const praiseTab = document.getElementById('FavoritesPraiseTab');
+            const worshipTab = document.getElementById('FavoritesWorshipTab');
+            const praiseContent = document.getElementById('FavoritesPraiseSongs');
+            const worshipContent = document.getElementById('FavoritesWorshipSongs');
+            if (!favoritesContent || !praiseContent || !worshipContent) return;
+
+            if (praiseTab) praiseTab.onclick = () => setFavoritesTab('Praise');
+            if (worshipTab) worshipTab.onclick = () => setFavoritesTab('Worship');
+
+            praiseContent.innerHTML = '';
+            worshipContent.innerHTML = '';
             // Update pw_favorites count in showFavoritesEl
             if (showFavoritesEl) {
                 showFavoritesEl.innerHTML = `Favorites <span class="pw_favorites-count">${pw_favorites.length}</span>`;
             }
         
             if (pw_favorites.length === 0) {
-                favoritesContent.innerHTML = '<p>No favorite songs yet.</p>';
+                if (praiseTab) praiseTab.textContent = 'Praise (0)';
+                if (worshipTab) worshipTab.textContent = 'Worship (0)';
+                praiseContent.innerHTML = '<p>No favorite songs yet.</p>';
+                worshipContent.innerHTML = '<p>No favorite songs yet.</p>';
+                setFavoritesTab('Praise');
                 return;
             }
         
             const favoriteSongs = songs.filter(song => pw_favorites.includes(song.id));
-            renderSongs(favoriteSongs, favoritesContent);
+            const praiseSongs = [];
+            const worshipSongs = [];
+
+            favoriteSongs.forEach(song => {
+                const normalizedCategory = normalizeSetlistSongCategory(song.category || song.Category);
+                if (normalizedCategory === 'Worship') worshipSongs.push(song);
+                else praiseSongs.push(song);
+            });
+
+            if (praiseTab) praiseTab.textContent = `Praise (${praiseSongs.length})`;
+            if (worshipTab) worshipTab.textContent = `Worship (${worshipSongs.length})`;
+
+            if (praiseSongs.length > 0) renderSongs(praiseSongs, praiseContent);
+            else praiseContent.innerHTML = '<p>No favorite praise songs yet.</p>';
+
+            if (worshipSongs.length > 0) renderSongs(worshipSongs, worshipContent);
+            else worshipContent.innerHTML = '<p>No favorite worship songs yet.</p>';
+
+            const currentTab = worshipTab?.classList.contains('active') ? 'Worship' : 'Praise';
+            const nextTab = currentTab === 'Worship' && worshipSongs.length > 0 ? 'Worship' : (praiseSongs.length > 0 || worshipSongs.length === 0 ? 'Praise' : 'Worship');
+            setFavoritesTab(nextTab);
         }
 
         let wakeLock = null;
@@ -12028,6 +12078,8 @@ window.viewSingleLyrics = function(songId, otherId) {
                 WorshipTab.classList.remove('active');
                 PraiseContent.classList.add('active');
                 WorshipContent.classList.remove('active');
+                PraiseContent.style.display = 'block';
+                WorshipContent.style.display = 'none';
                 debouncedRenderSongs('Praise', keyFilter.value, genreFilter.value);
                 applyLyricsBackground(true);
                 
@@ -12049,6 +12101,8 @@ window.viewSingleLyrics = function(songId, otherId) {
                 PraiseTab.classList.remove('active');
                 WorshipContent.classList.add('active');
                 PraiseContent.classList.remove('active');
+                WorshipContent.style.display = 'block';
+                PraiseContent.style.display = 'none';
                 debouncedRenderSongs('Worship', keyFilter.value, genreFilter.value);
                 applyLyricsBackground(false);
                 
@@ -12210,6 +12264,8 @@ window.viewSingleLyrics = function(songId, otherId) {
                 currentViewingSetlist = null;
                 currentSetlistType = null;
                 setMobileSongsViewMode('catalogue');
+                PraiseTab.classList.add('active');
+                WorshipTab.classList.remove('active');
                 PraiseContent.classList.add('active');
                 WorshipContent.classList.remove('active');
                 PraiseContent.style.display = 'block';
@@ -12259,7 +12315,7 @@ window.viewSingleLyrics = function(songId, otherId) {
                     clearTimeout(pendingSetlistRestoreTimer);
                     pendingSetlistRestoreTimer = null;
                 }
-                setMobileSongsViewMode('catalogue');
+                setMobileSongsViewMode('setlist');
                 PraiseContent.classList.remove('active');
                 WorshipContent.classList.remove('active');
                 setlistSection.style.display = 'none';

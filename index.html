@@ -150,14 +150,14 @@ async function saveRecommendationWeightsToBackend(weights) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Praise & Worship Songs</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css?v=20260311">
-    <link rel="stylesheet" href="styles.css?v=20260312">
+    <link rel="stylesheet" href="styles.css?v=20260916-1">
     <link rel="stylesheet" href="styles/tokens.css?v=20260311">
     <link rel="stylesheet" href="styles/base.css?v=20260311">
     <link rel="stylesheet" href="styles/layout-shell.css?v=20260311">
     <link rel="stylesheet" href="styles/components.css?v=20260312">
-    <link rel="stylesheet" href="styles/panels.css?v=20260915-1">
-    <link rel="stylesheet" href="styles/modals-admin.css?v=20260915-1">
-    <link rel="stylesheet" href="styles/mobile.css?v=20260915-11">
+    <link rel="stylesheet" href="styles/panels.css?v=20260916-2">
+    <link rel="stylesheet" href="styles/modals-admin.css?v=20260916-2">
+    <link rel="stylesheet" href="styles/mobile.css?v=20260916-2">
     <link rel="stylesheet" href="styles/home-panel.css?v=20260915-2">
         <script>
         // Theme toggle logic (used by sidebar button)
@@ -521,9 +521,18 @@ async function saveRecommendationWeightsToBackend(weights) {
                 <h3>Delete Songs</h3>
                 <div id="deleteContent"></div>
             </div>
-            <div class="favorites-section" id="favoritesSection" style="display: none;">
-                <h3>Favorite Songs</h3>
-                <div id="favoritesContent"></div>
+            <div class="setlist favorites-section" id="favoritesSection" style="display: none;">
+                <div class="setlist-header favorites-header">
+                    <h3>Favorite Songs</h3>
+                </div>
+                <div class="setlist-tabs favorites-tabs">
+                    <div class="setlist-tab active" id="FavoritesPraiseTab" title="Favorite Praise Songs - View favorite praise songs" aria-label="Favorite Praise Songs Tab">Praise (0)</div>
+                    <div class="setlist-tab" id="FavoritesWorshipTab" title="Favorite Worship Songs - View favorite worship songs" aria-label="Favorite Worship Songs Tab">Worship (0)</div>
+                </div>
+                <div class="setlist-content favorites-content" id="favoritesContent">
+                    <div id="FavoritesPraiseSongs"></div>
+                    <div id="FavoritesWorshipSongs" style="display: none;"></div>
+                </div>
             </div>
         </div>
 
@@ -754,72 +763,147 @@ async function saveRecommendationWeightsToBackend(weights) {
         </div>
     </div>
     <div class="modal" id="addSongModal">
-        <div class="modal-content">
+        <div class="modal-content song-form-modal-content">
             <span class="close-modal" aria-label="Close" title="Close Add Song Modal">×</span>
-            <h3>Add New Song</h3>
+            <div class="song-form-heading">
+                <i class="fas fa-music" aria-hidden="true"></i>
+                <div>
+                    <h3>Add New Song</h3>
+                    <p>Add details to your song library</p>
+                </div>
+            </div>
             <form id="newSongForm" class="add-song-form">
-                <label for="songTitle">Title:</label>
-                <input type="text" id="songTitle" required>
-                <label for="songCategory">Category:</label>
-                <select id="songCategory" required>
-  <!-- Options will be populated by JS -->
-                </select>
-                <label for="songKey">Key:</label>
-                <select id="songKey" required>
-  <!-- Options will be populated by JS -->
-                </select>
-                <label for="songArtist">Artist Details:</label>
-                <div class="multiselect-container">
-                    <input type="text" id="songArtist" class="compact-input" placeholder="Search and select artists..." readonly>
-                    <div class="multiselect-dropdown" id="artistDropdown">
-                        <!-- Artist options will be rendered dynamically by JS -->
+                <div class="song-form-grid">
+                    <div class="song-form-field song-form-field-wide">
+                        <i class="fas fa-music" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="songTitle">Title <span aria-hidden="true">*</span></label>
+                            <input type="text" id="songTitle" required placeholder="Enter song title...">
+                        </div>
                     </div>
-                    <div class="multiselect-selected" id="selectedArtists"></div>
-                </div>
-                <label for="songMood">Mood:</label>
-                <div class="multiselect-container">
-                    <input type="text" id="songMood" class="compact-input" placeholder="Search and select moods..." readonly>
-                    <div class="multiselect-dropdown" id="moodDropdown">
-                        <!-- Mood options will be rendered dynamically by JS -->
-                    </div>
-                    <div class="multiselect-selected" id="selectedMoods"></div>
-                </div>
-                <label for="songTempo">Tempo (BPM):</label>
-                <div class="song-tempo-row">
-                    <input type="text" id="songTempo" placeholder="e.g., 80 BPM" >
-                    <button type="button" id="tapTempoBtn" class="tap-tempo-btn" title="Tap Tempo - Click repeatedly to measure and set tempo in BPM" aria-label="Tap Tempo">Tap Tempo</button>
-                </div>
-                <label for="songTime">Time Signature:</label>
-                <select id="songTime" >
+
+                    <div class="song-form-field song-form-field-wide">
+                        <i class="fas fa-folder" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="songCategory">Category <span aria-hidden="true">*</span></label>
+                            <select id="songCategory" required>
   <!-- Options will be populated by JS -->
-                </select>
-                <label for="songTaal">Taal:</label>
-                <select id="songTaal" required>
-  <!-- Options will be populated by JS -->
-                </select>
-                <label for="songGenre">Genre:</label>
-                <div class="multiselect-container">
-                    <input type="text" id="songGenre" class="compact-input" placeholder="Search genres...">
-                    <div class="multiselect-dropdown" id="genreDropdown">
-                        <!-- Genre options will be rendered dynamically by JS -->
+                            </select>
+                        </div>
                     </div>
-                    <div class="multiselect-selected" id="selectedGenres"></div>
+
+                    <div class="song-form-field song-form-field-wide">
+                        <i class="fas fa-hashtag" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="songKey">Key</label>
+                            <select id="songKey" required>
+  <!-- Options will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="songArtist">Artist Details</label>
+                            <div class="multiselect-container">
+                                <input type="text" id="songArtist" class="compact-input" placeholder="Search artists..." readonly>
+                                <div class="multiselect-dropdown" id="artistDropdown">
+                                    <!-- Artist options will be rendered dynamically by JS -->
+                                </div>
+                                <div class="multiselect-selected" id="selectedArtists"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-smile" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="songMood">Mood</label>
+                            <div class="multiselect-container">
+                                <input type="text" id="songMood" class="compact-input" placeholder="Search moods..." readonly>
+                                <div class="multiselect-dropdown" id="moodDropdown">
+                                    <!-- Mood options will be rendered dynamically by JS -->
+                                </div>
+                                <div class="multiselect-selected" id="selectedMoods"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="songTempo">Tempo (BPM)</label>
+                            <div class="song-tempo-row">
+                                <input type="text" id="songTempo" placeholder="e.g., 80 BPM" >
+                                <button type="button" id="tapTempoBtn" class="tap-tempo-btn" title="Tap Tempo - Click repeatedly to measure and set tempo in BPM" aria-label="Tap Tempo"><i class="fas fa-fingerprint" aria-hidden="true"></i> Tap Tempo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-grip-lines-vertical" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="songTime">Time Signature</label>
+                            <select id="songTime" >
+  <!-- Options will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-drum" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="songTaal">Taal</label>
+                            <select id="songTaal" required>
+  <!-- Options will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-tag" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="songGenre">Genre</label>
+                            <div class="multiselect-container">
+                                <input type="text" id="songGenre" class="compact-input" placeholder="Search genres...">
+                                <div class="multiselect-dropdown" id="genreDropdown">
+                                    <!-- Genre options will be rendered dynamically by JS -->
+                                </div>
+                                <div class="multiselect-selected" id="selectedGenres"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <label for="songRhythmFamily">Rhythm Family:</label>
-                <select id="songRhythmFamily">
-                    <option value="">Auto-assign from recommendation</option>
-                </select>
-                <label for="songRhythmSetNo">Set No:</label>
-                <input type="number" id="songRhythmSetNo" min="1" step="1" placeholder="e.g., 1">
-                <label for="songRhythmSetIdPreview">Rhythm Set ID:</label>
-                <input type="text" id="songRhythmSetIdPreview" readonly placeholder="Auto-assigned by server">
-                <label for="songRhythmCategory">Rhythm Category:</label>
-                <select id="songRhythmCategory">
-                    <option value="">Select Rhythm Category</option>
-                </select>
-                <label for="songLyrics">Lyrics:</label>
-                <div class="song-structure-tags">
-                    <div class="structure-tags-header">Quick Tags:</div>
+
+                <fieldset class="song-form-section song-form-section-wide">
+                    <legend><i class="fas fa-layer-group" aria-hidden="true"></i> Rhythm Settings</legend>
+                    <div class="song-form-grid song-form-grid-compact">
+                        <div class="song-form-control">
+                            <label for="songRhythmFamily">Rhythm Family</label>
+                            <select id="songRhythmFamily">
+                                <option value="">Auto-assign from recommendation</option>
+                            </select>
+                        </div>
+                        <div class="song-form-control">
+                            <label for="songRhythmSetNo">Set No.</label>
+                            <input type="number" id="songRhythmSetNo" min="1" step="1" placeholder="e.g., 1">
+                        </div>
+                        <div class="song-form-control">
+                            <label for="songRhythmSetIdPreview">Rhythm Set ID</label>
+                            <input type="text" id="songRhythmSetIdPreview" readonly placeholder="Auto-assigned by server">
+                        </div>
+                        <div class="song-form-control">
+                            <label for="songRhythmCategory">Rhythm Category</label>
+                            <select id="songRhythmCategory">
+                                <option value="">Select Rhythm Category</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="song-structure-tags song-form-section-wide">
+                    <div class="structure-tags-header"><i class="fas fa-clipboard-list" aria-hidden="true"></i><span>Quick Tags (Lyrics Sections)</span><small>Add sections available in this song</small></div>
                     <div class="structure-tags-buttons">
                         <button type="button" class="structure-tag-btn" data-tag="[Verse 1]" data-target="songLyrics">Verse 1</button>
                         <button type="button" class="structure-tag-btn" data-tag="[Verse 2]" data-target="songLyrics">Verse 2</button>
@@ -831,80 +915,163 @@ async function saveRecommendationWeightsToBackend(weights) {
                         <button type="button" class="structure-tag-btn" data-tag="[Instrumental]" data-target="songLyrics">Instrumental</button>
                     </div>
                 </div>
-                <textarea id="songLyrics" required></textarea>
-                <button type="submit" class="btn btn-primary" title="Add Song - Create new song with all details and lyrics" aria-label="Add Song">Add Song</button>
+
+                <div class="song-form-field song-form-field-wide song-form-lyrics-field">
+                    <i class="fas fa-align-left" aria-hidden="true"></i>
+                    <div class="song-form-control">
+                        <label for="songLyrics">Lyrics <small>Add full lyrics</small></label>
+                        <textarea id="songLyrics" required placeholder="Enter song lyrics here..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary song-form-submit" title="Add Song - Create new song with all details and lyrics" aria-label="Add Song"><i class="fas fa-plus" aria-hidden="true"></i> Add Song</button>
             </form>
         </div>
     </div>
 
     <div class="modal" id="editSongModal">
-        <div class="modal-content">
+        <div class="modal-content song-form-modal-content">
             <span class="close-modal" aria-label="Close" title="Close Edit Song Modal">×</span>
-            <h3>Edit Song</h3>
+            <div class="song-form-heading">
+                <i class="fas fa-edit" aria-hidden="true"></i>
+                <div>
+                    <h3>Edit Song</h3>
+                    <p>Update song details and lyrics</p>
+                </div>
+            </div>
             <form id="editSongForm" class="edit-song-form">
                 <input type="hidden" id="editSongId">
-                <label for="editSongTitle">Title:</label>
-                <input type="text" id="editSongTitle" required>
-                <label for="editSongCategory">Category:</label>
-                <select id="editSongCategory" required>
-  <!-- Options will be populated by JS -->
-                </select>
-                <label for="editSongKey">Key:</label>
-                <select id="editSongKey" required>
-  <!-- Options will be populated by JS -->
-                </select>
-                <label for="editSongArtist">Artist Details:</label>
-                <div class="multiselect-container">
-                    <input type="text" id="editSongArtist" class="compact-input" placeholder="Search and select artists..." readonly>
-                    <div class="multiselect-dropdown" id="editArtistDropdown">
-                        <!-- Artist options will be rendered dynamically by JS -->
+                <div class="song-form-grid">
+                    <div class="song-form-field song-form-field-wide">
+                        <i class="fas fa-music" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="editSongTitle">Title <span aria-hidden="true">*</span></label>
+                            <input type="text" id="editSongTitle" required placeholder="Enter song title...">
+                        </div>
                     </div>
-                    <div class="multiselect-selected" id="editSelectedArtists"></div>
-                </div>
-                <label for="editSongMood">Mood:</label>
-                <div class="multiselect-container">
-                    <input type="text" id="editSongMood" class="compact-input" placeholder="Search and select moods..." readonly>
-                    <div class="multiselect-dropdown" id="editMoodDropdown">
-                        <!-- Mood options will be rendered dynamically by JS -->
-                    </div>
-                    <div class="multiselect-selected" id="editSelectedMoods"></div>
-                </div>
-                <label for="editSongTempo">Tempo (BPM):</label>
-                <div class="song-tempo-row">
-                    <input type="text" id="editSongTempo" placeholder="e.g., 80 BPM">
-                    <button type="button" id="editTapTempoBtn" class="tap-tempo-btn" title="Tap Tempo - Click repeatedly to measure and set tempo in BPM" aria-label="Tap Tempo">Tap Tempo</button>
-                </div>
-                <label for="editSongTime">Time Signature:</label>
-                <select id="editSongTime" required>
+
+                    <div class="song-form-field song-form-field-wide">
+                        <i class="fas fa-folder" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="editSongCategory">Category <span aria-hidden="true">*</span></label>
+                            <select id="editSongCategory" required>
   <!-- Options will be populated by JS -->
-                </select>
-                <label for="editSongTaal">Taal:</label>
-                <select id="editSongTaal" required>
-  <!-- Options will be populated by JS -->
-                </select>
-                <label for="editSongGenre">Genre:</label>
-                <div class="multiselect-container">
-                    <input type="text" id="editSongGenre" class="compact-input" placeholder="Search genres...">
-                    <div class="multiselect-dropdown" id="editGenreDropdown">
-                        <!-- Genre options will be rendered dynamically by JS -->
+                            </select>
+                        </div>
                     </div>
-                    <div class="multiselect-selected" id="editSelectedGenres"></div>
+
+                    <div class="song-form-field song-form-field-wide">
+                        <i class="fas fa-hashtag" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="editSongKey">Key</label>
+                            <select id="editSongKey" required>
+  <!-- Options will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="editSongArtist">Artist Details</label>
+                            <div class="multiselect-container">
+                                <input type="text" id="editSongArtist" class="compact-input" placeholder="Search artists..." readonly>
+                                <div class="multiselect-dropdown" id="editArtistDropdown">
+                                    <!-- Artist options will be rendered dynamically by JS -->
+                                </div>
+                                <div class="multiselect-selected" id="editSelectedArtists"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-smile" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="editSongMood">Mood</label>
+                            <div class="multiselect-container">
+                                <input type="text" id="editSongMood" class="compact-input" placeholder="Search moods..." readonly>
+                                <div class="multiselect-dropdown" id="editMoodDropdown">
+                                    <!-- Mood options will be rendered dynamically by JS -->
+                                </div>
+                                <div class="multiselect-selected" id="editSelectedMoods"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="editSongTempo">Tempo (BPM)</label>
+                            <div class="song-tempo-row">
+                                <input type="text" id="editSongTempo" placeholder="e.g., 80 BPM">
+                                <button type="button" id="editTapTempoBtn" class="tap-tempo-btn" title="Tap Tempo - Click repeatedly to measure and set tempo in BPM" aria-label="Tap Tempo"><i class="fas fa-fingerprint" aria-hidden="true"></i> Tap Tempo</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-grip-lines-vertical" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="editSongTime">Time Signature</label>
+                            <select id="editSongTime" required>
+  <!-- Options will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-drum" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="editSongTaal">Taal</label>
+                            <select id="editSongTaal" required>
+  <!-- Options will be populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="song-form-field">
+                        <i class="fas fa-tag" aria-hidden="true"></i>
+                        <div class="song-form-control">
+                            <label for="editSongGenre">Genre</label>
+                            <div class="multiselect-container">
+                                <input type="text" id="editSongGenre" class="compact-input" placeholder="Search genres...">
+                                <div class="multiselect-dropdown" id="editGenreDropdown">
+                                    <!-- Genre options will be rendered dynamically by JS -->
+                                </div>
+                                <div class="multiselect-selected" id="editSelectedGenres"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <label for="editSongRhythmFamily">Rhythm Family:</label>
-                <select id="editSongRhythmFamily">
-                    <option value="">Auto-assign from recommendation</option>
-                </select>
-                <label for="editSongRhythmSetNo">Set No:</label>
-                <input type="number" id="editSongRhythmSetNo" min="1" step="1" placeholder="e.g., 1">
-                <label for="editSongRhythmSetIdPreview">Rhythm Set ID:</label>
-                <input type="text" id="editSongRhythmSetIdPreview" readonly placeholder="Auto-assigned by server">
-                <label for="editSongRhythmCategory">Rhythm Category:</label>
-                <select id="editSongRhythmCategory">
-                    <option value="">Select Rhythm Category</option>
-                </select>
-                <label for="editSongLyrics">Lyrics:</label>
-                <div class="song-structure-tags">
-                    <div class="structure-tags-header">Quick Tags:</div>
+
+                <fieldset class="song-form-section song-form-section-wide">
+                    <legend><i class="fas fa-layer-group" aria-hidden="true"></i> Rhythm Settings</legend>
+                    <div class="song-form-grid song-form-grid-compact">
+                        <div class="song-form-control">
+                            <label for="editSongRhythmFamily">Rhythm Family</label>
+                            <select id="editSongRhythmFamily">
+                                <option value="">Auto-assign from recommendation</option>
+                            </select>
+                        </div>
+                        <div class="song-form-control">
+                            <label for="editSongRhythmSetNo">Set No.</label>
+                            <input type="number" id="editSongRhythmSetNo" min="1" step="1" placeholder="e.g., 1">
+                        </div>
+                        <div class="song-form-control">
+                            <label for="editSongRhythmSetIdPreview">Rhythm Set ID</label>
+                            <input type="text" id="editSongRhythmSetIdPreview" readonly placeholder="Auto-assigned by server">
+                        </div>
+                        <div class="song-form-control">
+                            <label for="editSongRhythmCategory">Rhythm Category</label>
+                            <select id="editSongRhythmCategory">
+                                <option value="">Select Rhythm Category</option>
+                            </select>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="song-structure-tags song-form-section-wide">
+                    <div class="structure-tags-header"><i class="fas fa-clipboard-list" aria-hidden="true"></i><span>Quick Tags (Lyrics Sections)</span><small>Add sections available in this song</small></div>
                     <div class="structure-tags-buttons">
                         <button type="button" class="structure-tag-btn" data-tag="[Verse 1]" data-target="editSongLyrics">Verse 1</button>
                         <button type="button" class="structure-tag-btn" data-tag="[Verse 2]" data-target="editSongLyrics">Verse 2</button>
@@ -916,8 +1083,16 @@ async function saveRecommendationWeightsToBackend(weights) {
                         <button type="button" class="structure-tag-btn" data-tag="[Instrumental]" data-target="editSongLyrics">Instrumental</button>
                     </div>
                 </div>
-                <textarea id="editSongLyrics" required></textarea>
-                <button type="submit" class="btn btn-primary" title="Save Changes - Update song with modified details" aria-label="Save Changes">Save Changes</button>
+
+                <div class="song-form-field song-form-field-wide song-form-lyrics-field">
+                    <i class="fas fa-align-left" aria-hidden="true"></i>
+                    <div class="song-form-control">
+                        <label for="editSongLyrics">Lyrics <small>Add full lyrics</small></label>
+                        <textarea id="editSongLyrics" required placeholder="Enter song lyrics here..."></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary song-form-submit" title="Save Changes - Update song with modified details" aria-label="Save Changes"><i class="fas fa-save" aria-hidden="true"></i> Save Changes</button>
             </form>
         </div>
     </div>
@@ -1566,7 +1741,7 @@ async function saveRecommendationWeightsToBackend(weights) {
         <a class="mobile-tools-item" href="pads-tanpura.html"><i class="fas fa-guitar" aria-hidden="true"></i><span>Pads &amp; Tanpura</span></a>
         <a class="mobile-tools-item" href="metronome.html"><i class="fas fa-drum" aria-hidden="true"></i><span>Metronome</span></a>
     </div>
-    <script src="main1.js?v=20260915-13"></script>
+    <script src="main1.js?v=20260916-3"></script>
     <script src="scripts/features/mobile-ui.js?v=20260915-7"></script>
     <script src="scripts/features/song-preview-ui.js?v=20260915-7"></script>
     <script src="loop-player-pad.js?v=20260331-2"></script>

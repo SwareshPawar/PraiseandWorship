@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0e5f7d">
+    <title>Pads &amp; Tanpura - Praise &amp; Worship</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/tool-pages.css">
+</head>
+<body class="ui-v2-shell tool-page-body">
+    <div class="tool-page">
+        <header class="tool-page-header">
+            <button class="tool-icon-btn" id="toolPageBack" type="button" title="Back" aria-label="Back"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+            <div class="tool-page-header-copy"><h1>Pads &amp; Tanpura</h1><p>Key-based atmosphere and drone playback</p></div>
+            <button class="tool-icon-btn" type="button" title="More tools" aria-label="More tools" aria-expanded="false" data-tool-menu-toggle><i class="fas fa-ellipsis-v" aria-hidden="true"></i></button>
+        </header>
+        <main class="tool-page-container">
+            <div class="pads-heading"><span>1. Select Key</span><span class="pads-current-key"><span id="padsCurrentKeyLabel">C</span> current</span></div>
+            <div class="pads-key-grid" id="padsKeySelector"></div>
+            <div class="pads-heading"><span>2. Choose Sound</span></div>
+            <div class="pads-sound-grid">
+                <button class="pads-sound-btn" id="padAtmosphere" type="button"><i class="fas fa-cloud pads-sound-icon" aria-hidden="true"></i><span class="pads-sound-label">Atmosphere Pad</span><span class="pads-sound-description">Ambient background pad</span><span class="pads-play-icon"><i class="fas fa-play" aria-hidden="true"></i></span><span class="pads-sound-state">Tap to Play</span></button>
+                <button class="pads-sound-btn" id="padTanpura" type="button"><i class="fas fa-guitar pads-sound-icon" aria-hidden="true"></i><span class="pads-sound-label">Tanpura</span><span class="pads-sound-description">Traditional drone</span><span class="pads-play-icon"><i class="fas fa-play" aria-hidden="true"></i></span><span class="pads-sound-state">Tap to Play</span></button>
+            </div>
+            <p class="pads-availability" id="padsAvailabilityHint" aria-live="polite"></p>
+            <div class="pads-volume"><label for="padsVolume"><i class="fas fa-volume-up" aria-hidden="true"></i> Volume</label><input id="padsVolume" type="range" min="0" max="100" value="50"><span class="pads-volume-value" id="padsVolumeValue">50%</span></div>
+            <div class="tool-info"><i class="fas fa-info-circle" aria-hidden="true"></i><span>Select a key, then start either sound. Changing key reloads available samples without changing song or setlist data.</span></div>
+        </main>
+    </div>
+    <nav class="tool-bottom-nav" aria-label="Tool navigation"><button class="tool-nav-item" type="button" data-app-destination="home"><i class="fas fa-home" aria-hidden="true"></i><span>Home</span></button><button class="tool-nav-item" type="button" data-app-destination="songs"><i class="fas fa-list" aria-hidden="true"></i><span>Songs</span></button><button class="tool-nav-item active" type="button" aria-expanded="false" data-tool-menu-toggle><i class="fas fa-ellipsis-h" aria-hidden="true"></i><span>More</span></button></nav>
+    <div class="tool-menu" id="toolMenu" aria-hidden="true"><a href="tuner.html"><i class="fas fa-wave-square" aria-hidden="true"></i>Tune &amp; Pitch</a><a href="pads-tanpura.html" aria-current="page"><i class="fas fa-guitar" aria-hidden="true"></i>Pads &amp; Tanpura</a><a href="metronome.html"><i class="fas fa-drum" aria-hidden="true"></i>Metronome</a></div>
+    <script src="scripts/core/api-base.js"></script>
+    <script src="loop-player-pad.js?v=20260331-2"></script>
+    <script src="scripts/features/tool-page-nav.js"></script>
+    <script src="pads-tanpura.js"></script>
+</body>
+</html>

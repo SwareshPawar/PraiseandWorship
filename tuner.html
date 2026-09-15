@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0e5f7d">
+    <title>Tune &amp; Pitch - Praise &amp; Worship</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/tool-pages.css">
+</head>
+<body class="ui-v2-shell tool-page-body">
+    <div class="tool-page">
+        <header class="tool-page-header">
+            <button class="tool-icon-btn" id="toolPageBack" type="button" title="Back" aria-label="Back"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+            <div class="tool-page-header-copy"><h1>Tune &amp; Pitch</h1><p>Chromatic tuner and reference tones</p></div>
+            <button class="tool-icon-btn" type="button" title="More tools" aria-label="More tools" aria-expanded="false" data-tool-menu-toggle><i class="fas fa-ellipsis-v" aria-hidden="true"></i></button>
+        </header>
+        <main class="tool-page-container">
+            <div class="tuner-tabs"><button class="tuner-tab active" id="tunerModeMic" type="button"><i class="fas fa-bullseye" aria-hidden="true"></i> Tuner</button><button class="tuner-tab" id="tunerModeTone" type="button"><i class="fas fa-wave-square" aria-hidden="true"></i> Tone Generator</button></div>
+            <section class="tool-card" id="tunerMicPanel">
+                <div class="tuner-card-header"><h2>Chromatic Tuner</h2><span class="tuner-status" id="tunerListeningStatus"><i class="fas fa-circle" aria-hidden="true"></i> Idle</span></div>
+                <div class="tuner-note-display"><div class="tuner-note" id="tunerNote">--</div><div class="tuner-cents" id="tunerCents">-- cents</div></div>
+                <div class="tuner-meter"><div class="tuner-needle" id="tunerNeedle"></div></div><div class="tuner-meter-labels"><span>Flat</span><span>Sharp</span></div>
+                <div class="tuner-pill" id="tunerInTunePill">Tap Start Listening to begin</div>
+                <div class="tuner-actions"><button class="tool-button" id="tunerStartMic" type="button"><i class="fas fa-microphone" aria-hidden="true"></i>Start Listening</button><button class="tool-button secondary" id="tunerStopMic" type="button"><i class="fas fa-stop" aria-hidden="true"></i>Stop</button></div>
+                <div class="tuner-select-row"><div class="tuner-select-group"><label for="tunerA4Reference">A4 Reference</label><select class="tool-select" id="tunerA4Reference"><option value="432">432 Hz</option><option value="440" selected>440 Hz</option><option value="442">442 Hz</option><option value="444">444 Hz</option></select></div><div class="tuner-select-group"><label for="tunerInstrument">Instrument</label><select class="tool-select" id="tunerInstrument"><option value="chromatic">Chromatic</option></select></div></div>
+                <div class="tool-eyebrow">Detected note</div><div class="tuner-note-grid" id="tunerTargetNotes"></div>
+                <div class="tool-info"><i class="fas fa-info-circle" aria-hidden="true"></i><span>Play one clear note. The tuner shows the nearest pitch and whether it is flat or sharp.</span></div>
+            </section>
+            <section class="tool-card" id="tunerTonePanel" hidden>
+                <h2>Reference Tone Generator</h2>
+                <div class="tuner-note-display"><div class="tuner-note" id="toneNoteDisplay">A4</div><div class="tuner-cents" id="toneFreqDisplay">440 Hz</div></div>
+                <div class="tuner-tone-controls"><button class="metronome-round-btn" id="toneOctaveDown" type="button" aria-label="Lower octave"><i class="fas fa-minus" aria-hidden="true"></i></button><button class="metronome-round-btn" id="toneOctaveUp" type="button" aria-label="Raise octave"><i class="fas fa-plus" aria-hidden="true"></i></button></div>
+                <button class="tool-button tuner-play" id="tonePlayBtn" type="button"><i class="fas fa-play" aria-hidden="true"></i>Play Tone</button>
+                <div class="tool-eyebrow">Select note</div><div class="tuner-note-grid" id="toneNoteButtons"></div>
+                <div class="tuner-select-row"><div class="tuner-select-group"><label for="toneOctaveSelect">Octave</label><select class="tool-select" id="toneOctaveSelect"><option value="2">2 (Low)</option><option value="3">3</option><option value="4" selected>4 (Middle)</option><option value="5">5</option><option value="6">6 (High)</option></select></div><div class="tuner-select-group"><label for="toneFrequencyReadout">Frequency</label><input class="tool-select" id="toneFrequencyReadout" type="text" readonly value="440 Hz"></div></div>
+                <div class="tool-eyebrow">A4 presets</div><div class="tuner-preset-row"><button class="tuner-preset-btn" type="button" data-freq="432">432 Hz</button><button class="tuner-preset-btn active" type="button" data-freq="440">440 Hz</button><button class="tuner-preset-btn" type="button" data-freq="442">442 Hz</button><button class="tuner-preset-btn" type="button" data-freq="444">444 Hz</button></div>
+            </section>
+        </main>
+    </div>
+    <nav class="tool-bottom-nav" aria-label="Tool navigation"><button class="tool-nav-item" type="button" data-app-destination="home"><i class="fas fa-home" aria-hidden="true"></i><span>Home</span></button><button class="tool-nav-item" type="button" data-app-destination="songs"><i class="fas fa-list" aria-hidden="true"></i><span>Songs</span></button><button class="tool-nav-item active" type="button" aria-expanded="false" data-tool-menu-toggle><i class="fas fa-ellipsis-h" aria-hidden="true"></i><span>More</span></button></nav>
+    <div class="tool-menu" id="toolMenu" aria-hidden="true"><a href="tuner.html" aria-current="page"><i class="fas fa-wave-square" aria-hidden="true"></i>Tune &amp; Pitch</a><a href="pads-tanpura.html"><i class="fas fa-guitar" aria-hidden="true"></i>Pads &amp; Tanpura</a><a href="metronome.html"><i class="fas fa-drum" aria-hidden="true"></i>Metronome</a></div>
+    <script src="scripts/features/tool-page-nav.js"></script>
+    <script src="tuner.js"></script>
+</body>
+</html>

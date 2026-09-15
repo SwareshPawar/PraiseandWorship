@@ -1,4 +1,486 @@
+.mobile-modern-shell,
+.mobile-home-backdrop,
+.mobile-home-close,
+.mobile-catalogue-controls,
+.mobile-filters-backdrop,
+.mobile-selection-bar,
+.mobile-song-select-control,
+.mobile-tools-menu,
+.mobile-preview-recommend,
+.mobile-preview-setlist-context,
+.mobile-preview-actions,
+.mobile-preview-more-menu {
+    display: none;
+}
+
 @media (max-width: 768px) {
+    body.mobile-modern-mode {
+        padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    }
+
+    body.mobile-modern-mode .mobile-nav-container,
+    body.mobile-modern-mode .panel-toggle.draggable {
+        display: none !important;
+    }
+
+    body.mobile-modern-mode .mobile-modern-shell {
+        position: fixed;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 2500;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        min-height: calc(64px + env(safe-area-inset-bottom, 0px));
+        padding: 5px 8px calc(5px + env(safe-area-inset-bottom, 0px));
+        border-top: 1px solid var(--border-color);
+        background: color-mix(in srgb, var(--surface-0) 94%, transparent 6%);
+        box-shadow: 0 -6px 20px color-mix(in srgb, #000000 14%, transparent 86%);
+        backdrop-filter: blur(14px);
+    }
+
+    body.mobile-modern-mode .mobile-modern-nav-item {
+        display: inline-flex;
+        min-width: 0;
+        min-height: 52px;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 3px;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--text-500);
+        font: inherit;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0;
+        cursor: pointer;
+    }
+
+    body.mobile-modern-mode .mobile-modern-nav-item i {
+        font-size: 1rem;
+    }
+
+    body.mobile-modern-mode .mobile-modern-nav-item.active {
+        background: color-mix(in srgb, var(--brand-500) 12%, var(--surface-0) 88%);
+        color: var(--brand-600);
+    }
+
+    body.mobile-modern-mode .mobile-modern-nav-item:focus-visible {
+        outline: 2px solid var(--brand-500);
+        outline-offset: -2px;
+    }
+
+    body.mobile-modern-mode .mobile-tools-menu {
+        position: fixed;
+        right: 10px;
+        bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+        z-index: 2450;
+        display: none;
+        width: min(260px, calc(100vw - 20px));
+        padding: 6px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--surface-0);
+        box-shadow: var(--shadow-md);
+    }
+
+    body.mobile-modern-mode .mobile-tools-menu.open {
+        display: grid;
+        gap: 3px;
+    }
+
+    body.mobile-modern-mode .mobile-tools-item {
+        display: flex;
+        min-height: 44px;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 10px;
+        border-radius: 5px;
+        color: var(--text-900);
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    body.mobile-modern-mode .mobile-tools-item:hover,
+    body.mobile-modern-mode .mobile-tools-item:focus-visible {
+        background: var(--interactive-soft);
+        color: var(--brand-600);
+        outline: none;
+    }
+
+    body.mobile-modern-mode .mobile-tools-item i {
+        width: 22px;
+        color: var(--brand-500);
+        text-align: center;
+    }
+
+    body.mobile-modern-mode .mobile-home-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 2100;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        background: color-mix(in srgb, #071a24 48%, transparent 52%);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease;
+    }
+
+    body.mobile-modern-mode .mobile-home-backdrop.open {
+        display: block;
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    body.mobile-modern-mode .sidebar.mobile-home-drawer-open {
+        z-index: 2200;
+        width: min(88vw, 360px);
+        max-width: 360px;
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(0);
+        box-shadow: 12px 0 32px color-mix(in srgb, #000000 24%, transparent 76%);
+    }
+
+    body.mobile-modern-mode .sidebar-header {
+        position: relative;
+        display: block;
+    }
+
+    body.mobile-modern-mode .sidebar-header h2 {
+        padding-right: 44px;
+    }
+
+    body.mobile-modern-mode .mobile-home-close {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: inline-flex;
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid color-mix(in srgb, #ffffff 40%, transparent 60%);
+        border-radius: 50%;
+        background: color-mix(in srgb, #ffffff 14%, transparent 86%);
+        color: #ffffff;
+        cursor: pointer;
+    }
+
+    body.mobile-modern-mode .sidebar,
+    body.mobile-modern-mode .songs-section {
+        width: min(88vw, 360px);
+        max-width: 360px;
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    }
+
+    body.mobile-modern-mode .mobile-catalogue-controls {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 5px;
+        margin-bottom: 6px;
+    }
+
+    body.mobile-modern-mode .mobile-catalogue-control {
+        display: inline-flex;
+        min-width: 0;
+        min-height: 36px;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 5px 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--surface-0);
+        color: var(--text-700);
+        font: inherit;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0;
+        white-space: nowrap;
+        cursor: pointer;
+    }
+
+    body.mobile-modern-mode .mobile-catalogue-control.active,
+    body.mobile-modern-mode .mobile-catalogue-control[aria-expanded="true"] {
+        border-color: var(--brand-500);
+        background: var(--interactive-soft);
+        color: var(--brand-600);
+    }
+
+    body.mobile-modern-mode .mobile-catalogue-control:focus-visible {
+        outline: 2px solid var(--brand-500);
+        outline-offset: 1px;
+    }
+
+    body.mobile-modern-mode .songs-section .filters-row {
+        display: none;
+    }
+
+    body.mobile-modern-mode .songs-section.mobile-setlist-mode > .sticky-header {
+        display: none;
+    }
+
+    body.mobile-modern-mode .songs-section.mobile-filters-open .filters-row {
+        position: relative;
+        z-index: 2350;
+        display: grid;
+        gap: 6px;
+        padding: 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--surface-0);
+        box-shadow: var(--shadow-md);
+    }
+
+    body.mobile-modern-mode .songs-section.mobile-filters-open .filter-row-1,
+    body.mobile-modern-mode .songs-section.mobile-filters-open .filter-row-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+    }
+
+    body.mobile-modern-mode .songs-section.mobile-filters-open .compact-select {
+        width: 100%;
+        min-width: 0;
+    }
+
+    body.mobile-modern-mode .mobile-filters-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 2300;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        border: 0;
+        background: color-mix(in srgb, #071a24 34%, transparent 66%);
+    }
+
+    body.mobile-modern-mode .songs-section.mobile-filters-open .mobile-filters-backdrop {
+        display: block;
+    }
+
+    body.mobile-modern-mode.mobile-select-mode .mobile-selection-bar {
+        position: fixed;
+        right: 8px;
+        bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+        left: 8px;
+        z-index: 2400;
+        display: flex;
+        min-height: 52px;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 7px 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--surface-0);
+        box-shadow: var(--shadow-md);
+        color: var(--text-700);
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
+
+    body.mobile-modern-mode.mobile-select-mode .mobile-selection-bar .btn {
+        min-height: 36px;
+        max-width: 65%;
+        padding: 5px 8px;
+        font-size: 0.68rem;
+        white-space: normal;
+    }
+
+    body.mobile-modern-mode.mobile-select-mode .mobile-song-select-control {
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        flex: 0 0 28px;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    body.mobile-modern-mode .mobile-song-select {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--brand-500);
+    }
+
+    body.mobile-modern-mode .mobile-song-select:disabled {
+        cursor: not-allowed;
+        opacity: 0.35;
+    }
+
+    body.mobile-modern-mode .song-item.mobile-selected {
+        border-color: var(--brand-500);
+        background: var(--interactive-soft);
+        box-shadow: 0 0 0 1px var(--brand-500);
+    }
+
+    body.mobile-modern-mode.mobile-select-mode .songs-section {
+        padding-bottom: calc(132px + env(safe-area-inset-bottom, 0px));
+    }
+
+    body.mobile-modern-mode .song-preview-header {
+        position: relative;
+        padding-right: 78px;
+    }
+
+    body.mobile-modern-mode .mobile-preview-recommend {
+        position: absolute;
+        top: 50%;
+        right: 42px;
+        display: inline-flex;
+        width: 34px;
+        height: 34px;
+        align-items: center;
+        justify-content: center;
+        transform: translateY(-50%);
+        border: 1px solid var(--chip-border);
+        border-radius: 50%;
+        background: var(--interactive-soft);
+        color: var(--brand-600);
+        cursor: pointer;
+    }
+
+    body.mobile-modern-mode .toggle-suggested-songs {
+        display: none;
+    }
+
+    body.mobile-modern-mode .mobile-preview-setlist-context {
+        display: flex;
+        min-height: 30px;
+        align-items: center;
+        gap: 5px;
+        margin-top: 5px;
+        padding: 4px 7px;
+        border-left: 3px solid var(--brand-500);
+        background: var(--surface-1);
+        color: var(--text-500);
+        font-size: 0.68rem;
+    }
+
+    body.mobile-modern-mode .mobile-preview-setlist-context[hidden] {
+        display: none;
+    }
+
+    body.mobile-modern-mode .mobile-preview-setlist-context strong {
+        min-width: 0;
+        overflow: hidden;
+        color: var(--text-900);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    body.mobile-modern-mode .mobile-preview-actions {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 5px;
+        margin-top: 5px;
+    }
+
+    body.mobile-modern-mode .mobile-preview-action {
+        display: inline-flex;
+        min-width: 0;
+        min-height: 42px;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        padding: 5px 7px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--surface-0);
+        color: var(--text-700);
+        font: inherit;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0;
+        cursor: pointer;
+    }
+
+    body.mobile-modern-mode .mobile-preview-action.active,
+    body.mobile-modern-mode .mobile-preview-action[aria-expanded="true"] {
+        border-color: var(--brand-500);
+        background: var(--interactive-soft);
+        color: var(--brand-600);
+    }
+
+    body.mobile-modern-mode .song-preview-container > .song-slide > .song-preview-actions {
+        display: none;
+    }
+
+    body.mobile-modern-mode .song-preview-transpose #toggleAutoScroll {
+        display: none;
+    }
+
+    body.mobile-modern-mode .mobile-preview-more-menu {
+        display: none;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 5px;
+        margin-top: 5px;
+        padding: 7px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--surface-0);
+        box-shadow: var(--shadow-md);
+    }
+
+    body.mobile-modern-mode .mobile-preview-more-menu.open {
+        display: grid;
+    }
+
+    body.mobile-modern-mode .mobile-preview-menu-item {
+        display: inline-flex;
+        min-height: 38px;
+        align-items: center;
+        gap: 7px;
+        padding: 6px 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background: var(--surface-1);
+        color: var(--text-700);
+        font: inherit;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    body.mobile-modern-mode .mobile-preview-menu-item.danger {
+        color: var(--danger-500);
+    }
+
+    body.mobile-modern-mode .suggested-songs-drawer {
+        top: auto;
+        right: 0;
+        bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+        width: 100%;
+        height: min(68vh, 560px);
+        max-width: none;
+        padding: 10px;
+        transform: translateY(calc(100% + 72px));
+        transition: transform 220ms ease;
+        border-top: 1px solid var(--border-color);
+        border-radius: 8px 8px 0 0;
+        background: var(--surface-0);
+        box-shadow: 0 -10px 28px color-mix(in srgb, #000000 18%, transparent 82%);
+        z-index: 2450;
+    }
+
+    body.mobile-modern-mode .suggested-songs-drawer.open {
+        right: 0;
+        transform: translateY(0);
+    }
+
+    body.mobile-modern-mode .notification {
+        bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+        z-index: 2600;
+    }
+
     body.ui-v2-shell .mobile-nav-container {
         background: color-mix(in srgb, var(--surface-0) 85%, transparent 15%);
         border: 1px solid var(--border-color);

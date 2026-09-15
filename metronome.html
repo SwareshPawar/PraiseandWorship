@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0e5f7d">
+    <title>Metronome - Praise &amp; Worship</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/tool-pages.css">
+</head>
+<body class="ui-v2-shell tool-page-body">
+    <div class="tool-page">
+        <header class="tool-page-header">
+            <button class="tool-icon-btn" id="toolPageBack" type="button" title="Back" aria-label="Back"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+            <div class="tool-page-header-copy"><h1>Metronome</h1><p>Tempo, meter, and subdivision practice</p></div>
+            <button class="tool-icon-btn" type="button" title="More tools" aria-label="More tools" aria-expanded="false" data-tool-menu-toggle><i class="fas fa-ellipsis-v" aria-hidden="true"></i></button>
+        </header>
+        <main class="tool-page-container">
+            <div class="metronome-intro"><div class="tool-eyebrow">Practice tool</div><p>Set your tempo or tap it in</p></div>
+            <section class="tool-card">
+                <div class="metronome-tempo-display"><span class="metronome-bpm" id="metronomeBpm">96</span><span class="metronome-bpm-unit">BPM</span></div>
+                <div class="metronome-tempo-controls">
+                    <button class="metronome-round-btn" id="metronomeMinus" type="button" aria-label="Decrease tempo"><i class="fas fa-minus" aria-hidden="true"></i></button>
+                    <input class="metronome-slider" id="metronomeSlider" type="range" min="40" max="220" value="96" aria-label="Tempo">
+                    <button class="metronome-round-btn" id="metronomePlus" type="button" aria-label="Increase tempo"><i class="fas fa-plus" aria-hidden="true"></i></button>
+                </div>
+                <div class="metronome-range-labels"><span>40</span><span>220</span></div>
+            </section>
+            <section class="tool-card">
+                <h2>Tap Tempo</h2>
+                <p class="tool-muted">Tap steadily to calculate the BPM.</p>
+                <button class="metronome-tap-btn" id="metronomeTapBtn" type="button">TAP &bull; TAP &bull; TAP</button>
+            </section>
+            <div class="metronome-action-row">
+                <button class="tool-button" id="metronomeStartBtn" type="button"><i class="fas fa-play" aria-hidden="true"></i><span>Start</span></button>
+                <button class="tool-button secondary" id="metronomeAccentBtn" type="button"><i class="fas fa-music" aria-hidden="true"></i><span>Accent</span></button>
+                <button class="tool-button secondary" id="metronomeResetBtn" type="button"><i class="fas fa-undo" aria-hidden="true"></i><span>Reset</span></button>
+            </div>
+            <section class="tool-card">
+                <div class="tool-eyebrow">Meter &amp; feel</div>
+                <div class="metronome-select-row">
+                    <div class="metronome-select-group"><label for="metronomeTimeSignature">Time Signature</label><select class="tool-select" id="metronomeTimeSignature"><option value="4">4 / 4</option><option value="3">3 / 4</option><option value="2">2 / 4</option><option value="6">6 / 8</option></select></div>
+                    <div class="metronome-select-group"><label for="metronomeSubdivision">Subdivision</label><select class="tool-select" id="metronomeSubdivision"><option value="1">Quarter</option><option value="2">Eighth</option><option value="3">Triplet</option><option value="4">Sixteenth</option></select></div>
+                </div>
+                <div class="tool-eyebrow">Quick tempos</div>
+                <div class="metronome-quick-row"><button class="metronome-quick-btn" type="button" data-bpm="70">70</button><button class="metronome-quick-btn" type="button" data-bpm="80">80</button><button class="metronome-quick-btn" type="button" data-bpm="96">96</button><button class="metronome-quick-btn" type="button" data-bpm="110">110</button></div>
+            </section>
+        </main>
+    </div>
+    <nav class="tool-bottom-nav" aria-label="Tool navigation"><button class="tool-nav-item" type="button" data-app-destination="home"><i class="fas fa-home" aria-hidden="true"></i><span>Home</span></button><button class="tool-nav-item" type="button" data-app-destination="songs"><i class="fas fa-list" aria-hidden="true"></i><span>Songs</span></button><button class="tool-nav-item active" type="button" aria-expanded="false" data-tool-menu-toggle><i class="fas fa-ellipsis-h" aria-hidden="true"></i><span>More</span></button></nav>
+    <div class="tool-menu" id="toolMenu" aria-hidden="true"><a href="tuner.html"><i class="fas fa-wave-square" aria-hidden="true"></i>Tune &amp; Pitch</a><a href="pads-tanpura.html"><i class="fas fa-guitar" aria-hidden="true"></i>Pads &amp; Tanpura</a><a href="metronome.html" aria-current="page"><i class="fas fa-drum" aria-hidden="true"></i>Metronome</a></div>
+    <script src="scripts/features/tool-page-nav.js"></script>
+    <script src="metronome.js"></script>
+</body>
+</html>

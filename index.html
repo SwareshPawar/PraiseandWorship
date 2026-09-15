@@ -157,7 +157,7 @@ async function saveRecommendationWeightsToBackend(weights) {
     <link rel="stylesheet" href="styles/components.css?v=20260312">
     <link rel="stylesheet" href="styles/panels.css?v=20260312d">
     <link rel="stylesheet" href="styles/modals-admin.css?v=20260311">
-    <link rel="stylesheet" href="styles/mobile.css?v=20260312b">
+    <link rel="stylesheet" href="styles/mobile.css?v=20260915-2">
         <script>
         // Theme toggle logic (used by sidebar button)
         function toggleTheme() {
@@ -273,6 +273,7 @@ async function saveRecommendationWeightsToBackend(weights) {
         <div class="sidebar hidden">
             <div class="sidebar-header">
                 <h2>Praise & Worship</h2>
+                <button class="mobile-home-close" id="mobileHomeClose" type="button" title="Close Home" aria-label="Close Home"><i class="fas fa-times" aria-hidden="true"></i></button>
             </div>
             <ul class="sidebar-menu">
                 <button id="loginBtn" class="sidebar-btn btn-login" title="Login to access personal setlists and save favorites" aria-label="Login"><i class="fas fa-sign-in-alt"></i> Login</button>
@@ -424,11 +425,25 @@ async function saveRecommendationWeightsToBackend(weights) {
         <!-- Songs Panel -->
         <div class="songs-section hidden">
             <div class="sticky-header">
+                <div class="mobile-catalogue-controls" id="mobileCatalogueControls" aria-label="Song catalogue controls">
+                    <button class="mobile-catalogue-control" id="mobileFiltersToggle" type="button" aria-expanded="false" aria-controls="mobileCatalogueFilters">
+                        <i class="fas fa-filter" aria-hidden="true"></i>
+                        <span id="mobileFiltersLabel">Filters - 0 active</span>
+                    </button>
+                    <button class="mobile-catalogue-control" id="mobileSortToggle" type="button" aria-expanded="false" aria-controls="mobileCatalogueFilters">
+                        <i class="fas fa-sort" aria-hidden="true"></i>
+                        <span>Sort</span>
+                    </button>
+                    <button class="mobile-catalogue-control" id="mobileSelectToggle" type="button" aria-pressed="false">
+                        <i class="fas fa-check-square" aria-hidden="true"></i>
+                        <span>Select</span>
+                    </button>
+                </div>
                 <div class="tabs">
                     <div class="setlist-tab active" id="PraiseTab" title="Praise Songs - Uplifting and contemporary praise music" aria-label="Praise Songs Tab">Praise</div>
                     <div class="setlist-tab" id="WorshipTab" title="Worship Songs - Reverent and traditional worship music" aria-label="Worship Songs Tab">Worship</div>
                 </div>
-                <div class="filters-row">
+                <div class="filters-row" id="mobileCatalogueFilters">
                     <div class="search-container">
                            <input type="text" id="searchInput" class="compact-input" placeholder="Search songs..."
                                autocomplete="off">
@@ -458,6 +473,7 @@ async function saveRecommendationWeightsToBackend(weights) {
                         </select>
                     </div>
                 </div>
+                <button class="mobile-filters-backdrop" id="mobileFiltersBackdrop" type="button" aria-label="Close filters"></button>
 
                 <div class="search-results" id="searchResults">
                     <div class="search-results-header">Search Results</div>
@@ -466,6 +482,10 @@ async function saveRecommendationWeightsToBackend(weights) {
             </div>
             <div class="tab-content active" id="PraiseContent"></div>
             <div class="tab-content" id="WorshipContent"></div>
+            <div class="mobile-selection-bar" id="mobileSelectionBar" aria-live="polite">
+                <span id="mobileSelectionSummary">Select songs to add</span>
+                <button class="btn btn-primary" id="mobileSelectionAction" type="button">Select a setlist</button>
+            </div>
             <div class="setlist" id="setlistSection" style="display: none;">
                 <div class="setlist-header">
                     <h3 id="setlistViewHeader">Setlist View</h3>
@@ -1534,7 +1554,20 @@ async function saveRecommendationWeightsToBackend(weights) {
         </div>
     </div>
 
-    <script src="main1.js?v=20260331-2"></script>
+    <button class="mobile-home-backdrop" id="mobileHomeBackdrop" type="button" aria-label="Close Home" aria-hidden="true"></button>
+    <nav class="mobile-modern-shell" id="mobileModernShell" aria-label="Primary navigation" aria-hidden="true">
+        <button class="mobile-modern-nav-item active" type="button" data-mobile-destination="home" aria-current="page"><i class="fas fa-home" aria-hidden="true"></i><span>Home</span></button>
+        <button class="mobile-modern-nav-item" type="button" data-mobile-destination="songs" aria-current="false"><i class="fas fa-list" aria-hidden="true"></i><span>Songs</span></button>
+        <button class="mobile-modern-nav-item" type="button" data-mobile-destination="more" aria-current="false"><i class="fas fa-ellipsis-h" aria-hidden="true"></i><span>More</span></button>
+    </nav>
+    <div class="mobile-tools-menu" id="mobileToolsMenu" aria-hidden="true">
+        <a class="mobile-tools-item" href="tuner.html"><i class="fas fa-wave-square" aria-hidden="true"></i><span>Tune &amp; Pitch</span></a>
+        <a class="mobile-tools-item" href="pads-tanpura.html"><i class="fas fa-guitar" aria-hidden="true"></i><span>Pads &amp; Tanpura</span></a>
+        <a class="mobile-tools-item" href="metronome.html"><i class="fas fa-drum" aria-hidden="true"></i><span>Metronome</span></a>
+    </div>
+    <script src="main1.js?v=20260915-5"></script>
+    <script src="scripts/features/mobile-ui.js?v=20260915-6"></script>
+    <script src="scripts/features/song-preview-ui.js?v=20260915-4"></script>
     <script src="loop-player-pad.js?v=20260331-2"></script>
     <script src="loop-player-pad-ui.js?v=20260331-2"></script>
     <!-- Suggested Songs Drawer -->

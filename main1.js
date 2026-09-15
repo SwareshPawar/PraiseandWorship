@@ -789,10 +789,11 @@ function showLoading(percent, message = null) {
 }
 
 function hideLoading() {
-    const overlay = document.getElementById('loadingOverlay');
-    if (overlay) {
-        overlay.style.display = 'none';
-    }
+    document.querySelectorAll('#loadingOverlay').forEach((overlay) => {
+        overlay.classList.add('hide');
+        overlay.style.setProperty('display', 'none', 'important');
+        overlay.setAttribute('aria-hidden', 'true');
+    });
     // Clear the safety timeout
     clearTimeout(window.loadingTimeout);
 }
@@ -2947,6 +2948,15 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
         let smartSetlists = []; // Smart setlists loaded from server
         let currentViewingSetlist = null;
         let currentSetlistType = null; // 'global', 'my', or 'smart'
+        let pendingSetlistRestoreTimer = null;
+        let initialSetlistRestoreCancelled = sessionStorage.getItem('pw_skipInitialSetlistViewRestore') === 'true';
+        sessionStorage.removeItem('pw_skipInitialSetlistViewRestore');
+
+        function setMobileSongsViewMode(mode) {
+            const songsSection = document.querySelector('.songs-section');
+            if (!songsSection) return;
+            songsSection.classList.toggle('mobile-setlist-mode', mode === 'setlist');
+        }
 
         // Expose setlist arrays to window for mobile.html access
         window.globalSetlists = globalSetlists;
@@ -4449,6 +4459,10 @@ window.viewSingleLyrics = function(songId, otherId) {
         
         if (!setlistDropdown) {
             return;
+                    if (pendingSetlistRestoreTimer) {
+                        clearTimeout(pendingSetlistRestoreTimer);
+                        pendingSetlistRestoreTimer = null;
+                    }
         }
         
         // Check if we're on mobile (no custom dropdown elements)
@@ -4576,7 +4590,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             updateSetlistDropdownStyle(true);
 
             // Keep selected setlist visible across refresh (including mobile timing).
-            if (!window.__pwDidInitialSetlistRestore && !window.updatingFromFolderNav && !currentViewingSetlist) {
+            if (!initialSetlistRestoreCancelled && !window.__pwDidInitialSetlistRestore && !window.updatingFromFolderNav && !currentViewingSetlist) {
                 const [type, id] = selectionValue.split('_');
                 if (type === 'global') {
                     showGlobalSetlistInMainSection(id);
@@ -6440,6 +6454,8 @@ window.viewSingleLyrics = function(songId, otherId) {
     function openSetlistInMainSection(setlist, type) {
         if (!setlist) return;
 
+        setMobileSongsViewMode('setlist');
+
         const typePrefix = type === 'global' ? 'global' : (type === 'my' ? 'my' : 'smart');
         const context = type === 'global' ? 'global-setlist' : (type === 'my' ? 'user-setlist' : 'smart-setlist');
         const resolvedSetlistId = getComparableId(setlist._id || setlist.id);
@@ -6575,6 +6591,7 @@ window.viewSingleLyrics = function(songId, otherId) {
 
         currentViewingSetlist = null;
         currentSetlistType = null;
+        setMobileSongsViewMode('catalogue');
         window.setlistResequenceMode = false;
 
         const setlistSection = document.getElementById('setlistSection');
@@ -9001,11 +9018,18 @@ window.viewSingleLyrics = function(songId, otherId) {
                 sidebar.classList.remove('hidden');
                 songsSection.classList.remove('hidden');
             } else {
-                const restored = applySavedMobilePanelState(sidebar, songsSection);
-                if (!restored) {
-                    sidebar.classList.remove('hidden');
+                const hasActivePreview = Boolean(songPreviewEl?.dataset.songId);
+                if (hasActivePreview) {
+                    sidebar.classList.add('hidden');
                     songsSection.classList.add('hidden');
-                    persistMobilePanelState(sidebar, songsSection);
+                    previewSection.classList.add('full-width');
+                } else {
+                    const restored = applySavedMobilePanelState(sidebar, songsSection);
+                    if (!restored) {
+                        sidebar.classList.remove('hidden');
+                        songsSection.classList.add('hidden');
+                        persistMobilePanelState(sidebar, songsSection);
+                    }
                 }
                 ensureMobilePanelStateObserver(sidebar, songsSection);
             }
@@ -11189,6 +11213,11 @@ window.viewSingleLyrics = function(songId, otherId) {
             });
         }
 
+        window.PraiseWorshipMobileDeps = {
+            addToSpecificSetlist,
+            showNotification
+        };
+
         function removeFromSpecificSetlist(songId, setlistId) {
             if (!jwtToken) {
                 showNotification('Please login to remove songs from your setlist.');
@@ -12064,7 +12093,9 @@ window.viewSingleLyrics = function(songId, otherId) {
                 const savedSelection = localStorage.getItem('pw_selectedSetlist');
                 if (savedSelection) {
                     // Wait a bit for the dropdown to be populated, then restore selection
-                    setTimeout(() => {
+                    pendingSetlistRestoreTimer = setTimeout(() => {
+                        pendingSetlistRestoreTimer = null;
+                        if (initialSetlistRestoreCancelled) return;
                         const optionExists = Array.from(setlistDropdown.options).some(option => option.value === savedSelection);
                         if (optionExists) {
                             setlistDropdown.value = savedSelection;
@@ -12089,9 +12120,15 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             showAllEl.addEventListener('click', (e) => {
                 e.preventDefault();
+                initialSetlistRestoreCancelled = true;
+                if (pendingSetlistRestoreTimer) {
+                    clearTimeout(pendingSetlistRestoreTimer);
+                    pendingSetlistRestoreTimer = null;
+                }
 
                 currentViewingSetlist = null;
                 currentSetlistType = null;
+                setMobileSongsViewMode('catalogue');
                 PraiseContent.classList.add('active');
                 WorshipContent.classList.remove('active');
                 PraiseContent.style.display = 'block';
@@ -12136,6 +12173,12 @@ window.viewSingleLyrics = function(songId, otherId) {
     
             showFavoritesEl.addEventListener('click', (e) => {
                 e.preventDefault();
+                initialSetlistRestoreCancelled = true;
+                if (pendingSetlistRestoreTimer) {
+                    clearTimeout(pendingSetlistRestoreTimer);
+                    pendingSetlistRestoreTimer = null;
+                }
+                setMobileSongsViewMode('catalogue');
                 PraiseContent.classList.remove('active');
                 WorshipContent.classList.remove('active');
                 setlistSection.style.display = 'none';

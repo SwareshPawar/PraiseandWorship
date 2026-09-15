@@ -1477,6 +1477,41 @@
             line-height: 1.2;
         }
 
+        .suggested-song-title-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .suggested-song-title-row .suggested-song-title {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .suggested-song-setlist-btn {
+            flex: 0 0 28px;
+            width: 28px;
+            height: 28px;
+            margin: -2px -2px 0 0;
+            padding: 0;
+            border: 0;
+            border-radius: 6px;
+            background: #667eea;
+            color: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .suggested-song-setlist-btn.in-setlist {
+            background: #28a745;
+        }
+
+        .suggested-song-setlist-btn:hover {
+            filter: brightness(0.92);
+        }
+
         .suggested-song-meta {
             font-size: 0.8rem;
             color: var(--song-meta-color);

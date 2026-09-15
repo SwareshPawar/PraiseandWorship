@@ -10045,8 +10045,18 @@ window.viewSingleLyrics = function(songId, otherId) {
             suggestedSongs.forEach(song => {
                 const div = document.createElement('div');
                 div.className = 'suggested-song-item';
+                const selectedSetlistDropdown = document.getElementById('setlistDropdown');
+                const selectedSetlist = selectedSetlistDropdown ? selectedSetlistDropdown.value : '';
+                const isInSetlist = selectedSetlist ? isSongInCurrentSetlist(song.id, selectedSetlist) : false;
                 div.innerHTML = `
-                    <div class="suggested-song-title">${song.title}</div>
+                    <div class="suggested-song-title-row">
+                        <div class="suggested-song-title">${song.title}</div>
+                        <button class="suggested-song-setlist-btn ${isInSetlist ? 'in-setlist' : ''}" data-song-id="${song.id}" type="button"
+                            title="${isInSetlist ? 'Remove from selected setlist' : 'Add to selected setlist'}"
+                            aria-label="${isInSetlist ? 'Remove from selected setlist' : 'Add to selected setlist'}">
+                            <i class="fas ${isInSetlist ? 'fa-check' : 'fa-plus'}"></i>
+                        </button>
+                    </div>
                     <div class="suggested-song-meta">
                         ${song.key || '-'} | ${song.tempo || '-'} | ${song.time || song.timeSignature || '-'} | ${song.taal || '-'}
                     </div>
@@ -10055,6 +10065,18 @@ window.viewSingleLyrics = function(songId, otherId) {
                     </div>
                     <div class="suggested-song-match">Match Score: ${song.matchScore}%</div>
                 `;
+                const setlistBtn = div.querySelector('.suggested-song-setlist-btn');
+                setlistBtn.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    const currentSetlistDropdown = document.getElementById('setlistDropdown');
+                    const currentSetlist = currentSetlistDropdown ? currentSetlistDropdown.value : '';
+                    if (!currentSetlist) {
+                        showNotification('Please select a setlist from the main dropdown first');
+                        return;
+                    }
+                    checkSongInSetlistAndToggle(song.id, currentSetlist);
+                    setTimeout(showSuggestedSongs, 250);
+                });
                 // <div class="suggested-song-meta">
                 //         Language Match: ${song.languageScore}% |
                 //         ${song.scaleMatch ? '✓ Same Scale' : '✗ Different Scale'} |
@@ -11469,6 +11491,15 @@ window.viewSingleLyrics = function(songId, otherId) {
                     }
                 }
             });
+
+            const suggestedSetlistBtn = document.querySelector(`.suggested-song-setlist-btn[data-song-id="${songId}"]`);
+            if (suggestedSetlistBtn) {
+                suggestedSetlistBtn.classList.toggle('in-setlist', isInSetlist);
+                suggestedSetlistBtn.title = isInSetlist ? 'Remove from selected setlist' : 'Add to selected setlist';
+                suggestedSetlistBtn.setAttribute('aria-label', suggestedSetlistBtn.title);
+                const icon = suggestedSetlistBtn.querySelector('i');
+                if (icon) icon.className = `fas ${isInSetlist ? 'fa-check' : 'fa-plus'}`;
+            }
         }
 
         function removeFromCurrentSetlist(songId) {

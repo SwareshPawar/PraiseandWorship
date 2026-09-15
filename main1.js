@@ -12253,6 +12253,27 @@ window.viewSingleLyrics = function(songId, otherId) {
                 }
             }
 
+            document.addEventListener('pw:open-selected-setlist', () => {
+                const setlistDropdown = document.getElementById('setlistDropdown');
+                const selectedValue = setlistDropdown?.value || '';
+                if (!selectedValue) {
+                    showNotification('Please select a setlist from Home first', 'info');
+                    window.MobileUI?.openHomeDrawer?.();
+                    return;
+                }
+
+                const [type, id] = selectedValue.split('_');
+                if (type === 'global') {
+                    showGlobalSetlistInMainSection(id);
+                } else if (type === 'my') {
+                    showMySetlistInMainSection(id);
+                } else if (type === 'smart') {
+                    showSmartSetlistInMainSection(id);
+                } else {
+                    showNotification('Selected setlist could not be opened', 'error');
+                }
+            });
+
             showAllEl.addEventListener('click', (e) => {
                 e.preventDefault();
                 initialSetlistRestoreCancelled = true;

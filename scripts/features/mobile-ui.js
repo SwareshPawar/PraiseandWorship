@@ -144,7 +144,20 @@
         if (destination === 'songs') {
             toolsMenu?.classList.remove('open');
             toolsMenu?.setAttribute('aria-hidden', 'true');
+            const showAll = document.getElementById('showAll');
+            if (showAll) showAll.click();
+            else setPanelVisibility('songs');
+            setActiveDestination('songs');
+            return;
+        }
+
+        if (destination === 'setlist') {
+            toolsMenu?.classList.remove('open');
+            toolsMenu?.setAttribute('aria-hidden', 'true');
+            closeHomeDrawer(false);
             setPanelVisibility('songs');
+            setActiveDestination('setlist');
+            document.dispatchEvent(new CustomEvent('pw:open-selected-setlist'));
             return;
         }
 
@@ -358,9 +371,11 @@
         });
         document.addEventListener('click', (event) => {
             if (event.target.closest('#showAll, #showFavorites, .setlist-item')) {
+                const destination = event.target.closest('.setlist-item') ? 'setlist' : 'songs';
                 document.dispatchEvent(new CustomEvent('pw:mobile-destination', {
-                    detail: { destination: 'songs' }
+                    detail: { destination }
                 }));
+                setActiveDestination(destination);
                 closeHomeDrawer(false);
             }
             const toolsMenu = document.getElementById('mobileToolsMenu');

@@ -3024,6 +3024,8 @@ function updateTaalDropdown(timeSelectId, taalSelectId, selectedTaal = null) {
             document.getElementById('totalSongs').textContent = songs.length;
             document.getElementById('PraiseCount').textContent = songs.filter(s => s.category === 'Praise').length;
             document.getElementById('WorshipCount').textContent = songs.filter(s => s.category === 'Worship').length;
+            const showAllLink = document.getElementById('showAll');
+            if (showAllLink) showAllLink.dataset.count = String(songs.length);
         }
     
         // Old setlist arrays removed - now using dropdown setlist system only
@@ -8613,7 +8615,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             favoritesContent.innerHTML = '';
             // Update pw_favorites count in showFavoritesEl
             if (showFavoritesEl) {
-                showFavoritesEl.innerHTML = `Favorites (<span class="pw_favorites-count">${pw_favorites.length}</span>)`;
+                showFavoritesEl.innerHTML = `Favorites <span class="pw_favorites-count">${pw_favorites.length}</span>`;
             }
         
             if (pw_favorites.length === 0) {
@@ -8663,12 +8665,15 @@ window.viewSingleLyrics = function(songId, otherId) {
             if (userGreeting) {
                 if (isLoggedIn && currentUser && currentUser.firstName && currentUser.lastName) {
                     userGreeting.textContent = `Hi, ${currentUser.firstName} ${currentUser.lastName}`;
+                    userGreeting.dataset.initials = `${currentUser.firstName.charAt(0)}${currentUser.lastName.charAt(0)}`.toUpperCase();
                     userGreeting.style.display = 'block';
                 } else if (isLoggedIn && currentUser && currentUser.username) {
                     userGreeting.textContent = `Hi, ${currentUser.username}`;
+                    userGreeting.dataset.initials = currentUser.username.slice(0, 2).toUpperCase();
                     userGreeting.style.display = 'block';
                 } else {
                     userGreeting.textContent = '';
+                    delete userGreeting.dataset.initials;
                     userGreeting.style.display = 'none';
                 }
             }
@@ -10565,9 +10570,6 @@ window.viewSingleLyrics = function(songId, otherId) {
         
         <!-- LYRICS SECTION -->
         <div class="song-lyrics" id="preview-lyrics-container">Loading lyrics...</div>
-        <!-- Add these new swipe indicators -->
-        <div class="swipe-indicator prev">←</div>
-        <div class="swipe-indicator next">→</div>
     </div>
 </div>
 `;
@@ -12197,33 +12199,7 @@ window.viewSingleLyrics = function(songId, otherId) {
             });
     
             // Legacy setlist tab switching removed - using dropdown-based system now
-          
-            let touchStartX = 0;
-            let isScrolling = false;
 
-            // Keyboard navigation
-            document.addEventListener('keydown', (e) => {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-                
-                if (e.key === 'ArrowRight') {
-                } else if (e.key === 'ArrowLeft') {
-                }
-
-                document.addEventListener('keydown', (e) => {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
-                    return;
-                }
-                
-                if (!songPreviewEl.dataset.songId) return;
-                
-                if (e.key === 'ArrowRight') {
-                    e.preventDefault();
-                } else if (e.key === 'ArrowLeft') {
-                    e.preventDefault();
-                }
-            });
-        });
-    
             // Song modals
             openAddSongModal.addEventListener('click', () => {
                 addSongModal.style.display = 'flex';

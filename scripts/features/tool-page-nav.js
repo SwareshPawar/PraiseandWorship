@@ -10,6 +10,11 @@
     }
 
     function initialize() {
+        document.body.classList.toggle(
+            'dark-mode',
+            localStorage.getItem('pw_darkMode') === 'true' || localStorage.getItem('darkMode') === 'true'
+        );
+
         document.querySelectorAll('[data-app-destination]').forEach((button) => {
             button.addEventListener('click', () => navigateToApp(button.dataset.appDestination));
         });

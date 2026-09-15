@@ -1,7 +1,7 @@
 # Phase 4 OldandNew Recent View Migration Plan
 
 Date: 2026-09-15
-Status: In progress; Phases 1-4 implemented and validated
+Status: Migration implementation complete; local release verification passed; external device/deployment sign-off pending
 Source: `https://github.com/SwareshPawar/OldandNew.git`, branch `main`
 Frozen source commit: `2aee0da7ba3c3b87e30301f3d4e3467536cce225`
 Target baseline: PraiseandWorship `main` at `9c4ba0c74e88aded48dac88a1d5556be614a17c5`
@@ -285,7 +285,7 @@ Validation evidence:
 - A clean authenticated 375px run with the final asset versions advanced from `Loading setlists... 75%` to `Ready! 100%` in the next 400ms sample, then remained stable at 6,870 nodes for all subsequent samples.
 - A second 375px reload repeated the successful completion with 414 rendered song rows, 402 catalogue selection controls, a hidden loader, and responsive Songs navigation.
 - Syntax checks passed for `main1.js`, `scripts/features/mobile-ui.js`, and `scripts/features/song-preview-ui.js`.
-- Full Phase 3 catalogue/Favorites/setlist/suggestion preview validation remains pending after this blocker fix.
+- The full Phase 3 catalogue/Favorites/setlist/suggestion preview matrix was completed in the later Phase 3 implementation record.
 
 ### Phase 3 Implementation Record - 2026-09-15
 
@@ -306,6 +306,20 @@ Validation evidence:
 - At 360px, 375px, and 412px, mobile preview actions and context were visible with no action or page overflow.
 - At 1024px, all mobile preview controls were hidden, the original desktop action row remained visible, and no horizontal overflow was present.
 - No destructive edit, delete, setlist, rhythm assignment, or database action was performed during validation.
+
+Suggested Songs visibility enhancement:
+
+- Moved `mobilePreviewRecommend` from the compact song header to a full-width `Suggested Songs` action immediately above the mobile bottom navigation.
+- The action appears only while a rendered song preview is the active mobile surface; it hides in Home, Songs, and desktop views.
+- The active preview viewport now ends above both fixed bars instead of allowing lyrics or chords to pass beneath them.
+- At 375px, the preview ended 8px above the suggestion action, the action ended 6px above navigation, and the final lyric remained 82px above the action at maximum scroll.
+- Fresh mobile deep links and normal song selection passed at 360px and 412px with the existing recommendation drawer opening to real results.
+- Finalized the action as a sleek full-width bar: viewport width minus 10px side margins, 34px high, with a compact icon and `Suggested Songs` label.
+- Restyled the bar as a drawer handle attached flush to the mobile navigation: up chevron while closed and down chevron while the Suggested Songs panel is open.
+- The handle remains visible and clickable above the open drawer; tapping it closes the drawer through the same existing toggle path, while the existing × and Escape paths remain available and synchronize the handle state.
+- Moved the handle to the document-level navigation layer to avoid drawer content intercepting clicks through the preview stacking context.
+- Removed the obsolete bottom `←`/`→` swipe indicators and their unused preview ArrowLeft/ArrowRight/touch scaffolding; panel edge-swipe navigation remains unchanged.
+- At 360px and 412px, the sleek action was exactly centered, remained 6px above navigation, and left the final lyric approximately 60px clear with no overflow.
 
 ### Phase 4 - Setlist, Favorites, And Overlay State Stabilization
 
@@ -389,6 +403,30 @@ Rollback:
 
 - Remove tool navigation links and standalone files independently per tool.
 
+### Phase 5 Implementation Record - 2026-09-15
+
+Implemented:
+
+- Added a mobile-only More tools menu to the existing three-destination app shell without restoring the removed sidebar Tools section.
+- Added a shared target-owned standalone shell in `styles/tool-pages.css` and `scripts/features/tool-page-nav.js`.
+- Added `metronome.html` and `metronome.js` with 40-220 BPM control, tap tempo, accents, meter, subdivision, quick tempos, Web Audio lookahead scheduling, and page-hide cleanup.
+- Added `tuner.html` and `tuner.js` with chromatic microphone detection, cents meter, denied/unsupported microphone states, A4 references, tone generator, note/octave controls, and stream/tone cleanup.
+- Added `pads-tanpura.html` and `pads-tanpura.js`, reusing the target `LoopPlayerPad` melodic APIs and `AppApiBase` resolver for key availability, atmosphere/tanpura playback, volume, and cleanup.
+- Standalone pages inherit `pw_darkMode`, use PraiseandWorship tokens and branding, and require no API, schema, auth, package, or server change.
+- Home/Songs return uses one-shot session state so explicit tool navigation wins during startup without clearing the user's selected setlist.
+
+Validation evidence:
+
+- Metronome plus/quick tempo, start/stop, accent/reset, shared More menu, and visibility/page-hide stop behavior passed.
+- Tune & Pitch mode switching, note/octave frequency calculation, 432/440/442/444 reference changes, tone start/stop, denied microphone messaging, and page-hide tone cleanup passed.
+- Pads & Tanpura loaded real target availability for C and D, updated key state, changed volume, started/stopped the Atmosphere sample, and stopped playback on page hide.
+- Main mobile More opened exactly three tool links; main -> Tune & Pitch -> Back returned to the app and completed initialization with the loader hidden.
+- Tool -> Home and Tool -> Songs returned to the requested panel while preserving the selected Smart Setlist value without auto-opening its setlist view.
+- All three pages passed at 360px, 412px, and 1024px with nonblank content, no duplicate IDs, no horizontal or button-text overflow, and mobile navigation hidden on desktop.
+- Saved dark mode applied target dark tokens to standalone pages; the prior test preference was restored afterward.
+- Final 375px screenshots were captured for Metronome, Tune & Pitch, and Pads & Tanpura.
+- No database mutation or backend/server/API change was introduced.
+
 ### Phase 6 - Service Worker Decision Gate
 
 Current target behavior intentionally unregisters service workers and clears PraiseandWorship caches in `main1.js`. OldandNew's `7599cc8` takes the opposite approach. This phase requires an explicit decision before implementation.
@@ -411,6 +449,27 @@ Required Option B validation:
 - First install, reload, offline shell, online recovery, new-version activation, stale-cache eviction, logout/login, loop metadata refresh, and failed-network behavior.
 - iOS Safari/PWA and Android Chrome/PWA checks.
 - Confirm a bad worker can be retired without manual user intervention.
+
+### Phase 6 Decision And Enhancement Record - 2026-09-15
+
+Decision:
+
+- Selected Option A. Service workers remain disabled because the target's unregister/cache-clear policy is an intentional safeguard against stale application and loop assets.
+- Option B remains a separate future project requiring the full offline/update test matrix; it is not necessary for this view migration.
+
+Low-risk enhancements implemented:
+
+- Replaced the nonfunctional `#praise` and `#worship` manifest shortcuts, which had no matching hash handlers, with valid same-scope shortcuts for Tune & Pitch, Pads & Tanpura, and Metronome.
+- Added manifest, favicon, and Apple touch-icon metadata to all three standalone tool pages.
+- Corrected the install button tooltip so it no longer promises offline access while service workers are intentionally disabled.
+
+Validation evidence:
+
+- `manifest.json` parsed successfully with exactly three shortcuts; every shortcut contains a name, URL, and icon reference.
+- Every shortcut target and icon exists locally, and all three shortcut URLs returned HTTP 200 from the live app.
+- All standalone pages expose `manifest.json`, `icon-192.png`, and the Apple touch icon.
+- Live browser state showed zero service-worker registrations and zero `pw-*` caches after the enhancement.
+- Manifest shortcuts are progressive enhancement: unsupported browsers ignore them without affecting app navigation.
 
 ### Phase 7 - Release Verification
 
@@ -448,6 +507,37 @@ Release criteria:
 - Desktop behavior and presentation remain unchanged except approved tool links.
 - No API, schema, auth, or database change was introduced for presentation.
 - All target-specific storage keys and production hosts remain intact.
+
+### Phase 7 Local Release Record - 2026-09-15
+
+Passed locally:
+
+- Anonymous shell: Login/Register visible, admin/logout hidden, loader cleared, and exactly three mobile destinations present.
+- Authenticated admin shell: user greeting, Logout, and Admin Panel visible with 402 target songs loaded.
+- Catalogue: Praise/Worship rows, search, key/genre/mood/artist filters, sort, Favorites, explicit Select mode, and non-mutating batch-add delegation passed.
+- Setlists: Global, My, and Smart rendering/preview transitions passed using the original `#setlistSection`; saved selection restoration and explicit All Songs/Favorites overrides passed.
+- Preview: recommendations, setlist action, AUTO, More, metadata, transpose reset, admin actions, rhythm-set editor, loop markup, and Favorites preview passed.
+- Suggested Songs drawer handle: closed/up, open/down, handle-click close, × close synchronization, navigation attachment, and lyric/chord clearance passed.
+- Tools: Metronome, Tune & Pitch, and Pads & Tanpura interactions, audio cleanup, denied microphone state, theme inheritance, and Home/Songs return passed.
+- Responsive: 360px, 375px, 412px, 768px boundary, 769px boundary, 1024px, 1440px, and available landscape checks passed without horizontal overflow.
+- Fresh-load console capture reported no console errors or uncaught page errors.
+- One-time behavior checks passed: More and Filters changed state exactly once per click; no duplicate mobile song selectors were created.
+- Manifest shortcuts and tool metadata validated; all three tool URLs returned HTTP 200.
+- Service-worker safety state validated with zero registrations and zero `pw-*` caches.
+- Source-leak audit found no OldandNew URLs, unprefixed auth storage keys, or New/Old catalogue selectors in migrated files.
+- JavaScript syntax, workspace diagnostics, manifest validation, and `git diff --check` passed.
+
+External sign-off still recommended:
+
+- Real-device iOS Safari and Android Chrome audio-unlock/playback checks.
+- Real microphone pitch-detection quality with instruments and ambient noise.
+- Installed-app shortcut presentation on supported operating systems.
+- Preview/deployed-environment smoke test for auth, admin visibility, songs, setlists, recommendations, loops, and tool routes.
+
+Completion statement:
+
+- The OldandNew recent-view migration is implemented and locally release-ready.
+- Remaining items are deployment and physical-device verification, not missing migration code.
 
 ## 8. Risk Register
 

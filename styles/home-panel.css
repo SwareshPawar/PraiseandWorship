@@ -1,0 +1,318 @@
+/* Compact Home/sidebar presentation. Existing markup and handlers remain authoritative. */
+
+@media (max-width: 768px) {
+    body.mobile-modern-mode .sidebar-header {
+        min-height: 76px;
+        padding: 13px 58px 11px 18px;
+    }
+
+    body.mobile-modern-mode .sidebar-header h2 { font-size: 1.3rem; }
+    body.mobile-modern-mode .sidebar-header h2::after { margin-top: 3px; font-size: 0.62rem; }
+
+    body.mobile-modern-mode .mobile-home-close {
+        top: 14px;
+        right: 12px;
+        width: 36px;
+        height: 36px;
+    }
+
+    body.mobile-modern-mode #userGreeting {
+        grid-template-columns: 44px minmax(0, 1fr);
+        min-height: 66px;
+        column-gap: 10px;
+        padding: 9px 14px;
+        font-size: 0.88rem;
+    }
+
+    body.mobile-modern-mode #userGreeting::before { width: 40px; height: 40px; font-size: 0.82rem; }
+    body.mobile-modern-mode #userGreeting::after { font-size: 0.64rem; }
+
+    body.mobile-modern-mode .sidebar-menu > li:has(#showAll),
+    body.mobile-modern-mode .sidebar-menu > li:has(#globalSetlistHeader),
+    body.mobile-modern-mode .sidebar-menu > li:has(#addSongBelowFavoritesBtn) { margin-top: 22px; }
+
+    body.mobile-modern-mode .sidebar-menu > li:has(#showAll)::before,
+    body.mobile-modern-mode .sidebar-menu > li:has(#globalSetlistHeader)::before,
+    body.mobile-modern-mode .sidebar-menu > li:has(#addSongBelowFavoritesBtn)::before,
+    body.mobile-modern-mode #adminPanelBtn::after { top: -17px; font-size: 0.6rem; }
+
+    body.mobile-modern-mode #adminPanelBtn { margin-top: 24px; }
+
+    body.mobile-modern-mode .sidebar-menu a,
+    body.mobile-modern-mode .sidebar-btn,
+    body.mobile-modern-mode .folder-header,
+    body.mobile-modern-mode .theme-toggle,
+    body.mobile-modern-mode .sidebar-settings-btn {
+        min-height: 42px;
+        padding: 5px 8px;
+        font-size: 0.78rem;
+    }
+
+    body.mobile-modern-mode #showAll::before,
+    body.mobile-modern-mode #showFavorites::before {
+        width: 32px;
+        height: 32px;
+        flex-basis: 32px;
+    }
+
+    body.mobile-modern-mode .folder-header > i:not(.folder-icon),
+    body.mobile-modern-mode #addSongBelowFavoritesBtn i,
+    body.mobile-modern-mode #adminPanelBtn i,
+    body.mobile-modern-mode #settingsBtn::before { width: 32px; height: 32px; }
+
+    body.mobile-modern-mode .song-count { padding: 7px 5px; }
+    body.mobile-modern-mode .song-count::before { margin-bottom: 5px; }
+    body.mobile-modern-mode .sidebar-footer .sidebar-footer { gap: 6px; }
+}
+
+@media (min-width: 769px) {
+    body.ui-v2-shell .sidebar {
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+        background: var(--surface-0);
+    }
+
+    body.ui-v2-shell .sidebar:not(.hidden),
+    body.ui-v2-shell .songs-section:not(.hidden) {
+        transform: translateX(0);
+        animation: none;
+    }
+
+    body.ui-v2-shell .sidebar-header {
+        min-height: 68px;
+        padding: 11px 14px;
+        align-items: flex-start;
+        background:
+            linear-gradient(145deg, transparent 0 60%, color-mix(in srgb, var(--brand-400) 28%, transparent 72%) 60% 72%, transparent 72%),
+            linear-gradient(135deg, var(--brand-600), var(--brand-500));
+        border-bottom: 0;
+        text-align: left;
+    }
+
+    body.ui-v2-shell .sidebar-header h2 {
+        margin: 0;
+        color: #ffffff;
+        font-size: 1.08rem;
+        line-height: 1.1;
+        letter-spacing: 0;
+    }
+
+    body.ui-v2-shell .sidebar-header h2::after {
+        display: block;
+        margin-top: 3px;
+        color: rgba(255, 255, 255, 0.86);
+        content: "Your Songs. Your Setlists.";
+        font-size: 0.58rem;
+        font-weight: 500;
+    }
+
+    body.ui-v2-shell .sidebar-menu { display: contents; }
+
+    body.ui-v2-shell .sidebar-menu > *,
+    body.ui-v2-shell .sidebar > .sidebar-footer,
+    body.ui-v2-shell .sidebar > #settingsBtn {
+        width: auto !important;
+        max-width: calc(100% - 12px);
+        flex: 0 0 auto;
+        align-self: stretch;
+        margin-right: 6px;
+        margin-left: 6px;
+    }
+
+    body.ui-v2-shell #loginBtn,
+    body.ui-v2-shell #registerBtn,
+    body.ui-v2-shell #userGreeting { order: 10; }
+    body.ui-v2-shell .sidebar-menu > li:has(#showAll) { order: 20; }
+    body.ui-v2-shell .sidebar-menu > li:has(#customSetlistDropdown) { display: none; }
+    body.ui-v2-shell #setlistDescriptionContainer { display: none !important; }
+    body.ui-v2-shell .sidebar-menu > li:has(#showFavorites) { order: 30; }
+    body.ui-v2-shell .sidebar-menu > li:has(#smartSetlistHeader) { order: 40; }
+    body.ui-v2-shell .sidebar-menu > li:has(#globalSetlistHeader) { order: 50; }
+    body.ui-v2-shell .sidebar-menu > li:has(#mySetlistHeader) { order: 60; }
+    body.ui-v2-shell .sidebar-menu > li:has(#addSongBelowFavoritesBtn) { order: 70; }
+    body.ui-v2-shell #adminPanelBtn { order: 80; }
+    body.ui-v2-shell .sidebar > #settingsBtn { order: 85; }
+    body.ui-v2-shell .sidebar > .sidebar-footer { order: 90; }
+    body.ui-v2-shell #logoutBtn { order: 100; }
+
+    body.ui-v2-shell #userGreeting {
+        position: relative;
+        display: grid !important;
+        grid-template-columns: 34px minmax(0, 1fr);
+        grid-template-rows: auto auto;
+        min-height: 54px;
+        align-items: center;
+        column-gap: 8px;
+        margin: 0 !important;
+        padding: 7px 9px;
+        border-bottom: 1px solid var(--panel-divider);
+        color: var(--text-900);
+        font-size: 0.75rem;
+        font-weight: 800 !important;
+    }
+
+    body.ui-v2-shell #userGreeting::before {
+        display: inline-flex;
+        grid-row: 1 / 3;
+        width: 32px;
+        height: 32px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--brand-400), var(--brand-600));
+        color: #ffffff;
+        content: attr(data-initials);
+        font-size: 0.7rem;
+        font-weight: 800;
+    }
+
+    body.ui-v2-shell #userGreeting::after {
+        color: var(--text-500);
+        content: "Keep making music!";
+        font-size: 0.55rem;
+        font-weight: 500;
+    }
+
+    body.ui-v2-shell .sidebar-menu > li:has(#showAll),
+    body.ui-v2-shell .sidebar-menu > li:has(#globalSetlistHeader),
+    body.ui-v2-shell .sidebar-menu > li:has(#addSongBelowFavoritesBtn),
+    body.ui-v2-shell #adminPanelBtn { position: relative; margin-top: 18px; }
+
+    body.ui-v2-shell .sidebar-menu > li:has(#showAll)::before,
+    body.ui-v2-shell .sidebar-menu > li:has(#globalSetlistHeader)::before,
+    body.ui-v2-shell .sidebar-menu > li:has(#addSongBelowFavoritesBtn)::before,
+    body.ui-v2-shell #adminPanelBtn::after {
+        position: absolute;
+        top: -14px;
+        left: 3px;
+        color: var(--text-500);
+        font-size: 0.52rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+    }
+
+    body.ui-v2-shell .sidebar-menu > li:has(#showAll)::before { content: "SONGS"; }
+    body.ui-v2-shell .sidebar-menu > li:has(#globalSetlistHeader)::before { content: "SETLISTS"; }
+    body.ui-v2-shell .sidebar-menu > li:has(#addSongBelowFavoritesBtn)::before { content: "CREATE"; }
+    body.ui-v2-shell #adminPanelBtn::after { content: "TOOLS"; }
+
+    body.ui-v2-shell .sidebar-menu a,
+    body.ui-v2-shell .sidebar-btn,
+    body.ui-v2-shell .folder-header,
+    body.ui-v2-shell .theme-toggle,
+    body.ui-v2-shell .sidebar-settings-btn {
+        min-height: 36px;
+        padding: 3px 6px;
+        gap: 6px;
+        border-color: transparent;
+        border-radius: 5px;
+        background: transparent;
+        box-shadow: none;
+        color: var(--text-900);
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+
+    body.ui-v2-shell .sidebar-menu a.active,
+    body.ui-v2-shell .sidebar-menu a:hover,
+    body.ui-v2-shell .sidebar-btn:hover,
+    body.ui-v2-shell .folder-header:hover {
+        transform: none;
+        background: var(--interactive-soft);
+        color: var(--text-900);
+        box-shadow: none;
+    }
+
+    body.ui-v2-shell .sidebar-menu a.active { border-left: 3px solid var(--brand-500); }
+
+    body.ui-v2-shell #showAll::before,
+    body.ui-v2-shell #showFavorites::before,
+    body.ui-v2-shell .folder-header > i:not(.folder-icon),
+    body.ui-v2-shell #addSongBelowFavoritesBtn i,
+    body.ui-v2-shell #adminPanelBtn i,
+    body.ui-v2-shell #settingsBtn::before {
+        display: inline-flex;
+        width: 28px;
+        height: 28px;
+        flex: 0 0 28px;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: var(--interactive-soft);
+        color: var(--brand-600);
+    }
+
+    body.ui-v2-shell #showAll::before,
+    body.ui-v2-shell #showFavorites::before,
+    body.ui-v2-shell #settingsBtn::before { font-family: "Font Awesome 5 Free"; font-weight: 900; }
+    body.ui-v2-shell #showAll::before { content: "\f001"; }
+    body.ui-v2-shell #showFavorites::before { content: "\f004"; color: var(--danger-500); }
+    body.ui-v2-shell #showAll::after { margin-left: auto; content: attr(data-count) " ›"; color: var(--brand-600); }
+    body.ui-v2-shell #showFavorites::after { margin-left: auto; content: "›"; color: var(--text-500); }
+
+    body.ui-v2-shell #showFavorites .pw_favorites-count {
+        margin-left: auto;
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--danger-500) 12%, var(--surface-0) 88%);
+        color: var(--danger-500);
+        font-size: 0.62rem;
+    }
+
+    body.ui-v2-shell .setlist-folder { margin: 0; padding: 0; border: 0; background: transparent; }
+    body.ui-v2-shell .folder-header > .folder-icon { order: 3; margin-left: auto; }
+    body.ui-v2-shell .add-setlist-btn { order: 2; margin-left: auto; }
+
+    body.ui-v2-shell .sidebar > .sidebar-footer {
+        padding: 4px 6px;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    body.ui-v2-shell .sidebar-footer .sidebar-footer {
+        display: grid;
+        gap: 5px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    body.ui-v2-shell .song-count {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        padding: 5px 3px;
+        border: 1px solid var(--panel-divider);
+        border-radius: 6px;
+        background: var(--surface-1);
+    }
+
+    body.ui-v2-shell .song-count::before {
+        grid-column: 1 / -1;
+        margin: 0 3px 4px;
+        color: var(--text-900);
+        content: "Library Stats";
+        font-size: 0.62rem;
+        font-weight: 800;
+    }
+
+    body.ui-v2-shell .song-count > div { display: flex; align-items: center; flex-direction: column; color: transparent; font-size: 0; }
+    body.ui-v2-shell .song-count > div::after { color: var(--text-500); content: "Songs"; font-size: 0.5rem; }
+    body.ui-v2-shell .song-count > div:first-of-type::after { content: "Total"; }
+    body.ui-v2-shell .song-count > div:nth-of-type(2)::after { content: "Praise"; }
+    body.ui-v2-shell .song-count > div:nth-of-type(3)::after { content: "Worship"; }
+    body.ui-v2-shell .song-count span { color: var(--text-900); font-size: 0.78rem; font-weight: 800; }
+
+    body.ui-v2-shell #themeToggle,
+    body.ui-v2-shell #logoutBtn,
+    body.ui-v2-shell .sidebar > #settingsBtn { border: 1px solid var(--panel-divider); background: var(--surface-1); }
+
+    body.ui-v2-shell #adminPanelBtn,
+    body.ui-v2-shell #addSongBelowFavoritesBtn,
+    body.ui-v2-shell #logoutBtn,
+    body.ui-v2-shell .sidebar > #settingsBtn { justify-content: flex-start; text-align: left; }
+
+    body.ui-v2-shell #logoutBtn { margin-top: 2px; margin-bottom: 6px; color: var(--danger-500); }
+}

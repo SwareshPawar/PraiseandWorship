@@ -27,17 +27,24 @@
   ],
   "shortcuts": [
     {
-      "name": "Praise Songs",
-      "short_name": "Praise",
-      "description": "Browse Praise songs",
-      "url": "./#praise",
+      "name": "Tune & Pitch",
+      "short_name": "Tuner",
+      "description": "Tune an instrument or play reference tones",
+      "url": "./tuner.html",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Worship Songs",
-      "short_name": "Worship", 
-      "description": "Browse Worship songs",
-      "url": "./#worship",
+      "name": "Pads & Tanpura",
+      "short_name": "Pads",
+      "description": "Play atmosphere pads and tanpura drones by key",
+      "url": "./pads-tanpura.html",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Metronome",
+      "short_name": "Metronome",
+      "description": "Practice with tempo, meter, and subdivisions",
+      "url": "./metronome.html",
       "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
     }
   ],

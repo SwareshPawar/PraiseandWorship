@@ -4,6 +4,7 @@
     let previewObserver = null;
     let autoScrollObserver = null;
     let panelObserver = null;
+    let suggestedDrawerObserver = null;
 
     function getActiveSetlistName() {
         const dropdown = document.getElementById('setlistDropdown');
@@ -40,6 +41,20 @@
         menu?.classList.remove('open');
         menu?.setAttribute('aria-hidden', 'true');
         toggle?.setAttribute('aria-expanded', 'false');
+    }
+
+    function syncSuggestedDrawerHandle() {
+        const drawer = document.getElementById('suggestedSongsDrawer');
+        const handle = document.getElementById('mobilePreviewRecommend');
+        if (!drawer || !handle) return;
+
+        const open = drawer.classList.contains('open');
+        handle.classList.toggle('open', open);
+        handle.setAttribute('aria-expanded', String(open));
+        handle.setAttribute('aria-label', open ? 'Close Suggested Songs' : 'Open Suggested Songs');
+        handle.title = open ? 'Close Suggested Songs' : 'Suggested Songs';
+        const icon = handle.querySelector('i');
+        if (icon) icon.className = open ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
     }
 
     function delegateClick(targetId) {
@@ -98,7 +113,13 @@
         const header = container?.querySelector('.song-preview-header');
         const actions = container?.querySelector('.song-preview-actions');
         const transpose = container?.querySelector('.song-preview-transpose');
-        if (!container || !header || !actions || !transpose || container.dataset.mobilePreviewDecorated === 'true') return;
+        if (!container || !header || !actions || !transpose) {
+            document.getElementById('mobilePreviewRecommend')?.remove();
+            suggestedDrawerObserver?.disconnect();
+            suggestedDrawerObserver = null;
+            return;
+        }
+        if (container.dataset.mobilePreviewDecorated === 'true') return;
 
         container.dataset.mobilePreviewDecorated = 'true';
         prepareMobilePreviewSurface();
@@ -109,12 +130,24 @@
         recommend.className = 'mobile-preview-recommend';
         recommend.title = 'Suggested Songs';
         recommend.setAttribute('aria-label', 'Open Suggested Songs');
-        recommend.innerHTML = '<i class="fas fa-random" aria-hidden="true"></i>';
+        recommend.setAttribute('aria-expanded', 'false');
+        recommend.setAttribute('aria-controls', 'suggestedSongsDrawer');
+        recommend.innerHTML = '<i class="fas fa-chevron-up" aria-hidden="true"></i><span>Suggested Songs</span>';
         recommend.addEventListener('click', (event) => {
             event.stopPropagation();
             delegateClick('toggleSuggestedSongs');
+            window.setTimeout(syncSuggestedDrawerHandle, 0);
         });
-        header.appendChild(recommend);
+        document.getElementById('mobilePreviewRecommend')?.remove();
+        document.getElementById('mobileModernShell')?.insertAdjacentElement('beforebegin', recommend);
+
+        if (suggestedDrawerObserver) suggestedDrawerObserver.disconnect();
+        const suggestedDrawer = document.getElementById('suggestedSongsDrawer');
+        if (suggestedDrawer) {
+            suggestedDrawerObserver = new MutationObserver(syncSuggestedDrawerHandle);
+            suggestedDrawerObserver.observe(suggestedDrawer, { attributes: true, attributeFilter: ['class'] });
+        }
+        syncSuggestedDrawerHandle();
 
         const context = document.createElement('div');
         context.id = 'mobilePreviewSetlistContext';
@@ -198,6 +231,7 @@
         decoratePreview,
         initializeSongPreviewUI,
         syncAutoScrollState,
+        syncSuggestedDrawerHandle,
         syncSetlistContext
     };
 

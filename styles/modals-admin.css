@@ -10,6 +10,10 @@ body.ui-v2-shell .modal {
     overflow: auto;
 }
 
+body.ui-v2-shell #settingsModal {
+    z-index: 3000;
+}
+
 body.ui-v2-shell .modal-content {
     background: var(--surface-0);
     border: 1px solid var(--panel-divider);

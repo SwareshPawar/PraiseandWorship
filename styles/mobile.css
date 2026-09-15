@@ -712,7 +712,7 @@
 
     body.mobile-modern-mode .song-preview-header {
         position: relative;
-        padding-right: 42px;
+        padding-right: 0;
     }
 
     body.mobile-modern-mode .mobile-preview-recommend {
@@ -1081,7 +1081,7 @@
     }
 
     body.ui-v2-shell #setlistSection .setlist-song-title {
-        font-size: 0.90rem;
+        font-size: var(--preview-lyrics-font-size, 0.9rem);
     }
 
     body.ui-v2-shell #setlistSection .setlist-song-meta-row,

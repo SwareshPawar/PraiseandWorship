@@ -8877,32 +8877,46 @@ window.viewSingleLyrics = function(songId, otherId) {
             return normalizedSize;
         }
 
+        const DESKTOP_DEFAULT_PANEL_WIDTH = 20;
+        const MOBILE_DEFAULT_PANEL_WIDTH = 60;
+
+        function normalizePanelWidth(value, fallback) {
+            const parsed = Number(value);
+            return Number.isFinite(parsed) && parsed >= 10 && parsed <= 80
+                ? parsed
+                : fallback;
+        }
+
+        function getResponsivePanelWidth() {
+            const isDesktop = window.innerWidth > 768;
+            const storageKey = isDesktop ? 'pw_desktopPanelWidth' : 'pw_mobilePanelWidth';
+            const fallback = isDesktop ? DESKTOP_DEFAULT_PANEL_WIDTH : MOBILE_DEFAULT_PANEL_WIDTH;
+            return normalizePanelWidth(localStorage.getItem(storageKey), fallback);
+        }
+
+        function applyResponsivePanelWidths() {
+            const panelWidth = getResponsivePanelWidth();
+            document.documentElement.style.setProperty('--sidebar-width', `${panelWidth}%`);
+            document.documentElement.style.setProperty('--songs-panel-width', `${panelWidth}%`);
+
+            const panelWidthInput = document.getElementById('panelWidthInput');
+            if (panelWidthInput) panelWidthInput.value = String(panelWidth);
+            return panelWidth;
+        }
+
         function loadSettings() {
             const savedHeader = localStorage.getItem("sidebarHeader");
             if (savedHeader) document.querySelector(".sidebar-header h2").textContent = savedHeader;
 
-            // Set default values for mobile/desktop in percentage
-            let sidebarWidth = localStorage.getItem("sidebarWidth");
-            let songsPanelWidth = localStorage.getItem("songsPanelWidth");
-            if (!sidebarWidth || !songsPanelWidth) {
-                if (window.innerWidth <= 700) {
-                    sidebarWidth = "60";
-                    songsPanelWidth = "60";
-                } else {
-                    sidebarWidth = "20";
-                    songsPanelWidth = "20";
-                }
-            }
+            const panelWidth = applyResponsivePanelWidths();
             const previewMargin = localStorage.getItem("previewMargin") || "10";
             const savedAutoScrollSpeed = localStorage.getItem("autoScrollSpeed") || "1500";
             const toggleButtonsVisibility = normalizeToggleButtonsVisibility(localStorage.getItem("toggleButtonsVisibility") || "hide");
             const previewLyricsSize = normalizePreviewLyricsSize(localStorage.getItem("previewLyricsSize") || "up-2");
 
-            document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}%`);
-            document.documentElement.style.setProperty('--songs-panel-width', `${songsPanelWidth}%`);
             document.documentElement.style.setProperty('--preview-margin-left', `${previewMargin}px`);
 
-            document.getElementById('panelWidthInput').value = sidebarWidth;
+            document.getElementById('panelWidthInput').value = panelWidth;
             document.getElementById('previewMarginInput').value = previewMargin;
             document.getElementById('autoScrollSpeedInput').value = savedAutoScrollSpeed;
             const toggleButtonsVisibilityEl = document.getElementById("toggleButtonsVisibility");
@@ -8918,6 +8932,31 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             applyToggleButtonsVisibility(toggleButtonsVisibility);
             applyPreviewLyricsSize(previewLyricsSize);
+
+            if (!window.__pwResponsivePanelWidthBound) {
+                window.__pwResponsivePanelWidthBound = true;
+                let wasDesktop = window.innerWidth > 768;
+                const handleResponsivePanelWidthChange = () => {
+                    const isDesktop = window.innerWidth > 768;
+                    if (isDesktop !== wasDesktop) {
+                        wasDesktop = isDesktop;
+                        applyResponsivePanelWidths();
+                        if (isDesktop) {
+                            document.querySelector('.sidebar')?.classList.remove('hidden');
+                            document.querySelector('.songs-section')?.classList.remove('hidden');
+                            document.querySelector('.preview-section')?.classList.remove('full-width');
+                        } else {
+                            const rememberedPanel = localStorage.getItem(MOBILE_PANEL_STATE_KEY) === 'songs'
+                                ? 'songs'
+                                : 'home';
+                            setMobilePanelVisibility(rememberedPanel);
+                        }
+                        updatePositions();
+                    }
+                };
+                window.addEventListener('resize', handleResponsivePanelWidthChange);
+                window.matchMedia?.('(min-width: 769px)').addEventListener?.('change', handleResponsivePanelWidthChange);
+            }
         }
     
             
@@ -9051,6 +9090,7 @@ window.viewSingleLyrics = function(songId, otherId) {
     
         function updatePositions() {
             if (window.innerWidth > 768) {
+                document.querySelector('.preview-section').classList.remove('full-width');
                 if (document.querySelector('.sidebar').classList.contains('hidden')) {
                     document.querySelector('.songs-section').style.left = '0';
                     document.querySelector('.preview-section').style.marginLeft =
@@ -9726,6 +9766,8 @@ window.viewSingleLyrics = function(songId, otherId) {
             localStorage.removeItem('setlistText');
             localStorage.removeItem('sidebarWidth');
             localStorage.removeItem('songsPanelWidth');
+            localStorage.removeItem('pw_desktopPanelWidth');
+            localStorage.removeItem('pw_mobilePanelWidth');
             localStorage.removeItem('previewMargin');
             localStorage.removeItem('autoScrollSpeed');
             localStorage.removeItem('sessionResetOption');
@@ -11814,8 +11856,10 @@ window.viewSingleLyrics = function(songId, otherId) {
         function saveSettings() {
             const newHeader = document.getElementById("sidebarHeaderInput").value;
             const newSetlist = document.getElementById("setlistTextInput").value;
-            const sidebarWidth = document.getElementById("panelWidthInput").value;
-            const songsPanelWidth = document.getElementById("panelWidthInput").value;
+            const panelWidth = normalizePanelWidth(
+                document.getElementById("panelWidthInput").value,
+                window.innerWidth > 768 ? DESKTOP_DEFAULT_PANEL_WIDTH : MOBILE_DEFAULT_PANEL_WIDTH
+            );
             const previewMargin = document.getElementById("previewMarginInput").value;
             const newAutoScrollSpeed = document.getElementById("autoScrollSpeedInput").value;
             const toggleButtonsVisibilityEl = document.getElementById("toggleButtonsVisibility");
@@ -11825,14 +11869,18 @@ window.viewSingleLyrics = function(songId, otherId) {
 
             document.querySelector(".sidebar-header h2").textContent = newHeader;
 
-            document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}%`);
-            document.documentElement.style.setProperty('--songs-panel-width', `${songsPanelWidth}%`);
+            document.documentElement.style.setProperty('--sidebar-width', `${panelWidth}%`);
+            document.documentElement.style.setProperty('--songs-panel-width', `${panelWidth}%`);
             document.documentElement.style.setProperty('--preview-margin-left', `${previewMargin}px`);
 
             localStorage.setItem("sidebarHeader", newHeader);
             localStorage.setItem("setlistText", newSetlist);
-            localStorage.setItem("sidebarWidth", sidebarWidth);
-            localStorage.setItem("songsPanelWidth", songsPanelWidth);
+            const responsiveStorageKey = window.innerWidth > 768
+                ? 'pw_desktopPanelWidth'
+                : 'pw_mobilePanelWidth';
+            localStorage.setItem(responsiveStorageKey, String(panelWidth));
+            localStorage.setItem("sidebarWidth", String(panelWidth));
+            localStorage.setItem("songsPanelWidth", String(panelWidth));
             localStorage.setItem("previewMargin", previewMargin);
             localStorage.setItem("autoScrollSpeed", newAutoScrollSpeed);
             localStorage.setItem("toggleButtonsVisibility", toggleButtonsVisibility);
@@ -12718,9 +12766,10 @@ window.viewSingleLyrics = function(songId, otherId) {
             if (settingsBtn && settingsBtn.dataset.boundClick !== 'true') {
                 settingsBtn.dataset.boundClick = 'true';
                 settingsBtn.addEventListener("click", () => {
-                document.getElementById("sidebarHeaderInput").value = document.querySelector(".sidebar-header h2").textContent;
-                document.getElementById("setlistTextInput").value = ""; // No longer using showSetlist element
-                document.getElementById("settingsModal").style.display = "flex";
+                    window.MobileUI?.closeHomeDrawer?.();
+                    document.getElementById("sidebarHeaderInput").value = document.querySelector(".sidebar-header h2").textContent;
+                    document.getElementById("setlistTextInput").value = ""; // No longer using showSetlist element
+                    document.getElementById("settingsModal").style.display = "flex";
                 });
             }
     

@@ -13032,6 +13032,25 @@ window.viewSingleLyrics = function(songId, otherId) {
                         createMySetlist();
                     });
                 }
+
+                // Tools folder header toggle
+                const toolsHeader = document.getElementById('toolsFolderHeader');
+                if (toolsHeader && !toolsHeader._setlistListenerAttached) {
+                    toolsHeader._setlistListenerAttached = true;
+                    toolsHeader.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const toolsFolderContent = document.getElementById('toolsFolderContent');
+                        const toolsFolderIcon = document.getElementById('toolsFolderIcon');
+
+                        if (toolsFolderContent && toolsFolderIcon) {
+                            const isExpanded = toolsFolderContent.style.display === 'block';
+                            toolsFolderContent.style.display = isExpanded ? 'none' : 'block';
+                            toolsFolderIcon.classList.toggle('expanded', !isExpanded);
+                        }
+                    });
+                }
             }
             
             attachSetlistEventListeners();

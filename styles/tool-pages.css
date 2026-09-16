@@ -643,7 +643,7 @@ body.tool-page-body {
         left: 0;
         z-index: 2500;
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         min-height: calc(64px + env(safe-area-inset-bottom, 0px));
         padding: 5px 8px calc(5px + env(safe-area-inset-bottom, 0px));
         border-top: 1px solid var(--border-color);
@@ -747,4 +747,51 @@ body.tool-page-body {
     .pads-sound-btn {
         min-height: 150px;
     }
+}
+
+/* Embedded tool views (used when tools open as in-app tabs inside index.html) */
+.tool-view {
+    position: fixed;
+    inset: 0;
+    overflow-y: auto;
+    background: var(--app-bg);
+    z-index: 1500;
+}
+
+.tool-view[hidden] {
+    display: none;
+}
+
+body.tool-view-open {
+    overflow: hidden;
+}
+
+body.mobile-modern-mode .tool-view {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+}
+
+/* "Now playing" dot shown on the nav/sidebar entry point while a tool keeps making sound in the background */
+[data-mobile-destination="more"].tool-audio-active,
+#toolsFolderHeader.tool-audio-active {
+    position: relative;
+}
+
+[data-mobile-destination="more"].tool-audio-active::after,
+#toolsFolderHeader.tool-audio-active::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--warning-500, #f0ad4e);
+    box-shadow: 0 0 0 rgba(240, 173, 78, 0.6);
+    animation: tool-audio-pulse 1.6s infinite;
+}
+
+@keyframes tool-audio-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(240, 173, 78, 0.6); }
+    70% { box-shadow: 0 0 0 6px rgba(240, 173, 78, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(240, 173, 78, 0); }
 }

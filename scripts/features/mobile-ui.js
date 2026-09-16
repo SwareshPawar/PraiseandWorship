@@ -33,7 +33,7 @@
     }
 
     function updateLayout(elements) {
-        if (!elements.sidebar || !elements.songs || !elements.preview) return;
+        if (!isMobile() || !elements.sidebar || !elements.songs || !elements.preview) return;
 
         if (elements.songs.style.left !== '0px') elements.songs.style.left = '0';
         if (elements.preview.style.marginLeft !== '0px') elements.preview.style.marginLeft = '0';
@@ -94,7 +94,7 @@
 
     function closeHomeDrawer(restoreState = true) {
         const elements = getElements();
-        if (!elements.sidebar || !elements.songs || !elements.backdrop) return;
+        if (!isMobile() || !elements.sidebar || !elements.songs || !elements.backdrop) return;
 
         if (elements.sidebar.classList.contains('mobile-home-drawer-open')) {
             elements.sidebar.classList.remove('mobile-home-drawer-open');
@@ -127,6 +127,7 @@
     function activateDestination(destination) {
         const elements = getElements();
         if (!isMobile()) return;
+        if (destination !== 'more') window.ToolViews?.close?.();
         document.dispatchEvent(new CustomEvent('pw:mobile-destination', { detail: { destination } }));
         const toolsMenu = document.getElementById('mobileToolsMenu');
 
@@ -392,10 +393,14 @@
         if (isMobile()) {
             const pendingDestination = sessionStorage.getItem('pw_pendingMobileDestination');
             sessionStorage.removeItem('pw_pendingMobileDestination');
-            const rememberedPanel = pendingDestination === 'home' || pendingDestination === 'songs'
-                ? pendingDestination
-                : (localStorage.getItem(PANEL_STATE_KEY) === 'songs' ? 'songs' : 'home');
-            setPanelVisibility(rememberedPanel);
+            if (pendingDestination === 'setlist') {
+                activateDestination('setlist');
+            } else {
+                const rememberedPanel = pendingDestination === 'home' || pendingDestination === 'songs'
+                    ? pendingDestination
+                    : (localStorage.getItem(PANEL_STATE_KEY) === 'songs' ? 'songs' : 'home');
+                setPanelVisibility(rememberedPanel);
+            }
         }
     }
 
@@ -406,7 +411,9 @@
         initializeMobileCatalogue,
         openHomeDrawer,
         setSelectMode,
-        setPanelVisibility
+        setPanelVisibility,
+        setActiveDestination,
+        restoreActiveDestination: () => setActiveDestination(localStorage.getItem(PANEL_STATE_KEY) === 'songs' ? 'songs' : 'home')
     };
 
     if (document.readyState === 'loading') {

@@ -1,4 +1,7 @@
-const API_BASE_URL = window.AppApiBase ? window.AppApiBase.resolve() : window.location.origin;
+// Only set API_BASE_URL when it isn't already declared (main1.js declares it when this script is embedded in the SPA).
+if (typeof API_BASE_URL === 'undefined') {
+    window.API_BASE_URL = window.AppApiBase ? window.AppApiBase.resolve() : window.location.origin;
+}
 
 (function initializePadsAndTanpura() {
     'use strict';
@@ -18,6 +21,8 @@ const API_BASE_URL = window.AppApiBase ? window.AppApiBase.resolve() : window.lo
             button.querySelector('.pads-sound-state').textContent = playing ? 'Playing...' : 'Tap to Play';
             const icon = button.querySelector('.pads-play-icon i');
             if (icon) icon.className = playing ? 'fas fa-stop' : 'fas fa-play';
+            const anyPlaying = Boolean(player.melodicPads.atmosphere.isPlaying || player.melodicPads.tanpura.isPlaying);
+            document.dispatchEvent(new CustomEvent('pw:tool-audio-state', { detail: { tool: 'pads', active: anyPlaying } }));
         };
         player.onMelodicError = (type) => {
             document.getElementById('padsAvailabilityHint').textContent = `Could not play ${type} for key ${selectedKey}.`;

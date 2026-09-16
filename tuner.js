@@ -182,4 +182,8 @@
 
     window.addEventListener('pagehide', cleanup);
     document.addEventListener('visibilitychange', () => { if (document.hidden) cleanup(); });
+
+    // Exposed so the in-app tool-view controller can stop mic capture without stopping the tone generator.
+    window.PWTools = window.PWTools || {};
+    window.PWTools.tuner = { stopMicrophone };
 })();

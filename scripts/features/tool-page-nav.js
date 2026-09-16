@@ -2,8 +2,8 @@
     'use strict';
 
     function navigateToApp(destination) {
-        const target = destination === 'songs' ? 'songs' : 'home';
-        localStorage.setItem('pw_mobileLastOpenedPanel', target);
+        const target = destination === 'songs' || destination === 'setlist' ? destination : 'home';
+        localStorage.setItem('pw_mobileLastOpenedPanel', target === 'setlist' ? 'songs' : target);
         sessionStorage.setItem('pw_pendingMobileDestination', target);
         sessionStorage.setItem('pw_skipInitialSetlistViewRestore', 'true');
         window.location.href = 'index.html';

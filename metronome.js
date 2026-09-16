@@ -51,6 +51,7 @@
         const button = document.getElementById('metronomeStartBtn');
         button.classList.remove('active');
         button.innerHTML = '<i class="fas fa-play" aria-hidden="true"></i><span>Start</span>';
+        document.dispatchEvent(new CustomEvent('pw:tool-audio-state', { detail: { tool: 'metronome', active: false } }));
     }
 
     async function toggle() {
@@ -66,6 +67,7 @@
         const button = document.getElementById('metronomeStartBtn');
         button.classList.add('active');
         button.innerHTML = '<i class="fas fa-stop" aria-hidden="true"></i><span>Stop</span>';
+        document.dispatchEvent(new CustomEvent('pw:tool-audio-state', { detail: { tool: 'metronome', active: true } }));
     }
 
     function handleTap() {
